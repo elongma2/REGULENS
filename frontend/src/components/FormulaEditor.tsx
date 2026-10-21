@@ -6,6 +6,8 @@ import type {
   ConcentrationBasis,
   EditorIngredient,
   FieldIssue,
+  ProductApplicabilityFacts,
+  RegulatedFunction,
   ScreeningOptions,
 } from "../types/screening";
 
@@ -13,6 +15,7 @@ interface FormulaEditorProps {
   formulationId: string;
   formulationName: string;
   productContext: string;
+  productApplicability: ProductApplicabilityFacts;
   ingredients: EditorIngredient[];
   options: ScreeningOptions | null;
   issues: FieldIssue[];
@@ -20,6 +23,7 @@ interface FormulaEditorProps {
   onFormulationIdChange: (value: string) => void;
   onFormulationNameChange: (value: string) => void;
   onProductContextChange: (value: string) => void;
+  onProductApplicabilityChange: (value: ProductApplicabilityFacts) => void;
   onIngredientsChange: (ingredients: EditorIngredient[]) => void;
 }
 
@@ -45,6 +49,7 @@ function newIngredient(): EditorIngredient {
     unit: "percent",
     basis: null,
     preparationStage: "finished_product",
+    regulatedFunctions: [],
   };
 }
 
@@ -59,6 +64,28 @@ export function FormulaEditor(props: FormulaEditorProps) {
 
   const issueFor = (index: number, field: string) =>
     props.issues.find((issue) => issue.path.includes(`ingredients.${index}`) && issue.path.endsWith(field))?.message;
+  const anyRegulatedFunction = props.ingredients.some((item) => (item.regulatedFunctions?.length ?? 0) > 0);
+  const toggleFunction = (index: number, value: RegulatedFunction) => {
+    const current = props.ingredients[index].regulatedFunctions ?? [];
+    updateRow(index, {
+      regulatedFunctions: current.includes(value)
+        ? current.filter((item) => item !== value)
+        : [...current, value],
+    });
+  };
+  const applicabilityFields: Array<[keyof ProductApplicabilityFacts, string]> = [
+    ["rinse_off", "Rinse-off product"],
+    ["leave_on", "Leave-on product"],
+    ["oral_care", "Oral-care product"],
+    ["eye_area", "Applied near the eyes"],
+    ["mucous_membrane_contact", "Contacts mucous membranes"],
+    ["brief_skin_contact", "Only brief skin contact"],
+    ["spray_or_aerosol", "Spray or aerosol"],
+    ["powder_form", "Powder form"],
+    ["sun_protection_purpose", "Intended for sun protection"],
+    ["product_protection_purpose", "UV use protects the product"],
+    ["solely_hair_colouring", "Intended solely to colour hair"],
+  ];
 
   return (
     <section className="editor-panel" aria-labelledby="formulation-input-heading">
@@ -69,6 +96,33 @@ export function FormulaEditor(props: FormulaEditorProps) {
         </div>
         <span className="text-xs text-slate-500">{props.ingredients.length} rows</span>
       </div>
+
+      {anyRegulatedFunction && (
+        <details className="border-b border-slate-200 px-5 py-4">
+          <summary className="cursor-pointer text-sm font-semibold text-slate-800">Product-use facts for positive-list checks</summary>
+          <p className="mt-2 text-sm text-slate-600">Only answer facts you can confirm. Regulens requests these because a colourant, preservative, or UV-filter use was selected.</p>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {applicabilityFields.map(([field, label]) => (
+              <label className="field-label" key={field}>
+                {label}
+                <select
+                  className="field-control"
+                  value={props.productApplicability[field] == null ? "" : String(props.productApplicability[field])}
+                  disabled={props.disabled}
+                  onChange={(event) => props.onProductApplicabilityChange({
+                    ...props.productApplicability,
+                    [field]: event.target.value === "" ? null : event.target.value === "true",
+                  })}
+                >
+                  <option value="">Unknown</option>
+                  <option value="true">Yes</option>
+                  <option value="false">No</option>
+                </select>
+              </label>
+            ))}
+          </div>
+        </details>
+      )}
 
       <div className="grid gap-3 border-b border-slate-200 px-5 py-4 md:grid-cols-3">
         <label className="field-label">
@@ -142,6 +196,19 @@ export function FormulaEditor(props: FormulaEditorProps) {
                   onChange={(value) => updateRow(index, { name: value })}
                 />
                 {issueFor(index, "name") && <p className="input-error">{issueFor(index, "name")}</p>}
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-slate-600" aria-label={`Ingredient ${index + 1} regulated functions`}>
+                  {(props.options?.regulated_functions ?? ["colourant", "preservative", "uv_filter"] as RegulatedFunction[]).map((value) => (
+                    <label className="inline-flex items-center gap-1" key={value}>
+                      <input
+                        type="checkbox"
+                        checked={(ingredient.regulatedFunctions ?? []).includes(value)}
+                        disabled={props.disabled}
+                        onChange={() => toggleFunction(index, value)}
+                      />
+                      {value.replace("_", " ")}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <input

@@ -86,6 +86,8 @@ def interpretation(
             "basis_sources": [],
             "preparation_stage": None,
             "preparation_stage_sources": [],
+            "regulated_functions": old.get("regulated_functions", []),
+            "regulated_function_sources": old.get("regulated_function_sources", []),
             "uncertainties": uncertainties,
             "issues": old.get("issues", []),
         })
@@ -595,6 +597,8 @@ def test_logical_ingredient_can_combine_exact_cells_from_multiple_rows(store, ca
                 "basis_sources": [],
                 "preparation_stage": None,
                 "preparation_stage_sources": [],
+                "regulated_functions": [],
+                "regulated_function_sources": [],
                 "uncertainties": ["concentration_unit"],
                 "issues": [],
             }],
@@ -856,6 +860,23 @@ def test_openai_tools_are_strict_read_only_and_never_screen(store, catalogue):
     result = OpenAIFormulationInterpreter._run_tool("search_acd_regulatory_records", {"query": "hydroquinone"}, store, catalogue)
     assert result["results"]
     assert store.rules_by_id["acd-iii-14"] == before
+
+
+def test_openai_interpretation_schema_requires_every_declared_property():
+    schema = ModelInterpretation.model_json_schema()
+
+    def assert_strict_objects(node):
+        if isinstance(node, dict):
+            if node.get("type") == "object" and "properties" in node:
+                assert set(node["required"]) == set(node["properties"])
+                assert node.get("additionalProperties") is False
+            for value in node.values():
+                assert_strict_objects(value)
+        elif isinstance(node, list):
+            for value in node:
+                assert_strict_objects(value)
+
+    assert_strict_objects(schema)
 
 
 def test_responses_api_is_stateless_bounded_and_sends_parsed_cells_only(monkeypatch, store, catalogue):

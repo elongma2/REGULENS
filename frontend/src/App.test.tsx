@@ -1,9 +1,26 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { optionsFixture, testResponse } from "./test/fixtures";
 import type { AgentPreparedFormulation, AgentSession } from "./types/agent";
+
+vi.mock("./auth/AuthContext", () => ({
+  useAuth: () => ({
+    configured: true,
+    loading: false,
+    session: { access_token: "test-token" },
+    user: { id: "test-user" },
+    signIn: vi.fn(),
+    signUp: vi.fn(),
+    signOut: vi.fn(),
+  }),
+}));
+
+function renderApp(path = "/screen") {
+  return render(<MemoryRouter initialEntries={[path]}><App /></MemoryRouter>);
+}
 
 function jsonResponse(body: unknown, status = 200): Promise<Response> {
   return Promise.resolve({ ok: status >= 200 && status < 300, status, json: async () => body } as Response);
@@ -12,9 +29,9 @@ function jsonResponse(body: unknown, status = 200): Promise<Response> {
 function mockSuccessfulApi() {
   return vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
     const url = String(input);
-    return url.endsWith("/screening-options")
-      ? jsonResponse(optionsFixture)
-      : jsonResponse(testResponse);
+    if (url.endsWith("/screening-options")) return jsonResponse(optionsFixture);
+    if (url.endsWith("/cases")) return jsonResponse([]);
+    return jsonResponse(testResponse);
   });
 }
 
@@ -79,7 +96,7 @@ describe("formula screening vertical slice", () => {
   it("renders Regulens branding and only the active MVP workflows", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     expect(screen.getByText("Regulens")).toBeInTheDocument();
     const logo = screen.getByRole("img", { name: "Regulens logo" });
     expect(logo).toBeInTheDocument();
@@ -89,102 +106,68 @@ describe("formula screening vertical slice", () => {
     expect(screen.queryByRole("button", { name: "Dashboard" })).not.toBeInTheDocument();
     expect(screen.queryByText("History")).not.toBeInTheDocument();
     expect(screen.queryByText("About")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "New Screen" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Sources" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Cases" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "New Screen" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Sources" })).toBeInTheDocument();
     expect(screen.getByText("Singapore screening scope")).toBeInTheDocument();
     expect(screen.queryByRole("combobox", { name: /Singapore/ })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    expect(screen.getByRole("heading", { name: /Turn a formulation file into screening input/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("link", { name: "Cases" }));
+    expect(await screen.findByRole("heading", { name: "Cases" })).toBeInTheDocument();
   });
 
-  it("keeps Agent edits, prepared output, and screening results mounted across workflow navigation", async () => {
-    const prepared = persistedPrepared();
+  it("rehydrates a saved formulation and its screening history", async () => {
+    const version = {
+      id: "version-1", case_id: "case-1", version_number: 1,
+      original_filename: "persistent-demo.csv", status: "screened", revision: 1,
+      created_at: "2026-10-13T00:00:00Z", updated_at: "2026-10-13T00:00:00Z",
+      screening_count: 1, raw_extraction: {}, agent_session: persistedAgentSession,
+      canonical_formulation: persistedPrepared().formulation, product_context: null,
+    };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
       const url = String(input);
       if (url.endsWith("/screening-options")) return jsonResponse(optionsFixture);
-      if (url.endsWith("/agent/formulations")) return jsonResponse(persistedAgentSession, 201);
-      if (url.endsWith("/prepare")) return jsonResponse(prepared);
-      if (url.endsWith("/screen-formulation")) return jsonResponse(testResponse);
+      if (url.endsWith("/formulations/version-1/screenings")) return jsonResponse([{
+        id: "run-1", formulation_version_id: "version-1", regulatory_dataset_id: "accepted-test",
+        jurisdiction: "Singapore", request_snapshot: persistedPrepared().formulation,
+        result_snapshot: testResponse, created_at: "2026-10-13T00:00:00Z",
+      }]);
+      if (url.endsWith("/formulations/version-1")) return jsonResponse(version);
       return jsonResponse({}, 404);
     });
-    const user = userEvent.setup();
-    render(<App />);
 
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["Ingredient,Concentration\nNIACINAMIDE,5%"], "persistent-demo.csv", { type: "text/csv" }));
+    renderApp("/cases/case-1/formulations/version-1");
     expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
-    await user.clear(screen.getByLabelText("Row 2 interpreted name"));
-    await user.type(screen.getByLabelText("Row 2 interpreted name"), "NIACINAMIDE EDIT");
-    const agentView = document.querySelector<HTMLElement>('[data-view="agent"]')!;
-    const formulationName = within(agentView).getByText("Formulation name").closest("label")!.querySelector("input")!;
-    await user.type(formulationName, "Persistent formula");
-
-    await user.click(screen.getByRole("button", { name: "Sources" }));
-    expect(screen.getByRole("heading", { name: "ACD regulatory search" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    expect(screen.getByLabelText("Row 2 interpreted name")).toHaveValue("NIACINAMIDE EDIT");
-    expect(formulationName).toHaveValue("Persistent formula");
-    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/agent/formulations"))).toHaveLength(1);
-
-    await user.click(screen.getByRole("button", { name: "Prepare formulation" }));
-    expect(await screen.findByText("Formulation ready for screening")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /Confirm & Screen/ }));
-    expect(await screen.findByText(/Imported by Formulation Agent/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "New Screen" }));
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    expect(screen.getByText(/Imported by Formulation Agent/)).toBeInTheDocument();
-    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
-    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screening-options"))).toHaveLength(2);
-  });
-
-  it("allows an Agent upload to finish while its workflow is hidden", async () => {
-    let resolveUpload!: (value: Response) => void;
-    const uploadPromise = new Promise<Response>((resolve) => { resolveUpload = resolve; });
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
-      const url = String(input);
-      if (url.endsWith("/screening-options")) return jsonResponse(optionsFixture);
-      if (url.endsWith("/agent/formulations")) return uploadPromise;
-      return jsonResponse({}, 404);
-    });
-    const user = userEvent.setup();
-    render(<App />);
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["Ingredient\nNIACINAMIDE"], "pending.csv", { type: "text/csv" }));
-    expect(screen.getByText("Interpreting formulation")).toBeInTheDocument();
-    expect(screen.getByText("Regulens is identifying the formulation structure and ingredient fields.")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Sources" }));
-    resolveUpload({ ok: true, status: 201, json: async () => persistedAgentSession } as Response);
-    await waitFor(() => expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/agent/formulations"))).toHaveLength(1));
-    await user.click(screen.getByRole("button", { name: "Agent" }));
-    expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
-    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/agent/formulations"))).toHaveLength(1);
+    expect(within((await screen.findByText("ingredient results need attention")).closest("div")!).getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("Version 1")).toBeInTheDocument();
+    expect((await screen.findAllByText(/Review information (?:is )?unavailable/)).length).toBeGreaterThan(0);
+    expect(screen.getByText("Reviewer workflow information unavailable")).toBeInTheDocument();
+    expect(screen.queryByText("reviews remaining")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/formulations/version-1"))).toHaveLength(1);
   });
 
   it("screens TEST-001 and renders row-based results from the API", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
 
-    expect(await screen.findByText("3 of 3 ingredients require attention")).toBeInTheDocument();
-    expect(screen.getByText("2 deterministic regulatory findings · 1 unresolved identity")).toBeInTheDocument();
+    expect(within((await screen.findByText("ingredient results need attention")).closest("div")!).getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("ingredient identities unresolved")).toBeInTheDocument();
     expect(screen.getAllByText("Prohibited-list substance identified").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/A1136/).length).toBeGreaterThan(0);
     const aminoRow = screen.getAllByText("Aminophylline").find((element) => element.closest("tr"))!.closest("tr")!;
     expect(within(aminoRow).getByText("—")).toBeInTheDocument();
     expect(within(aminoRow).getByText(/Regulation 6\(1\)/)).toBeInTheDocument();
 
-    const reviewCard = screen.getByText("Needs human review").closest<HTMLElement>(".summary-card")!;
-    expect(within(reviewCard).getByText("0")).toBeInTheDocument();
-    expect(screen.getByText("1 ingredient requires human review")).toBeInTheDocument();
-    expect(screen.getByText(/Screening scope: Singapore ingredient rules covered by the current MVP/)).toBeInTheDocument();
+    expect(screen.getByText("Reviewer workflow not saved in a case")).toBeInTheDocument();
+    expect(screen.getByText(/Screening scope: Third Schedule Part I, Third Schedule Part II/)).toBeInTheDocument();
   });
 
   it("labels an ACD counterpart CAS separately from the submitted CAS", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     const tosylRow = (await screen.findAllByText("Tosylchloramide sodium"))
@@ -207,7 +190,7 @@ describe("formula screening vertical slice", () => {
   it("renders readable ACD comparisons without exposing technical provenance", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     const tosylRow = (await screen.findAllByText("Tosylchloramide sodium"))
@@ -227,7 +210,7 @@ describe("formula screening vertical slice", () => {
   it("shows plain-language field help and readable enum labels", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByLabelText("About Product context"));
     expect(screen.getByText(/same ingredient may have different restrictions/)).toBeInTheDocument();
@@ -242,7 +225,7 @@ describe("formula screening vertical slice", () => {
   it("opens the full accepted page from the trusted raw-record route", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     const tosylRow = (await screen.findAllByText("Tosylchloramide sodium"))
@@ -250,7 +233,9 @@ describe("formula screening vertical slice", () => {
     await user.click(tosylRow);
     await user.click(screen.getByRole("button", { name: "View full accepted page" }));
     const modal = screen.getByRole("dialog", { name: "Accepted source page" });
+    expect(modal.parentElement).toBe(document.body);
     expect(within(modal).getByRole("img")).toHaveAttribute("src", "/api/source-evidence/raw-sg-5/page");
+    expect(within(modal).getByRole("link", { name: "Open full-size page image" })).toHaveAttribute("href", "/api/source-evidence/raw-sg-5/page");
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog", { name: "Accepted source page" })).not.toBeInTheDocument();
   });
@@ -258,7 +243,7 @@ describe("formula screening vertical slice", () => {
   it("keeps textual evidence available when the crop cannot load", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     const tosylRow = (await screen.findAllByText("Tosylchloramide sodium"))
@@ -272,7 +257,7 @@ describe("formula screening vertical slice", () => {
   it("does not introduce a product-level regulatory conclusion", async () => {
     mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
@@ -282,7 +267,7 @@ describe("formula screening vertical slice", () => {
   it("sends null while concentration is disabled and exposes defaults when enabled", async () => {
     const fetchMock = mockSuccessfulApi();
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
 
     const toggle = screen.getByLabelText("Enable concentration for ingredient 1");
@@ -292,7 +277,7 @@ describe("formula screening vertical slice", () => {
     expect(screen.getByLabelText("Ingredient 1 preparation stage")).toHaveValue("finished_product");
     await user.click(toggle);
     await user.click(screen.getByRole("button", { name: "Run screen" }));
-    await screen.findByText("3 of 3 ingredients require attention");
+    await screen.findByText("ingredient results need attention");
     const post = fetchMock.mock.calls.find(([input]) => String(input).endsWith("/screen-formulation"))!;
     const sent = JSON.parse(String((post[1] as RequestInit).body));
     expect(sent.ingredients[0].concentration).toBeNull();
@@ -305,7 +290,7 @@ describe("formula screening vertical slice", () => {
       String(input).endsWith("/screening-options") ? jsonResponse(optionsFixture) : postPromise,
     );
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     const button = await screen.findByRole("button", { name: "Run screen" });
     await waitFor(() => expect(button).toBeEnabled());
     await user.click(button);
@@ -313,7 +298,7 @@ describe("formula screening vertical slice", () => {
     await user.click(screen.getByRole("button", { name: "Screening…" }));
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
     resolvePost({ ok: true, status: 200, json: async () => testResponse } as Response);
-    await screen.findByText("3 of 3 ingredients require attention");
+    await screen.findByText("ingredient results need attention");
   });
 
   it("shows FastAPI validation errors without treating them as findings", async () => {
@@ -323,7 +308,7 @@ describe("formula screening vertical slice", () => {
         : jsonResponse({ detail: [{ loc: ["body", "ingredients", 0, "cas_number"], msg: "CAS number must have valid syntax and checksum" }] }, 422),
     );
     const user = userEvent.setup();
-    render(<App />);
+    renderApp();
     await waitFor(() => expect(screen.getByRole("button", { name: "Run screen" })).toBeEnabled());
     await user.click(screen.getByRole("button", { name: "Run screen" }));
     expect(await screen.findByText("CAS number must have valid syntax and checksum")).toBeInTheDocument();
@@ -332,7 +317,7 @@ describe("formula screening vertical slice", () => {
 
   it("fails closed when screening options report a baseline integrity failure", async () => {
     vi.spyOn(globalThis, "fetch").mockReturnValue(jsonResponse({ detail: { code: "accepted_baseline_integrity_failure", message: "hash mismatch" } }, 503));
-    render(<App />);
+    renderApp();
     expect(await screen.findByText("Regulatory dataset integrity verification failed. Screening is unavailable.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run screen" })).toBeDisabled();
   });

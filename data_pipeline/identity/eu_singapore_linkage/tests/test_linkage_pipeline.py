@@ -25,7 +25,7 @@ def bindings() -> dict:
         "identity_dataset_version": "eu-glossary-2025-1175",
         "identity_dataset_hash": "e146c81b5978c373ac1f20c677ba20c5221e02b7f128b4b095ff711075331094",
         "singapore_regulatory_baseline": "sg-2025-12-01",
-        "singapore_regulatory_baseline_hash": "8dc52418c1360074a52221966cd3e74e1dcd108233d8ad8045797a6c34e25017",
+        "singapore_regulatory_baseline_hash": "7ddf5dd7f050710a788012982359107befd246995bf87c3a4cc4b2828a8c61ca",
         "screened_scope": ["Third Schedule Part I", "Third Schedule Part II"],
     }
 
@@ -151,5 +151,5 @@ def test_regulatory_and_identity_accepted_manifests_remain_the_known_inputs():
             / "accepted_identity_hashes.json"
         ).read_text()
     )
-    assert len(regulatory["generated_output_hashes"]) == 12
+    assert len(regulatory["generated_output_hashes"]) == 18
     assert identity["counts"]["searchable_identities"] == 30416

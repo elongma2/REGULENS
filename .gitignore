@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 .vercel/
+supabase/.temp/
 .venv/
 .pytest_cache/
 .uv-cache/
@@ -23,6 +24,6 @@ frontend/*.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
 frontend/verification-*.png
+.finesse/
 /AGENTS.md
-/STATUS.md
 /VIP_SoC_Cosmetics_MVP_Scope.md

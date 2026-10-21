@@ -1,140 +1,86 @@
 import { render, screen, within } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
-import { baseResult, testResponse } from "../test/fixtures";
-import type { ScreeningResponse } from "../types/screening";
+import { describe, expect, it } from "vitest";
+import { testResponse } from "../test/fixtures";
+import type { ReviewItem } from "../types/review";
 import { ScreeningSummary } from "./ScreeningSummary";
 
-function responseCopy(): ScreeningResponse {
-  return structuredClone(testResponse);
+const reviewItem = (row: number, status: ReviewItem["review_status"]): ReviewItem => ({
+  id: `review-${row}`,
+  screening_run_id: "run-1",
+  subject_type: "ingredient",
+  subject_key: `row-${row}`,
+  submitted_row_number: row,
+  engine_finding: "identity_unresolved",
+  requires_attention: true,
+  review_status: status,
+  updated_by: null,
+  updated_at: "2026-10-20T08:00:00Z",
+  reviewed_at: null,
+});
+
+function metric(label: string): HTMLElement {
+  return screen.getByText(label).closest("div")!;
 }
 
 describe("ScreeningSummary", () => {
-  it("counts each attention row once and separates review status from primary findings", () => {
-    const response = responseCopy();
+  it("counts attention from regulatory results and shows available reviewer metrics", () => {
     render(
       <ScreeningSummary
-        summary={response.summary}
-        results={response.ingredient_results}
-        selectedRow={1}
-        onSelect={() => undefined}
+        summary={testResponse.summary}
+        results={testResponse.ingredient_results}
+        reviewItems={[reviewItem(1, "reviewed"), reviewItem(2, "in_review"), reviewItem(3, null)]}
+        reviewDataState="available"
+        openFindingFollowUps={2}
       />,
     );
 
-    expect(screen.getByText("3 of 3 ingredients require attention")).toBeInTheDocument();
-    expect(screen.getByText("2 deterministic regulatory findings · 1 unresolved identity")).toBeInTheDocument();
-
-    const reviewCard = screen.getByText("Needs human review").closest<HTMLElement>(".summary-card")!;
-    expect(within(reviewCard).getByText("0")).toBeInTheDocument();
-    const unresolvedCard = screen.getByText("Identity unresolved").closest<HTMLElement>(".summary-card")!;
-    expect(within(unresolvedCard).getByText("1")).toBeInTheDocument();
-
-    const humanReview = screen.getByRole("heading", { name: "Human review" }).closest("section")!;
-    expect(within(humanReview).getByText("1 ingredient requires human review")).toBeInTheDocument();
-    expect(within(humanReview).getAllByText("Mystery Extract")).toHaveLength(1);
+    expect(within(metric("ingredients screened")).getByText("3")).toBeInTheDocument();
+    expect(within(metric("ingredient results need attention")).getByText("3")).toBeInTheDocument();
+    expect(within(metric("ingredient identities unresolved")).getByText("1")).toBeInTheDocument();
+    expect(within(metric("reviews remaining")).getByText("2")).toBeInTheDocument();
+    expect(within(metric("open finding follow-ups")).getByText("2")).toBeInTheDocument();
   });
 
-  it("lists only attention rows and selects the requested evidence row", async () => {
-    const response = responseCopy();
-    const withinLimit = baseResult(4, "Within limit ingredient");
-    withinLimit.primary_finding = "restriction_within_limit";
-    withinLimit.confirmed_findings = ["restriction_within_limit"];
-    const noIssue = baseResult(5, "No issue ingredient");
-    response.ingredient_results.push(withinLimit, noIssue);
-    response.summary.ingredients_submitted = 5;
-    response.summary.restriction_within_limit = 1;
-    response.summary.no_issue_identified_within_scoped_rules = 1;
-    const onSelect = vi.fn();
-
+  it("renders real zero values when reviewer information is available", () => {
     render(
       <ScreeningSummary
-        summary={response.summary}
-        results={response.ingredient_results}
-        selectedRow={null}
-        onSelect={onSelect}
+        summary={testResponse.summary}
+        results={testResponse.ingredient_results}
+        reviewItems={[]}
+        reviewDataState="available"
+        openFindingFollowUps={0}
       />,
     );
 
-    expect(screen.getByText("3 of 5 ingredients require attention")).toBeInTheDocument();
-    const attention = screen.getByRole("heading", { name: "What needs attention" }).closest("section")!;
-    expect(within(attention).queryByText("Within limit ingredient")).not.toBeInTheDocument();
-    expect(within(attention).queryByText("No issue ingredient")).not.toBeInTheDocument();
-    await userEvent.click(within(attention).getByRole("button", { name: /Tosylchloramide sodium/ }));
-    expect(onSelect).toHaveBeenCalledWith(2);
+    expect(within(metric("reviews remaining")).getByText("0")).toBeInTheDocument();
+    expect(within(metric("open finding follow-ups")).getByText("0")).toBeInTheDocument();
   });
 
-  it("uses response summary counts and renders the quiet no-review state", () => {
-    const result = baseResult(1, "No issue ingredient");
-    const summary = {
-      ...responseCopy().summary,
-      ingredients_submitted: 1,
-      prohibited_substance_identified: 0,
-      restriction_exceeded: 0,
-      restriction_within_limit: 0,
-      professional_review_required: 0,
-      information_missing: 0,
-      identity_unresolved: 0,
-      no_issue_identified_within_scoped_rules: 1,
-      total_requiring_review: 0,
-      total_unresolved_identities: 0,
-    };
+  it("distinguishes unavailable and ad hoc reviewer information from zero", () => {
+    const { rerender } = render(
+      <ScreeningSummary
+        summary={testResponse.summary}
+        results={testResponse.ingredient_results}
+        reviewItems={[]}
+        reviewDataState="unavailable"
+        openFindingFollowUps={0}
+      />,
+    );
 
-    render(<ScreeningSummary summary={summary} results={[result]} selectedRow={null} onSelect={() => undefined} />);
-    expect(screen.getByText("0 of 1 ingredient requires attention")).toBeInTheDocument();
-    expect(screen.getByText("No ingredients currently require manual review.")).toBeInTheDocument();
-    expect(screen.getByLabelText("Secondary finding counts")).toHaveTextContent("1 no scoped issue");
-  });
+    expect(screen.getByText("Reviewer workflow information unavailable")).toBeInTheDocument();
+    expect(screen.queryByText("reviews remaining")).not.toBeInTheDocument();
+    expect(screen.queryByText("open finding follow-ups")).not.toBeInTheDocument();
 
-  it("uses returned reasons to explain missing information", () => {
-    const result = baseResult(1, "Restricted ingredient");
-    result.primary_finding = "information_missing";
-    result.rule_evaluations = [{
-      rule_id: "sg-example",
-      evaluation_status: "withheld_information_missing",
-      finding: null,
-      reasons: ["sg-example: product context is required"],
-      submitted_concentration: null,
-      evidence: {
-        dataset_version: result.dataset_version,
-        rule_id: "sg-example",
-        source_document: "singapore_regulations_2025_12_01",
-        source_version: "version in force from 1 December 2025",
-        effective_date: "2025-12-01",
-        document_revision: "version in force from 1 December 2025",
-        retrieval_date: "2026-09-15",
-        source_url: "https://sso.agc.gov.sg/example",
-        regulatory_section: "Third Schedule Part II",
-        reference_number: "6",
-        substance_name: "Restricted ingredient",
-        product_context: "Toothpaste",
-        concentration: null,
-        other_conditions: null,
-        required_warning: null,
-        source_text: "source wording",
-        source_pages: [99],
-        normalization_status: "normalized",
-        review_reasons: [],
-        raw_record_id: "raw-example",
-        raw_fragments: [],
-        regulation_6_provisions: [],
-        cross_references: [],
-        acd_counterpart_rules: [],
-      },
-    }];
-    const summary = {
-      ...responseCopy().summary,
-      ingredients_submitted: 1,
-      prohibited_substance_identified: 0,
-      restriction_exceeded: 0,
-      professional_review_required: 0,
-      information_missing: 1,
-      identity_unresolved: 0,
-      total_requiring_review: 0,
-      total_unresolved_identities: 0,
-    };
-
-    render(<ScreeningSummary summary={summary} results={[result]} selectedRow={null} onSelect={() => undefined} />);
-    const attention = screen.getByRole("heading", { name: "What needs attention" }).closest("section")!;
-    expect(within(attention).getByText("Information missing · Product context is required")).toBeInTheDocument();
+    rerender(
+      <ScreeningSummary
+        summary={testResponse.summary}
+        results={testResponse.ingredient_results}
+        reviewItems={[]}
+        reviewDataState="not_applicable"
+        openFindingFollowUps={0}
+      />,
+    );
+    expect(screen.getByText("Reviewer workflow not saved in a case")).toBeInTheDocument();
+    expect(screen.queryByText("reviews remaining")).not.toBeInTheDocument();
   });
 });

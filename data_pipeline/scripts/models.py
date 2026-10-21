@@ -63,12 +63,47 @@ class ConcentrationConstraint(StrictModel):
     source_text: str
 
 
+class ApplicabilityRequirement(StrictModel):
+    fact: Literal[
+        "rinse_off",
+        "leave_on",
+        "oral_care",
+        "eye_area",
+        "mucous_membrane_contact",
+        "brief_skin_contact",
+        "spray_or_aerosol",
+        "powder_form",
+        "adult_use",
+        "child_use",
+        "sun_protection_purpose",
+        "product_protection_purpose",
+        "solely_hair_colouring",
+    ]
+    expected: bool
+    source_text: str
+
+
+class CombinedLimitRequirement(StrictModel):
+    group_key: str
+    maximum: ConcentrationConstraint
+    constituent_references: list[str] = Field(default_factory=list)
+    source_text: str
+
+
+class WarningRequirement(StrictModel):
+    warning_text: str
+    trigger_text: str | None = None
+    applicability: Literal["structured", "professional_review"] = "professional_review"
+
+
 class NormalizedRule(StrictModel):
     rule_id: str
     parent_rule_id: str | None = None
     case_label: str | None = None
     source_document: str
     source_version: str | None
+    source_bundle_version: str | None = None
+    source_section_version: str | None = None
     source_hash: str
     effective_date: str | None
     source_snapshot_generated_at: str | None
@@ -77,12 +112,21 @@ class NormalizedRule(StrictModel):
     substance_id: str | None
     substance_name: str
     cas_numbers: list[str] = Field(default_factory=list)
-    restriction_type: Literal["prohibited", "restricted"]
+    restriction_type: Literal["prohibited", "restricted", "permitted"]
+    regulatory_category: Literal[
+        "prohibited", "restricted", "colourant", "preservative", "uv_filter"
+    ] = "restricted"
+    list_semantics: Literal["prohibited", "restricted", "positive_list"] = "restricted"
+    permitted_function: Literal["colourant", "preservative", "uv_filter"] | None = None
+    regulatory_identifiers: dict[str, list[str]] = Field(default_factory=dict)
     product_context: str | None = None
     concentration: ConcentrationConstraint | None = None
     concentration_text: str | None = None
     other_conditions: str | None = None
     required_warning: str | None = None
+    applicability_requirements: list[ApplicabilityRequirement] = Field(default_factory=list)
+    combined_limit_requirements: list[CombinedLimitRequirement] = Field(default_factory=list)
+    warning_requirements: list[WarningRequirement] = Field(default_factory=list)
     footnotes: list[dict[str, Any]] = Field(default_factory=list)
     supporting_source_texts: list[dict[str, Any]] = Field(default_factory=list)
     jurisdiction_notes: list[str] = Field(default_factory=list)
@@ -113,6 +157,7 @@ class CrossReference(StrictModel):
     field_differences: dict[str, dict[str, str | None]] = Field(default_factory=dict)
     candidate_matches: list[str] = Field(default_factory=list)
     professional_review_required: bool
+    material_difference: bool = False
     review_reasons: list[str] = Field(default_factory=list)
 
 

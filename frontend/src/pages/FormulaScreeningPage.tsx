@@ -1,4 +1,4 @@
-import { AlertTriangle, LoaderCircle, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Check, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError, getScreeningOptions, screenFormulation } from "../api/screening";
 import { EvidenceDrawer } from "../components/EvidenceDrawer";
@@ -9,6 +9,7 @@ import type {
   EditorIngredient,
   FieldIssue,
   FormulationRequest,
+  ProductApplicabilityFacts,
   ScreeningOptions,
   ScreeningResponse,
 } from "../types/screening";
@@ -23,6 +24,7 @@ const initialIngredients: EditorIngredient[] = [
     unit: "percent",
     basis: null,
     preparationStage: "finished_product",
+    regulatedFunctions: [],
   },
   {
     id: "example-tosylchloramide",
@@ -33,6 +35,7 @@ const initialIngredients: EditorIngredient[] = [
     unit: "percent",
     basis: null,
     preparationStage: "finished_product",
+    regulatedFunctions: [],
   },
   {
     id: "example-mystery",
@@ -43,6 +46,7 @@ const initialIngredients: EditorIngredient[] = [
     unit: "percent",
     basis: null,
     preparationStage: "finished_product",
+    regulatedFunctions: [],
   },
 ];
 
@@ -54,6 +58,7 @@ function buildRequest(
   formulationId: string,
   formulationName: string,
   productContext: string,
+  productApplicability: ProductApplicabilityFacts,
   ingredients: EditorIngredient[],
 ): { request: FormulationRequest | null; issues: FieldIssue[] } {
   const issues: FieldIssue[] = [];
@@ -74,6 +79,7 @@ function buildRequest(
             preparation_stage: ingredient.preparationStage,
           }
         : null,
+      regulated_functions: ingredient.regulatedFunctions ?? [],
     };
   });
   if (issues.length) return { request: null, issues };
@@ -82,6 +88,7 @@ function buildRequest(
       formulation_id: optionalValue(formulationId),
       formulation_name: optionalValue(formulationName),
       product_context: optionalValue(productContext),
+      product_applicability: productApplicability,
       ingredients: rows,
     },
     issues: [],
@@ -92,6 +99,7 @@ export function FormulaScreeningPage() {
   const [formulationId, setFormulationId] = useState("TEST-001");
   const [formulationName, setFormulationName] = useState("My test formulation");
   const [productContext, setProductContext] = useState("");
+  const [productApplicability, setProductApplicability] = useState<ProductApplicabilityFacts>({});
   const [ingredients, setIngredients] = useState(initialIngredients);
   const [options, setOptions] = useState<ScreeningOptions | null>(null);
   const [response, setResponse] = useState<ScreeningResponse | null>(null);
@@ -117,7 +125,7 @@ export function FormulaScreeningPage() {
   const selectedResult = response?.ingredient_results.find((item) => item.submitted_row_number === selectedRow) ?? null;
   const submit = async () => {
     if (loading || integrityFailure) return;
-    const built = buildRequest(formulationId, formulationName, productContext, ingredients);
+    const built = buildRequest(formulationId, formulationName, productContext, productApplicability, ingredients);
     setIssues(built.issues);
     setError(null);
     if (!built.request) return;
@@ -147,23 +155,34 @@ export function FormulaScreeningPage() {
   };
 
   const formLabel = [formulationId.trim(), formulationName.trim()].filter(Boolean).join(" · ") || "Untitled formulation";
+  const workflowStep = loading ? 1 : response ? 2 : 0;
 
   return (
     <div className={`workspace ${selectedResult ? "workspace-with-drawer" : ""}`}>
       <main className="min-w-0 px-5 py-7 md:px-8 lg:px-10">
-        <header className="mb-7 flex flex-wrap items-start justify-between gap-5">
-          <div>
-            <p className="eyebrow">Singapore regulatory workflow</p>
+        <p className="eyebrow">Singapore regulatory workflow</p>
+        <header className="screening-sticky-header">
+          <div className="screening-title-bar">
             <h1 className="page-title">Formula screening</h1>
-            <p className="mt-2 text-sm font-medium text-slate-700">{formLabel}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="scope-label"><ShieldCheck size={16} /> Singapore screening scope</div>
             <button className="primary-button" type="button" onClick={submit} disabled={loading || integrityFailure || !options}>
               {loading ? <><LoaderCircle className="animate-spin" size={16} /> Screening…</> : "Run screen"}
             </button>
           </div>
+          <nav className="workflow-progress screening-workflow-progress" aria-label="Formula screening workflow">
+            <ol>
+              {["Enter & confirm input", "Screen", "Review findings"].map((label, index) => {
+                return <li key={label} className={index === workflowStep ? "is-current" : index < workflowStep ? "is-complete" : ""} aria-current={index === workflowStep ? "step" : undefined}>
+                  <span className="workflow-step-number">{index < workflowStep ? <Check size={13} aria-hidden="true" /> : index + 1}</span>
+                  <span>{label}</span>
+                </li>;
+              })}
+            </ol>
+          </nav>
         </header>
+        <div className="screening-page-context">
+          <p className="text-sm font-medium text-slate-700">{formLabel}</p>
+          <div className="scope-label"><ShieldCheck size={16} /> Singapore screening scope</div>
+        </div>
 
         {error && (
           <div className={`mb-5 flex items-start gap-3 rounded-lg border px-4 py-3 text-sm ${integrityFailure ? "border-red-200 bg-red-50 text-red-800" : "border-amber-200 bg-amber-50 text-amber-900"}`} role="alert">
@@ -176,6 +195,7 @@ export function FormulaScreeningPage() {
           formulationId={formulationId}
           formulationName={formulationName}
           productContext={productContext}
+          productApplicability={productApplicability}
           ingredients={ingredients}
           options={options}
           issues={issues}
@@ -183,6 +203,7 @@ export function FormulaScreeningPage() {
           onFormulationIdChange={setFormulationId}
           onFormulationNameChange={setFormulationName}
           onProductContextChange={setProductContext}
+          onProductApplicabilityChange={setProductApplicability}
           onIngredientsChange={setIngredients}
         />
 

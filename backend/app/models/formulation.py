@@ -8,7 +8,7 @@ from pydantic import Field, field_validator, model_validator
 from data_pipeline.scripts.normalize import CAS_STRUCTURE_RE, cas_is_valid
 
 from .openai import OpenAIUsage
-from .screening import Finding, ScreeningResult, StrictModel
+from .screening import Finding, RegulatedFunction, ScreeningResult, StrictModel
 from .identity_catalogue import IdentityCatalogueDataset, IdentityLinkageDataset
 
 
@@ -53,6 +53,7 @@ class FormulationIngredientRequest(StrictModel):
     name: str
     cas_number: str | None = None
     concentration: FormulationConcentration | None = None
+    regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
 
     @field_validator("name")
     @classmethod
@@ -72,10 +73,27 @@ class FormulationIngredientRequest(StrictModel):
         return value
 
 
+class ProductApplicabilityFacts(StrictModel):
+    rinse_off: bool | None = None
+    leave_on: bool | None = None
+    oral_care: bool | None = None
+    eye_area: bool | None = None
+    mucous_membrane_contact: bool | None = None
+    brief_skin_contact: bool | None = None
+    spray_or_aerosol: bool | None = None
+    powder_form: bool | None = None
+    adult_use: bool | None = None
+    child_use: bool | None = None
+    sun_protection_purpose: bool | None = None
+    product_protection_purpose: bool | None = None
+    solely_hair_colouring: bool | None = None
+
+
 class FormulationRequest(StrictModel):
     formulation_id: str | None = None
     formulation_name: str | None = None
     product_context: str | None = None
+    product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
     ingredients: list[FormulationIngredientRequest] = Field(min_length=1)
 
     @field_validator("formulation_id", "formulation_name", "product_context")
@@ -90,6 +108,7 @@ class FormulationMetadata(StrictModel):
     formulation_id: str | None
     formulation_name: str | None
     product_context: str | None
+    product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
 
 
 class SourceSnapshot(StrictModel):
@@ -122,6 +141,9 @@ class FormulationSummary(StrictModel):
     information_missing: int = 0
     identity_unresolved: int = 0
     no_issue_identified_within_scoped_rules: int = 0
+    permitted_use_within_conditions: int = 0
+    permitted_use_condition_not_met: int = 0
+    regulated_function_not_permitted: int = 0
     total_requiring_review: int = 0
     total_unresolved_identities: int = 0
     duplicate_row_groups: list[list[int]] = Field(default_factory=list)
@@ -159,6 +181,7 @@ class ScreeningOptionsResponse(StrictModel):
     concentration_units: list[ConcentrationUnit]
     concentration_bases: list[ConcentrationBasis | None]
     preparation_stages: list[PreparationStage]
+    regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
 
 
 FINDING_SUMMARY_FIELDS: dict[Finding, str] = {
@@ -169,6 +192,9 @@ FINDING_SUMMARY_FIELDS: dict[Finding, str] = {
     Finding.INFORMATION_MISSING: "information_missing",
     Finding.IDENTITY_UNRESOLVED: "identity_unresolved",
     Finding.NO_ISSUE: "no_issue_identified_within_scoped_rules",
+    Finding.PERMITTED_USE_WITHIN_CONDITIONS: "permitted_use_within_conditions",
+    Finding.PERMITTED_USE_CONDITION_NOT_MET: "permitted_use_condition_not_met",
+    Finding.REGULATED_FUNCTION_NOT_PERMITTED: "regulated_function_not_permitted",
 }
 
 

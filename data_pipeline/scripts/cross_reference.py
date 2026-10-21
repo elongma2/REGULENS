@@ -6,7 +6,14 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from .config import DATASET_VERSION, PROCESSED_ROOT, RAW_ROOT
+from .config import (
+    CANDIDATE_DATASET_VERSION,
+    CANDIDATE_PROCESSED_ROOT,
+    CANDIDATE_RAW_ROOT,
+    DATASET_VERSION,
+    PROCESSED_ROOT,
+    RAW_ROOT,
+)
 from .extract import write_json
 from .models import CrossReference
 from .normalize import conservative_text
@@ -65,13 +72,16 @@ def compare_mapping(
     references = sorted(set(acd) | set(singapore), key=lambda value: (not value[:1].isdigit(), value))
     output: list[CrossReference] = []
     comparable_fields = ["substance_name"]
-    if "III" in acd_section:
+    if acd_section not in {"Annex II Part 1"}:
         comparable_fields += [
             "product_context",
             "concentration_text",
             "concentration",
             "other_conditions",
             "required_warning",
+            "applicability_requirements",
+            "combined_limit_requirements",
+            "warning_requirements",
         ]
     for reference_key in references:
         acd_group = acd.get(reference_key, [])
@@ -116,6 +126,19 @@ def compare_mapping(
                 )
         if candidate_matches:
             reasons.append("same_normalized_substance_name_found_under_different_reference")
+        material_fields = {
+            "product_context",
+            "concentration_text",
+            "concentration",
+            "other_conditions",
+            "required_warning",
+            "applicability_requirements",
+            "combined_limit_requirements",
+            "warning_requirements",
+        }
+        material_difference = status in {"acd_only", "singapore_only", "ambiguous"} or bool(
+            material_fields & differences.keys()
+        )
         output.append(
             CrossReference(
                 cross_reference_id=f"xref-{mapping_name}-{reference_key.replace(' ', '-')}",
@@ -128,6 +151,7 @@ def compare_mapping(
                 field_differences=differences,
                 candidate_matches=sorted(set(candidate_matches)),
                 professional_review_required=status != "aligned",
+                material_difference=material_difference,
                 review_reasons=sorted(set(reasons)),
             )
         )
@@ -162,6 +186,34 @@ def build_cross_references() -> Path:
             "cross_references": [item.model_dump() for item in comparisons],
         },
     )
+    return output
+
+
+def build_candidate_cross_references() -> Path:
+    rules = load_json(CANDIDATE_PROCESSED_ROOT / "rules.json")["rules"]
+    manifest = load_json(CANDIDATE_RAW_ROOT / "source_manifest.json")
+    mappings = (
+        ("Annex II Part 1", "Third Schedule Part I", "annex-ii-to-third-schedule-part-i"),
+        ("Annex III Part 1", "Third Schedule Part II", "annex-iii-to-third-schedule-part-ii"),
+        ("Annex IV Part 1", "Third Schedule Part III", "annex-iv-to-third-schedule-part-iii"),
+        ("Annex VI", "Third Schedule Part IV", "annex-vi-to-third-schedule-part-iv"),
+        ("Annex VII", "Third Schedule Part V", "annex-vii-to-third-schedule-part-v"),
+    )
+    comparisons = [
+        reference
+        for acd, singapore, name in mappings
+        for reference in compare_mapping(rules, acd, singapore, name)
+    ]
+    output = CANDIDATE_PROCESSED_ROOT / "source_cross_references.json"
+    write_json(output, {
+        "dataset_version": CANDIDATE_DATASET_VERSION,
+        "structural_relationship": {
+            f"regulation_6_{index}": f"{singapore} corresponds structurally to {acd}."
+            for index, (acd, singapore, _) in enumerate(mappings, start=1)
+        } | {"content_parity_assumption": False},
+        "source_snapshots": manifest["documents"],
+        "cross_references": [item.model_dump() for item in comparisons],
+    })
     return output
 
 

@@ -1,7 +1,5 @@
 import type { ACDIngredientSearchResponse, FieldIssue, FormulationRequest, IngredientSearchResponse, ScreeningOptions, ScreeningResponse } from "../types/screening";
-
-const configuredBase = import.meta.env.VITE_API_BASE_URL ?? "/api";
-const apiBase = configuredBase.replace(/\/$/, "");
+import { apiBase, apiFetch } from "./http";
 
 export function sourceEvidenceUrl(rawRecordId: string, mode: "crop" | "page" = "crop"): string {
   const suffix = mode === "page" ? "/page" : "";
@@ -22,7 +20,7 @@ export class ApiError extends Error {
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(`${apiBase}${path}`, {
+    response = await apiFetch(path, {
       ...init,
       headers: { "Content-Type": "application/json", ...init?.headers },
     });

@@ -1,5 +1,6 @@
 import { ExternalLink, Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { identitySourceEvidenceUrl } from "../api/screening";
 import type { CatalogueIdentity } from "../types/screening";
 
@@ -71,7 +72,7 @@ export function IdentitySourceEvidence({ identity }: { identity: CatalogueIdenti
         Open official identity source <ExternalLink size={14} />
       </a>
 
-      {activePage && (
+      {activePage && createPortal(
         <div className="page-modal" role="dialog" aria-modal="true" aria-label="Accepted identity source page">
           <button className="page-modal-backdrop" onClick={() => setActivePage(null)} aria-label="Close full identity source page" />
           <div className="page-modal-panel">
@@ -79,6 +80,7 @@ export function IdentitySourceEvidence({ identity }: { identity: CatalogueIdenti
               <div>
                 <p className="text-sm font-semibold text-slate-900">Accepted EU glossary page</p>
                 <p className="text-xs text-slate-500">Entry {activePage.entry} · Page {activePage.page} · {identity.source_version}</p>
+                <a className="source-link" href={identitySourceEvidenceUrl(activePage.rawRecordId, "page")} target="_blank" rel="noreferrer">Open full-size page image <ExternalLink size={14} /></a>
               </div>
               <button autoFocus className="icon-button" onClick={() => setActivePage(null)} aria-label="Close full identity source page"><X size={18} /></button>
             </div>
@@ -94,7 +96,7 @@ export function IdentitySourceEvidence({ identity }: { identity: CatalogueIdenti
               )}
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </section>
   );

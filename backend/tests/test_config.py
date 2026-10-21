@@ -15,6 +15,9 @@ def _clear_openai_environment(monkeypatch) -> None:
         "OPENAI_EXPLANATION_MODEL",
         "OPENAI_MODEL",
         "FRONTEND_ORIGIN",
+        "SUPABASE_URL",
+        "SUPABASE_PUBLISHABLE_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
     ):
         monkeypatch.delenv(name, raising=False)
 
@@ -130,3 +133,24 @@ def test_frontend_origin_rejects_paths(tmp_path, monkeypatch):
         assert "without paths" in str(error)
     else:
         raise AssertionError("Expected an invalid CORS origin to fail configuration")
+
+
+def test_supabase_configuration_loads_without_logging_credentials(tmp_path, monkeypatch, caplog):
+    _clear_openai_environment(monkeypatch)
+    service_secret = "service-secret-that-must-not-appear"
+    env_file = tmp_path / ".env"
+    env_file.write_text(
+        "SUPABASE_URL=https://project.supabase.co\n"
+        "SUPABASE_PUBLISHABLE_KEY=publishable-test-key\n"
+        f"SUPABASE_SERVICE_ROLE_KEY={service_secret}\n",
+        encoding="utf-8",
+    )
+
+    settings = load_settings(env_file)
+
+    assert settings.supabase_configured is True
+    with caplog.at_level(logging.INFO):
+        log_openai_configuration(settings)
+    assert "Supabase: configured" in caplog.text
+    assert service_secret not in caplog.text
+    assert "publishable-test-key" not in caplog.text

@@ -9,10 +9,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "@tailwindcss/vite": "^4.1.13",
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.1",
     "tailwindcss": "^4.1.13"
   },
   "devDependencies": {
@@ -26,5 +28,8 @@
     "typescript": "~5.8.3",
     "vite": "^7.1.5",
     "vitest": "^3.2.4"
+  },
+  "overrides": {
+    "source-map-js": "^1.2.2"
   }
 }

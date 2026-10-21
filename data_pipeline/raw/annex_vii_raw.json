@@ -1,0 +1,2384 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "source_document": "acd_annexes_2026_1",
+  "section": "Annex VII",
+  "section_version": "2025-2, 12 December 2025",
+  "records": [
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-a28",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "A28",
+      "reference_number_raw": "A28",
+      "original_substance_name": "Menthyl anthranilate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5 %",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "A28 | Menthyl anthranilate | 5 % |  |",
+      "source_pages": [
+        281
+      ],
+      "fragments": [
+        {
+          "source_page": 281,
+          "table_bbox": [
+            73.704,
+            85.1,
+            747.34,
+            374.3
+          ],
+          "row_bbox": [
+            73.704,
+            194.23,
+            747.34,
+            281.16
+          ],
+          "cells": [
+            "A28",
+            "Menthyl anthranilate",
+            "5 %",
+            "",
+            ""
+          ],
+          "original_row_text": "A28 | Menthyl anthranilate | 5 % |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-a29",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "A29",
+      "reference_number_raw": "A29\nReference\nnumber\na",
+      "original_substance_name": "Zinc oxide\nCAS No.1314-13-2\nSubstance\nb",
+      "cas_number_raw": "1314-13-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25 % (2)\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOther limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "A29 | Zinc oxide\nCAS No.1314-13-2 | 25 % (2) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation. | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        281,
+        282
+      ],
+      "fragments": [
+        {
+          "source_page": 281,
+          "table_bbox": [
+            73.704,
+            85.1,
+            747.34,
+            374.3
+          ],
+          "row_bbox": [
+            73.704,
+            281.16,
+            747.34,
+            374.3
+          ],
+          "cells": [
+            "A29",
+            "Zinc oxide\nCAS No.1314-13-2",
+            "25 % (2)",
+            "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.",
+            ""
+          ],
+          "original_row_text": "A29 | Zinc oxide\nCAS No.1314-13-2 | 25 % (2) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation. | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "2"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-a29a",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "A29a",
+      "reference_number_raw": "A29a",
+      "original_substance_name": "Zinc Oxide (nano)\nCAS No.1314-13-2",
+      "cas_number_raw": "1314-13-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25% (2)",
+      "original_conditions_text": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• purity ≥ 96% with wurtzite\ncrystalline structure and physical\nappearance as clusters that are\nrod-like, star-like and/or isometric\nshapes, with impurities consisting\nonly of carbon dioxide and water\nwhilst other impurities are less\nthan 1% in total.\n• Median diameter of the particle\nnumber size distribution D50\n(50% of the number below this\ndiameter) > 30 nm and D1 (1%\nbelow this size) >20nm.\n• Water solubility < 50 mg/l.\nCoating materials can be used that have\nbeen demonstrated to be safe and not to\naffect the nanoparticle properties related to\nthe behaviour and/or effects",
+      "original_warning_text": "",
+      "source_text": "A29a | Zinc Oxide (nano)\nCAS No.1314-13-2 | 25% (2) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• purity ≥ 96% with wurtzite\ncrystalline structure and physical\nappearance as clusters that are\nrod-like, star-like and/or isometric\nshapes, with impurities consisting\nonly of carbon dioxide and water\nwhilst other impurities are less\nthan 1% in total.\n• Median diameter of the particle\nnumber size distribution D50\n(50% of the number below this\ndiameter) > 30 nm and D1 (1%\nbelow this size) >20nm.\n• Water solubility < 50 mg/l.\nCoating materials can be used that have\nbeen demonstrated to be safe and not to\naffect the nanoparticle properties related to\nthe behaviour and/or effects |",
+      "source_pages": [
+        282
+      ],
+      "fragments": [
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            129.17,
+            747.34,
+            357.98
+          ],
+          "cells": [
+            "A29a",
+            "Zinc Oxide (nano)\nCAS No.1314-13-2",
+            "25% (2)",
+            "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• purity ≥ 96% with wurtzite\ncrystalline structure and physical\nappearance as clusters that are\nrod-like, star-like and/or isometric\nshapes, with impurities consisting\nonly of carbon dioxide and water\nwhilst other impurities are less\nthan 1% in total.\n• Median diameter of the particle\nnumber size distribution D50\n(50% of the number below this\ndiameter) > 30 nm and D1 (1%\nbelow this size) >20nm.\n• Water solubility < 50 mg/l.\nCoating materials can be used that have\nbeen demonstrated to be safe and not to\naffect the nanoparticle properties related to\nthe behaviour and/or effects",
+            ""
+          ],
+          "original_row_text": "A29a | Zinc Oxide (nano)\nCAS No.1314-13-2 | 25% (2) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• purity ≥ 96% with wurtzite\ncrystalline structure and physical\nappearance as clusters that are\nrod-like, star-like and/or isometric\nshapes, with impurities consisting\nonly of carbon dioxide and water\nwhilst other impurities are less\nthan 1% in total.\n• Median diameter of the particle\nnumber size distribution D50\n(50% of the number below this\ndiameter) > 30 nm and D1 (1%\nbelow this size) >20nm.\n• Water solubility < 50 mg/l.\nCoating materials can be used that have\nbeen demonstrated to be safe and not to\naffect the nanoparticle properties related to\nthe behaviour and/or effects | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "2"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-1",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "1",
+      "reference_number_raw": "1",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "1 | Entry deleted |  |  |",
+      "source_pages": [
+        282
+      ],
+      "fragments": [
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            357.98,
+            747.34,
+            375.98
+          ],
+          "cells": [
+            "1",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "1 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-2",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "2",
+      "reference_number_raw": "2",
+      "original_substance_name": "N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene methyl)\nanilinium methyl sulphate\nCAS No.52793-97-2",
+      "cas_number_raw": "52793-97-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "2 | N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene methyl)\nanilinium methyl sulphate\nCAS No.52793-97-2 | 6% |  |",
+      "source_pages": [
+        282
+      ],
+      "fragments": [
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            375.98,
+            747.34,
+            434.594
+          ],
+          "cells": [
+            "2",
+            "N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene methyl)\nanilinium methyl sulphate\nCAS No.52793-97-2",
+            "6%",
+            "",
+            ""
+          ],
+          "original_row_text": "2 | N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene methyl)\nanilinium methyl sulphate\nCAS No.52793-97-2 | 6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-3",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "3",
+      "reference_number_raw": "3\nReference\nnumber\na",
+      "original_substance_name": "Homosalate (INN)\nCAS No.118-56-9\nSubstance\nb",
+      "cas_number_raw": "118-56-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "7.34%\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Face products with the exception\nof propellent spray products\nOther limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "3 | Homosalate (INN)\nCAS No.118-56-9 | 7.34% | Face products with the exception\nof propellent spray products | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        282,
+        283
+      ],
+      "fragments": [
+        {
+          "source_page": 282,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            481.894
+          ],
+          "row_bbox": [
+            73.704,
+            434.594,
+            747.34,
+            481.894
+          ],
+          "cells": [
+            "3",
+            "Homosalate (INN)\nCAS No.118-56-9",
+            "7.34%",
+            "Face products with the exception\nof propellent spray products",
+            ""
+          ],
+          "original_row_text": "3 | Homosalate (INN)\nCAS No.118-56-9 | 7.34% | Face products with the exception\nof propellent spray products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 283,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.23
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 283,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.23
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-4",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "4",
+      "reference_number_raw": "4",
+      "original_substance_name": "2-Hydroxy-4-methoxy-benzophenone/Oxybenzone\nBenzophenone-3\nCAS No. 131-57-7",
+      "cas_number_raw": "131-57-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "a) 6%\nb) 2.2%\nc) 0.5%",
+      "original_conditions_text": "For a) and b) Not more than 0.5 %\nto protect product formulation\na) Face products, hand products,\nand lip products, excluding\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 5.5 %.\nb) Body products, including\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 1.7 %.\nOther products",
+      "original_warning_text": "For a) and b): Contains\nBenzophenone-3(1)",
+      "source_text": "4 | 2-Hydroxy-4-methoxy-benzophenone/Oxybenzone\nBenzophenone-3\nCAS No. 131-57-7 | a) 6%\nb) 2.2%\nc) 0.5% | For a) and b) Not more than 0.5 %\nto protect product formulation\na) Face products, hand products,\nand lip products, excluding\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 5.5 %.\nb) Body products, including\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 1.7 %.\nOther products | For a) and b): Contains\nBenzophenone-3(1)",
+      "source_pages": [
+        283
+      ],
+      "fragments": [
+        {
+          "source_page": 283,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.23
+          ],
+          "row_bbox": [
+            73.704,
+            129.17,
+            747.34,
+            408.65
+          ],
+          "cells": [
+            "4",
+            "2-Hydroxy-4-methoxy-benzophenone/Oxybenzone\nBenzophenone-3\nCAS No. 131-57-7",
+            "a) 6%\nb) 2.2%\nc) 0.5%",
+            "For a) and b) Not more than 0.5 %\nto protect product formulation\na) Face products, hand products,\nand lip products, excluding\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 5.5 %.\nb) Body products, including\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 1.7 %.\nOther products",
+            "For a) and b): Contains\nBenzophenone-3(1)"
+          ],
+          "original_row_text": "4 | 2-Hydroxy-4-methoxy-benzophenone/Oxybenzone\nBenzophenone-3\nCAS No. 131-57-7 | a) 6%\nb) 2.2%\nc) 0.5% | For a) and b) Not more than 0.5 %\nto protect product formulation\na) Face products, hand products,\nand lip products, excluding\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 5.5 %.\nb) Body products, including\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 1.7 %.\nOther products | For a) and b): Contains\nBenzophenone-3(1)",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "1"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-5",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "5",
+      "reference_number_raw": "5",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "5 | Entry deleted |  |  |",
+      "source_pages": [
+        283
+      ],
+      "fragments": [
+        {
+          "source_page": 283,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.23
+          ],
+          "row_bbox": [
+            73.704,
+            408.65,
+            747.34,
+            426.65
+          ],
+          "cells": [
+            "5",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "5 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-6",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "6",
+      "reference_number_raw": "6\nReference\nnumber\na",
+      "original_substance_name": "2-Phenylbenzimidazole-5-sulphonic acid and its\npotassium, sodium and triethanolamine salts\nCAS No.27503-81-7\nSubstance\nb",
+      "cas_number_raw": "27503-81-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "8%\nexpressed as\nacid\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Other limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "6 | 2-Phenylbenzimidazole-5-sulphonic acid and its\npotassium, sodium and triethanolamine salts\nCAS No.27503-81-7 | 8%\nexpressed as\nacid |  | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        283,
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 283,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.23
+          ],
+          "row_bbox": [
+            73.704,
+            426.65,
+            747.34,
+            485.23
+          ],
+          "cells": [
+            "6",
+            "2-Phenylbenzimidazole-5-sulphonic acid and its\npotassium, sodium and triethanolamine salts\nCAS No.27503-81-7",
+            "8%\nexpressed as\nacid",
+            "",
+            ""
+          ],
+          "original_row_text": "6 | 2-Phenylbenzimidazole-5-sulphonic acid and its\npotassium, sodium and triethanolamine salts\nCAS No.27503-81-7 | 8%\nexpressed as\nacid |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.218
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-7",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "7",
+      "reference_number_raw": "7",
+      "original_substance_name": "3,3’-(1,4-Phenylenedimethylene)bis(7,7-dimethyl-2-\noxo-bicyclo-[2,2,1]hept-1-yl methanesulfonic acid)\nand its salts\nTerephthalylidene CAS No. 92761-26-7\nDicamphor Sulfonic Acid CAS No. 90457-82-2",
+      "cas_number_raw": "92761-26-7\n90457-82-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%\n(expressed as\nacid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "7 | 3,3’-(1,4-Phenylenedimethylene)bis(7,7-dimethyl-2-\noxo-bicyclo-[2,2,1]hept-1-yl methanesulfonic acid)\nand its salts\nTerephthalylidene CAS No. 92761-26-7\nDicamphor Sulfonic Acid CAS No. 90457-82-2 | 10%\n(expressed as\nacid) |  |",
+      "source_pages": [
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            129.218,
+            747.34,
+            214.228
+          ],
+          "cells": [
+            "7",
+            "3,3’-(1,4-Phenylenedimethylene)bis(7,7-dimethyl-2-\noxo-bicyclo-[2,2,1]hept-1-yl methanesulfonic acid)\nand its salts\nTerephthalylidene CAS No. 92761-26-7\nDicamphor Sulfonic Acid CAS No. 90457-82-2",
+            "10%\n(expressed as\nacid)",
+            "",
+            ""
+          ],
+          "original_row_text": "7 | 3,3’-(1,4-Phenylenedimethylene)bis(7,7-dimethyl-2-\noxo-bicyclo-[2,2,1]hept-1-yl methanesulfonic acid)\nand its salts\nTerephthalylidene CAS No. 92761-26-7\nDicamphor Sulfonic Acid CAS No. 90457-82-2 | 10%\n(expressed as\nacid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-8",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "8",
+      "reference_number_raw": "8",
+      "original_substance_name": "1-(4-Tert-Butylphenyl)-3-(4-methoxyphenyl)propane-\n1,3-dione/Avobenzone\nCAS No. 70356-09-1",
+      "cas_number_raw": "70356-09-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "8 | 1-(4-Tert-Butylphenyl)-3-(4-methoxyphenyl)propane-\n1,3-dione/Avobenzone\nCAS No. 70356-09-1 | 5% |  |",
+      "source_pages": [
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            214.228,
+            747.34,
+            272.788
+          ],
+          "cells": [
+            "8",
+            "1-(4-Tert-Butylphenyl)-3-(4-methoxyphenyl)propane-\n1,3-dione/Avobenzone\nCAS No. 70356-09-1",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "8 | 1-(4-Tert-Butylphenyl)-3-(4-methoxyphenyl)propane-\n1,3-dione/Avobenzone\nCAS No. 70356-09-1 | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-9",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "9",
+      "reference_number_raw": "9",
+      "original_substance_name": "alpha-(2-Oxoborn-3-ylidene) toluene-4-sulphonic\nacid and its salts\nCAS No.56039-58-8",
+      "cas_number_raw": "56039-58-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%\n(expressed as\nacid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "9 | alpha-(2-Oxoborn-3-ylidene) toluene-4-sulphonic\nacid and its salts\nCAS No.56039-58-8 | 6%\n(expressed as\nacid) |  |",
+      "source_pages": [
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            272.788,
+            747.34,
+            331.608
+          ],
+          "cells": [
+            "9",
+            "alpha-(2-Oxoborn-3-ylidene) toluene-4-sulphonic\nacid and its salts\nCAS No.56039-58-8",
+            "6%\n(expressed as\nacid)",
+            "",
+            ""
+          ],
+          "original_row_text": "9 | alpha-(2-Oxoborn-3-ylidene) toluene-4-sulphonic\nacid and its salts\nCAS No.56039-58-8 | 6%\n(expressed as\nacid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-10",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "10",
+      "reference_number_raw": "10",
+      "original_substance_name": "2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4",
+      "cas_number_raw": "6197-30-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "a) 9 %\nb) 10 %",
+      "original_conditions_text": "a) Propellant spray products\nb) Other products",
+      "original_warning_text": "",
+      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4 | a) 9 %\nb) 10 % | a) Propellant spray products\nb) Other products |",
+      "source_pages": [
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            331.608,
+            747.34,
+            390.428
+          ],
+          "cells": [
+            "10",
+            "2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4",
+            "a) 9 %\nb) 10 %",
+            "a) Propellant spray products\nb) Other products",
+            ""
+          ],
+          "original_row_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4 | a) 9 %\nb) 10 % | a) Propellant spray products\nb) Other products | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-11",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "11",
+      "reference_number_raw": "11",
+      "original_substance_name": "Polymer of N-{(2 and 4)-[2-oxoborn-3-ylidene)\nmethyl] benzyl} acrylamide\nCAS No. 113783-61-2",
+      "cas_number_raw": "113783-61-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "11 | Polymer of N-{(2 and 4)-[2-oxoborn-3-ylidene)\nmethyl] benzyl} acrylamide\nCAS No. 113783-61-2 | 6% |  |",
+      "source_pages": [
+        284
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            390.428,
+            747.34,
+            449.258
+          ],
+          "cells": [
+            "11",
+            "Polymer of N-{(2 and 4)-[2-oxoborn-3-ylidene)\nmethyl] benzyl} acrylamide\nCAS No. 113783-61-2",
+            "6%",
+            "",
+            ""
+          ],
+          "original_row_text": "11 | Polymer of N-{(2 and 4)-[2-oxoborn-3-ylidene)\nmethyl] benzyl} acrylamide\nCAS No. 113783-61-2 | 6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-12",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "12",
+      "reference_number_raw": "12\nReference\nnumber\na",
+      "original_substance_name": "Octyl methoxycinnamate\nCAS No. 5466-77-3\nSubstance\nb",
+      "cas_number_raw": "5466-77-3",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Other limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "12 | Octyl methoxycinnamate\nCAS No. 5466-77-3 | 10% |  | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        284,
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 284,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            496.512
+          ],
+          "row_bbox": [
+            73.704,
+            449.258,
+            747.34,
+            496.512
+          ],
+          "cells": [
+            "12",
+            "Octyl methoxycinnamate\nCAS No. 5466-77-3",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "12 | Octyl methoxycinnamate\nCAS No. 5466-77-3 | 10% |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.218
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-13",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "13",
+      "reference_number_raw": "13",
+      "original_substance_name": "Ethoxylated Ethyl-4-aminobenzoate (PEG-25 PABA)\nCAS No. 116242-27-4",
+      "cas_number_raw": "116242-27-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "13 | Ethoxylated Ethyl-4-aminobenzoate (PEG-25 PABA)\nCAS No. 116242-27-4 | 10% |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            129.218,
+            747.34,
+            176.518
+          ],
+          "cells": [
+            "13",
+            "Ethoxylated Ethyl-4-aminobenzoate (PEG-25 PABA)\nCAS No. 116242-27-4",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "13 | Ethoxylated Ethyl-4-aminobenzoate (PEG-25 PABA)\nCAS No. 116242-27-4 | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-14",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "14",
+      "reference_number_raw": "14",
+      "original_substance_name": "Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)\nCAS No. 71617-10-2",
+      "cas_number_raw": "71617-10-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "14 | Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)\nCAS No. 71617-10-2 | 10% |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            176.518,
+            747.34,
+            235.348
+          ],
+          "cells": [
+            "14",
+            "Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)\nCAS No. 71617-10-2",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "14 | Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)\nCAS No. 71617-10-2 | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-15",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "15",
+      "reference_number_raw": "15",
+      "original_substance_name": "2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-oxy)-1,3,5-\ntriazine (Octyl triazone)\nCAS No. 88122-99-0",
+      "cas_number_raw": "88122-99-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "15 | 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-oxy)-1,3,5-\ntriazine (Octyl triazone)\nCAS No. 88122-99-0 | 5% |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            235.348,
+            747.34,
+            294.168
+          ],
+          "cells": [
+            "15",
+            "2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-oxy)-1,3,5-\ntriazine (Octyl triazone)\nCAS No. 88122-99-0",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "15 | 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-oxy)-1,3,5-\ntriazine (Octyl triazone)\nCAS No. 88122-99-0 | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-16",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "16",
+      "reference_number_raw": "16",
+      "original_substance_name": "Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-6-(2-\nmethyl-3-(1,3,3,3-tetramethyl-1-(trimethylsilyl)oxy)-\ndisiloxanyl)propyl (Drometrizole Trisiloxane)\nCAS No.155633-54-8",
+      "cas_number_raw": "155633-54-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "16 | Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-6-(2-\nmethyl-3-(1,3,3,3-tetramethyl-1-(trimethylsilyl)oxy)-\ndisiloxanyl)propyl (Drometrizole Trisiloxane)\nCAS No.155633-54-8 | 15% |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            294.168,
+            747.34,
+            364.508
+          ],
+          "cells": [
+            "16",
+            "Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-6-(2-\nmethyl-3-(1,3,3,3-tetramethyl-1-(trimethylsilyl)oxy)-\ndisiloxanyl)propyl (Drometrizole Trisiloxane)\nCAS No.155633-54-8",
+            "15%",
+            "",
+            ""
+          ],
+          "original_row_text": "16 | Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-6-(2-\nmethyl-3-(1,3,3,3-tetramethyl-1-(trimethylsilyl)oxy)-\ndisiloxanyl)propyl (Drometrizole Trisiloxane)\nCAS No.155633-54-8 | 15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-17",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "17",
+      "reference_number_raw": "17",
+      "original_substance_name": "Benzoic acid, 4,4-((6-(((1,1-dimethylethyl)amino)\ncarbonyl)phenyl)amino)-1,3,5-triazine-2,4-\ndiyl)diimino)bis-,bis-(2-ethylhexyl)ester)\nCAS No. 154702-15-5",
+      "cas_number_raw": "154702-15-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "17 | Benzoic acid, 4,4-((6-(((1,1-dimethylethyl)amino)\ncarbonyl)phenyl)amino)-1,3,5-triazine-2,4-\ndiyl)diimino)bis-,bis-(2-ethylhexyl)ester)\nCAS No. 154702-15-5 | 10% |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            364.508,
+            747.34,
+            434.618
+          ],
+          "cells": [
+            "17",
+            "Benzoic acid, 4,4-((6-(((1,1-dimethylethyl)amino)\ncarbonyl)phenyl)amino)-1,3,5-triazine-2,4-\ndiyl)diimino)bis-,bis-(2-ethylhexyl)ester)\nCAS No. 154702-15-5",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "17 | Benzoic acid, 4,4-((6-(((1,1-dimethylethyl)amino)\ncarbonyl)phenyl)amino)-1,3,5-triazine-2,4-\ndiyl)diimino)bis-,bis-(2-ethylhexyl)ester)\nCAS No. 154702-15-5 | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-18",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "18",
+      "reference_number_raw": "18",
+      "original_substance_name": "Entry Deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "18 | Entry Deleted |  |  |",
+      "source_pages": [
+        285
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            434.618,
+            747.34,
+            467.518
+          ],
+          "cells": [
+            "18",
+            "Entry Deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "18 | Entry Deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-19",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "19",
+      "reference_number_raw": "19\nReference\nnumber\na",
+      "original_substance_name": "Entry Deleted\nSubstance\nb",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Maximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Other limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "19 | Entry Deleted |  |  | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        285,
+        286
+      ],
+      "fragments": [
+        {
+          "source_page": 285,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            485.758
+          ],
+          "row_bbox": [
+            73.704,
+            467.518,
+            747.34,
+            485.758
+          ],
+          "cells": [
+            "19",
+            "Entry Deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "19 | Entry Deleted |  |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-20",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "20",
+      "reference_number_raw": "20",
+      "original_substance_name": "2-Ethylhexyl salicylate (Octyl Salicylate)\nCAS No. 118-60-5",
+      "cas_number_raw": "118-60-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "20 | 2-Ethylhexyl salicylate (Octyl Salicylate)\nCAS No. 118-60-5 | 5% |  |",
+      "source_pages": [
+        286
+      ],
+      "fragments": [
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            129.17,
+            747.34,
+            176.518
+          ],
+          "cells": [
+            "20",
+            "2-Ethylhexyl salicylate (Octyl Salicylate)\nCAS No. 118-60-5",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "20 | 2-Ethylhexyl salicylate (Octyl Salicylate)\nCAS No. 118-60-5 | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-21",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "21",
+      "reference_number_raw": "21",
+      "original_substance_name": "4-Dimethylaminobenzoate of ethyl-2-hexyl (octyl\ndimethyl PABA)\nCAS No. 21245-02-3",
+      "cas_number_raw": "21245-02-3",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "8%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "21 | 4-Dimethylaminobenzoate of ethyl-2-hexyl (octyl\ndimethyl PABA)\nCAS No. 21245-02-3 | 8% |  |",
+      "source_pages": [
+        286
+      ],
+      "fragments": [
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            176.518,
+            747.34,
+            235.348
+          ],
+          "cells": [
+            "21",
+            "4-Dimethylaminobenzoate of ethyl-2-hexyl (octyl\ndimethyl PABA)\nCAS No. 21245-02-3",
+            "8%",
+            "",
+            ""
+          ],
+          "original_row_text": "21 | 4-Dimethylaminobenzoate of ethyl-2-hexyl (octyl\ndimethyl PABA)\nCAS No. 21245-02-3 | 8% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-22",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "22",
+      "reference_number_raw": "22",
+      "original_substance_name": "2-Hydroxy-4-methoxybenzophenone-5-sulfonic acid\n(Benzophenone-4) and its sodium salt\n(Benzophenone-5)\nBenzophenone-4 CAS No. 4065-45-6\nBenzophenone-5 CAS No. 6628-37-1",
+      "cas_number_raw": "4065-45-6\n6628-37-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5% (as acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "22 | 2-Hydroxy-4-methoxybenzophenone-5-sulfonic acid\n(Benzophenone-4) and its sodium salt\n(Benzophenone-5)\nBenzophenone-4 CAS No. 4065-45-6\nBenzophenone-5 CAS No. 6628-37-1 | 5% (as acid) |  |",
+      "source_pages": [
+        286
+      ],
+      "fragments": [
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            235.348,
+            747.34,
+            320.088
+          ],
+          "cells": [
+            "22",
+            "2-Hydroxy-4-methoxybenzophenone-5-sulfonic acid\n(Benzophenone-4) and its sodium salt\n(Benzophenone-5)\nBenzophenone-4 CAS No. 4065-45-6\nBenzophenone-5 CAS No. 6628-37-1",
+            "5% (as acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "22 | 2-Hydroxy-4-methoxybenzophenone-5-sulfonic acid\n(Benzophenone-4) and its sodium salt\n(Benzophenone-5)\nBenzophenone-4 CAS No. 4065-45-6\nBenzophenone-5 CAS No. 6628-37-1 | 5% (as acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-23",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "23",
+      "reference_number_raw": "23\nReference\nnumber\na",
+      "original_substance_name": "2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol/MBBT)\nCAS No. 103597-45-1\nSubstance\nb",
+      "cas_number_raw": "103597-45-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%(5)\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Other limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "23 | 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol/MBBT)\nCAS No. 103597-45-1 | 10%(5) |  | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        286,
+        287
+      ],
+      "fragments": [
+        {
+          "source_page": 286,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            413.498
+          ],
+          "row_bbox": [
+            73.704,
+            320.088,
+            747.34,
+            413.498
+          ],
+          "cells": [
+            "23",
+            "2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol/MBBT)\nCAS No. 103597-45-1",
+            "10%(5)",
+            "",
+            ""
+          ],
+          "original_row_text": "23 | 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol/MBBT)\nCAS No. 103597-45-1 | 10%(5) |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.218
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "5"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-23a",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "23a",
+      "reference_number_raw": "23a",
+      "original_substance_name": "2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol (nano)/MBBT\n(nano))\nCAS No. 103597-45-1",
+      "cas_number_raw": "103597-45-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%(5)",
+      "original_conditions_text": "Not to be used in applications that may lead\nto exposure of the end user's lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 98.5 %, with 2,2′-\nmethylene-bis-(6(2H-\nbenzotriazol-2-yl)-4-\n(isooctyl)phenol) isomer fraction\nnot exceeding 1.5 %;\n- Solubility < 5 ng/L in water at 25\n°C;\n- Partition coefficient (Log Pow):\n12.7 at 25 °C;\n- Uncoated;\n- Median particle size D50 (50% of\nnumber below this diameter):\n≥ 120 nm of mass distribution\nand/or ≥ 60 nm of number size\ndistribution.",
+      "original_warning_text": "",
+      "source_text": "23a | 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol (nano)/MBBT\n(nano))\nCAS No. 103597-45-1 | 10%(5) | Not to be used in applications that may lead\nto exposure of the end user's lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 98.5 %, with 2,2′-\nmethylene-bis-(6(2H-\nbenzotriazol-2-yl)-4-\n(isooctyl)phenol) isomer fraction\nnot exceeding 1.5 %;\n- Solubility < 5 ng/L in water at 25\n°C;\n- Partition coefficient (Log Pow):\n12.7 at 25 °C;\n- Uncoated;\n- Median particle size D50 (50% of\nnumber below this diameter):\n≥ 120 nm of mass distribution\nand/or ≥ 60 nm of number size\ndistribution. |",
+      "source_pages": [
+        287
+      ],
+      "fragments": [
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            129.218,
+            747.34,
+            328.008
+          ],
+          "cells": [
+            "23a",
+            "2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol (nano)/MBBT\n(nano))\nCAS No. 103597-45-1",
+            "10%(5)",
+            "Not to be used in applications that may lead\nto exposure of the end user's lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 98.5 %, with 2,2′-\nmethylene-bis-(6(2H-\nbenzotriazol-2-yl)-4-\n(isooctyl)phenol) isomer fraction\nnot exceeding 1.5 %;\n- Solubility < 5 ng/L in water at 25\n°C;\n- Partition coefficient (Log Pow):\n12.7 at 25 °C;\n- Uncoated;\n- Median particle size D50 (50% of\nnumber below this diameter):\n≥ 120 nm of mass distribution\nand/or ≥ 60 nm of number size\ndistribution.",
+            ""
+          ],
+          "original_row_text": "23a | 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis-\nBenzotriazolyl Tetramethylbutylphenol (nano)/MBBT\n(nano))\nCAS No. 103597-45-1 | 10%(5) | Not to be used in applications that may lead\nto exposure of the end user's lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 98.5 %, with 2,2′-\nmethylene-bis-(6(2H-\nbenzotriazol-2-yl)-4-\n(isooctyl)phenol) isomer fraction\nnot exceeding 1.5 %;\n- Solubility < 5 ng/L in water at 25\n°C;\n- Partition coefficient (Log Pow):\n12.7 at 25 °C;\n- Uncoated;\n- Median particle size D50 (50% of\nnumber below this diameter):\n≥ 120 nm of mass distribution\nand/or ≥ 60 nm of number size\ndistribution. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "5"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-24",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "24",
+      "reference_number_raw": "24",
+      "original_substance_name": "Monosodium salt of 2,2'-(1,4-phenylene)bis)-1H-\nbenzimidazole-4,6-disulphonic acid\nCAS No.180898-37-7",
+      "cas_number_raw": "180898-37-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10% (of acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "24 | Monosodium salt of 2,2'-(1,4-phenylene)bis)-1H-\nbenzimidazole-4,6-disulphonic acid\nCAS No.180898-37-7 | 10% (of acid) |  |",
+      "source_pages": [
+        287
+      ],
+      "fragments": [
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            328.008,
+            747.34,
+            386.78
+          ],
+          "cells": [
+            "24",
+            "Monosodium salt of 2,2'-(1,4-phenylene)bis)-1H-\nbenzimidazole-4,6-disulphonic acid\nCAS No.180898-37-7",
+            "10% (of acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "24 | Monosodium salt of 2,2'-(1,4-phenylene)bis)-1H-\nbenzimidazole-4,6-disulphonic acid\nCAS No.180898-37-7 | 10% (of acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-25",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "25",
+      "reference_number_raw": "25",
+      "original_substance_name": "(1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-hexyloxy)-2-\nhydroxy]-phenyl}-6-(4-methoxyphenyl)\nCAS No.187393-00-6",
+      "cas_number_raw": "187393-00-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "25 | (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-hexyloxy)-2-\nhydroxy]-phenyl}-6-(4-methoxyphenyl)\nCAS No.187393-00-6 | 10% |  |",
+      "source_pages": [
+        287
+      ],
+      "fragments": [
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            386.78,
+            747.34,
+            445.37
+          ],
+          "cells": [
+            "25",
+            "(1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-hexyloxy)-2-\nhydroxy]-phenyl}-6-(4-methoxyphenyl)\nCAS No.187393-00-6",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "25 | (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-hexyloxy)-2-\nhydroxy]-phenyl}-6-(4-methoxyphenyl)\nCAS No.187393-00-6 | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-26",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "26",
+      "reference_number_raw": "26\nReference\nnumber\na",
+      "original_substance_name": "Dimethicodiethylbenzalmalonate\n(CAS No. 207574-74-1)\nSubstance\nb",
+      "cas_number_raw": "207574-74-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10 %\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Other limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "26 | Dimethicodiethylbenzalmalonate\n(CAS No. 207574-74-1) | 10 % |  | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        287,
+        288
+      ],
+      "fragments": [
+        {
+          "source_page": 287,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            477.79
+          ],
+          "row_bbox": [
+            73.704,
+            445.37,
+            747.34,
+            477.79
+          ],
+          "cells": [
+            "26",
+            "Dimethicodiethylbenzalmalonate\n(CAS No. 207574-74-1)",
+            "10 %",
+            "",
+            ""
+          ],
+          "original_row_text": "26 | Dimethicodiethylbenzalmalonate\n(CAS No. 207574-74-1) | 10 % |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 288,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            520.776
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 288,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            520.776
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-27",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "27",
+      "reference_number_raw": "27",
+      "original_substance_name": "Titanium dioxide (3)\n(CAS No. 13463-67-7/1317-70-0/1317-80-2)",
+      "cas_number_raw": "13463-67-7\n1317-70-0\n1317-80-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25 % (4)",
+      "original_conditions_text": "Titanium dioxide in powder form containing\n1 % or more of particles with aerodynamic\ndiameter ≤ 10 µm, to be used in compliance\nwith Annex III, No [338]. For the product\ntypes under letter (c) of column (c) in Annex\nIII, No [338], the maximum concentration in\nready for use preparation provided in\ncolumn (c) of this entry applies.",
+      "original_warning_text": "",
+      "source_text": "27 | Titanium dioxide (3)\n(CAS No. 13463-67-7/1317-70-0/1317-80-2) | 25 % (4) | Titanium dioxide in powder form containing\n1 % or more of particles with aerodynamic\ndiameter ≤ 10 µm, to be used in compliance\nwith Annex III, No [338]. For the product\ntypes under letter (c) of column (c) in Annex\nIII, No [338], the maximum concentration in\nready for use preparation provided in\ncolumn (c) of this entry applies. |",
+      "source_pages": [
+        288
+      ],
+      "fragments": [
+        {
+          "source_page": 288,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            520.776
+          ],
+          "row_bbox": [
+            73.704,
+            129.17,
+            747.34,
+            226.66
+          ],
+          "cells": [
+            "27",
+            "Titanium dioxide (3)\n(CAS No. 13463-67-7/1317-70-0/1317-80-2)",
+            "25 % (4)",
+            "Titanium dioxide in powder form containing\n1 % or more of particles with aerodynamic\ndiameter ≤ 10 µm, to be used in compliance\nwith Annex III, No [338]. For the product\ntypes under letter (c) of column (c) in Annex\nIII, No [338], the maximum concentration in\nready for use preparation provided in\ncolumn (c) of this entry applies.",
+            ""
+          ],
+          "original_row_text": "27 | Titanium dioxide (3)\n(CAS No. 13463-67-7/1317-70-0/1317-80-2) | 25 % (4) | Titanium dioxide in powder form containing\n1 % or more of particles with aerodynamic\ndiameter ≤ 10 µm, to be used in compliance\nwith Annex III, No [338]. For the product\ntypes under letter (c) of column (c) in Annex\nIII, No [338], the maximum concentration in\nready for use preparation provided in\ncolumn (c) of this entry applies. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "4"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-27a",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "27a",
+      "reference_number_raw": "27a\nReference\nnumber\na",
+      "original_substance_name": "Titanium dioxide (nano)\nCAS No. 13463-67-7/1317-70-0/1317-80-2\nSubstance\nb",
+      "cas_number_raw": "13463-67-7\n1317-70-0\n1317-80-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25 % (4)\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation.\nOther limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "27a | Titanium dioxide (nano)\nCAS No. 13463-67-7/1317-70-0/1317-80-2 | 25 % (4) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation. | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        288,
+        289
+      ],
+      "fragments": [
+        {
+          "source_page": 288,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            520.776
+          ],
+          "row_bbox": [
+            73.704,
+            226.66,
+            747.34,
+            520.776
+          ],
+          "cells": [
+            "27a",
+            "Titanium dioxide (nano)\nCAS No. 13463-67-7/1317-70-0/1317-80-2",
+            "25 % (4)",
+            "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation.",
+            ""
+          ],
+          "original_row_text": "27a | Titanium dioxide (nano)\nCAS No. 13463-67-7/1317-70-0/1317-80-2 | 25 % (4) | Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation. | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "4"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-28",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "28",
+      "reference_number_raw": "28",
+      "original_substance_name": "Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-, hexylester.\nINCI Name: Diethylamino hydroxybenzoyl hexyl\nBenzoate\nCAS No. 302776-68-7",
+      "cas_number_raw": "302776-68-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10 %",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "28 | Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-, hexylester.\nINCI Name: Diethylamino hydroxybenzoyl hexyl\nBenzoate\nCAS No. 302776-68-7 | 10 % |  |",
+      "source_pages": [
+        289
+      ],
+      "fragments": [
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            129.17,
+            747.34,
+            199.27
+          ],
+          "cells": [
+            "28",
+            "Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-, hexylester.\nINCI Name: Diethylamino hydroxybenzoyl hexyl\nBenzoate\nCAS No. 302776-68-7",
+            "10 %",
+            "",
+            ""
+          ],
+          "original_row_text": "28 | Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-, hexylester.\nINCI Name: Diethylamino hydroxybenzoyl hexyl\nBenzoate\nCAS No. 302776-68-7 | 10 % |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-29",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "29",
+      "reference_number_raw": "29",
+      "original_substance_name": "1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-yl-,\nincluding as nanomaterial.\nINCI Name : Tris-biphenyl triazine Tris-biphenyl\ntriazine (nano)\nCAS No. 31274-51-8",
+      "cas_number_raw": "31274-51-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "Not to be used in sprays. Only\nnanomaterials having the following\ncharacteristics are allowed:\n— median primary particle size > 80 nm;\n— Purity ≥ 98 %;\n— Uncoated",
+      "original_warning_text": "",
+      "source_text": "29 | 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-yl-,\nincluding as nanomaterial.\nINCI Name : Tris-biphenyl triazine Tris-biphenyl\ntriazine (nano)\nCAS No. 31274-51-8 | 10% | Not to be used in sprays. Only\nnanomaterials having the following\ncharacteristics are allowed:\n— median primary particle size > 80 nm;\n— Purity ≥ 98 %;\n— Uncoated |",
+      "source_pages": [
+        289
+      ],
+      "fragments": [
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            199.27,
+            747.34,
+            270.1
+          ],
+          "cells": [
+            "29",
+            "1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-yl-,\nincluding as nanomaterial.\nINCI Name : Tris-biphenyl triazine Tris-biphenyl\ntriazine (nano)\nCAS No. 31274-51-8",
+            "10%",
+            "Not to be used in sprays. Only\nnanomaterials having the following\ncharacteristics are allowed:\n— median primary particle size > 80 nm;\n— Purity ≥ 98 %;\n— Uncoated",
+            ""
+          ],
+          "original_row_text": "29 | 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-yl-,\nincluding as nanomaterial.\nINCI Name : Tris-biphenyl triazine Tris-biphenyl\ntriazine (nano)\nCAS No. 31274-51-8 | 10% | Not to be used in sprays. Only\nnanomaterials having the following\ncharacteristics are allowed:\n— median primary particle size > 80 nm;\n— Purity ≥ 98 %;\n— Uncoated | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-30",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "30",
+      "reference_number_raw": "30",
+      "original_substance_name": "3,3-(1,4-Phenylene) bis (5,6-diphenyl- 1,2,4-triazine)\nCAS No. 55514-22-2",
+      "cas_number_raw": "55514-22-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "Not to be used in application that may lead\nto exposure of the end user's lungs by\ninhalation.’",
+      "original_warning_text": "",
+      "source_text": "30 | 3,3-(1,4-Phenylene) bis (5,6-diphenyl- 1,2,4-triazine)\nCAS No. 55514-22-2 | 5% | Not to be used in application that may lead\nto exposure of the end user's lungs by\ninhalation.’ |",
+      "source_pages": [
+        289
+      ],
+      "fragments": [
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            270.1,
+            747.34,
+            304.2
+          ],
+          "cells": [
+            "30",
+            "3,3-(1,4-Phenylene) bis (5,6-diphenyl- 1,2,4-triazine)\nCAS No. 55514-22-2",
+            "5%",
+            "Not to be used in application that may lead\nto exposure of the end user's lungs by\ninhalation.’",
+            ""
+          ],
+          "original_row_text": "30 | 3,3-(1,4-Phenylene) bis (5,6-diphenyl- 1,2,4-triazine)\nCAS No. 55514-22-2 | 5% | Not to be used in application that may lead\nto exposure of the end user's lungs by\ninhalation.’ | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-31",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "31",
+      "reference_number_raw": "31\nReference\nnumber\na",
+      "original_substance_name": "2-ethoxyethyl (2Z)-2-cyano- 2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene]acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate\nCAS No. 1419401-88-9\nSubstance\nb",
+      "cas_number_raw": "1419401-88-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "3 %\nMaximum\nAuthorised\nconcentration\nc",
+      "original_conditions_text": "-- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’\nOther limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "31 | 2-ethoxyethyl (2Z)-2-cyano- 2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene]acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate\nCAS No. 1419401-88-9 | 3 % | -- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’ | \nReference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        289,
+        290
+      ],
+      "fragments": [
+        {
+          "source_page": 289,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            414.65
+          ],
+          "row_bbox": [
+            73.704,
+            304.2,
+            747.34,
+            414.65
+          ],
+          "cells": [
+            "31",
+            "2-ethoxyethyl (2Z)-2-cyano- 2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene]acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate\nCAS No. 1419401-88-9",
+            "3 %",
+            "-- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’",
+            ""
+          ],
+          "original_row_text": "31 | 2-ethoxyethyl (2Z)-2-cyano- 2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene]acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate\nCAS No. 1419401-88-9 | 3 % | -- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’ | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 290,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            395.821
+          ],
+          "row_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            111.17
+          ],
+          "cells": [
+            "Reference\nnumber",
+            "Substance",
+            "Maximum\nAuthorised\nconcentration",
+            "Other limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 290,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            395.821
+          ],
+          "row_bbox": [
+            73.704,
+            111.17,
+            747.34,
+            129.41
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nnumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-32",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "32",
+      "reference_number_raw": "32",
+      "original_substance_name": "1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine\nCas No. 919803-06-8",
+      "cas_number_raw": "919803-06-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10% (7)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "32 | 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine\nCas No. 919803-06-8 | 10% (7) |  |",
+      "source_pages": [
+        290
+      ],
+      "fragments": [
+        {
+          "source_page": 290,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            395.821
+          ],
+          "row_bbox": [
+            73.704,
+            129.41,
+            747.34,
+            242.295
+          ],
+          "cells": [
+            "32",
+            "1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine\nCas No. 919803-06-8",
+            "10% (7)",
+            "",
+            ""
+          ],
+          "original_row_text": "32 | 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine\nCas No. 919803-06-8 | 10% (7) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "7"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-33",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VII",
+      "reference_number": "33",
+      "reference_number_raw": "33",
+      "original_substance_name": "1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine (nano)\nCas No. 919803-06-8",
+      "cas_number_raw": "919803-06-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10% (7)",
+      "original_conditions_text": "Only nanomaterials having the\nfollowing characteristics are\nallowed:\n- Purity ≥ 97 %\n- Median particle size D50\n(50 % of the number below\nthis diameter): ≥ 50 nm of\nnumber size distribution.\nNot to be used in applications that\nmay lead to exposure of the end\nuser’s lungs by inhalation.",
+      "original_warning_text": "",
+      "source_text": "33 | 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine (nano)\nCas No. 919803-06-8 | 10% (7) | Only nanomaterials having the\nfollowing characteristics are\nallowed:\n- Purity ≥ 97 %\n- Median particle size D50\n(50 % of the number below\nthis diameter): ≥ 50 nm of\nnumber size distribution.\nNot to be used in applications that\nmay lead to exposure of the end\nuser’s lungs by inhalation. |",
+      "source_pages": [
+        290
+      ],
+      "fragments": [
+        {
+          "source_page": 290,
+          "table_bbox": [
+            73.704,
+            72.26,
+            747.34,
+            395.821
+          ],
+          "row_bbox": [
+            73.704,
+            242.295,
+            747.34,
+            395.821
+          ],
+          "cells": [
+            "33",
+            "1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine (nano)\nCas No. 919803-06-8",
+            "10% (7)",
+            "Only nanomaterials having the\nfollowing characteristics are\nallowed:\n- Purity ≥ 97 %\n- Median particle size D50\n(50 % of the number below\nthis diameter): ≥ 50 nm of\nnumber size distribution.\nNot to be used in applications that\nmay lead to exposure of the end\nuser’s lungs by inhalation.",
+            ""
+          ],
+          "original_row_text": "33 | 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2-\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine (nano)\nCas No. 919803-06-8 | 10% (7) | Only nanomaterials having the\nfollowing characteristics are\nallowed:\n- Purity ≥ 97 %\n- Median particle size D50\n(50 % of the number below\nthis diameter): ≥ 50 nm of\nnumber size distribution.\nNot to be used in applications that\nmay lead to exposure of the end\nuser’s lungs by inhalation. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "7"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    }
+  ],
+  "page_texts": {
+    "281": "Annex VII - List of UV filters which cosmetic products may contain\nANNEX VII - PART 1\nLIST OF PERMITTED UV FILTERS WHICH COSMETIC PRODUCTS MAY CONTAIN\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\nA28 Menthyl anthranilate\n5 %\nZinc oxide Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nCAS No.1314-13-2\nA29 25 % (2)\nVersion No.: 2025-2, 12th December 2025",
+    "282": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\nNot to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• purity ≥ 96% with wurtzite\ncrystalline structure and physical\nappearance as clusters that are\nrod-like, star-like and/or isometric\nZinc Oxide (nano) shapes, with impurities consisting\nonly of carbon dioxide and water\nA29a CAS No.1314-13-2 25% (2) whilst other impurities are less\nthan 1% in total.\n• Median diameter of the particle\nnumber size distribution D50\n(50% of the number below this\ndiameter) > 30 nm and D1 (1%\nbelow this size) >20nm.\n• Water solubility < 50 mg/l.\nCoating materials can be used that have\nbeen demonstrated to be safe and not to\naffect the nanoparticle properties related to\nthe behaviour and/or effects\n1 Entry deleted\n2 N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene methyl)\nanilinium methyl sulphate\n6%\nCAS No.52793-97-2\n3 Homosalate (INN)\n7.34% Face products with the exception\nof propellent spray products\nCAS No.118-56-9\nVersion No.: 2025-2, 12th December 2025",
+    "283": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n4 2-Hydroxy-4-methoxy-benzophenone/Oxybenzone For a) and b) Not more than 0.5 % For a) and b): Contains\nto protect product formulation Benzophenone-3(1)\nBenzophenone-3\na) 6% a) Face products, hand products,\nand lip products, excluding\nCAS No. 131-57-7 propellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 5.5 %.\nb) Body products, including\nb) 2.2%\npropellant and pump spray\nproducts\nIf used at 0.5 % to protect product\nformulation, the levels used as UV\nfilter must not exceed 1.7 %.\nc) 0.5% Other products\n5 Entry deleted\n6 2-Phenylbenzimidazole-5-sulphonic acid and its\n8%\npotassium, sodium and triethanolamine salts\nexpressed as\nacid\nCAS No.27503-81-7\nVersion No.: 2025-2, 12th December 2025",
+    "284": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n7 3,3’-(1,4-Phenylenedimethylene)bis(7,7-dimethyl-2-\noxo-bicyclo-[2,2,1]hept-1-yl methanesulfonic acid)\nand its salts 10%\n(expressed as\nacid)\nTerephthalylidene CAS No. 92761-26-7\nDicamphor Sulfonic Acid CAS No. 90457-82-2\n8 1-(4-Tert-Butylphenyl)-3-(4-methoxyphenyl)propane-\n1,3-dione/Avobenzone\n5%\nCAS No. 70356-09-1\n9 alpha-(2-Oxoborn-3-ylidene) toluene-4-sulphonic\n6%\nacid and its salts\n(expressed as\nacid)\nCAS No.56039-58-8\n10 2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester a) 9 % a) Propellant spray products\n(Octocrylene)(6)\nb) 10 % b) Other products\nCAS No. 6197-30-4\n11 Polymer of N-{(2 and 4)-[2-oxoborn-3-ylidene)\nmethyl] benzyl} acrylamide\n6%\nCAS No. 113783-61-2\n12 Octyl methoxycinnamate\n10%\nCAS No. 5466-77-3\nVersion No.: 2025-2, 12th December 2025",
+    "285": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n13 Ethoxylated Ethyl-4-aminobenzoate (PEG-25 PABA)\n10%\nCAS No. 116242-27-4\n14 Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)\n10%\nCAS No. 71617-10-2\n15 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-oxy)-1,3,5-\ntriazine (Octyl triazone)\n5%\nCAS No. 88122-99-0\n16 Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-6-(2-\nmethyl-3-(1,3,3,3-tetramethyl-1-(trimethylsilyl)oxy)-\ndisiloxanyl)propyl (Drometrizole Trisiloxane)\n15%\nCAS No.155633-54-8\n17 Benzoic acid, 4,4-((6-(((1,1-dimethylethyl)amino)\ncarbonyl)phenyl)amino)-1,3,5-triazine-2,4-\ndiyl)diimino)bis-,bis-(2-ethylhexyl)ester)\n10%\nCAS No. 154702-15-5\n18 Entry Deleted\n19 Entry Deleted\nVersion No.: 2025-2, 12th December 2025",
+    "286": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n20 2-Ethylhexyl salicylate (Octyl Salicylate)\n5%\nCAS No. 118-60-5\n21 4-Dimethylaminobenzoate of ethyl-2-hexyl (octyl\ndimethyl PABA)\n8%\nCAS No. 21245-02-3\n22 2-Hydroxy-4-methoxybenzophenone-5-sulfonic acid\n(Benzophenone-4) and its sodium salt\n(Benzophenone-5)\n5% (as acid)\nBenzophenone-4 CAS No. 4065-45-6\nBenzophenone-5 CAS No. 6628-37-1\n23 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4-\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’-\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol) (Methylene Bis- 10%(5)\nBenzotriazolyl Tetramethylbutylphenol/MBBT)\nCAS No. 103597-45-1\nVersion No.: 2025-2, 12th December 2025",
+    "287": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n23a 2,2’-Methylene-bis(6-(2H-benzotriazol-2-yl)-4- Not to be used in applications that may lead\n(tetramethyl-butyl)-1,1,3,3-phenol);2,2’- to exposure of the end user's lungs by\ninhalation.\nMethylenebis(6-(2H-benzotriazol-2-yl)-4-(1,1,3,3-\nOnly nanomaterials having the following\ntetramethylbutyl)phenol) (Methylene Bis-\ncharacteristics are allowed:\nBenzotriazolyl Tetramethylbutylphenol (nano)/MBBT\n- Purity ≥ 98.5 %, with 2,2′-\n(nano))\nmethylene-bis-(6(2H-\nbenzotriazol-2-yl)-4-\n(isooctyl)phenol) isomer fraction\nCAS No. 103597-45-1 10%(5) not exceeding 1.5 %;\n- Solubility < 5 ng/L in water at 25\n°C;\n- Partition coefficient (Log Pow):\n12.7 at 25 °C;\n- Uncoated;\n- Median particle size D50 (50% of\nnumber below this diameter):\n≥ 120 nm of mass distribution\nand/or ≥ 60 nm of number size\ndistribution.\n24 Monosodium salt of 2,2'-(1,4-phenylene)bis)-1H-\nbenzimidazole-4,6-disulphonic acid\n10% (of acid)\nCAS No.180898-37-7\n25 (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-hexyloxy)-2-\nhydroxy]-phenyl}-6-(4-methoxyphenyl)\n10%\nCAS No.187393-00-6\n26 Dimethicodiethylbenzalmalonate\n10 %\n(CAS No. 207574-74-1)\nVersion No.: 2025-2, 12th December 2025",
+    "288": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n27 Titanium dioxide (3) Titanium dioxide in powder form containing\n1 % or more of particles with aerodynamic\n(CAS No. 13463-67-7/1317-70-0/1317-80-2) diameter ≤ 10 µm, to be used in compliance\nwith Annex III, No [338]. For the product\ntypes under letter (c) of column (c) in Annex\n25 % (4)\nIII, No [338], the maximum concentration in\nready for use preparation provided in\ncolumn (c) of this entry applies.\nTitanium dioxide (nano) Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nCAS No. 13463-67-7/1317-70-0/1317-80-2\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n27a 25 % (4) - Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation.\nVersion No.: 2025-2, 12th December 2025",
+    "289": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n28 Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-, hexylester.\nINCI Name: Diethylamino hydroxybenzoyl hexyl 10 %\nBenzoate\nCAS No. 302776-68-7\n29 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-yl-, Not to be used in sprays. Only\nincluding as nanomaterial. 10% nanomaterials having the following\ncharacteristics are allowed:\nINCI Name : Tris-biphenyl triazine Tris-biphenyl\n— median primary particle size > 80 nm;\ntriazine (nano)\n— Purity ≥ 98 %;\nCAS No. 31274-51-8 — Uncoated\n30 3,3-(1,4-Phenylene) bis (5,6-diphenyl- 1,2,4-triazine) 5% Not to be used in application that may lead\nto exposure of the end user's lungs by\nCAS No. 55514-22-2\ninhalation.’\n31 2-ethoxyethyl (2Z)-2-cyano- 2-[3-(3- 3 % -- Not to be used in applications\nmethoxypropylamino) cyclohex-2-en-1- that may lead to exposure of the\nylidene]acetate end-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\nMethoxypropylamino Cyclohexenylidene\ncontent: 50 μg/kg\nEthoxyethylcyanoacetate\n— Keep in nitrite-free containers’\nCAS No. 1419401-88-9\nVersion No.: 2025-2, 12th December 2025",
+    "290": "Annex VII - List of UV filters which cosmetic products may contain\nMaximum Other limitations and Conditions of use and\nReference\nSubstance Authorised requirements warnings which must be\nnumber\nconcentration printed on the label\na b c d e\n32 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2- 10% (7)\nhydroxybenzoyl]phenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\nPiperazine\nCas No. 919803-06-8\n33 1,1'-(1,4-piperazinediyl)bis[1-[2-[4-(diethylamino)-2- 10% (7) Only nanomaterials having the\nhydroxybenzoyl]phenyl]-methanone following characteristics are\nallowed:\n- Purity ≥ 97 %\nBis-(Diethylaminohydroxybenzoyl Benzoyl)\n- Median particle size D50\nPiperazine (nano)\n(50 % of the number below\nCas No. 919803-06-8 this diameter): ≥ 50 nm of\nnumber size distribution.\nNot to be used in applications that\nmay lead to exposure of the end\nuser’s lungs by inhalation.\n1. Not required if concentration is 0.5 % or less and when it is used only for product protection purposes.\n2. In case of combined use of zinc oxide and zinc oxide (nano), the sum shall not exceed the limit given in column c.\n3. For use of titanium dioxide as a colourant see Annex IV, CI 77891\n4. In case of combined use of titanium dioxide and titanium dioxide (nano), the sum shall not exceed the limit given in column c.\n5. In case of combined use of Methylene Bis-Benzotriazolyl Tetramethylbutylphenol and Methylene Bis-Benzotriazolyl Tetramethylbutylphenol (nano),\nthe sum shall not exceed the limit given in column c.\n6. Benzophenone as an impurity and/or degradation product of Octocrylene shall be kept at trace level.\n7. In case of combined use of Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine and Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine (nano),\nthe sum shall not exceed 10 %.\nVersion No.: 2025-2, 12th December 2025",
+    "280": "Annex VII - List of UV filters which cosmetic products may contain\nANNEX VII\nLIST OF UV FILTERS WHICH COSMETIC PRODUCTS MAY CONTAIN\nFor the purpose of this Directive, UV filters are substances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful effects of these rays.\nThese UV filters may be added to other cosmetic products within the limits and under the conditions laid down in this Annex.\nOther UV filters used in cosmetic products solely for the purpose of protecting the product against UV rays are not included in this\nlist.\nWarning which must be printed on the label ‘Do not stay too long in the sun, even while using a sunscreen product’ (for\nprimary sunscreen products)\nVersion No.: 2025-2, 12th December 2025"
+  },
+  "preamble": [
+    {
+      "source_page": 280,
+      "source_text": "Annex VII - List of UV filters which cosmetic products may contain\nANNEX VII\nLIST OF UV FILTERS WHICH COSMETIC PRODUCTS MAY CONTAIN\nFor the purpose of this Directive, UV filters are substances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful effects of these rays.\nThese UV filters may be added to other cosmetic products within the limits and under the conditions laid down in this Annex.\nOther UV filters used in cosmetic products solely for the purpose of protecting the product against UV rays are not included in this\nlist.\nWarning which must be printed on the label ‘Do not stay too long in the sun, even while using a sunscreen product’ (for\nprimary sunscreen products)\nVersion No.: 2025-2, 12th December 2025"
+    }
+  ],
+  "footnotes": [
+    {
+      "footnote_number": "1",
+      "source_page": 290,
+      "source_text": "1. Not required if concentration is 0.5 % or less and when it is used only for product protection purposes."
+    },
+    {
+      "footnote_number": "2",
+      "source_page": 290,
+      "source_text": "2. In case of combined use of zinc oxide and zinc oxide (nano), the sum shall not exceed the limit given in column c."
+    },
+    {
+      "footnote_number": "3",
+      "source_page": 290,
+      "source_text": "3. For use of titanium dioxide as a colourant see Annex IV, CI 77891"
+    },
+    {
+      "footnote_number": "4",
+      "source_page": 290,
+      "source_text": "4. In case of combined use of titanium dioxide and titanium dioxide (nano), the sum shall not exceed the limit given in column c."
+    },
+    {
+      "footnote_number": "5",
+      "source_page": 290,
+      "source_text": "5. In case of combined use of Methylene Bis-Benzotriazolyl Tetramethylbutylphenol and Methylene Bis-Benzotriazolyl Tetramethylbutylphenol (nano),\nthe sum shall not exceed the limit given in column c."
+    },
+    {
+      "footnote_number": "6",
+      "source_page": 290,
+      "source_text": "6. Benzophenone as an impurity and/or degradation product of Octocrylene shall be kept at trace level."
+    },
+    {
+      "footnote_number": "7",
+      "source_page": 290,
+      "source_text": "7. In case of combined use of Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine and Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine (nano),\nthe sum shall not exceed 10 %.\nVersion No.: 2025-2, 12th December 2025"
+    }
+  ],
+  "page_diagnostics": [
+    {
+      "source_page": 281,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ],
+      "unassigned_fragments": [
+        " |  | S WHICH CO |  | ",
+        "Reference\nnumber | Substance | Maximum\nAuthorised\nconcentration | Other limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+        "a | b | c | d | e"
+      ]
+    },
+    {
+      "source_page": 282,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 283,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 284,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 285,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 286,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 287,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 288,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 289,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 290,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    }
+  ]
+}

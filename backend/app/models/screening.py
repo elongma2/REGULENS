@@ -18,6 +18,29 @@ class Finding(StrEnum):
     INFORMATION_MISSING = "information_missing"
     IDENTITY_UNRESOLVED = "identity_unresolved"
     PROFESSIONAL_REVIEW = "professional_review_required"
+    PERMITTED_USE_WITHIN_CONDITIONS = "permitted_use_within_conditions"
+    PERMITTED_USE_CONDITION_NOT_MET = "permitted_use_condition_not_met"
+    REGULATED_FUNCTION_NOT_PERMITTED = "regulated_function_not_permitted"
+
+
+class RegulatedFunction(StrEnum):
+    COLOURANT = "colourant"
+    PRESERVATIVE = "preservative"
+    UV_FILTER = "uv_filter"
+
+
+class ConditionStatus(StrEnum):
+    SATISFIED = "satisfied"
+    NOT_SATISFIED = "not_satisfied"
+    INFORMATION_MISSING = "information_missing"
+    PROFESSIONAL_REVIEW = "professional_review"
+    NOT_APPLICABLE = "not_applicable"
+
+
+class WarningApplicability(StrEnum):
+    APPLICABLE = "applicable"
+    NOT_APPLICABLE = "not_applicable"
+    UNDETERMINED = "undetermined"
 
 
 class IdentityStatus(StrEnum):
@@ -70,6 +93,7 @@ class IngredientInput(StrictModel):
     name: str | None = None
     cas_number: str | None = None
     concentration: ConcentrationInput | None = None
+    regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def require_identity_input(self) -> "IngredientInput":
@@ -177,6 +201,14 @@ class RuleEvidence(StrictModel):
     regulation_6_provisions: list[dict[str, Any]] = Field(default_factory=list)
     cross_references: list[dict[str, Any]] = Field(default_factory=list)
     acd_counterpart_rules: list[dict[str, Any]] = Field(default_factory=list)
+    regulatory_category: str | None = None
+    list_semantics: str | None = None
+    permitted_function: RegulatedFunction | None = None
+    applicability_requirements: list[dict[str, Any]] = Field(default_factory=list)
+    combined_limit_requirements: list[dict[str, Any]] = Field(default_factory=list)
+    warning_requirements: list[dict[str, Any]] = Field(default_factory=list)
+    source_bundle_version: str | None = None
+    source_section_version: str | None = None
 
 
 class RuleEvaluation(StrictModel):
@@ -186,6 +218,31 @@ class RuleEvaluation(StrictModel):
     reasons: list[str] = Field(default_factory=list)
     submitted_concentration: ConcentrationInput | None = None
     evidence: RuleEvidence
+
+
+class ConditionEvaluation(StrictModel):
+    rule_id: str
+    condition_type: str
+    status: ConditionStatus
+    source_text: str
+    reason: str | None = None
+
+
+class FunctionEvaluation(StrictModel):
+    regulated_function: RegulatedFunction
+    singapore_part: str
+    status: ConditionStatus
+    finding: Finding | None = None
+    rule_ids: list[str] = Field(default_factory=list)
+    reasons: list[str] = Field(default_factory=list)
+
+
+class WarningRequirement(StrictModel):
+    rule_id: str
+    warning_text: str
+    trigger_text: str | None = None
+    applicability: WarningApplicability
+    source_reference: str
 
 
 class ReviewExplanation(StrictModel):
@@ -213,6 +270,10 @@ class ScreeningResult(StrictModel):
     inactive_evidence: list[RuleEvidence] = Field(default_factory=list)
     searched_singapore_parts: list[str] = Field(default_factory=list)
     searched_regulatory_sections: list[str] = Field(default_factory=list)
+    function_evaluations: list[FunctionEvaluation] = Field(default_factory=list)
+    condition_evaluations: list[ConditionEvaluation] = Field(default_factory=list)
+    warning_requirements: list[WarningRequirement] = Field(default_factory=list)
+    incomplete_positive_list_checks: list[RegulatedFunction] = Field(default_factory=list)
     scope_note: str = (
         "This is an initial Singapore screening result within the implemented rules only; "
         "professional review remains required."

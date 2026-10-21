@@ -34,6 +34,7 @@ def _runtime_ingredient(ingredient) -> IngredientInput:
         name=ingredient.name,
         cas_number=ingredient.cas_number,
         concentration=runtime_concentration,
+        regulated_functions=ingredient.regulated_functions,
     )
 
 
@@ -49,6 +50,7 @@ def screen_formulation(
             store,
             _runtime_ingredient(ingredient),
             request.product_context,
+            request.product_applicability.model_dump(),
             ingredient_catalog=ingredient_catalog,
             catalogue_error=catalogue_error,
         )
@@ -80,6 +82,7 @@ def screen_formulation(
             formulation_id=request.formulation_id,
             formulation_name=request.formulation_name,
             product_context=request.product_context,
+            product_applicability=request.product_applicability,
         ),
         dataset=DatasetIdentity(
             dataset_version=store.dataset_version,

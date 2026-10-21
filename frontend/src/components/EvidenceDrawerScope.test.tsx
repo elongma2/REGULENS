@@ -55,4 +55,18 @@ describe("catalogue identity regulatory-scope presentation", () => {
     expect(within(drawer).queryByText("Needs verification")).not.toBeInTheDocument();
     expect(within(drawer).queryByText(/linkage needs verification/i)).not.toBeInTheDocument();
   });
+
+  it("shows regulated-function scope, condition checks, and unsatisfied label warnings separately", () => {
+    const result = baseResult(1, "Example UV filter");
+    result.submitted_ingredient.regulated_functions = ["uv_filter"];
+    result.searched_singapore_parts = ["Third Schedule Part I", "Third Schedule Part II", "Third Schedule Part V"];
+    result.function_evaluations = [{ regulated_function: "uv_filter", singapore_part: "Third Schedule Part V", status: "satisfied", finding: "permitted_use_within_conditions", rule_ids: ["uv-3"], reasons: [] }];
+    result.condition_evaluations = [{ rule_id: "uv-3", condition_type: "sun_protection_purpose", status: "satisfied", source_text: "For sun-protection use", reason: null }];
+    result.warning_requirements = [{ rule_id: "uv-3", warning_text: "Contains example filter", trigger_text: "When used for sun protection", applicability: "applicable", source_reference: "Third Schedule Part V reference 3" }];
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+    const drawer = screen.getByLabelText("Regulatory evidence");
+    expect(within(drawer).getByText("Uv filter: Satisfied")).toBeInTheDocument();
+    expect(within(drawer).getByText("Contains example filter")).toBeInTheDocument();
+    expect(within(drawer).getByText(/does not confirm that a label contains them/i)).toBeInTheDocument();
+  });
 });

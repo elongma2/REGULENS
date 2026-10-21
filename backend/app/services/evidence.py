@@ -34,6 +34,12 @@ def build_rule_evidence(store: RegulatoryStore, rule: dict[str, Any]) -> RuleEvi
         provision_ids = ("sg-regulation-6-1", "sg-regulation-6-7")
     elif rule["regulatory_section"] == "Third Schedule Part II":
         provision_ids = ("sg-regulation-6-2", "sg-regulation-6-7")
+    elif rule["regulatory_section"] == "Third Schedule Part III":
+        provision_ids = ("sg-regulation-6-3", "sg-regulation-6-7")
+    elif rule["regulatory_section"] == "Third Schedule Part IV":
+        provision_ids = ("sg-regulation-6-4", "sg-regulation-6-7")
+    elif rule["regulatory_section"] == "Third Schedule Part V":
+        provision_ids = ("sg-regulation-6-5", "sg-regulation-6-7")
     else:
         provision_ids = ()
     for provision_id in provision_ids:
@@ -91,4 +97,12 @@ def build_rule_evidence(store: RegulatoryStore, rule: dict[str, Any]) -> RuleEvi
         regulation_6_provisions=provisions,
         cross_references=cross_references,
         acd_counterpart_rules=counterparts,
+        regulatory_category=rule.get("regulatory_category"),
+        list_semantics=rule.get("list_semantics"),
+        permitted_function=rule.get("permitted_function"),
+        applicability_requirements=rule.get("applicability_requirements", []),
+        combined_limit_requirements=rule.get("combined_limit_requirements", []),
+        warning_requirements=rule.get("warning_requirements", []),
+        source_bundle_version=rule.get("source_bundle_version"),
+        source_section_version=rule.get("source_section_version"),
     )

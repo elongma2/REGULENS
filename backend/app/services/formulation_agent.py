@@ -52,10 +52,11 @@ from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, Ingred
 from backend.app.services.loader import RegulatoryStore
 from backend.app.services.parsing import validate_formulation_request
 from backend.app.services.regulatory_search import search_acd_rules, search_singapore_rules
+from backend.app.services.resolver import resolve_ingredient
 
 
 AGENT_INSTRUCTIONS = """You are a formulation-structure assistant. Interpret the bounded CSV grid without assuming a fixed layout.
-Identify the formulation header rows, formulation data rows, column meanings, explicit formulation metadata, and logical ingredients. A logical ingredient may use several source rows when the document explicitly relates them. Every proposed field must cite exact source cells using one-based source_row, zero-based source_column_index, and the unchanged source_value. Treat raw-material names, trade names, supplier, function, notes, remarks, comments, and batch fields as provenance rather than regulatory fields. Prefer an explicit INCI/common ingredient value over a trade name when the source establishes that relationship. Never infer product context, preparation stage, basis, CAS, concentration value, or concentration unit from general knowledge. A bare number has no unit. QS and balance have no numeric value. Mark every material uncertainty with the supplied uncertainty codes. Use read-only search tools only for a genuine non-exact identity candidate; exact catalogue matching is performed by application code. Never make regulatory, safety, legality, permission, or compliance decisions. Never invent cells, values, rows, or relationships. Return only the strict structured output and do not expose reasoning."""
+Identify the formulation header rows, formulation data rows, column meanings, explicit formulation metadata, and logical ingredients. A logical ingredient may use several source rows when the document explicitly relates them. Every proposed field must cite exact source cells using one-based source_row, zero-based source_column_index, and the unchanged source_value. Treat raw-material names, trade names, supplier, notes, remarks, comments, and batch fields as provenance rather than regulatory fields. Preserve an explicitly supplied ingredient function when the source says colourant/colorant, preservative, or UV filter; cite the exact function cell and do not infer a function from general ingredient knowledge. Prefer an explicit INCI/common ingredient value over a trade name when the source establishes that relationship. Never infer product context, preparation stage, basis, CAS, concentration value, concentration unit, or product applicability from general knowledge. A bare number has no unit. QS and balance have no numeric value. Mark every material uncertainty with the supplied uncertainty codes. Use read-only search tools only for a genuine non-exact identity candidate; exact catalogue matching is performed by application code. Never make regulatory, safety, legality, permission, or compliance decisions. Never invent cells, values, rows, or relationships. Return only the strict structured output and do not expose reasoning."""
 
 NUMERIC_WITH_UNIT = re.compile(r"^\s*(?P<value>(?:\d+(?:\.\d*)?|\.\d+))\s*(?P<unit>%|ppm|mg\s*/\s*kg)\s*$", re.IGNORECASE)
 NUMERIC_ONLY = re.compile(r"^\s*(?:\d+(?:\.\d*)?|\.\d+)\s*$")
@@ -119,6 +120,8 @@ def _rule_tool_result(rule: dict[str, Any]) -> dict[str, Any]:
         "section": rule["regulatory_section"],
         "reference": rule["reference_number"],
         "cas_numbers": rule.get("cas_numbers", []),
+        "regulatory_category": rule.get("regulatory_category"),
+        "permitted_function": rule.get("permitted_function"),
         "normalization_status": rule.get("normalization_status"),
     }
 
@@ -165,8 +168,12 @@ class OpenAIFormulationInterpreter:
                                     },
                                 ],
                             },
+                            "regulated_functions": {
+                                "type": "array",
+                                "items": {"type": "string", "enum": ["colourant", "preservative", "uv_filter"]},
+                            },
                         },
-                        "required": ["name", "cas_number", "concentration"],
+                        "required": ["name", "cas_number", "concentration", "regulated_functions"],
                         "additionalProperties": False,
                     },
                 },
@@ -577,10 +584,10 @@ class FormulationAgentService:
             session.touched_at = time.monotonic()
             return session
 
-    def create(self, parsed: ParsedCSV) -> AgentSessionView:
+    def create(self, parsed: ParsedCSV, session_id: str | None = None) -> AgentSessionView:
         with self._lock:
             self._purge()
-            session_id = str(uuid4())
+            session_id = session_id or str(uuid4())
             view = AgentSessionView(
                 session_id=session_id,
                 revision=0,
@@ -592,6 +599,15 @@ class FormulationAgentService:
             session = _Session(parsed=parsed, view=view, touched_at=time.monotonic())
             self._sessions[session_id] = session
         return self._interpret(session)
+
+    def restore(self, parsed: ParsedCSV, view: AgentSessionView) -> None:
+        """Hydrate a request-local working session from the persistent source of truth."""
+        with self._lock:
+            self._sessions[view.session_id] = _Session(
+                parsed=parsed,
+                view=view.model_copy(deep=True),
+                touched_at=time.monotonic(),
+            )
 
     def retry(self, session_id: str) -> AgentSessionView:
         with self._lock:
@@ -800,6 +816,7 @@ class FormulationAgentService:
                 *item.concentration_unit_sources,
                 *item.basis_sources,
                 *item.preparation_stage_sources,
+                *item.regulated_function_sources,
             ]
             for reference in references:
                 self._validate_model_reference(parsed, reference)
@@ -932,6 +949,55 @@ class FormulationAgentService:
                         uncertainty_code="preparation_stage",
                     ))
 
+            function_sources = [
+                self._public_reference(parsed, output.header_rows, reference)
+                for reference in item.regulated_function_sources
+            ]
+            explicit_functions = set()
+            for reference in item.regulated_function_sources:
+                folded = self._exact_text(reference.source_value)
+                if "preserv" in folded:
+                    explicit_functions.add("preservative")
+                if "uv filter" in folded or "uv-filter" in folded or "sunscreen filter" in folded:
+                    explicit_functions.add("uv_filter")
+                if "colour" in folded or "color" in folded:
+                    explicit_functions.add("colourant")
+            proposed_functions = {value.value for value in item.regulated_functions}
+            if proposed_functions - explicit_functions:
+                raise AgentExecutionError(
+                    "agent_invalid_source_reference",
+                    "A proposed ingredient function is not explicitly supported by its cited source cell.",
+                )
+            if proposed_functions and not item.regulated_function_sources:
+                raise AgentExecutionError(
+                    "agent_invalid_source_reference",
+                    "A proposed ingredient function has no source cell.",
+                )
+            if not proposed_functions:
+                resolution = resolve_ingredient(
+                    self.store,
+                    interpreted_name,
+                    cas_value,
+                    ingredient_catalog=self.catalogue,
+                )
+                resolved_ids = resolution.resolved_singapore_substance_ids or (
+                    [resolution.resolved_singapore_substance_id]
+                    if resolution.resolved_singapore_substance_id else []
+                )
+                suggested_functions = sorted({
+                    rule["permitted_function"]
+                    for substance_id in resolved_ids
+                    for rule in self.store.rules_by_substance_id.get(substance_id, ())
+                    if rule.get("permitted_function") and rule["regulatory_section"].startswith("Third Schedule")
+                })
+                if suggested_functions:
+                    row_uncertainties.append(AgentRowUncertainty(
+                        target_field="regulated_functions",
+                        uncertainty_code="ingredient_function",
+                        source_value=None,
+                        proposed_value=suggested_functions,
+                    ))
+
             canonical_coordinates = {(reference.source_row, reference.source_column_index) for reference in references}
             source_metadata = [
                 AgentSourceMetadata(
@@ -977,6 +1043,8 @@ class FormulationAgentService:
                 source_metadata=source_metadata,
                 issues=list(item.issues),
                 unresolved_fields=row_uncertainties,
+                regulated_functions=item.regulated_functions,
+                function_sources=function_sources,
             ))
 
         missing_rows = sorted(set(output.data_rows) - covered_data_rows)
@@ -1252,6 +1320,14 @@ class FormulationAgentService:
             else:
                 row.concentration = None
             self._remove_uncertainty(row, "concentration_unavailable")
+        elif question.question_type == "ingredient_function":
+            row = self._select_row(view, question.row_id, question.source_row)
+            if option_id == "not_used_for_function":
+                row.regulated_functions = []
+            else:
+                selected = next(option.value for option in question.options if option.option_id == option_id)
+                row.regulated_functions = list(selected) if isinstance(selected, list) else [selected]
+            self._remove_uncertainty(row, "ingredient_function")
 
     @staticmethod
     def _remove_uncertainty(row: AgentIngredientRow, code: str) -> None:
@@ -1356,6 +1432,39 @@ class FormulationAgentService:
                     ))
                 elif uncertainty.uncertainty_code == "preparation_stage":
                     stage_rows.append(row)
+                elif uncertainty.uncertainty_code == "ingredient_function":
+                    proposed = uncertainty.proposed_value or []
+                    options = [
+                        AgentQuestionOption(
+                            option_id=f"function:{value}",
+                            label=f"Use as {str(value).replace('_', ' ')}",
+                            value=value,
+                        )
+                        for value in proposed
+                    ]
+                    if len(proposed) > 1:
+                        options.insert(0, AgentQuestionOption(
+                            option_id="functions:all",
+                            label="Use all listed functions",
+                            value=proposed,
+                        ))
+                    options.append(AgentQuestionOption(
+                        option_id="not_used_for_function",
+                        label="Not used for this regulated function",
+                        value=None,
+                    ))
+                    questions.append(AgentQuestion(
+                        question_id=f"function:{row.row_id}",
+                        question_type="ingredient_function",
+                        title="Ingredient function",
+                        prompt="Confirm whether this ingredient is intentionally used for a regulated function.",
+                        source_row=row.source_row,
+                        row_id=row.row_id,
+                        target_field="regulated_functions",
+                        uncertainty_code="ingredient_function",
+                        affected_row_ids=[row.row_id],
+                        options=options,
+                    ))
 
         if stage_rows:
             questions.append(AgentQuestion(
@@ -1407,6 +1516,9 @@ class FormulationAgentService:
                 ))
         if update.cas_number is not None:
             row.cas_number = AgentFieldProvenance(value=update.cas_number or None, source_value=row.cas_number.source_value if row.cas_number else None, source_row=row.source_row, interpretation_method="user_edited", confirmed_by_user=True)
+        if update.regulated_functions is not None:
+            row.regulated_functions = list(dict.fromkeys(update.regulated_functions))
+            self._remove_uncertainty(row, "ingredient_function")
         if update.remove_concentration:
             row.concentration = None
         elif "concentration_value" in update.model_fields_set:
@@ -1475,6 +1587,7 @@ class FormulationAgentService:
                     "name": row.name.value,
                     "cas_number": row.cas_number.value if row.cas_number else None,
                     "concentration": concentration,
+                    "regulated_functions": row.regulated_functions,
                 })
             formulation = FormulationRequest.model_validate({
                 "formulation_id": request.formulation_id if request.formulation_id is not None else (
@@ -1484,6 +1597,7 @@ class FormulationAgentService:
                     session.view.formulation_name.value if session.view.formulation_name else None
                 ),
                 "product_context": request.product_context,
+                "product_applicability": request.product_applicability,
                 "ingredients": ingredients,
             })
             validate_formulation_request(formulation, self.store)

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from typing import Annotated
+
+from backend.app.dependencies import CurrentUser, get_current_user_if_configured
 
 from backend.app.models.formulation import (
     ConcentrationBasis,
@@ -12,6 +15,7 @@ from backend.app.models.formulation import (
     PreparationStage,
     ScreeningOptionsResponse,
 )
+from backend.app.models.screening import RegulatedFunction
 from backend.app.services.formulation import screen_formulation
 from backend.app.models.identity_catalogue import IngredientSearchResponse, IngredientSearchResult
 from backend.app.models.regulatory_search import (
@@ -167,6 +171,7 @@ def screening_options_route(request: Request) -> ScreeningOptionsResponse:
         concentration_units=list(ConcentrationUnit),
         concentration_bases=[None, *list(ConcentrationBasis)],
         preparation_stages=list(PreparationStage),
+        regulated_functions=list(RegulatedFunction),
     )
 
 
@@ -251,6 +256,7 @@ def acd_ingredient_search_route(
 def screen_formulation_route(
     formulation: FormulationRequest,
     request: Request,
+    _user: Annotated[CurrentUser | None, Depends(get_current_user_if_configured)],
 ) -> FormulationScreeningResponse:
     try:
         deterministic_response = screen_formulation(

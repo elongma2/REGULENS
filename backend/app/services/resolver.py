@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import re
 from typing import Iterable
 
 from data_pipeline.scripts.normalize import cas_is_valid, conservative_text
@@ -18,6 +19,7 @@ from backend.app.services.loader import ACD_SECTIONS, SINGAPORE_SECTIONS, Regula
 
 
 SAFE_BRIDGE_STATUS = "aligned"
+CI_IDENTIFIER = re.compile(r"^\s*CI\s*[-:]?\s*(?P<identifier>\d{3,6}[A-Za-z]?)\s*$", re.IGNORECASE)
 
 
 def _candidate(substance: dict, methods: Iterable[str], statuses: Iterable[str] = ()) -> IdentityCandidate:
@@ -87,6 +89,64 @@ def _resolved_source(candidates: list[IdentityCandidate], substance_id: str) -> 
     return IdentitySourceType.ACD_REGULATORY, "ASEAN Cosmetic Directive"
 
 
+def _is_one_chemical_identity(
+    store: RegulatoryStore,
+    substance_ids: set[str],
+    supplied_cas: str | None = None,
+) -> bool:
+    if not substance_ids:
+        return False
+    substances = [store.substances_by_id[item] for item in substance_ids]
+    names = {item["normalized_substance_name"] for item in substances if item["normalized_substance_name"]}
+    if len(names) == 1:
+        sections = {item["regulatory_section"] for item in substances}
+        if len(sections) == len(substances):
+            return True
+        # A schedule can repeat one chemical under multiple reference numbers.
+        # Merge duplicate entries from the same section only when every entry
+        # is independently corroborated by the same CAS through an aligned ACD
+        # cross-reference. Exact name equality alone is not enough.
+        corroborated_cas_sets: list[set[str]] = []
+        for substance in substances:
+            cas_numbers = set(substance["cas_numbers"])
+            for rule in store.rules_by_substance_id.get(substance["substance_id"], ()):
+                for cross_reference in store.cross_references_by_rule_id.get(rule["rule_id"], ()):
+                    if cross_reference["comparison_status"] != SAFE_BRIDGE_STATUS:
+                        continue
+                    for acd_rule_id in cross_reference["acd_rule_ids"]:
+                        acd_substance_id = store.rules_by_id[acd_rule_id].get("substance_id")
+                        if acd_substance_id:
+                            cas_numbers.update(store.substances_by_id[acd_substance_id]["cas_numbers"])
+            if not cas_numbers:
+                break
+            corroborated_cas_sets.append(cas_numbers)
+        if (
+            len(corroborated_cas_sets) == len(substances)
+            and set.intersection(*corroborated_cas_sets)
+        ):
+            return True
+    if supplied_cas and all(
+        not item["cas_numbers"] or supplied_cas in item["cas_numbers"] for item in substances
+    ):
+        return any(supplied_cas in item["cas_numbers"] for item in substances)
+    common_cas = set(substances[0]["cas_numbers"])
+    for substance in substances[1:]:
+        common_cas &= set(substance["cas_numbers"])
+    return bool(common_cas)
+
+
+def _resolved_group(
+    candidates: list[IdentityCandidate], substance_ids: set[str]
+) -> tuple[IdentitySourceType, str]:
+    if any(
+        candidate.substance_id in substance_ids
+        and any(not method.endswith("_via_acd") for method in candidate.match_methods)
+        for candidate in candidates
+    ):
+        return IdentitySourceType.SINGAPORE_REGULATORY, "Singapore Third Schedule"
+    return IdentitySourceType.ACD_REGULATORY, "ASEAN Cosmetic Directive"
+
+
 def _resolve_regulatory_ingredient(
     store: RegulatoryStore, name: str | None, cas_number: str | None
 ) -> IdentityResolution:
@@ -108,10 +168,20 @@ def _resolve_regulatory_ingredient(
             store.substances_by_derived_search_name.get(name_key, ()),
             "derived_source_name_except_clause",
         )
-        name_sg = _merge([*exact[0], *derived[0]])
-        name_acd = _merge([*exact[1], *derived[1]])
+        ci_match = CI_IDENTIFIER.fullmatch(name)
+        ci = (
+            _matches_for_substances(
+                store,
+                store.substances_by_ci.get(conservative_text(ci_match.group("identifier")), ()),
+                "exact_ci",
+            )
+            if ci_match
+            else ([], [], {})
+        )
+        name_sg = _merge([*exact[0], *derived[0], *ci[0]])
+        name_acd = _merge([*exact[1], *derived[1], *ci[1]])
         name_statuses = defaultdict(set)
-        for statuses in (exact[2], derived[2]):
+        for statuses in (exact[2], derived[2], ci[2]):
             for substance_id, values in statuses.items():
                 name_statuses[substance_id].update(values)
 
@@ -145,9 +215,11 @@ def _resolve_regulatory_ingredient(
                 reasons=reasons + ["neither_name_nor_cas_resolved_to_a_source_backed_identity"],
             )
         common = name_ids & cas_ids
-        if len(common) == 1:
-            common_id = next(iter(common))
-            source_type, source_name = _resolved_source(all_sg, common_id)
+        grouped = common or ((name_ids | cas_ids) if name_ids and cas_ids else set())
+        if grouped and _is_one_chemical_identity(store, grouped, supplied_cas):
+            ordered_ids = sorted(grouped)
+            common_id = ordered_ids[0]
+            source_type, source_name = _resolved_group(all_sg, grouped)
             return IdentityResolution(
                 status=IdentityStatus.RESOLVED,
                 match_methods=sorted(
@@ -160,7 +232,7 @@ def _resolve_regulatory_ingredient(
                 singapore_candidates=all_sg,
                 acd_candidates=all_acd,
                 resolved_singapore_substance_id=common_id,
-                resolved_singapore_substance_ids=[common_id],
+                resolved_singapore_substance_ids=ordered_ids,
                 identity_source_type=source_type,
                 identity_source_name=source_name,
             )
@@ -183,17 +255,18 @@ def _resolve_regulatory_ingredient(
     acd_candidates = name_acd if name and name.strip() else cas_acd
     statuses = name_statuses if name and name.strip() else cas_statuses
     ids = {item.substance_id for item in candidates}
-    if len(ids) == 1:
-        candidate_id = next(iter(ids))
-        if safe(candidate_id, statuses, candidates):
-            source_type, source_name = _resolved_source(candidates, candidate_id)
+    if ids and _is_one_chemical_identity(store, ids, supplied_cas):
+        ordered_ids = sorted(ids)
+        candidate_id = ordered_ids[0]
+        if all(safe(item, statuses, candidates) for item in ordered_ids):
+            source_type, source_name = _resolved_group(candidates, ids)
             return IdentityResolution(
                 status=IdentityStatus.RESOLVED,
                 match_methods=sorted({method for candidate in candidates for method in candidate.match_methods}),
                 singapore_candidates=candidates,
                 acd_candidates=acd_candidates,
                 resolved_singapore_substance_id=candidate_id,
-                resolved_singapore_substance_ids=[candidate_id],
+                resolved_singapore_substance_ids=ordered_ids,
                 identity_source_type=source_type,
                 identity_source_name=source_name,
             )

@@ -1,0 +1,3727 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "source_document": "acd_annexes_2026_1",
+  "section": "Annex VI",
+  "section_version": null,
+  "records": [
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-1",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "1",
+      "reference_number_raw": "1",
+      "original_substance_name": "Benzoic acid (CAS No. 65-85-0), and its\nsodium salt (CAS No. 532-32-1)",
+      "cas_number_raw": "65-85-0\n532-32-1",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Rinse off products, except\noral care products; 2.5 %\n(acid)\nOral care products; 1.7 %\n(acid)\nLeave-on products; 0.5 %\n(acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "1 | Benzoic acid (CAS No. 65-85-0), and its\nsodium salt (CAS No. 532-32-1) | Rinse off products, except\noral care products; 2.5 %\n(acid)\nOral care products; 1.7 %\n(acid)\nLeave-on products; 0.5 %\n(acid) |  |",
+      "source_pages": [
+        267
+      ],
+      "fragments": [
+        {
+          "source_page": 267,
+          "table_bbox": [
+            62.304,
+            135.77,
+            705.46,
+            536.736
+          ],
+          "row_bbox": [
+            62.304,
+            184.27,
+            705.46,
+            276.48
+          ],
+          "cells": [
+            "1",
+            "Benzoic acid (CAS No. 65-85-0), and its\nsodium salt (CAS No. 532-32-1)",
+            "Rinse off products, except\noral care products; 2.5 %\n(acid)\nOral care products; 1.7 %\n(acid)\nLeave-on products; 0.5 %\n(acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "1 | Benzoic acid (CAS No. 65-85-0), and its\nsodium salt (CAS No. 532-32-1) | Rinse off products, except\noral care products; 2.5 %\n(acid)\nOral care products; 1.7 %\n(acid)\nLeave-on products; 0.5 %\n(acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-1a",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "1a",
+      "reference_number_raw": "1a\nReference\nNumber\na",
+      "original_substance_name": "Salts of benzoic acid other than that\nlisted under reference number 1 and\nesters of benzoic acid\nAmmonium benzoate (CAS No.1863-63-\n4)/\nCalcium benzoate (CAS No. 2090-05-3)/\nPotassium benzoate (CAS No. 582-25-2)/\nMagnesium benzoate (CAS No. 553-70-\n8)/\nMEA- benzoate (CAS No. 4337-66-0)/\nMethyl benzoate (CAS No. 93-58-3) /\nEthyl benzoate (CAS No. 93-89-0)/\nPropyl benzoate (CAS No. 92315-68-6)/\nButyl benzoate (CAS No. 136-60-7) /\nIsobutyl benzoate (CAS No. 120-50-3)/\nIsopropyl benzoate (CAS No. 939-48-0)/\nPhenyl benzoate (CAS No. 93-99-2)\nSubsta nce\nb",
+      "cas_number_raw": "1863-63-\n4\n2090-05-3\n582-25-2\n553-70-\n8\n4337-66-0\n93-58-3\n93-89-0\n92315-68-6\n136-60-7\n120-50-3\n939-48-0\n93-99-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5 % (acid)\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "1a | Salts of benzoic acid other than that\nlisted under reference number 1 and\nesters of benzoic acid\nAmmonium benzoate (CAS No.1863-63-\n4)/\nCalcium benzoate (CAS No. 2090-05-3)/\nPotassium benzoate (CAS No. 582-25-2)/\nMagnesium benzoate (CAS No. 553-70-\n8)/\nMEA- benzoate (CAS No. 4337-66-0)/\nMethyl benzoate (CAS No. 93-58-3) /\nEthyl benzoate (CAS No. 93-89-0)/\nPropyl benzoate (CAS No. 92315-68-6)/\nButyl benzoate (CAS No. 136-60-7) /\nIsobutyl benzoate (CAS No. 120-50-3)/\nIsopropyl benzoate (CAS No. 939-48-0)/\nPhenyl benzoate (CAS No. 93-99-2) | 0.5 % (acid) |  | \nReference\nNumber | Substa nce | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        267,
+        268
+      ],
+      "fragments": [
+        {
+          "source_page": 267,
+          "table_bbox": [
+            62.304,
+            135.77,
+            705.46,
+            536.736
+          ],
+          "row_bbox": [
+            62.304,
+            276.48,
+            705.46,
+            536.736
+          ],
+          "cells": [
+            "1a",
+            "Salts of benzoic acid other than that\nlisted under reference number 1 and\nesters of benzoic acid\nAmmonium benzoate (CAS No.1863-63-\n4)/\nCalcium benzoate (CAS No. 2090-05-3)/\nPotassium benzoate (CAS No. 582-25-2)/\nMagnesium benzoate (CAS No. 553-70-\n8)/\nMEA- benzoate (CAS No. 4337-66-0)/\nMethyl benzoate (CAS No. 93-58-3) /\nEthyl benzoate (CAS No. 93-89-0)/\nPropyl benzoate (CAS No. 92315-68-6)/\nButyl benzoate (CAS No. 136-60-7) /\nIsobutyl benzoate (CAS No. 120-50-3)/\nIsopropyl benzoate (CAS No. 939-48-0)/\nPhenyl benzoate (CAS No. 93-99-2)",
+            "0.5 % (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "1a | Salts of benzoic acid other than that\nlisted under reference number 1 and\nesters of benzoic acid\nAmmonium benzoate (CAS No.1863-63-\n4)/\nCalcium benzoate (CAS No. 2090-05-3)/\nPotassium benzoate (CAS No. 582-25-2)/\nMagnesium benzoate (CAS No. 553-70-\n8)/\nMEA- benzoate (CAS No. 4337-66-0)/\nMethyl benzoate (CAS No. 93-58-3) /\nEthyl benzoate (CAS No. 93-89-0)/\nPropyl benzoate (CAS No. 92315-68-6)/\nButyl benzoate (CAS No. 136-60-7) /\nIsobutyl benzoate (CAS No. 120-50-3)/\nIsopropyl benzoate (CAS No. 939-48-0)/\nPhenyl benzoate (CAS No. 93-99-2) | 0.5 % (acid) |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            105.77
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substa nce",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substa nce | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            105.77,
+            705.46,
+            119.483
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-2",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "2",
+      "reference_number_raw": "2",
+      "original_substance_name": "Propionic acid (CAS No. 79-09-4) and its salts\nAmmonium propionate (CAS No.17496-08-1) /\nCalcium propionate (CAS No. 4075-81-4)/\nMagnesium propionate (CAS No. 557-27-7)/\nPotassium propionate (CAS No. 327-62-8)/\nSodium propionate (CAS No. 137-40-6)",
+      "cas_number_raw": "79-09-4\n17496-08-1\n4075-81-4\n557-27-7\n327-62-8\n137-40-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "2% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "2 | Propionic acid (CAS No. 79-09-4) and its salts\nAmmonium propionate (CAS No.17496-08-1) /\nCalcium propionate (CAS No. 4075-81-4)/\nMagnesium propionate (CAS No. 557-27-7)/\nPotassium propionate (CAS No. 327-62-8)/\nSodium propionate (CAS No. 137-40-6) | 2% (acid) |  |",
+      "source_pages": [
+        268
+      ],
+      "fragments": [
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            119.483,
+            705.46,
+            212.86
+          ],
+          "cells": [
+            "2",
+            "Propionic acid (CAS No. 79-09-4) and its salts\nAmmonium propionate (CAS No.17496-08-1) /\nCalcium propionate (CAS No. 4075-81-4)/\nMagnesium propionate (CAS No. 557-27-7)/\nPotassium propionate (CAS No. 327-62-8)/\nSodium propionate (CAS No. 137-40-6)",
+            "2% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "2 | Propionic acid (CAS No. 79-09-4) and its salts\nAmmonium propionate (CAS No.17496-08-1) /\nCalcium propionate (CAS No. 4075-81-4)/\nMagnesium propionate (CAS No. 557-27-7)/\nPotassium propionate (CAS No. 327-62-8)/\nSodium propionate (CAS No. 137-40-6) | 2% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-3",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "3",
+      "reference_number_raw": "3",
+      "original_substance_name": "Salicylic acid (69-72-7) and\nits salts(1) : Calcium salicylate (CAS No. 824-35-\n1), Magnesium salicylate (CAS No. 18917-89-\n0), MEA-salicylate (CAS No. 59866-70-5),\nSodium salicylate (CAS No. 54-21-7),\nPotassium salicylate (CAS No. 578-36-9), TEA-\nsalicylate (CAS No. 2174-16-5)",
+      "cas_number_raw": "69-72-7\n824-35-\n1\n18917-89-\n0\n59866-70-5\n54-21-7\n578-36-9\n2174-16-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5% (acid)\n0.5% (acid)",
+      "original_conditions_text": "Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos",
+      "original_warning_text": "Salicylic acid:\nNot to be used for\nchildren under three\nyears of age (2.1)\nSalicylic acid salts:\nNot to be used for\nchildren under three\nyears of age (2.2)",
+      "source_text": "3 | Salicylic acid (69-72-7) and\nits salts(1) : Calcium salicylate (CAS No. 824-35-\n1), Magnesium salicylate (CAS No. 18917-89-\n0), MEA-salicylate (CAS No. 59866-70-5),\nSodium salicylate (CAS No. 54-21-7),\nPotassium salicylate (CAS No. 578-36-9), TEA-\nsalicylate (CAS No. 2174-16-5) | 0.5% (acid)\n0.5% (acid) | Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos | Salicylic acid:\nNot to be used for\nchildren under three\nyears of age (2.1)\nSalicylic acid salts:\nNot to be used for\nchildren under three\nyears of age (2.2)",
+      "source_pages": [
+        268
+      ],
+      "fragments": [
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            212.86,
+            705.46,
+            426.05
+          ],
+          "cells": [
+            "3",
+            "Salicylic acid (69-72-7) and\nits salts(1) : Calcium salicylate (CAS No. 824-35-\n1), Magnesium salicylate (CAS No. 18917-89-\n0), MEA-salicylate (CAS No. 59866-70-5),\nSodium salicylate (CAS No. 54-21-7),\nPotassium salicylate (CAS No. 578-36-9), TEA-\nsalicylate (CAS No. 2174-16-5)",
+            "0.5% (acid)\n0.5% (acid)",
+            "Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos",
+            "Salicylic acid:\nNot to be used for\nchildren under three\nyears of age (2.1)\nSalicylic acid salts:\nNot to be used for\nchildren under three\nyears of age (2.2)"
+          ],
+          "original_row_text": "3 | Salicylic acid (69-72-7) and\nits salts(1) : Calcium salicylate (CAS No. 824-35-\n1), Magnesium salicylate (CAS No. 18917-89-\n0), MEA-salicylate (CAS No. 59866-70-5),\nSodium salicylate (CAS No. 54-21-7),\nPotassium salicylate (CAS No. 578-36-9), TEA-\nsalicylate (CAS No. 2174-16-5) | 0.5% (acid)\n0.5% (acid) | Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos | Salicylic acid:\nNot to be used for\nchildren under three\nyears of age (2.1)\nSalicylic acid salts:\nNot to be used for\nchildren under three\nyears of age (2.2)",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "1",
+        "2.1",
+        "2.2"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-4",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "4",
+      "reference_number_raw": "4",
+      "original_substance_name": "Sorbic acid (hexa-2,4-dienoic acid) and its salts\nSorbic acid (CAS No. 110-44-1), Calcium\nsorbate (CAS No. 7492-55-9), Sodium sorbate\n(CAS No.7757-81-5), Potassium sorbate (CAS\nNo. 24634-61-5)",
+      "cas_number_raw": "110-44-1\n7492-55-9\n7757-81-5\n24634-61-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "4 | Sorbic acid (hexa-2,4-dienoic acid) and its salts\nSorbic acid (CAS No. 110-44-1), Calcium\nsorbate (CAS No. 7492-55-9), Sodium sorbate\n(CAS No.7757-81-5), Potassium sorbate (CAS\nNo. 24634-61-5) | 0.6% (acid) |  |",
+      "source_pages": [
+        268
+      ],
+      "fragments": [
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            426.05,
+            705.46,
+            510.55
+          ],
+          "cells": [
+            "4",
+            "Sorbic acid (hexa-2,4-dienoic acid) and its salts\nSorbic acid (CAS No. 110-44-1), Calcium\nsorbate (CAS No. 7492-55-9), Sodium sorbate\n(CAS No.7757-81-5), Potassium sorbate (CAS\nNo. 24634-61-5)",
+            "0.6% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "4 | Sorbic acid (hexa-2,4-dienoic acid) and its salts\nSorbic acid (CAS No. 110-44-1), Calcium\nsorbate (CAS No. 7492-55-9), Sodium sorbate\n(CAS No.7757-81-5), Potassium sorbate (CAS\nNo. 24634-61-5) | 0.6% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-5",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "5",
+      "reference_number_raw": "5",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "5 | Entry deleted |  |  |",
+      "source_pages": [
+        268
+      ],
+      "fragments": [
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            510.55,
+            705.46,
+            531.216
+          ],
+          "cells": [
+            "5",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "5 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-6",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "6",
+      "reference_number_raw": "6\nReference\nNumber\na",
+      "original_substance_name": "Entry moved or deleted\nSubstance\nb",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Maximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "6 | Entry moved or deleted |  |  | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        268,
+        269
+      ],
+      "fragments": [
+        {
+          "source_page": 268,
+          "table_bbox": [
+            62.304,
+            70.7,
+            705.46,
+            548.256
+          ],
+          "row_bbox": [
+            62.304,
+            531.216,
+            705.46,
+            548.256
+          ],
+          "cells": [
+            "6",
+            "Entry moved or deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "6 | Entry moved or deleted |  |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            148.97
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-7",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "7",
+      "reference_number_raw": "7",
+      "original_substance_name": "Biphenyl-2-ol\nCAS No. 90-43-7",
+      "cas_number_raw": "90-43-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Rinse-off products; 0.2% (as\nphenol)\nLeave-on products; 0.15%\n(as phenol)",
+      "original_conditions_text": "",
+      "original_warning_text": "Avoid contact with eyes.",
+      "source_text": "7 | Biphenyl-2-ol\nCAS No. 90-43-7 | Rinse-off products; 0.2% (as\nphenol)\nLeave-on products; 0.15%\n(as phenol) |  | Avoid contact with eyes.",
+      "source_pages": [
+        269
+      ],
+      "fragments": [
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            148.97,
+            705.46,
+            198.91
+          ],
+          "cells": [
+            "7",
+            "Biphenyl-2-ol\nCAS No. 90-43-7",
+            "Rinse-off products; 0.2% (as\nphenol)\nLeave-on products; 0.15%\n(as phenol)",
+            "",
+            "Avoid contact with eyes."
+          ],
+          "original_row_text": "7 | Biphenyl-2-ol\nCAS No. 90-43-7 | Rinse-off products; 0.2% (as\nphenol)\nLeave-on products; 0.15%\n(as phenol) |  | Avoid contact with eyes.",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-8",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "8",
+      "reference_number_raw": "8",
+      "original_substance_name": "Zinc pyrithione(3) (CAS No 13463-41-7)",
+      "cas_number_raw": "13463-41-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Hair products; 1.0 %\nOther products; 0.5%",
+      "original_conditions_text": "Rinse off products only.\nNot for use in products for\noral hygiene",
+      "original_warning_text": "",
+      "source_text": "8 | Zinc pyrithione(3) (CAS No 13463-41-7) | Hair products; 1.0 %\nOther products; 0.5% | Rinse off products only.\nNot for use in products for\noral hygiene |",
+      "source_pages": [
+        269
+      ],
+      "fragments": [
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            198.91,
+            705.46,
+            241.18
+          ],
+          "cells": [
+            "8",
+            "Zinc pyrithione(3) (CAS No 13463-41-7)",
+            "Hair products; 1.0 %\nOther products; 0.5%",
+            "Rinse off products only.\nNot for use in products for\noral hygiene",
+            ""
+          ],
+          "original_row_text": "8 | Zinc pyrithione(3) (CAS No 13463-41-7) | Hair products; 1.0 %\nOther products; 0.5% | Rinse off products only.\nNot for use in products for\noral hygiene | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "3"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-9",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "9",
+      "reference_number_raw": "9",
+      "original_substance_name": "Inorganic sulphites and hydrogensulphites (4)\nSodium Sulfite (CAS No 7757-83-7),\nAmmonium bisulfite (CAS No. 10192-30-0)\nAmmonium sulfite (CAS No. 10196-04-0),\nPotassium sulfite (CAS No.10117-38-1 ),\nPotassium hydrogen sulfite (CAS No.7773-03-\n07 ),\nSodium sulfite (CAS No. 7631-90-5), sodium\nMetabisulfite (CAS No.7681-57-4) potassium\nMetabisulfite (CAS No.16731-55-8)",
+      "cas_number_raw": "7757-83-7\n10192-30-0\n10196-04-0\n10117-38-1\n7773-03-\n7631-90-5\n7681-57-4\n16731-55-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2% expressed as free SO\n2",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "9 | Inorganic sulphites and hydrogensulphites (4)\nSodium Sulfite (CAS No 7757-83-7),\nAmmonium bisulfite (CAS No. 10192-30-0)\nAmmonium sulfite (CAS No. 10196-04-0),\nPotassium sulfite (CAS No.10117-38-1 ),\nPotassium hydrogen sulfite (CAS No.7773-03-\n07 ),\nSodium sulfite (CAS No. 7631-90-5), sodium\nMetabisulfite (CAS No.7681-57-4) potassium\nMetabisulfite (CAS No.16731-55-8) | 0.2% expressed as free SO\n2 |  |",
+      "source_pages": [
+        269
+      ],
+      "fragments": [
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            241.18,
+            705.46,
+            377.3
+          ],
+          "cells": [
+            "9",
+            "Inorganic sulphites and hydrogensulphites (4)\nSodium Sulfite (CAS No 7757-83-7),\nAmmonium bisulfite (CAS No. 10192-30-0)\nAmmonium sulfite (CAS No. 10196-04-0),\nPotassium sulfite (CAS No.10117-38-1 ),\nPotassium hydrogen sulfite (CAS No.7773-03-\n07 ),\nSodium sulfite (CAS No. 7631-90-5), sodium\nMetabisulfite (CAS No.7681-57-4) potassium\nMetabisulfite (CAS No.16731-55-8)",
+            "0.2% expressed as free SO\n2",
+            "",
+            ""
+          ],
+          "original_row_text": "9 | Inorganic sulphites and hydrogensulphites (4)\nSodium Sulfite (CAS No 7757-83-7),\nAmmonium bisulfite (CAS No. 10192-30-0)\nAmmonium sulfite (CAS No. 10196-04-0),\nPotassium sulfite (CAS No.10117-38-1 ),\nPotassium hydrogen sulfite (CAS No.7773-03-\n07 ),\nSodium sulfite (CAS No. 7631-90-5), sodium\nMetabisulfite (CAS No.7681-57-4) potassium\nMetabisulfite (CAS No.16731-55-8) | 0.2% expressed as free SO\n2 |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "4"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-10",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "10",
+      "reference_number_raw": "10",
+      "original_substance_name": "Entry moved or deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "10 | Entry moved or deleted |  |  |",
+      "source_pages": [
+        269
+      ],
+      "fragments": [
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            377.3,
+            705.46,
+            397.25
+          ],
+          "cells": [
+            "10",
+            "Entry moved or deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "10 | Entry moved or deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-11",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "11",
+      "reference_number_raw": "11\nReference\nNumber\na",
+      "original_substance_name": "Chlorobutanol (INN)\nCAS No. 57-15-8\nSubstance\nb",
+      "cas_number_raw": "57-15-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Prohibited in aerosol\ndispensers (sprays)\nLimitations and\nrequirements\nd",
+      "original_warning_text": "- Contains chlorobutanol\nConditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "11 | Chlorobutanol (INN)\nCAS No. 57-15-8 | 0.5% | Prohibited in aerosol\ndispensers (sprays) | - Contains chlorobutanol\nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        269,
+        270
+      ],
+      "fragments": [
+        {
+          "source_page": 269,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            425.33
+          ],
+          "row_bbox": [
+            62.304,
+            397.25,
+            705.46,
+            425.33
+          ],
+          "cells": [
+            "11",
+            "Chlorobutanol (INN)\nCAS No. 57-15-8",
+            "0.5%",
+            "Prohibited in aerosol\ndispensers (sprays)",
+            "- Contains chlorobutanol"
+          ],
+          "original_row_text": "11 | Chlorobutanol (INN)\nCAS No. 57-15-8 | 0.5% | Prohibited in aerosol\ndispensers (sprays) | - Contains chlorobutanol",
+          "is_continuation": false
+        },
+        {
+          "source_page": 270,
+          "table_bbox": [
+            50.304,
+            100.25,
+            693.22,
+            326.4
+          ],
+          "row_bbox": [
+            50.304,
+            100.25,
+            693.22,
+            135.53
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 270,
+          "table_bbox": [
+            50.304,
+            100.25,
+            693.22,
+            326.4
+          ],
+          "row_bbox": [
+            50.304,
+            135.53,
+            693.22,
+            155.47
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-12",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "12",
+      "reference_number_raw": "12\nReference\nNumber\na",
+      "original_substance_name": "4-Hydroxybenzoic acid and its Methyl- and\nEthyl- esters, and their salts (INCI)\n4-Hydroxybenzoic acid; CAS No. 99-96-7;\nMethylparaben; CAS No. 99-76-3;\npotassium ethylparaben; CAS No. 36457-19-9;\npotassium paraben; CAS No. 16782-08-4\nsodium methylparaben; CAS No. 5026-62-0;\nsodium ethylparaben; CAS No. 35285-68-8;\nethylparaben; CAS No. 120-47-8;\nsodium paraben; CAS No. 114-63-6;\npotassium methylparaben; CAS No. 26112-07-\n2; calcium paraben; CAS No. 69959-44-0;\nSubstance\nb",
+      "cas_number_raw": "99-96-7\n99-76-3\n36457-19-9\n16782-08-4\n5026-62-0\n35285-68-8\n120-47-8\n114-63-6\n26112-07-\n2\n69959-44-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "12 | 4-Hydroxybenzoic acid and its Methyl- and\nEthyl- esters, and their salts (INCI)\n4-Hydroxybenzoic acid; CAS No. 99-96-7;\nMethylparaben; CAS No. 99-76-3;\npotassium ethylparaben; CAS No. 36457-19-9;\npotassium paraben; CAS No. 16782-08-4\nsodium methylparaben; CAS No. 5026-62-0;\nsodium ethylparaben; CAS No. 35285-68-8;\nethylparaben; CAS No. 120-47-8;\nsodium paraben; CAS No. 114-63-6;\npotassium methylparaben; CAS No. 26112-07-\n2; calcium paraben; CAS No. 69959-44-0; | 0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters |  | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        270,
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 270,
+          "table_bbox": [
+            50.304,
+            100.25,
+            693.22,
+            326.4
+          ],
+          "row_bbox": [
+            50.304,
+            155.47,
+            693.22,
+            326.4
+          ],
+          "cells": [
+            "12",
+            "4-Hydroxybenzoic acid and its Methyl- and\nEthyl- esters, and their salts (INCI)\n4-Hydroxybenzoic acid; CAS No. 99-96-7;\nMethylparaben; CAS No. 99-76-3;\npotassium ethylparaben; CAS No. 36457-19-9;\npotassium paraben; CAS No. 16782-08-4\nsodium methylparaben; CAS No. 5026-62-0;\nsodium ethylparaben; CAS No. 35285-68-8;\nethylparaben; CAS No. 120-47-8;\nsodium paraben; CAS No. 114-63-6;\npotassium methylparaben; CAS No. 26112-07-\n2; calcium paraben; CAS No. 69959-44-0;",
+            "0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters",
+            "",
+            ""
+          ],
+          "original_row_text": "12 | 4-Hydroxybenzoic acid and its Methyl- and\nEthyl- esters, and their salts (INCI)\n4-Hydroxybenzoic acid; CAS No. 99-96-7;\nMethylparaben; CAS No. 99-76-3;\npotassium ethylparaben; CAS No. 36457-19-9;\npotassium paraben; CAS No. 16782-08-4\nsodium methylparaben; CAS No. 5026-62-0;\nsodium ethylparaben; CAS No. 35285-68-8;\nethylparaben; CAS No. 120-47-8;\nsodium paraben; CAS No. 114-63-6;\npotassium methylparaben; CAS No. 26112-07-\n2; calcium paraben; CAS No. 69959-44-0; | 0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-12a",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "12a",
+      "reference_number_raw": "12a",
+      "original_substance_name": "Butyl 4-hydroxybenzoate and its salts\nPropyl 4- hydroxybenzoate and its salts\nButylparaben; CAS No. 94-26-8;\nPropylparaben; CAS No. 94-13-3\nsodium propylparaben; CAS No. 35285-69-9\nsodium butylparaben; CAS No. 36457-20-2 ;\npotassium butylparaben; CAS No. 38566-94-8;\npotassium propylparaben; CAS No. 84930-16-\n5;",
+      "cas_number_raw": "94-26-8\n94-13-3\n35285-69-9\n36457-20-2\n38566-94-8\n84930-16-\n5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.14 % (as acid) for the sum\nof the individual\nconcentrations 0.8 % (as\nacid) for mixtures of\nsubstances mentioned in\nentry 12 and 12a, where the\nsum of the individual\nconcentrations of butyl- and\npropylparaben and their\nsalts does not exceed\n0.14 %",
+      "original_conditions_text": "Not to be used in leave-on\nproducts designed for\napplication on the nappy\narea of children under three\nyears of age.",
+      "original_warning_text": "For leave-on products\ndesigned for children under\nthree years of age: “Do not\nuse on the nappy area”’",
+      "source_text": "12a | Butyl 4-hydroxybenzoate and its salts\nPropyl 4- hydroxybenzoate and its salts\nButylparaben; CAS No. 94-26-8;\nPropylparaben; CAS No. 94-13-3\nsodium propylparaben; CAS No. 35285-69-9\nsodium butylparaben; CAS No. 36457-20-2 ;\npotassium butylparaben; CAS No. 38566-94-8;\npotassium propylparaben; CAS No. 84930-16-\n5; | 0.14 % (as acid) for the sum\nof the individual\nconcentrations 0.8 % (as\nacid) for mixtures of\nsubstances mentioned in\nentry 12 and 12a, where the\nsum of the individual\nconcentrations of butyl- and\npropylparaben and their\nsalts does not exceed\n0.14 % | Not to be used in leave-on\nproducts designed for\napplication on the nappy\narea of children under three\nyears of age. | For leave-on products\ndesigned for children under\nthree years of age: “Do not\nuse on the nappy area”’",
+      "source_pages": [
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            267.58
+          ],
+          "cells": [
+            "12a",
+            "Butyl 4-hydroxybenzoate and its salts\nPropyl 4- hydroxybenzoate and its salts\nButylparaben; CAS No. 94-26-8;\nPropylparaben; CAS No. 94-13-3\nsodium propylparaben; CAS No. 35285-69-9\nsodium butylparaben; CAS No. 36457-20-2 ;\npotassium butylparaben; CAS No. 38566-94-8;\npotassium propylparaben; CAS No. 84930-16-\n5;",
+            "0.14 % (as acid) for the sum\nof the individual\nconcentrations 0.8 % (as\nacid) for mixtures of\nsubstances mentioned in\nentry 12 and 12a, where the\nsum of the individual\nconcentrations of butyl- and\npropylparaben and their\nsalts does not exceed\n0.14 %",
+            "Not to be used in leave-on\nproducts designed for\napplication on the nappy\narea of children under three\nyears of age.",
+            "For leave-on products\ndesigned for children under\nthree years of age: “Do not\nuse on the nappy area”’"
+          ],
+          "original_row_text": "12a | Butyl 4-hydroxybenzoate and its salts\nPropyl 4- hydroxybenzoate and its salts\nButylparaben; CAS No. 94-26-8;\nPropylparaben; CAS No. 94-13-3\nsodium propylparaben; CAS No. 35285-69-9\nsodium butylparaben; CAS No. 36457-20-2 ;\npotassium butylparaben; CAS No. 38566-94-8;\npotassium propylparaben; CAS No. 84930-16-\n5; | 0.14 % (as acid) for the sum\nof the individual\nconcentrations 0.8 % (as\nacid) for mixtures of\nsubstances mentioned in\nentry 12 and 12a, where the\nsum of the individual\nconcentrations of butyl- and\npropylparaben and their\nsalts does not exceed\n0.14 % | Not to be used in leave-on\nproducts designed for\napplication on the nappy\narea of children under three\nyears of age. | For leave-on products\ndesigned for children under\nthree years of age: “Do not\nuse on the nappy area”’",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-13",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "13",
+      "reference_number_raw": "13",
+      "original_substance_name": "3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts\nDehydroacetic acid (CAS No. 520-45-6, 16807-\n48-0),\nSodium dehydroacetate (CAS No. 4418-26-2)",
+      "cas_number_raw": "520-45-6\n16807-\n48-0\n4418-26-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6% (acid)",
+      "original_conditions_text": "Prohibited in aerosol\ndispensers (sprays)",
+      "original_warning_text": "",
+      "source_text": "13 | 3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts\nDehydroacetic acid (CAS No. 520-45-6, 16807-\n48-0),\nSodium dehydroacetate (CAS No. 4418-26-2) | 0.6% (acid) | Prohibited in aerosol\ndispensers (sprays) |",
+      "source_pages": [
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            267.58,
+            705.46,
+            340.58
+          ],
+          "cells": [
+            "13",
+            "3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts\nDehydroacetic acid (CAS No. 520-45-6, 16807-\n48-0),\nSodium dehydroacetate (CAS No. 4418-26-2)",
+            "0.6% (acid)",
+            "Prohibited in aerosol\ndispensers (sprays)",
+            ""
+          ],
+          "original_row_text": "13 | 3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts\nDehydroacetic acid (CAS No. 520-45-6, 16807-\n48-0),\nSodium dehydroacetate (CAS No. 4418-26-2) | 0.6% (acid) | Prohibited in aerosol\ndispensers (sprays) | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-14",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "14",
+      "reference_number_raw": "14",
+      "original_substance_name": "Formic acid (CAS No. 64-18-6) and its sodium\nsalt (CAS No. 141-53-7)",
+      "cas_number_raw": "64-18-6\n141-53-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5% (expressed as acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "14 | Formic acid (CAS No. 64-18-6) and its sodium\nsalt (CAS No. 141-53-7) | 0.5% (expressed as acid) |  |",
+      "source_pages": [
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            340.58,
+            705.46,
+            383.3
+          ],
+          "cells": [
+            "14",
+            "Formic acid (CAS No. 64-18-6) and its sodium\nsalt (CAS No. 141-53-7)",
+            "0.5% (expressed as acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "14 | Formic acid (CAS No. 64-18-6) and its sodium\nsalt (CAS No. 141-53-7) | 0.5% (expressed as acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-15",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "15",
+      "reference_number_raw": "15",
+      "original_substance_name": "3,3'-Dibromo-4,4'-hexamethylenedioxydi-\nbenzamidine (Dibromohexamidine) and its salts\n( including isethionate) (CAS No. 93856-83-8)",
+      "cas_number_raw": "93856-83-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "15 | 3,3'-Dibromo-4,4'-hexamethylenedioxydi-\nbenzamidine (Dibromohexamidine) and its salts\n( including isethionate) (CAS No. 93856-83-8) | 0.1% |  |",
+      "source_pages": [
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            383.3,
+            705.46,
+            453.65
+          ],
+          "cells": [
+            "15",
+            "3,3'-Dibromo-4,4'-hexamethylenedioxydi-\nbenzamidine (Dibromohexamidine) and its salts\n( including isethionate) (CAS No. 93856-83-8)",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "15 | 3,3'-Dibromo-4,4'-hexamethylenedioxydi-\nbenzamidine (Dibromohexamidine) and its salts\n( including isethionate) (CAS No. 93856-83-8) | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-16",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "16",
+      "reference_number_raw": "16",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "16 | Entry deleted |  |  |",
+      "source_pages": [
+        271
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            453.65,
+            705.46,
+            475.99
+          ],
+          "cells": [
+            "16",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "16 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-17",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "17",
+      "reference_number_raw": "17\nReference\nNumber\na",
+      "original_substance_name": "Entry deleted\nSubstance\nb",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Maximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "17 | Entry deleted |  |  | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        271,
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 271,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            496.87
+          ],
+          "row_bbox": [
+            62.304,
+            475.99,
+            705.46,
+            496.87
+          ],
+          "cells": [
+            "17",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "17 | Entry deleted |  |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-18",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "18",
+      "reference_number_raw": "18",
+      "original_substance_name": "Undec-10-enoic acid and its salts (+)\nUndecylenic acid (CAS No. 112-38-9)\n/Potassium undecylenate (CAS No. 6159-61-\n47)/ Sodium undecylenate (CAS No. 3398-33-\n2)/Calcium undecylenate (CAS No. 1322-14-1)\n/ TEA- undecylenate (CAS No. 84471-25-0)/\nMEA- undecylenate (CAS No. 56532-40-2)",
+      "cas_number_raw": "112-38-9\n6159-61-\n3398-33-\n2\n1322-14-1\n84471-25-0\n56532-40-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "18 | Undec-10-enoic acid and its salts (+)\nUndecylenic acid (CAS No. 112-38-9)\n/Potassium undecylenate (CAS No. 6159-61-\n47)/ Sodium undecylenate (CAS No. 3398-33-\n2)/Calcium undecylenate (CAS No. 1322-14-1)\n/ TEA- undecylenate (CAS No. 84471-25-0)/\nMEA- undecylenate (CAS No. 56532-40-2) | 0.2% (acid) |  |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            241.18
+          ],
+          "cells": [
+            "18",
+            "Undec-10-enoic acid and its salts (+)\nUndecylenic acid (CAS No. 112-38-9)\n/Potassium undecylenate (CAS No. 6159-61-\n47)/ Sodium undecylenate (CAS No. 3398-33-\n2)/Calcium undecylenate (CAS No. 1322-14-1)\n/ TEA- undecylenate (CAS No. 84471-25-0)/\nMEA- undecylenate (CAS No. 56532-40-2)",
+            "0.2% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "18 | Undec-10-enoic acid and its salts (+)\nUndecylenic acid (CAS No. 112-38-9)\n/Potassium undecylenate (CAS No. 6159-61-\n47)/ Sodium undecylenate (CAS No. 3398-33-\n2)/Calcium undecylenate (CAS No. 1322-14-1)\n/ TEA- undecylenate (CAS No. 84471-25-0)/\nMEA- undecylenate (CAS No. 56532-40-2) | 0.2% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-19",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "19",
+      "reference_number_raw": "19",
+      "original_substance_name": "Hexetidine (INN)\nCAS No. 141-94-6",
+      "cas_number_raw": "141-94-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "19 | Hexetidine (INN)\nCAS No. 141-94-6 | 0.1% |  |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            241.18,
+            705.46,
+            288.0
+          ],
+          "cells": [
+            "19",
+            "Hexetidine (INN)\nCAS No. 141-94-6",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "19 | Hexetidine (INN)\nCAS No. 141-94-6 | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-20",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "20",
+      "reference_number_raw": "20",
+      "original_substance_name": "5-Bromo-5-nitro-1,3 dioxane\nCAS No. 30007-47-7",
+      "cas_number_raw": "30007-47-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Rinse-off products only\nAvoid formation of\nnitrosamines",
+      "original_warning_text": "",
+      "source_text": "20 | 5-Bromo-5-nitro-1,3 dioxane\nCAS No. 30007-47-7 | 0.1% | Rinse-off products only\nAvoid formation of\nnitrosamines |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            288.0,
+            705.46,
+            326.64
+          ],
+          "cells": [
+            "20",
+            "5-Bromo-5-nitro-1,3 dioxane\nCAS No. 30007-47-7",
+            "0.1%",
+            "Rinse-off products only\nAvoid formation of\nnitrosamines",
+            ""
+          ],
+          "original_row_text": "20 | 5-Bromo-5-nitro-1,3 dioxane\nCAS No. 30007-47-7 | 0.1% | Rinse-off products only\nAvoid formation of\nnitrosamines | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-21",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "21",
+      "reference_number_raw": "21",
+      "original_substance_name": "Bronopol (INN)\nCAS No. 52-51-7",
+      "cas_number_raw": "52-51-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Avoid formation of\nnitrosamines",
+      "original_warning_text": "",
+      "source_text": "21 | Bronopol (INN)\nCAS No. 52-51-7 | 0.1% | Avoid formation of\nnitrosamines |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            326.64,
+            705.46,
+            357.62
+          ],
+          "cells": [
+            "21",
+            "Bronopol (INN)\nCAS No. 52-51-7",
+            "0.1%",
+            "Avoid formation of\nnitrosamines",
+            ""
+          ],
+          "original_row_text": "21 | Bronopol (INN)\nCAS No. 52-51-7 | 0.1% | Avoid formation of\nnitrosamines | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-22",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "22",
+      "reference_number_raw": "22",
+      "original_substance_name": "2,4-Dichlorobenzyl alcohol\nCAS No. 1777-82-8",
+      "cas_number_raw": "1777-82-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "22 | 2,4-Dichlorobenzyl alcohol\nCAS No. 1777-82-8 | 0.15% |  |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            357.62,
+            705.46,
+            402.05
+          ],
+          "cells": [
+            "22",
+            "2,4-Dichlorobenzyl alcohol\nCAS No. 1777-82-8",
+            "0.15%",
+            "",
+            ""
+          ],
+          "original_row_text": "22 | 2,4-Dichlorobenzyl alcohol\nCAS No. 1777-82-8 | 0.15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-23",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "23",
+      "reference_number_raw": "23",
+      "original_substance_name": "Triclocarban (INN)(5)\nCAS No. 101-20-2",
+      "cas_number_raw": "101-20-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%",
+      "original_conditions_text": "Purity criteria: 3,3’,4,4’-\nTetrachloroazobenzene < 1\nppm; 3,3’,4,4’-Tetra-\nchloroazoxybenzene < 1\nppm",
+      "original_warning_text": "",
+      "source_text": "23 | Triclocarban (INN)(5)\nCAS No. 101-20-2 | 0.2% | Purity criteria: 3,3’,4,4’-\nTetrachloroazobenzene < 1\nppm; 3,3’,4,4’-Tetra-\nchloroazoxybenzene < 1\nppm |",
+      "source_pages": [
+        272
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            402.05,
+            705.46,
+            462.55
+          ],
+          "cells": [
+            "23",
+            "Triclocarban (INN)(5)\nCAS No. 101-20-2",
+            "0.2%",
+            "Purity criteria: 3,3’,4,4’-\nTetrachloroazobenzene < 1\nppm; 3,3’,4,4’-Tetra-\nchloroazoxybenzene < 1\nppm",
+            ""
+          ],
+          "original_row_text": "23 | Triclocarban (INN)(5)\nCAS No. 101-20-2 | 0.2% | Purity criteria: 3,3’,4,4’-\nTetrachloroazobenzene < 1\nppm; 3,3’,4,4’-Tetra-\nchloroazoxybenzene < 1\nppm | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "5"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-24",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "24",
+      "reference_number_raw": "24\nReference\nNumber\na",
+      "original_substance_name": "4-Chloro-m-cresol\nCAS No. 59-50-7\nSubstance\nb",
+      "cas_number_raw": "59-50-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Prohibited in products\nintended to come into\ncontact with mucous\nmembranes\nLimitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "24 | 4-Chloro-m-cresol\nCAS No. 59-50-7 | 0.2% | Prohibited in products\nintended to come into\ncontact with mucous\nmembranes | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        272,
+        273
+      ],
+      "fragments": [
+        {
+          "source_page": 272,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            511.992
+          ],
+          "row_bbox": [
+            62.304,
+            462.55,
+            705.46,
+            511.992
+          ],
+          "cells": [
+            "24",
+            "4-Chloro-m-cresol\nCAS No. 59-50-7",
+            "0.2%",
+            "Prohibited in products\nintended to come into\ncontact with mucous\nmembranes",
+            ""
+          ],
+          "original_row_text": "24 | 4-Chloro-m-cresol\nCAS No. 59-50-7 | 0.2% | Prohibited in products\nintended to come into\ncontact with mucous\nmembranes | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            118.73
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            118.73,
+            705.46,
+            132.17
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-25",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "25",
+      "reference_number_raw": "25",
+      "original_substance_name": "5-Chloro-2- (2,4- dichlorophenoxy) phenol\n(INCI)\nTriclosan (INN)\nCAS No. 3380-34-5",
+      "cas_number_raw": "3380-34-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 0.3%\n(b) 0.2%",
+      "original_conditions_text": "(a) Toothpastes\nHand soaps\nBody soaps/Shower\ngels Deodorants (non-\nspray) Face powders\nand blemish concealers\nNail products for\ncleaning the\nfingernails\nand toenails before\nthe application of\nartificial nail systems\nShampoo\nHair conditioner\nFacial cleanser\n(b) Mouthwashes",
+      "original_warning_text": "",
+      "source_text": "25 | 5-Chloro-2- (2,4- dichlorophenoxy) phenol\n(INCI)\nTriclosan (INN)\nCAS No. 3380-34-5 | (a) 0.3%\n(b) 0.2% | (a) Toothpastes\nHand soaps\nBody soaps/Shower\ngels Deodorants (non-\nspray) Face powders\nand blemish concealers\nNail products for\ncleaning the\nfingernails\nand toenails before\nthe application of\nartificial nail systems\nShampoo\nHair conditioner\nFacial cleanser\n(b) Mouthwashes |",
+      "source_pages": [
+        273
+      ],
+      "fragments": [
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            132.17,
+            705.46,
+            323.28
+          ],
+          "cells": [
+            "25",
+            "5-Chloro-2- (2,4- dichlorophenoxy) phenol\n(INCI)\nTriclosan (INN)\nCAS No. 3380-34-5",
+            "(a) 0.3%\n(b) 0.2%",
+            "(a) Toothpastes\nHand soaps\nBody soaps/Shower\ngels Deodorants (non-\nspray) Face powders\nand blemish concealers\nNail products for\ncleaning the\nfingernails\nand toenails before\nthe application of\nartificial nail systems\nShampoo\nHair conditioner\nFacial cleanser\n(b) Mouthwashes",
+            ""
+          ],
+          "original_row_text": "25 | 5-Chloro-2- (2,4- dichlorophenoxy) phenol\n(INCI)\nTriclosan (INN)\nCAS No. 3380-34-5 | (a) 0.3%\n(b) 0.2% | (a) Toothpastes\nHand soaps\nBody soaps/Shower\ngels Deodorants (non-\nspray) Face powders\nand blemish concealers\nNail products for\ncleaning the\nfingernails\nand toenails before\nthe application of\nartificial nail systems\nShampoo\nHair conditioner\nFacial cleanser\n(b) Mouthwashes | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-26",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "26",
+      "reference_number_raw": "26",
+      "original_substance_name": "4-Chloro-3,5-xylenol\nCAS No. 88-04-0",
+      "cas_number_raw": "88-04-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "26 | 4-Chloro-3,5-xylenol\nCAS No. 88-04-0 | 0.5% |  |",
+      "source_pages": [
+        273
+      ],
+      "fragments": [
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            323.28,
+            705.46,
+            368.66
+          ],
+          "cells": [
+            "26",
+            "4-Chloro-3,5-xylenol\nCAS No. 88-04-0",
+            "0.5%",
+            "",
+            ""
+          ],
+          "original_row_text": "26 | 4-Chloro-3,5-xylenol\nCAS No. 88-04-0 | 0.5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-27",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "27",
+      "reference_number_raw": "27",
+      "original_substance_name": "3,3’-Bis(1-hydroxymethyl-2,5-dioxoimidazolidin-\n4-yl)-1,1’-methylenediurea (“Imidazolidinyl\nurea”)\nCAS No. 39236-46-9",
+      "cas_number_raw": "39236-46-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "27 | 3,3’-Bis(1-hydroxymethyl-2,5-dioxoimidazolidin-\n4-yl)-1,1’-methylenediurea (“Imidazolidinyl\nurea”)\nCAS No. 39236-46-9 | 0.6% |  |",
+      "source_pages": [
+        273
+      ],
+      "fragments": [
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            368.66,
+            705.46,
+            425.57
+          ],
+          "cells": [
+            "27",
+            "3,3’-Bis(1-hydroxymethyl-2,5-dioxoimidazolidin-\n4-yl)-1,1’-methylenediurea (“Imidazolidinyl\nurea”)\nCAS No. 39236-46-9",
+            "0.6%",
+            "",
+            ""
+          ],
+          "original_row_text": "27 | 3,3’-Bis(1-hydroxymethyl-2,5-dioxoimidazolidin-\n4-yl)-1,1’-methylenediurea (“Imidazolidinyl\nurea”)\nCAS No. 39236-46-9 | 0.6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-28",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "28",
+      "reference_number_raw": "28",
+      "original_substance_name": "Poly(1-hexamethylenebiguanide hydrochloride)\nPolyaminopropyl biguanide\nCAS 32289-58-0, 27083-27-8, 28757-47-3,\n133029-32-0",
+      "cas_number_raw": "32289-58-0\n27083-27-8\n28757-47-3\n133029-32-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1 %",
+      "original_conditions_text": "Not to be used in\napplications that may lead\nto exposure of the end-\nuser's lungs by inhalation’",
+      "original_warning_text": "",
+      "source_text": "28 | Poly(1-hexamethylenebiguanide hydrochloride)\nPolyaminopropyl biguanide\nCAS 32289-58-0, 27083-27-8, 28757-47-3,\n133029-32-0 | 0.1 % | Not to be used in\napplications that may lead\nto exposure of the end-\nuser's lungs by inhalation’ |",
+      "source_pages": [
+        273
+      ],
+      "fragments": [
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            425.57,
+            705.46,
+            482.23
+          ],
+          "cells": [
+            "28",
+            "Poly(1-hexamethylenebiguanide hydrochloride)\nPolyaminopropyl biguanide\nCAS 32289-58-0, 27083-27-8, 28757-47-3,\n133029-32-0",
+            "0.1 %",
+            "Not to be used in\napplications that may lead\nto exposure of the end-\nuser's lungs by inhalation’",
+            ""
+          ],
+          "original_row_text": "28 | Poly(1-hexamethylenebiguanide hydrochloride)\nPolyaminopropyl biguanide\nCAS 32289-58-0, 27083-27-8, 28757-47-3,\n133029-32-0 | 0.1 % | Not to be used in\napplications that may lead\nto exposure of the end-\nuser's lungs by inhalation’ | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-29",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "29",
+      "reference_number_raw": "29\nReference\nNumber\na",
+      "original_substance_name": "2-Phenoxyethanol\nCAS No. 122-99-6\nSubs tance\nb",
+      "cas_number_raw": "122-99-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1.0%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and requirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "29 | 2-Phenoxyethanol\nCAS No. 122-99-6 | 1.0% |  | \nReference\nNumber | Subs tance | Maximum authorized\nconcentration | Limitations and requirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        273,
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 273,
+          "table_bbox": [
+            63.984,
+            83.66,
+            705.46,
+            519.456
+          ],
+          "row_bbox": [
+            63.984,
+            482.23,
+            705.46,
+            519.456
+          ],
+          "cells": [
+            "29",
+            "2-Phenoxyethanol\nCAS No. 122-99-6",
+            "1.0%",
+            "",
+            ""
+          ],
+          "original_row_text": "29 | 2-Phenoxyethanol\nCAS No. 122-99-6 | 1.0% |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            107.09
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Subs tance",
+            "Maximum authorized\nconcentration",
+            "Limitations and requirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Subs tance | Maximum authorized\nconcentration | Limitations and requirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            107.09,
+            705.473,
+            125.69
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-30",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "30",
+      "reference_number_raw": "30",
+      "original_substance_name": "Hexamethylenetetramine (methenamine) (INN)\nCAS No. 100-97-0",
+      "cas_number_raw": "100-97-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "30 | Hexamethylenetetramine (methenamine) (INN)\nCAS No. 100-97-0 | 0.15% |  |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            125.69,
+            705.473,
+            158.83
+          ],
+          "cells": [
+            "30",
+            "Hexamethylenetetramine (methenamine) (INN)\nCAS No. 100-97-0",
+            "0.15%",
+            "",
+            ""
+          ],
+          "original_row_text": "30 | Hexamethylenetetramine (methenamine) (INN)\nCAS No. 100-97-0 | 0.15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-31",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "31",
+      "reference_number_raw": "31",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "31 | Entry deleted |  |  |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            158.83,
+            705.473,
+            177.31
+          ],
+          "cells": [
+            "31",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "31 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-32",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "32",
+      "reference_number_raw": "32",
+      "original_substance_name": "1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-3,3-\ndimethylbutan-2-one)15\nClimbazole\nCAS No. 38083-17-9",
+      "cas_number_raw": "38083-17-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Hair lotions; 0.2%\nFace creams; 0.2%\nRinse-off shampoo; 0.5%\nRinse-off hair conditioner\n: 0.5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "32 | 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-3,3-\ndimethylbutan-2-one)15\nClimbazole\nCAS No. 38083-17-9 | Hair lotions; 0.2%\nFace creams; 0.2%\nRinse-off shampoo; 0.5%\nRinse-off hair conditioner\n: 0.5% |  |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            177.31,
+            705.473,
+            248.14
+          ],
+          "cells": [
+            "32",
+            "1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-3,3-\ndimethylbutan-2-one)15\nClimbazole\nCAS No. 38083-17-9",
+            "Hair lotions; 0.2%\nFace creams; 0.2%\nRinse-off shampoo; 0.5%\nRinse-off hair conditioner\n: 0.5%",
+            "",
+            ""
+          ],
+          "original_row_text": "32 | 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-3,3-\ndimethylbutan-2-one)15\nClimbazole\nCAS No. 38083-17-9 | Hair lotions; 0.2%\nFace creams; 0.2%\nRinse-off shampoo; 0.5%\nRinse-off hair conditioner\n: 0.5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-33",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "33",
+      "reference_number_raw": "33",
+      "original_substance_name": "1,3-Bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione)\nCAS No. 6440-58-0",
+      "cas_number_raw": "6440-58-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "33 | 1,3-Bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione)\nCAS No. 6440-58-0 | 0.6% |  |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            248.14,
+            705.473,
+            297.36
+          ],
+          "cells": [
+            "33",
+            "1,3-Bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione)\nCAS No. 6440-58-0",
+            "0.6%",
+            "",
+            ""
+          ],
+          "original_row_text": "33 | 1,3-Bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione)\nCAS No. 6440-58-0 | 0.6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-34",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "34",
+      "reference_number_raw": "34",
+      "original_substance_name": "Benzyl alcohol (8)\nCAS No. 100-51-6",
+      "cas_number_raw": "100-51-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "34 | Benzyl alcohol (8)\nCAS No. 100-51-6 | 1% |  |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            297.36,
+            705.473,
+            333.12
+          ],
+          "cells": [
+            "34",
+            "Benzyl alcohol (8)\nCAS No. 100-51-6",
+            "1%",
+            "",
+            ""
+          ],
+          "original_row_text": "34 | Benzyl alcohol (8)\nCAS No. 100-51-6 | 1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "8"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-35",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "35",
+      "reference_number_raw": "35",
+      "original_substance_name": "1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon and its monoethanolamine salt (+)\n1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon (CAS No. 50650-76-5), piroctone\nOlamine (CAS No. 68890-66-4)",
+      "cas_number_raw": "50650-76-5\n68890-66-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1%\n0.5%",
+      "original_conditions_text": "Rinse-off products\nFor other products",
+      "original_warning_text": "",
+      "source_text": "35 | 1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon and its monoethanolamine salt (+)\n1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon (CAS No. 50650-76-5), piroctone\nOlamine (CAS No. 68890-66-4) | 1%\n0.5% | Rinse-off products\nFor other products |",
+      "source_pages": [
+        274
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            333.12,
+            705.473,
+            418.37
+          ],
+          "cells": [
+            "35",
+            "1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon and its monoethanolamine salt (+)\n1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon (CAS No. 50650-76-5), piroctone\nOlamine (CAS No. 68890-66-4)",
+            "1%\n0.5%",
+            "Rinse-off products\nFor other products",
+            ""
+          ],
+          "original_row_text": "35 | 1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon and its monoethanolamine salt (+)\n1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon (CAS No. 50650-76-5), piroctone\nOlamine (CAS No. 68890-66-4) | 1%\n0.5% | Rinse-off products\nFor other products | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-36",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "36",
+      "reference_number_raw": "36\nReference\nNumber\na",
+      "original_substance_name": "Entry deleted\nSubstance\nb",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Maximum authorized\nconcentration\nc",
+      "original_conditions_text": "Limitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "36 | Entry deleted |  |  | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        274,
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 274,
+          "table_bbox": [
+            63.997,
+            70.58,
+            705.473,
+            446.45
+          ],
+          "row_bbox": [
+            63.997,
+            418.37,
+            705.473,
+            446.45
+          ],
+          "cells": [
+            "36",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "36 | Entry deleted |  |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-37",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "37",
+      "reference_number_raw": "37",
+      "original_substance_name": "6,6-Dibromo-4,4-dichloro-2,2’-methylene-\ndiphenol (Bromochlorophen)\nCAS No. 15435-29-7",
+      "cas_number_raw": "15435-29-7",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "37 | 6,6-Dibromo-4,4-dichloro-2,2’-methylene-\ndiphenol (Bromochlorophen)\nCAS No. 15435-29-7 | 0.1% |  |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            197.23
+          ],
+          "cells": [
+            "37",
+            "6,6-Dibromo-4,4-dichloro-2,2’-methylene-\ndiphenol (Bromochlorophen)\nCAS No. 15435-29-7",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "37 | 6,6-Dibromo-4,4-dichloro-2,2’-methylene-\ndiphenol (Bromochlorophen)\nCAS No. 15435-29-7 | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-38",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "38",
+      "reference_number_raw": "38",
+      "original_substance_name": "4-Isopropyl-m-cresol\nCAS No. 3228-02-2",
+      "cas_number_raw": "3228-02-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "38 | 4-Isopropyl-m-cresol\nCAS No. 3228-02-2 | 0.1% |  |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            197.23,
+            705.46,
+            234.7
+          ],
+          "cells": [
+            "38",
+            "4-Isopropyl-m-cresol\nCAS No. 3228-02-2",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "38 | 4-Isopropyl-m-cresol\nCAS No. 3228-02-2 | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-39",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "39",
+      "reference_number_raw": "39",
+      "original_substance_name": "Mixture of 5-Chloro-2-methyl-isothiazol-3(2H)-\none and 2-Methylisothiazol-3(2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone(9)\nCAS No. 26172-55-4, 2682-20-4, 55965-84-9",
+      "cas_number_raw": "26172-55-4\n2682-20-4\n55965-84-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0,0015 % (of a mixture in\nthe ratio 3:1 of 5-chloro- 2-\nmethylisothiazol 3(2H)-one\nand 2-methylisothiazol-3\n(2H)-one)",
+      "original_conditions_text": "Rinse-off products",
+      "original_warning_text": "",
+      "source_text": "39 | Mixture of 5-Chloro-2-methyl-isothiazol-3(2H)-\none and 2-Methylisothiazol-3(2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone(9)\nCAS No. 26172-55-4, 2682-20-4, 55965-84-9 | 0,0015 % (of a mixture in\nthe ratio 3:1 of 5-chloro- 2-\nmethylisothiazol 3(2H)-one\nand 2-methylisothiazol-3\n(2H)-one) | Rinse-off products |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            234.7,
+            705.46,
+            328.08
+          ],
+          "cells": [
+            "39",
+            "Mixture of 5-Chloro-2-methyl-isothiazol-3(2H)-\none and 2-Methylisothiazol-3(2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone(9)\nCAS No. 26172-55-4, 2682-20-4, 55965-84-9",
+            "0,0015 % (of a mixture in\nthe ratio 3:1 of 5-chloro- 2-\nmethylisothiazol 3(2H)-one\nand 2-methylisothiazol-3\n(2H)-one)",
+            "Rinse-off products",
+            ""
+          ],
+          "original_row_text": "39 | Mixture of 5-Chloro-2-methyl-isothiazol-3(2H)-\none and 2-Methylisothiazol-3(2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone(9)\nCAS No. 26172-55-4, 2682-20-4, 55965-84-9 | 0,0015 % (of a mixture in\nthe ratio 3:1 of 5-chloro- 2-\nmethylisothiazol 3(2H)-one\nand 2-methylisothiazol-3\n(2H)-one) | Rinse-off products | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "9"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-40",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "40",
+      "reference_number_raw": "40",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "40 | Entry deleted |  |  |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            328.08,
+            705.46,
+            353.3
+          ],
+          "cells": [
+            "40",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "40 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-41",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "41",
+      "reference_number_raw": "41",
+      "original_substance_name": "Entry deleted",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "41 | Entry deleted |  |  |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            353.3,
+            705.46,
+            381.38
+          ],
+          "cells": [
+            "41",
+            "Entry deleted",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": "41 | Entry deleted |  |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-42",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "42",
+      "reference_number_raw": "42",
+      "original_substance_name": "Chlorhexidine (INN) and its digluconate,\ndiacetate and dihydrochloride (+)\nChlorhexidine (CAS No. 55-56-1),\nChlorhexidine diacetate (CAS No. 56-\n95-1), Chlorhexidine digluconate,\nChlorhexidine dihydrochloride (CAS No.\n3697-42-5)",
+      "cas_number_raw": "55-56-1\n56-\n95-1\n3697-42-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3% expressed as\nchlorhexidine",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "42 | Chlorhexidine (INN) and its digluconate,\ndiacetate and dihydrochloride (+)\nChlorhexidine (CAS No. 55-56-1),\nChlorhexidine diacetate (CAS No. 56-\n95-1), Chlorhexidine digluconate,\nChlorhexidine dihydrochloride (CAS No.\n3697-42-5) | 0.3% expressed as\nchlorhexidine |  |",
+      "source_pages": [
+        275
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            381.38,
+            705.46,
+            474.31
+          ],
+          "cells": [
+            "42",
+            "Chlorhexidine (INN) and its digluconate,\ndiacetate and dihydrochloride (+)\nChlorhexidine (CAS No. 55-56-1),\nChlorhexidine diacetate (CAS No. 56-\n95-1), Chlorhexidine digluconate,\nChlorhexidine dihydrochloride (CAS No.\n3697-42-5)",
+            "0.3% expressed as\nchlorhexidine",
+            "",
+            ""
+          ],
+          "original_row_text": "42 | Chlorhexidine (INN) and its digluconate,\ndiacetate and dihydrochloride (+)\nChlorhexidine (CAS No. 55-56-1),\nChlorhexidine diacetate (CAS No. 56-\n95-1), Chlorhexidine digluconate,\nChlorhexidine dihydrochloride (CAS No.\n3697-42-5) | 0.3% expressed as\nchlorhexidine |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-43",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "43",
+      "reference_number_raw": "43\nReference\nNumber\na",
+      "original_substance_name": "1-Phenoxypropan-2-ol (10)\nCAS No. 770-35-4\nSubstance\nb",
+      "cas_number_raw": "770-35-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1.0%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Only for rinse-off products\nLimitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "43 | 1-Phenoxypropan-2-ol (10)\nCAS No. 770-35-4 | 1.0% | Only for rinse-off products | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        275,
+        276
+      ],
+      "fragments": [
+        {
+          "source_page": 275,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            509.83
+          ],
+          "row_bbox": [
+            62.304,
+            474.31,
+            705.46,
+            509.83
+          ],
+          "cells": [
+            "43",
+            "1-Phenoxypropan-2-ol (10)\nCAS No. 770-35-4",
+            "1.0%",
+            "Only for rinse-off products",
+            ""
+          ],
+          "original_row_text": "43 | 1-Phenoxypropan-2-ol (10)\nCAS No. 770-35-4 | 1.0% | Only for rinse-off products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "10"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-44",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "44",
+      "reference_number_raw": "44",
+      "original_substance_name": "Alkyl (C ) trimethyl ammonium bromide and\n12-22\nchloride) (+)\nBehentrimonium chloride (11) (CAS No. 17301-\n53-0),\ncetrimonium bromide (CAS No. 57-09-0),\ncetrimonium chloride (12) (CAS No. 112-02-\n7), laurtrimonium bromide, (CAS No. 1119-\n94-4), laurtrimonium chloride (CAS No. 112-\n00-5), steartrimonium bromide (CAS No.\n1120-02-1), steartrimonium chloride (12)\n(CAS No. 112-03-8)",
+      "cas_number_raw": "17301-\n53-0\n57-09-0\n112-02-\n7\n1119-\n94-4\n112-\n00-5\n1120-02-1\n112-03-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "44 | Alkyl (C ) trimethyl ammonium bromide and\n12-22\nchloride) (+)\nBehentrimonium chloride (11) (CAS No. 17301-\n53-0),\ncetrimonium bromide (CAS No. 57-09-0),\ncetrimonium chloride (12) (CAS No. 112-02-\n7), laurtrimonium bromide, (CAS No. 1119-\n94-4), laurtrimonium chloride (CAS No. 112-\n00-5), steartrimonium bromide (CAS No.\n1120-02-1), steartrimonium chloride (12)\n(CAS No. 112-03-8) | 0.1% |  |",
+      "source_pages": [
+        276
+      ],
+      "fragments": [
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            283.68
+          ],
+          "cells": [
+            "44",
+            "Alkyl (C ) trimethyl ammonium bromide and\n12-22\nchloride) (+)\nBehentrimonium chloride (11) (CAS No. 17301-\n53-0),\ncetrimonium bromide (CAS No. 57-09-0),\ncetrimonium chloride (12) (CAS No. 112-02-\n7), laurtrimonium bromide, (CAS No. 1119-\n94-4), laurtrimonium chloride (CAS No. 112-\n00-5), steartrimonium bromide (CAS No.\n1120-02-1), steartrimonium chloride (12)\n(CAS No. 112-03-8)",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "44 | Alkyl (C ) trimethyl ammonium bromide and\n12-22\nchloride) (+)\nBehentrimonium chloride (11) (CAS No. 17301-\n53-0),\ncetrimonium bromide (CAS No. 57-09-0),\ncetrimonium chloride (12) (CAS No. 112-02-\n7), laurtrimonium bromide, (CAS No. 1119-\n94-4), laurtrimonium chloride (CAS No. 112-\n00-5), steartrimonium bromide (CAS No.\n1120-02-1), steartrimonium chloride (12)\n(CAS No. 112-03-8) | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "11",
+        "12"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-45",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "45",
+      "reference_number_raw": "45",
+      "original_substance_name": "4,4-Dimethyl-1,3-oxazolidine\nCAS No. 51200-87-4",
+      "cas_number_raw": "51200-87-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "The pH of the finished\nproduct must not be lower\nthan 6",
+      "original_warning_text": "",
+      "source_text": "45 | 4,4-Dimethyl-1,3-oxazolidine\nCAS No. 51200-87-4 | 0.1% | The pH of the finished\nproduct must not be lower\nthan 6 |",
+      "source_pages": [
+        276
+      ],
+      "fragments": [
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            283.68,
+            705.46,
+            322.56
+          ],
+          "cells": [
+            "45",
+            "4,4-Dimethyl-1,3-oxazolidine\nCAS No. 51200-87-4",
+            "0.1%",
+            "The pH of the finished\nproduct must not be lower\nthan 6",
+            ""
+          ],
+          "original_row_text": "45 | 4,4-Dimethyl-1,3-oxazolidine\nCAS No. 51200-87-4 | 0.1% | The pH of the finished\nproduct must not be lower\nthan 6 | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-46",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "46",
+      "reference_number_raw": "46",
+      "original_substance_name": "N-(Hydroxymethyl)-N-(dihydroxymethyl-1,3-\ndioxo-2,5-imidazolinidyl-4)-N'-(hydroxymethyl)\nurea)\nCAS No. 78491-02-8",
+      "cas_number_raw": "78491-02-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "46 | N-(Hydroxymethyl)-N-(dihydroxymethyl-1,3-\ndioxo-2,5-imidazolinidyl-4)-N'-(hydroxymethyl)\nurea)\nCAS No. 78491-02-8 | 0.5% |  |",
+      "source_pages": [
+        276
+      ],
+      "fragments": [
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            322.56,
+            705.46,
+            376.34
+          ],
+          "cells": [
+            "46",
+            "N-(Hydroxymethyl)-N-(dihydroxymethyl-1,3-\ndioxo-2,5-imidazolinidyl-4)-N'-(hydroxymethyl)\nurea)\nCAS No. 78491-02-8",
+            "0.5%",
+            "",
+            ""
+          ],
+          "original_row_text": "46 | N-(Hydroxymethyl)-N-(dihydroxymethyl-1,3-\ndioxo-2,5-imidazolinidyl-4)-N'-(hydroxymethyl)\nurea)\nCAS No. 78491-02-8 | 0.5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-47",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "47",
+      "reference_number_raw": "47",
+      "original_substance_name": "1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\nHexamidine (CAS No. 3811-75-4),\nHexamidine diisethionate (CAS No.\n659-40-5), Hexamidine paraben(CAS\nNo. 93841-83-9),",
+      "cas_number_raw": "3811-75-4\n659-40-5\n93841-83-9",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "47 | 1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\nHexamidine (CAS No. 3811-75-4),\nHexamidine diisethionate (CAS No.\n659-40-5), Hexamidine paraben(CAS\nNo. 93841-83-9), | 0.1% |  |",
+      "source_pages": [
+        276
+      ],
+      "fragments": [
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            376.34,
+            705.46,
+            468.07
+          ],
+          "cells": [
+            "47",
+            "1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\nHexamidine (CAS No. 3811-75-4),\nHexamidine diisethionate (CAS No.\n659-40-5), Hexamidine paraben(CAS\nNo. 93841-83-9),",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "47 | 1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\nHexamidine (CAS No. 3811-75-4),\nHexamidine diisethionate (CAS No.\n659-40-5), Hexamidine paraben(CAS\nNo. 93841-83-9), | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-48",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "48",
+      "reference_number_raw": "48\nReference\nNumber\na",
+      "original_substance_name": "Glutaraldehyde (Pentane-1,5-dial)\nCAS No. 111-30-8\nSubstance\nb",
+      "cas_number_raw": "111-30-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Prohibited in aerosols\n(sprays)\nLimitations and\nrequirements\nd",
+      "original_warning_text": "- Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nfinished product exceeds\n0.05%)\nConditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "48 | Glutaraldehyde (Pentane-1,5-dial)\nCAS No. 111-30-8 | 0.1% | Prohibited in aerosols\n(sprays) | - Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nfinished product exceeds\n0.05%)\nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        276,
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 276,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            528.336
+          ],
+          "row_bbox": [
+            62.304,
+            468.07,
+            705.46,
+            528.336
+          ],
+          "cells": [
+            "48",
+            "Glutaraldehyde (Pentane-1,5-dial)\nCAS No. 111-30-8",
+            "0.1%",
+            "Prohibited in aerosols\n(sprays)",
+            "- Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nfinished product exceeds\n0.05%)"
+          ],
+          "original_row_text": "48 | Glutaraldehyde (Pentane-1,5-dial)\nCAS No. 111-30-8 | 0.1% | Prohibited in aerosols\n(sprays) | - Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nfinished product exceeds\n0.05%)",
+          "is_continuation": false
+        },
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-49",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "49",
+      "reference_number_raw": "49",
+      "original_substance_name": "5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] octane\nCAS No. 7747-35-5",
+      "cas_number_raw": "7747-35-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3%",
+      "original_conditions_text": "Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes",
+      "original_warning_text": "",
+      "source_text": "49 | 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] octane\nCAS No. 7747-35-5 | 0.3% | Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes |",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            184.51
+          ],
+          "cells": [
+            "49",
+            "5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] octane\nCAS No. 7747-35-5",
+            "0.3%",
+            "Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes",
+            ""
+          ],
+          "original_row_text": "49 | 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] octane\nCAS No. 7747-35-5 | 0.3% | Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-50",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "50",
+      "reference_number_raw": "50",
+      "original_substance_name": "3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)\nCAS No. 104-29-0",
+      "cas_number_raw": "104-29-0",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "50 | 3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)\nCAS No. 104-29-0 | 0.3% |  |",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            184.51,
+            705.46,
+            234.22
+          ],
+          "cells": [
+            "50",
+            "3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)\nCAS No. 104-29-0",
+            "0.3%",
+            "",
+            ""
+          ],
+          "original_row_text": "50 | 3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)\nCAS No. 104-29-0 | 0.3% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-51",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "51",
+      "reference_number_raw": "51",
+      "original_substance_name": "Sodium N-(hydroxymethyl) glycinate\n(Sodium Hydroxymethylglycinate)\nCAS No. 70161-44-3",
+      "cas_number_raw": "70161-44-3",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "Not to be used unless it can\nbe shown that the maximum\ntheoretical concentration of\nreleasable formaldehyde,\nirrespective of the source, in\nthe mixture as placed on the\nmarket is < 0.1 % w/w.",
+      "original_warning_text": "",
+      "source_text": "51 | Sodium N-(hydroxymethyl) glycinate\n(Sodium Hydroxymethylglycinate)\nCAS No. 70161-44-3 | 0.5% | Not to be used unless it can\nbe shown that the maximum\ntheoretical concentration of\nreleasable formaldehyde,\nirrespective of the source, in\nthe mixture as placed on the\nmarket is < 0.1 % w/w. |",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            234.22,
+            705.46,
+            318.72
+          ],
+          "cells": [
+            "51",
+            "Sodium N-(hydroxymethyl) glycinate\n(Sodium Hydroxymethylglycinate)\nCAS No. 70161-44-3",
+            "0.5%",
+            "Not to be used unless it can\nbe shown that the maximum\ntheoretical concentration of\nreleasable formaldehyde,\nirrespective of the source, in\nthe mixture as placed on the\nmarket is < 0.1 % w/w.",
+            ""
+          ],
+          "original_row_text": "51 | Sodium N-(hydroxymethyl) glycinate\n(Sodium Hydroxymethylglycinate)\nCAS No. 70161-44-3 | 0.5% | Not to be used unless it can\nbe shown that the maximum\ntheoretical concentration of\nreleasable formaldehyde,\nirrespective of the source, in\nthe mixture as placed on the\nmarket is < 0.1 % w/w. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-52",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "52",
+      "reference_number_raw": "52",
+      "original_substance_name": "Silver chloride deposited on titanium dioxide\nCAS No. 7783-90-6",
+      "cas_number_raw": "7783-90-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.004% calculated as AgCl",
+      "original_conditions_text": "20% AgCl (w/w) on TiO\n2\nProhibited in products for\nchildren under three years of",
+      "original_warning_text": "",
+      "source_text": "52 | Silver chloride deposited on titanium dioxide\nCAS No. 7783-90-6 | 0.004% calculated as AgCl | 20% AgCl (w/w) on TiO\n2\nProhibited in products for\nchildren under three years of |",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            318.72,
+            705.46,
+            361.94
+          ],
+          "cells": [
+            "52",
+            "Silver chloride deposited on titanium dioxide\nCAS No. 7783-90-6",
+            "0.004% calculated as AgCl",
+            "20% AgCl (w/w) on TiO\n2\nProhibited in products for\nchildren under three years of",
+            ""
+          ],
+          "original_row_text": "52 | Silver chloride deposited on titanium dioxide\nCAS No. 7783-90-6 | 0.004% calculated as AgCl | 20% AgCl (w/w) on TiO\n2\nProhibited in products for\nchildren under three years of | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-53",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "53",
+      "reference_number_raw": "53",
+      "original_substance_name": "Benzethonium Chloride (INCI)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "age, in oral hygiene\np(aro) dRuicntsse a-nodff pinr opdroudctusc ts\ni(nbt)e nLdeeadv efo or na ppprolidcuactitosn o ther",
+      "original_warning_text": "",
+      "source_text": "53 | Benzethonium Chloride (INCI) | 0.1% | age, in oral hygiene\np(aro) dRuicntsse a-nodff pinr opdroudctusc ts\ni(nbt)e nLdeeadv efo or na ppprolidcuactitosn o ther |",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            361.94,
+            705.46,
+            389.54
+          ],
+          "cells": [
+            "53",
+            "Benzethonium Chloride (INCI)",
+            "0.1%",
+            "age, in oral hygiene\np(aro) dRuicntsse a-nodff pinr opdroudctusc ts\ni(nbt)e nLdeeadv efo or na ppprolidcuactitosn o ther",
+            ""
+          ],
+          "original_row_text": "53 | Benzethonium Chloride (INCI) | 0.1% | age, in oral hygiene\np(aro) dRuicntsse a-nodff pinr opdroudctusc ts\ni(nbt)e nLdeeadv efo or na ppprolidcuactitosn o ther | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-54",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "54",
+      "reference_number_raw": "54",
+      "original_substance_name": "CBeAnSz aNlkoo. n1i2u1m-5 c4h-l0o ride, bromide and\nsaccharinate (13)\nBenzalkonium chloride (CAS No. 8001-54-5,\n63449-41-2, 68424-85-1, 68391-01-5, 61789-\n71-7, 85409-22-9),Benzalkonium bromide\n(CAS No. 91080-29-4), Benzalkonium\nsaccharinate (CAS No. 68989-01-5)",
+      "cas_number_raw": "8001-54-5\n63449-41-2\n68424-85-1\n68391-01-5\n61789-\n71-7\n85409-22-9\n91080-29-4\n68989-01-5",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1% calculated as\nBenzalkonium chloride",
+      "original_conditions_text": "athraonu nfodr t hoera el ycearse a unsde o. n the\nlips",
+      "original_warning_text": "- Avoid contact with the\neyes",
+      "source_text": "54 | CBeAnSz aNlkoo. n1i2u1m-5 c4h-l0o ride, bromide and\nsaccharinate (13)\nBenzalkonium chloride (CAS No. 8001-54-5,\n63449-41-2, 68424-85-1, 68391-01-5, 61789-\n71-7, 85409-22-9),Benzalkonium bromide\n(CAS No. 91080-29-4), Benzalkonium\nsaccharinate (CAS No. 68989-01-5) | 0.1% calculated as\nBenzalkonium chloride | athraonu nfodr t hoera el ycearse a unsde o. n the\nlips | - Avoid contact with the\neyes",
+      "source_pages": [
+        277
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            389.54,
+            705.46,
+            496.15
+          ],
+          "cells": [
+            "54",
+            "CBeAnSz aNlkoo. n1i2u1m-5 c4h-l0o ride, bromide and\nsaccharinate (13)\nBenzalkonium chloride (CAS No. 8001-54-5,\n63449-41-2, 68424-85-1, 68391-01-5, 61789-\n71-7, 85409-22-9),Benzalkonium bromide\n(CAS No. 91080-29-4), Benzalkonium\nsaccharinate (CAS No. 68989-01-5)",
+            "0.1% calculated as\nBenzalkonium chloride",
+            "athraonu nfodr t hoera el ycearse a unsde o. n the\nlips",
+            "- Avoid contact with the\neyes"
+          ],
+          "original_row_text": "54 | CBeAnSz aNlkoo. n1i2u1m-5 c4h-l0o ride, bromide and\nsaccharinate (13)\nBenzalkonium chloride (CAS No. 8001-54-5,\n63449-41-2, 68424-85-1, 68391-01-5, 61789-\n71-7, 85409-22-9),Benzalkonium bromide\n(CAS No. 91080-29-4), Benzalkonium\nsaccharinate (CAS No. 68989-01-5) | 0.1% calculated as\nBenzalkonium chloride | athraonu nfodr t hoera el ycearse a unsde o. n the\nlips | - Avoid contact with the\neyes",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "13"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-55",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "55",
+      "reference_number_raw": "55\nReference\nNumber\na",
+      "original_substance_name": "Benzylhemiformal\nCAS No. 14548-60-8\nSubstance\nb",
+      "cas_number_raw": "14548-60-8",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "Only for products to be\nremoved by rinsing\nLimitations and\nrequirements\nd",
+      "original_warning_text": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "55 | Benzylhemiformal\nCAS No. 14548-60-8 | 0.15% | Only for products to be\nremoved by rinsing | \nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        277,
+        278
+      ],
+      "fragments": [
+        {
+          "source_page": 277,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            539.136
+          ],
+          "row_bbox": [
+            62.304,
+            496.15,
+            705.46,
+            539.136
+          ],
+          "cells": [
+            "55",
+            "Benzylhemiformal\nCAS No. 14548-60-8",
+            "0.15%",
+            "Only for products to be\nremoved by rinsing",
+            ""
+          ],
+          "original_row_text": "55 | Benzylhemiformal\nCAS No. 14548-60-8 | 0.15% | Only for products to be\nremoved by rinsing | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 278,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            490.39
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 278,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            490.39
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            142.25
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-56",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "56",
+      "reference_number_raw": "56",
+      "original_substance_name": "Iodopropynyl butylcarbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate\nCAS No.55406-53-6",
+      "cas_number_raw": "55406-53-6",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) rinse-off\nproducts: 0.02 %\n(b) leave-on\nproducts: 0.01 %\nexcept in\ndeodorants &\nantiperspirants:\n0.0075 %",
+      "original_conditions_text": "Not to be used in oral\nhygiene and lip care\nproducts\n(a) Not to be used in\npreparations for children\nunder three years of age,\nexcept in bath\nproducts/shower gels and\nshampoos.\n(b) Not to be used in body\nlotion and body cream\n(*)\nNot to be used in\npreparations for children\nunder three years of\nage.",
+      "original_warning_text": "(a) Not to be used for\nchildren under three\nyears of age (**)\n(b) Not to be used for\nchildren under three\nyears of age (***)",
+      "source_text": "56 | Iodopropynyl butylcarbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate\nCAS No.55406-53-6 | (a) rinse-off\nproducts: 0.02 %\n(b) leave-on\nproducts: 0.01 %\nexcept in\ndeodorants &\nantiperspirants:\n0.0075 % | Not to be used in oral\nhygiene and lip care\nproducts\n(a) Not to be used in\npreparations for children\nunder three years of age,\nexcept in bath\nproducts/shower gels and\nshampoos.\n(b) Not to be used in body\nlotion and body cream\n(*)\nNot to be used in\npreparations for children\nunder three years of\nage. | (a) Not to be used for\nchildren under three\nyears of age (**)\n(b) Not to be used for\nchildren under three\nyears of age (***)",
+      "source_pages": [
+        278
+      ],
+      "fragments": [
+        {
+          "source_page": 278,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            490.39
+          ],
+          "row_bbox": [
+            62.304,
+            142.25,
+            705.46,
+            332.4
+          ],
+          "cells": [
+            "56",
+            "Iodopropynyl butylcarbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate\nCAS No.55406-53-6",
+            "(a) rinse-off\nproducts: 0.02 %\n(b) leave-on\nproducts: 0.01 %\nexcept in\ndeodorants &\nantiperspirants:\n0.0075 %",
+            "Not to be used in oral\nhygiene and lip care\nproducts\n(a) Not to be used in\npreparations for children\nunder three years of age,\nexcept in bath\nproducts/shower gels and\nshampoos.\n(b) Not to be used in body\nlotion and body cream\n(*)\nNot to be used in\npreparations for children\nunder three years of\nage.",
+            "(a) Not to be used for\nchildren under three\nyears of age (**)\n(b) Not to be used for\nchildren under three\nyears of age (***)"
+          ],
+          "original_row_text": "56 | Iodopropynyl butylcarbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate\nCAS No.55406-53-6 | (a) rinse-off\nproducts: 0.02 %\n(b) leave-on\nproducts: 0.01 %\nexcept in\ndeodorants &\nantiperspirants:\n0.0075 % | Not to be used in oral\nhygiene and lip care\nproducts\n(a) Not to be used in\npreparations for children\nunder three years of age,\nexcept in bath\nproducts/shower gels and\nshampoos.\n(b) Not to be used in body\nlotion and body cream\n(*)\nNot to be used in\npreparations for children\nunder three years of\nage. | (a) Not to be used for\nchildren under three\nyears of age (**)\n(b) Not to be used for\nchildren under three\nyears of age (***)",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-57",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "57",
+      "reference_number_raw": "57",
+      "original_substance_name": "2-Methyl-2H-isothiazol- 3-one (INCI)\nMethylisothiazolinone(14)\nCAS No.2682-20-4",
+      "cas_number_raw": "2682-20-4",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.0015%",
+      "original_conditions_text": "Rinse-off products only",
+      "original_warning_text": "",
+      "source_text": "57 | 2-Methyl-2H-isothiazol- 3-one (INCI)\nMethylisothiazolinone(14)\nCAS No.2682-20-4 | 0.0015% | Rinse-off products only |",
+      "source_pages": [
+        278
+      ],
+      "fragments": [
+        {
+          "source_page": 278,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            490.39
+          ],
+          "row_bbox": [
+            62.304,
+            332.4,
+            705.46,
+            411.17
+          ],
+          "cells": [
+            "57",
+            "2-Methyl-2H-isothiazol- 3-one (INCI)\nMethylisothiazolinone(14)\nCAS No.2682-20-4",
+            "0.0015%",
+            "Rinse-off products only",
+            ""
+          ],
+          "original_row_text": "57 | 2-Methyl-2H-isothiazol- 3-one (INCI)\nMethylisothiazolinone(14)\nCAS No.2682-20-4 | 0.0015% | Rinse-off products only | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "14"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-58",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "58",
+      "reference_number_raw": "58\nReference\nNumber\na",
+      "original_substance_name": "Ethyl Lauroyl Arginate HCl (INCI) (6) Ethyl-Ν α -\ndodecanoyl- L-arginate hydrochloride\nCAS No. 60372-77-2\nSubstance\nb",
+      "cas_number_raw": "60372-77-2",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) mouthwashes:\n0.15%\n(b) other products:\n0.4 %\nMaximum authorized\nconcentration\nc",
+      "original_conditions_text": "(a) Not to be used in\npreparations for children\nunder 10 years of age.\n(b) Not to be used in lip\nproducts, oral products and\nspray products.\nLimitations and\nrequirements\nd",
+      "original_warning_text": "(a) Not to be used for\nchildren under 10 years of\nage.\nConditions of use and\nwarnings which must be\nprinted on the label\ne",
+      "source_text": "58 | Ethyl Lauroyl Arginate HCl (INCI) (6) Ethyl-Ν α -\ndodecanoyl- L-arginate hydrochloride\nCAS No. 60372-77-2 | (a) mouthwashes:\n0.15%\n(b) other products:\n0.4 % | (a) Not to be used in\npreparations for children\nunder 10 years of age.\n(b) Not to be used in lip\nproducts, oral products and\nspray products. | (a) Not to be used for\nchildren under 10 years of\nage.\nReference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label\na | b | c | d | e",
+      "source_pages": [
+        278,
+        279
+      ],
+      "fragments": [
+        {
+          "source_page": 278,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            490.39
+          ],
+          "row_bbox": [
+            62.304,
+            411.17,
+            705.46,
+            490.39
+          ],
+          "cells": [
+            "58",
+            "Ethyl Lauroyl Arginate HCl (INCI) (6) Ethyl-Ν α -\ndodecanoyl- L-arginate hydrochloride\nCAS No. 60372-77-2",
+            "(a) mouthwashes:\n0.15%\n(b) other products:\n0.4 %",
+            "(a) Not to be used in\npreparations for children\nunder 10 years of age.\n(b) Not to be used in lip\nproducts, oral products and\nspray products.",
+            "(a) Not to be used for\nchildren under 10 years of\nage."
+          ],
+          "original_row_text": "58 | Ethyl Lauroyl Arginate HCl (INCI) (6) Ethyl-Ν α -\ndodecanoyl- L-arginate hydrochloride\nCAS No. 60372-77-2 | (a) mouthwashes:\n0.15%\n(b) other products:\n0.4 % | (a) Not to be used in\npreparations for children\nunder 10 years of age.\n(b) Not to be used in lip\nproducts, oral products and\nspray products. | (a) Not to be used for\nchildren under 10 years of\nage.",
+          "is_continuation": false
+        },
+        {
+          "source_page": 279,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            288.0
+          ],
+          "row_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            128.81
+          ],
+          "cells": [
+            "Reference\nNumber",
+            "Substance",
+            "Maximum authorized\nconcentration",
+            "Limitations and\nrequirements",
+            "Conditions of use and\nwarnings which must be\nprinted on the label"
+          ],
+          "original_row_text": "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+          "is_continuation": true
+        },
+        {
+          "source_page": 279,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            288.0
+          ],
+          "row_bbox": [
+            62.304,
+            128.81,
+            705.46,
+            156.67
+          ],
+          "cells": [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ],
+          "original_row_text": "a | b | c | d | e",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "6"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages",
+        "nonstandard_reference_fragment:Reference\nNumber",
+        "nonstandard_reference_fragment:a"
+      ]
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-59",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "59",
+      "reference_number_raw": "59",
+      "original_substance_name": "1,2,3-Propanetricarboxylic acid, 2-hydroxy-,\nmonohydrate and 1,2,3-Propanetricarboxylic\nacid, 2-hydroxy-,silver(1+) salt, monohydrate\n(INCI)\nCitric acid (and) Silver citrate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2 %, corresponding to\n0.0024 % of silver",
+      "original_conditions_text": "Not to be used in\noral products and\neye products",
+      "original_warning_text": "",
+      "source_text": "59 | 1,2,3-Propanetricarboxylic acid, 2-hydroxy-,\nmonohydrate and 1,2,3-Propanetricarboxylic\nacid, 2-hydroxy-,silver(1+) salt, monohydrate\n(INCI)\nCitric acid (and) Silver citrate | 0.2 %, corresponding to\n0.0024 % of silver | Not to be used in\noral products and\neye products |",
+      "source_pages": [
+        279
+      ],
+      "fragments": [
+        {
+          "source_page": 279,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            288.0
+          ],
+          "row_bbox": [
+            62.304,
+            156.67,
+            705.46,
+            222.22
+          ],
+          "cells": [
+            "59",
+            "1,2,3-Propanetricarboxylic acid, 2-hydroxy-,\nmonohydrate and 1,2,3-Propanetricarboxylic\nacid, 2-hydroxy-,silver(1+) salt, monohydrate\n(INCI)\nCitric acid (and) Silver citrate",
+            "0.2 %, corresponding to\n0.0024 % of silver",
+            "Not to be used in\noral products and\neye products",
+            ""
+          ],
+          "original_row_text": "59 | 1,2,3-Propanetricarboxylic acid, 2-hydroxy-,\nmonohydrate and 1,2,3-Propanetricarboxylic\nacid, 2-hydroxy-,silver(1+) salt, monohydrate\n(INCI)\nCitric acid (and) Silver citrate | 0.2 %, corresponding to\n0.0024 % of silver | Not to be used in\noral products and\neye products | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vi-60",
+      "source_document": "acd_annexes_2026_1",
+      "section": "Annex VI",
+      "reference_number": "60",
+      "reference_number_raw": "60",
+      "original_substance_name": "4-(3-ethoxy-4-hydroxyphenyl)butan-2-one\nHydroxyethoxyphenyl Butanone\nCAS No. 569646-79-3",
+      "cas_number_raw": "569646-79-3",
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.7 %",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "60 | 4-(3-ethoxy-4-hydroxyphenyl)butan-2-one\nHydroxyethoxyphenyl Butanone\nCAS No. 569646-79-3 | 0.7 % |  |",
+      "source_pages": [
+        279
+      ],
+      "fragments": [
+        {
+          "source_page": 279,
+          "table_bbox": [
+            62.304,
+            93.77,
+            705.46,
+            288.0
+          ],
+          "row_bbox": [
+            62.304,
+            222.22,
+            705.46,
+            288.0
+          ],
+          "cells": [
+            "60",
+            "4-(3-ethoxy-4-hydroxyphenyl)butan-2-one\nHydroxyethoxyphenyl Butanone\nCAS No. 569646-79-3",
+            "0.7 %",
+            "",
+            ""
+          ],
+          "original_row_text": "60 | 4-(3-ethoxy-4-hydroxyphenyl)butan-2-one\nHydroxyethoxyphenyl Butanone\nCAS No. 569646-79-3 | 0.7 % |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    }
+  ],
+  "page_texts": {
+    "267": "Annex VI – List of preservatives allowed for use in cosmetic products\nANNEX VI\nLIST OF PRESERVATIVES ALLOWED\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n1 Benzoic acid (CAS No. 65-85-0), and its Rinse off products, except\nsodium salt (CAS No. 532-32-1) oral care products; 2.5 %\n(acid)\nOral care products; 1.7 %\n(acid)\nLeave-on products; 0.5 %\n(acid)\n1a Salts of benzoic acid other than that 0.5 % (acid)\nlisted under reference number 1 and\nesters of benzoic acid\nAmmonium benzoate (CAS No.1863-63-\n4)/\nCalcium benzoate (CAS No. 2090-05-3)/\nPotassium benzoate (CAS No. 582-25-2)/\nMagnesium benzoate (CAS No. 553-70-\n8)/\nMEA- benzoate (CAS No. 4337-66-0)/\nMethyl benzoate (CAS No. 93-58-3) /\nEthyl benzoate (CAS No. 93-89-0)/\nPropyl benzoate (CAS No. 92315-68-6)/\nButyl benzoate (CAS No. 136-60-7) /\nIsobutyl benzoate (CAS No. 120-50-3)/\nIsopropyl benzoate (CAS No. 939-48-0)/\nPhenyl benzoate (CAS No. 93-99-2)\nVersion No.: 2026-1, 22nd June 2026",
+    "268": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substa nce Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n2 Propionic acid (CAS No. 79-09-4) and its salts 2% (acid)\nAmmonium propionate (CAS No.17496-08-1) /\nCalcium propionate (CAS No. 4075-81-4)/\nMagnesium propionate (CAS No. 557-27-7)/\nPotassium propionate (CAS No. 327-62-8)/\nSodium propionate (CAS No. 137-40-6)\n3 Salicylic acid (69-72-7) and 0.5% (acid) Salicylic acid: Salicylic acid:\nNot to be used in Not to be used for\nproducts for children children under three\nunder three years of age. years of age (2.1)\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nits salts(1) : Calcium salicylate (CAS No. 824-35- 0.5% (acid) Not to be used in Salicylic acid salts:\n1), Magnesium salicylate (CAS No. 18917-89-\npreparations for children\n0), MEA-salicylate (CAS No. 59866-70-5), Not to be used for\nunder three years of age,\nSodium salicylate (CAS No. 54-21-7), children under three\nPotassium salicylate (CAS No. 578-36-9), TEA- except for shampoos years of age (2.2)\nsalicylate (CAS No. 2174-16-5)\n4 Sorbic acid (hexa-2,4-dienoic acid) and its salts 0.6% (acid)\nSorbic acid (CAS No. 110-44-1), Calcium\nsorbate (CAS No. 7492-55-9), Sodium sorbate\n(CAS No.7757-81-5), Potassium sorbate (CAS\nNo. 24634-61-5)\n5 Entry deleted\n6 Entry moved or deleted\nVersion No.: 2026-1, 22nd June 2026",
+    "269": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n7 Biphenyl-2-ol Rinse-off products; 0.2% (as Avoid contact with eyes.\nCAS No. 90-43-7 phenol)\nLeave-on products; 0.15%\n(as phenol)\n8 Zinc pyrithione(3) (CAS No 13463-41-7) Hair products; 1.0 % Rinse off products only.\nOther products; 0.5% Not for use in products for\noral hygiene\n9 Inorganic sulphites and hydrogensulphites (4) 0.2% expressed as free SO\n2\nSodium Sulfite (CAS No 7757-83-7),\nAmmonium bisulfite (CAS No. 10192-30-0)\nAmmonium sulfite (CAS No. 10196-04-0),\nPotassium sulfite (CAS No.10117-38-1 ),\nPotassium hydrogen sulfite (CAS No.7773-03-\n07 ),\nSodium sulfite (CAS No. 7631-90-5), sodium\nMetabisulfite (CAS No.7681-57-4) potassium\nMetabisulfite (CAS No.16731-55-8)\n10 Entry moved or deleted\n11 Chlorobutanol (INN) 0.5% Prohibited in aerosol - Contains chlorobutanol\ndispensers (sprays)\nCAS No. 57-15-8\nVersion No.: 2026-1, 22nd June 2026",
+    "270": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n12 4-Hydroxybenzoic acid and its Methyl- and 0.4% (as acid) for single\nEthyl- esters, and their salts (INCI) ester\n0.8% (as acid) for mixtures\n4-Hydroxybenzoic acid; CAS No. 99-96-7; of esters\nMethylparaben; CAS No. 99-76-3;\npotassium ethylparaben; CAS No. 36457-19-9;\npotassium paraben; CAS No. 16782-08-4\nsodium methylparaben; CAS No. 5026-62-0;\nsodium ethylparaben; CAS No. 35285-68-8;\nethylparaben; CAS No. 120-47-8;\nsodium paraben; CAS No. 114-63-6;\npotassium methylparaben; CAS No. 26112-07-\n2; calcium paraben; CAS No. 69959-44-0;\nVersion No.: 2026-1, 22nd June 2026",
+    "271": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n12a Butyl 4-hydroxybenzoate and its salts 0.14 % (as acid) for the sum Not to be used in leave-on For leave-on products\nPropyl 4- hydroxybenzoate and its salts of the individual products designed for designed for children under\nconcentrations 0.8 % (as application on the nappy three years of age: “Do not\nButylparaben; CAS No. 94-26-8;\nPropylparaben; CAS No. 94-13-3 acid) for mixtures of area of children under three use on the nappy area”’\nsubstances mentioned in years of age.\nsodium propylparaben; CAS No. 35285-69-9\nsodium butylparaben; CAS No. 36457-20-2 ; entry 12 and 12a, where the\nsum of the individual\npotassium butylparaben; CAS No. 38566-94-8;\nconcentrations of butyl- and\npotassium propylparaben; CAS No. 84930-16-\npropylparaben and their\n5;\nsalts does not exceed\n0.14 %\n13 3-Acetyl-6-methylpyran-2,4 (3H)-dione 0.6% (acid) Prohibited in aerosol\n(Dehydroacetic acid) and its salts dispensers (sprays)\nDehydroacetic acid (CAS No. 520-45-6, 16807-\n48-0),\nSodium dehydroacetate (CAS No. 4418-26-2)\n14 Formic acid (CAS No. 64-18-6) and its sodium 0.5% (expressed as acid)\nsalt (CAS No. 141-53-7)\n15 3,3'-Dibromo-4,4'-hexamethylenedioxydi- 0.1%\nbenzamidine (Dibromohexamidine) and its salts\n( including isethionate) (CAS No. 93856-83-8)\n16 Entry deleted\n17 Entry deleted\nVersion No.: 2026-1, 22nd June 2026",
+    "272": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n18 Undec-10-enoic acid and its salts (+) 0.2% (acid)\nUndecylenic acid (CAS No. 112-38-9)\n/Potassium undecylenate (CAS No. 6159-61-\n47)/ Sodium undecylenate (CAS No. 3398-33-\n2)/Calcium undecylenate (CAS No. 1322-14-1)\n/ TEA- undecylenate (CAS No. 84471-25-0)/\nMEA- undecylenate (CAS No. 56532-40-2)\n19 Hexetidine (INN) 0.1%\nCAS No. 141-94-6\n20 5-Bromo-5-nitro-1,3 dioxane 0.1% Rinse-off products only\nCAS No. 30007-47-7 Avoid formation of\nnitrosamines\n21 Bronopol (INN) 0.1% Avoid formation of\nnitrosamines\nCAS No. 52-51-7\n22 2,4-Dichlorobenzyl alcohol 0.15%\nCAS No. 1777-82-8\n23 Triclocarban (INN)(5) 0.2% Purity criteria: 3,3’,4,4’-\nCAS No. 101-20-2 Tetrachloroazobenzene < 1\nppm; 3,3’,4,4’-Tetra-\nchloroazoxybenzene < 1\nppm\n24 4-Chloro-m-cresol 0.2% Prohibited in products\nCAS No. 59-50-7 intended to come into\ncontact with mucous\nmembranes\nVersion No.: 2026-1, 22nd June 2026",
+    "273": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n25 5-Chloro-2- (2,4- dichlorophenoxy) phenol (a) 0.3% (a) Toothpastes\n(INCI) Hand soaps\nTriclosan (INN) Body soaps/Shower\ngels Deodorants (non-\nspray) Face powders\nCAS No. 3380-34-5 and blemish concealers\nNail products for\ncleaning the\nfingernails\nand toenails before\nthe application of\nartificial nail systems\nShampoo\nHair conditioner\nFacial cleanser\n(b) Mouthwashes\n(b) 0.2%\n26 4-Chloro-3,5-xylenol 0.5%\nCAS No. 88-04-0\n27 3,3’-Bis(1-hydroxymethyl-2,5-dioxoimidazolidin- 0.6%\n4-yl)-1,1’-methylenediurea (“Imidazolidinyl\nurea”)\nCAS No. 39236-46-9\n28 Poly(1-hexamethylenebiguanide hydrochloride) 0.1 % Not to be used in\napplications that may lead\nPolyaminopropyl biguanide\nto exposure of the end-\nCAS 32289-58-0, 27083-27-8, 28757-47-3,\nuser's lungs by inhalation’\n133029-32-0\n29 2-Phenoxyethanol 1.0%\nCAS No. 122-99-6\nVersion No.: 2026-1, 22nd June 2026",
+    "274": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Subs tance Maximum authorized Limitations and requirements Conditions of use and\nNumber concentration warnings which must be\nprinted on the label\na b c d e\n30 Hexamethylenetetramine (methenamine) (INN) 0.15%\nCAS No. 100-97-0\n31 Entry deleted\n32 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-3,3- Hair lotions; 0.2%\ndimethylbutan-2-one)15\nFace creams; 0.2%\nRinse-off shampoo; 0.5%\nClimbazole\nRinse-off hair conditioner\nCAS No. 38083-17-9\n: 0.5%\n33 1,3-Bis(hydroxymethyl)-5,5- 0.6%\ndimethylimidazolidine-2,4-dione)\nCAS No. 6440-58-0\n34 Benzyl alcohol (8) 1%\nCAS No. 100-51-6\n35 1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2 1% Rinse-off products\npyridon and its monoethanolamine salt (+)\n0.5%\nFor other products\n1-Hydroxy-4-methyl-6-(2,4,4-trimethylpentyl)-2\npyridon (CAS No. 50650-76-5), piroctone\nOlamine (CAS No. 68890-66-4)\n36 Entry deleted\nVersion No.: 2026-1, 22nd June 2026",
+    "275": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n37 6,6-Dibromo-4,4-dichloro-2,2’-methylene- 0.1%\ndiphenol (Bromochlorophen)\nCAS No. 15435-29-7\n38 4-Isopropyl-m-cresol 0.1%\nCAS No. 3228-02-2\n39 Mixture of 5-Chloro-2-methyl-isothiazol-3(2H)- 0,0015 % (of a mixture in Rinse-off products\none and 2-Methylisothiazol-3(2H)-one (INCI) the ratio 3:1 of 5-chloro- 2-\nmethylisothiazol 3(2H)-one\nand 2-methylisothiazol-3\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone(9) (2H)-one)\nCAS No. 26172-55-4, 2682-20-4, 55965-84-9\n40 Entry deleted\n41 Entry deleted\n42 Chlorhexidine (INN) and its digluconate, 0.3% expressed as\ndiacetate and dihydrochloride (+) chlorhexidine\nChlorhexidine (CAS No. 55-56-1),\nChlorhexidine diacetate (CAS No. 56-\n95-1), Chlorhexidine digluconate,\nChlorhexidine dihydrochloride (CAS No.\n3697-42-5)\n43 1-Phenoxypropan-2-ol (10) 1.0% Only for rinse-off products\nCAS No. 770-35-4\nVersion No.: 2026-1, 22nd June 2026",
+    "276": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n44 Alkyl (C ) trimethyl ammonium bromide and 0.1%\n12-22\nchloride) (+)\nBehentrimonium chloride (11) (CAS No. 17301-\n53-0),\ncetrimonium bromide (CAS No. 57-09-0),\ncetrimonium chloride (12) (CAS No. 112-02-\n7), laurtrimonium bromide, (CAS No. 1119-\n94-4), laurtrimonium chloride (CAS No. 112-\n00-5), steartrimonium bromide (CAS No.\n1120-02-1), steartrimonium chloride (12)\n(CAS No. 112-03-8)\n45 4,4-Dimethyl-1,3-oxazolidine 0.1% The pH of the finished\nCAS No. 51200-87-4 product must not be lower\nthan 6\n46 N-(Hydroxymethyl)-N-(dihydroxymethyl-1,3- 0.5%\ndioxo-2,5-imidazolinidyl-4)-N'-(hydroxymethyl)\nurea)\nCAS No. 78491-02-8\n47 1,6-Di(4-amidinophenoxy)-n-hexane 0.1%\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\nHexamidine (CAS No. 3811-75-4),\nHexamidine diisethionate (CAS No.\n659-40-5), Hexamidine paraben(CAS\nNo. 93841-83-9),\n48 Glutaraldehyde (Pentane-1,5-dial) 0.1% Prohibited in aerosols - Contains glutaraldehyde\n(sprays) (where glutaraldehyde\nconcentration in the\nCAS No. 111-30-8\nfinished product exceeds\n0.05%)\nVersion No.: 2026-1, 22nd June 2026",
+    "277": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n49 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] octane 0.3% Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nCAS No. 7747-35-5\nwith mucous membranes\n50 3-(p-Chlorophenoxy)-propane-1,2-diol 0.3%\n(chlorphenesin)\nCAS No. 104-29-0\n51 Sodium N-(hydroxymethyl) glycinate 0.5% Not to be used unless it can\nbe shown that the maximum\n(Sodium Hydroxymethylglycinate)\ntheoretical concentration of\nreleasable formaldehyde,\nCAS No. 70161-44-3 irrespective of the source, in\nthe mixture as placed on the\nmarket is < 0.1 % w/w.\n52 Silver chloride deposited on titanium dioxide 0.004% calculated as AgCl 20% AgCl (w/w) on TiO\n2\nProhibited in products for\nCAS No. 7783-90-6 children under three years of\nage, in oral hygiene\n53 Benzethonium Chloride (INCI) 0.1% p(aro) dRuicntsse a-nodff pinr opdroudctusc ts\ni(nbt)e nLdeeadv efo or na ppprolidcuactitosn o ther\n54 CBeAnSz aNlkoo. n1i2u1m-5 c4h-l0o ride, bromide and 0.1% calculated as\nathraonu nfodr t hoera el ycearse a unsde o. n the\n- Avoid contact with the\nlips\nsaccharinate (13) Benzalkonium chloride eyes\nBenzalkonium chloride (CAS No. 8001-54-5,\n63449-41-2, 68424-85-1, 68391-01-5, 61789-\n71-7, 85409-22-9),Benzalkonium bromide\n(CAS No. 91080-29-4), Benzalkonium\nsaccharinate (CAS No. 68989-01-5)\n55 Benzylhemiformal 0.15% Only for products to be\nremoved by rinsing\nCAS No. 14548-60-8\nVersion No.: 2026-1, 22nd June 2026",
+    "278": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n56 Iodopropynyl butylcarbamate (IPBC); (a) rinse-off Not to be used in oral (a) Not to be used for\n3-Iodo-2-propynylbutylcarbamate products: 0.02 % hygiene and lip care children under three\n(b) leave-on products years of age (**)\nproducts: 0.01 % (a) Not to be used in (b) Not to be used for\nCAS No.55406-53-6\nexcept in preparations for children children under three\ndeodorants & under three years of age, years of age (***)\nantiperspirants: except in bath\n0.0075 %\nproducts/shower gels and\nshampoos.\n(b) Not to be used in body\nlotion and body cream\n(*)\nNot to be used in\npreparations for children\nunder three years of\nage.\n57 2-Methyl-2H-isothiazol- 3-one (INCI) 0.0015% Rinse-off products only\nMethylisothiazolinone(14)\nCAS No.2682-20-4\n58 Ethyl Lauroyl Arginate HCl (INCI) (6) Ethyl-Ν α - (a) mouthwashes: (a) Not to be used in (a) Not to be used for\ndodecanoyl- L-arginate hydrochloride 0.15% preparations for children children under 10 years of\n(b) other products:\nunder 10 years of age. age.\nCAS No. 60372-77-2 0.4 % (b) Not to be used in lip\nproducts, oral products and\nspray products.\nVersion No.: 2026-1, 22nd June 2026",
+    "279": "Annex VI – List of preservatives allowed for use in cosmetic products\nReference Substance Maximum authorized Limitations and Conditions of use and\nNumber concentration requirements warnings which must be\nprinted on the label\na b c d e\n59\n1,2,3-Propanetricarboxylic acid, 2-hydroxy-, 0.2 %, corresponding to Not to be used in\nmonohydrate and 1,2,3-Propanetricarboxylic 0.0024 % of silver oral products and\nacid, 2-hydroxy-,silver(1+) salt, monohydrate\neye products\n(INCI)\nCitric acid (and) Silver citrate\n60\n4-(3-ethoxy-4-hydroxyphenyl)butan-2-one 0.7 %\nHydroxyethoxyphenyl Butanone\nCAS No. 569646-79-3\n(1) For non-preservative usage see Annex III. Part 1, entry 98\n(2.1) Solely for products which might be used for children under three years of age\n(2.2) Solely for products which might be used for children under three years of age and which remain in prolonged contact with the skin\n(3) For non-preservative usage see Annex III. Part 1, entry 101\n(4) For non-preservative usage see Annex III. Part 1, entry 99\n(5) For non-preservative usage see Annex III. Part 1, entry 100\n(6) For non-preservative usage see Annex III. Part 1, entry 207\n(7) For non-preservative usage see Annex III. Part 1, entry 13\n(8) For non-preservative usage see Annex III. Part 1, entry 45\n(9) Methylisothiazolinone is also regulated in entry 57. The two entries are mutually exclusive: the use of the mixture of Methylchloroisothiazolinone\n(and) Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same product.\n(10) For non-preservative usage see Annex III. Part 1, entry 54\n(11) For use other than as a preservative, see Annex III, No 287\n(12) For use other than as a preservative, see Annex III, No 286\n(13) For non-preservative usage see Annex III. Part 1, entry 65\n(14) Methylisothiazolinone is also regulated in entry 39 in a mixture with Methylchloroisothiazolinone. The two entries are mutually exclusive: the use of\nthe mixture of Methylchloroisothiazolinone (and) Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same\nproduct\n(15) For use other than as a preservative, see Annex III, Part 1, entry 326\n(*) Concerns any products aimed to be applied on a large part of the body\n(**) Solely for products, other than bath products/shower gels and shampoo, which might be used for children under three years of age.\n(***) Solely for products which might be used for children under three years of age\nVersion No.: 2026-1, 22nd June 2026",
+    "266": "Annex VI – List of preservatives allowed for use in cosmetic products\nANNEX VI\nLIST OF PRESERVATIVES WHICH COSMETIC PRODUCTS MAY CONTAIN\nPreamble\n1. Preservatives are substances which may be added to cosmetic products for the primary purpose of inhibiting the development of micro-\norganisms in such products.\n2. The substances marked with the symbol (+) may also be added to cosmetic products in concentration other than those laid down in this ANNEX\nfor other purposes apparent from the presentation of the products, e.g. as deodorants in soaps or as anti-dandruff agents in shampoos.\n3. Other substances used in the formulation of cosmetic products may also have anti-microbial properties and thus help in the preservation of\nthe products, as, for instance, many essential oils and some alcohols. These substances are not included in the ANNEX.\n4. For the purposes of this list\n- “Salts” is taken to mean: salts of the cations sodium, potassium, calcium, magnesium, ammonium, and ethanolamines;\nsalts of the anions chloride, bromide, sulphate, acetate.\n- “Esters” is taken to mean: esters of methyl, ethyl, propyl, isopropyl, butyl, isobutyl, phenyl.\n5. All finished products containing substances in this ANNEX and which release formaldehyde (Entries 20,21,27,30,31,33,46,49, 51,55) must\nbe labelled with the warning “contains formaldehyde” where the concentration of formaldehyde in the finished product exceeds 0.05%.\nVersion No.: 2026-1, 22nd June 2026"
+  },
+  "preamble": [
+    {
+      "source_page": 266,
+      "source_text": "Annex VI – List of preservatives allowed for use in cosmetic products\nANNEX VI\nLIST OF PRESERVATIVES WHICH COSMETIC PRODUCTS MAY CONTAIN\nPreamble\n1. Preservatives are substances which may be added to cosmetic products for the primary purpose of inhibiting the development of micro-\norganisms in such products.\n2. The substances marked with the symbol (+) may also be added to cosmetic products in concentration other than those laid down in this ANNEX\nfor other purposes apparent from the presentation of the products, e.g. as deodorants in soaps or as anti-dandruff agents in shampoos.\n3. Other substances used in the formulation of cosmetic products may also have anti-microbial properties and thus help in the preservation of\nthe products, as, for instance, many essential oils and some alcohols. These substances are not included in the ANNEX.\n4. For the purposes of this list\n- “Salts” is taken to mean: salts of the cations sodium, potassium, calcium, magnesium, ammonium, and ethanolamines;\nsalts of the anions chloride, bromide, sulphate, acetate.\n- “Esters” is taken to mean: esters of methyl, ethyl, propyl, isopropyl, butyl, isobutyl, phenyl.\n5. All finished products containing substances in this ANNEX and which release formaldehyde (Entries 20,21,27,30,31,33,46,49, 51,55) must\nbe labelled with the warning “contains formaldehyde” where the concentration of formaldehyde in the finished product exceeds 0.05%.\nVersion No.: 2026-1, 22nd June 2026"
+    }
+  ],
+  "footnotes": [
+    {
+      "footnote_number": "1",
+      "source_page": 279,
+      "source_text": "(1) For non-preservative usage see Annex III. Part 1, entry 98"
+    },
+    {
+      "footnote_number": "2.1",
+      "source_page": 279,
+      "source_text": "(2.1) Solely for products which might be used for children under three years of age"
+    },
+    {
+      "footnote_number": "2.2",
+      "source_page": 279,
+      "source_text": "(2.2) Solely for products which might be used for children under three years of age and which remain in prolonged contact with the skin"
+    },
+    {
+      "footnote_number": "3",
+      "source_page": 279,
+      "source_text": "(3) For non-preservative usage see Annex III. Part 1, entry 101"
+    },
+    {
+      "footnote_number": "4",
+      "source_page": 279,
+      "source_text": "(4) For non-preservative usage see Annex III. Part 1, entry 99"
+    },
+    {
+      "footnote_number": "5",
+      "source_page": 279,
+      "source_text": "(5) For non-preservative usage see Annex III. Part 1, entry 100"
+    },
+    {
+      "footnote_number": "6",
+      "source_page": 279,
+      "source_text": "(6) For non-preservative usage see Annex III. Part 1, entry 207"
+    },
+    {
+      "footnote_number": "7",
+      "source_page": 279,
+      "source_text": "(7) For non-preservative usage see Annex III. Part 1, entry 13"
+    },
+    {
+      "footnote_number": "8",
+      "source_page": 279,
+      "source_text": "(8) For non-preservative usage see Annex III. Part 1, entry 45"
+    },
+    {
+      "footnote_number": "9",
+      "source_page": 279,
+      "source_text": "(9) Methylisothiazolinone is also regulated in entry 57. The two entries are mutually exclusive: the use of the mixture of Methylchloroisothiazolinone\n(and) Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same product."
+    },
+    {
+      "footnote_number": "10",
+      "source_page": 279,
+      "source_text": "(10) For non-preservative usage see Annex III. Part 1, entry 54"
+    },
+    {
+      "footnote_number": "11",
+      "source_page": 279,
+      "source_text": "(11) For use other than as a preservative, see Annex III, No 287"
+    },
+    {
+      "footnote_number": "12",
+      "source_page": 279,
+      "source_text": "(12) For use other than as a preservative, see Annex III, No 286"
+    },
+    {
+      "footnote_number": "13",
+      "source_page": 279,
+      "source_text": "(13) For non-preservative usage see Annex III. Part 1, entry 65"
+    },
+    {
+      "footnote_number": "14",
+      "source_page": 279,
+      "source_text": "(14) Methylisothiazolinone is also regulated in entry 39 in a mixture with Methylchloroisothiazolinone. The two entries are mutually exclusive: the use of\nthe mixture of Methylchloroisothiazolinone (and) Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same\nproduct"
+    },
+    {
+      "footnote_number": "15",
+      "source_page": 279,
+      "source_text": "(15) For use other than as a preservative, see Annex III, Part 1, entry 326\n(*) Concerns any products aimed to be applied on a large part of the body\n(**) Solely for products, other than bath products/shower gels and shampoo, which might be used for children under three years of age.\n(***) Solely for products which might be used for children under three years of age\nVersion No.: 2026-1, 22nd June 2026"
+    }
+  ],
+  "page_diagnostics": [
+    {
+      "source_page": 267,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ],
+      "unassigned_fragments": [
+        "Reference\nNumber | Substance | Maximum authorized\nconcentration | Limitations and\nrequirements | Conditions of use and\nwarnings which must be\nprinted on the label",
+        "a | b | c | d | e"
+      ]
+    },
+    {
+      "source_page": 268,
+      "table_count": 1,
+      "column_counts": [
+        5,
+        1,
+        2,
+        1,
+        3
+      ]
+    },
+    {
+      "source_page": 269,
+      "table_count": 1,
+      "column_counts": [
+        5,
+        1
+      ]
+    },
+    {
+      "source_page": 270,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 271,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 272,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 273,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 274,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 275,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 276,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 277,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 278,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 279,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    }
+  ]
+}

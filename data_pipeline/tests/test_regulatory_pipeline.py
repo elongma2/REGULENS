@@ -203,16 +203,16 @@ def test_cross_reference_statuses_include_bounded_singapore_only_case() -> None:
     assert statuses == Counter({"aligned": 1, "changed": 1, "acd_only": 1, "singapore_only": 1, "ambiguous": 1})
 
 
-def test_generated_validation_passes_and_has_twenty_spot_checks() -> None:
+def test_generated_validation_passes_and_has_all_spot_checks() -> None:
     report = load(REPORT_ROOT / "validation_report.json")
     checklist = load(REPORT_ROOT / "manual_spot_check_checklist.json")
     results = load(REPORT_ROOT / "manual_spot_check_results.json")
     assert report["validation_status"] == "passed"
     assert not report["errors"]
-    assert checklist["check_count"] == 20
-    assert len(checklist["checks"]) == 20
-    assert report["counts"]["completed_spot_checks"] == 20
-    assert results["summary"] == {"total": 20, "passed": 20, "failed": 0}
+    assert checklist["check_count"] == 35
+    assert len(checklist["checks"]) == 35
+    assert report["counts"]["completed_spot_checks"] == 35
+    assert results["summary"] == {"total": 35, "passed": 35, "failed": 0, "pending": 0}
     assert {item["check_id"] for item in results["results"]} == {
         item["check_id"] for item in checklist["checks"]
     }

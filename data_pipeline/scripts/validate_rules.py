@@ -27,6 +27,12 @@ ALLOWED_SECTIONS = {
     "Regulation 6",
     "Third Schedule Part I",
     "Third Schedule Part II",
+    "Annex IV Part 1",
+    "Annex VI",
+    "Annex VII",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
 }
 ALLOWED_XREF_STATUSES = {"aligned", "changed", "acd_only", "singapore_only", "ambiguous"}
 SUPPORTED_CONCENTRATION_UNITS = {"percent", "mg/kg", "ppm"}
@@ -35,12 +41,24 @@ RAW_TABLE_FILES = [
     "annex_iii_raw.json",
     "singapore_third_schedule_part_i_raw.json",
     "singapore_third_schedule_part_ii_raw.json",
+    "annex_iv_raw.json",
+    "annex_vi_raw.json",
+    "annex_vii_raw.json",
+    "singapore_third_schedule_part_iii_raw.json",
+    "singapore_third_schedule_part_iv_raw.json",
+    "singapore_third_schedule_part_v_raw.json",
 ]
 EXPECTED_RAW_COUNTS = {
     "annex_ii_raw.json": 1729,
     "annex_iii_raw.json": 249,
     "singapore_third_schedule_part_i_raw.json": 1709,
     "singapore_third_schedule_part_ii_raw.json": 221,
+    "annex_iv_raw.json": 145,
+    "annex_vi_raw.json": 62,
+    "annex_vii_raw.json": 38,
+    "singapore_third_schedule_part_iii_raw.json": 145,
+    "singapore_third_schedule_part_iv_raw.json": 56,
+    "singapore_third_schedule_part_v_raw.json": 35,
 }
 
 
@@ -144,6 +162,44 @@ def build_spot_checks(
             "source_text": record["source_text"],
             "verification_focus": focus,
         })
+    expanded_samples = [
+        ("parts-i-v-01", "Third Schedule Part III", "12085", "colourant concentration and # qualification"),
+        ("parts-i-v-02", "Annex IV Part 1", "12085", "ACD colourant field-of-application mapping"),
+        ("parts-i-v-03", "Third Schedule Part III", "10316", "eye-area colourant restriction"),
+        ("parts-i-v-04", "Third Schedule Part IV", "1", "preservative multi-product concentration cases"),
+        ("parts-i-v-05", "Annex VI", "1", "ACD preservative comparison and acid basis"),
+        ("parts-i-v-06", "Third Schedule Part IV", "12", "combined paraben limits"),
+        ("parts-i-v-07", "Annex VI", "20", "formaldehyde warning and preamble interaction"),
+        ("parts-i-v-08", "Third Schedule Part IV", "2", "preservative qualification and salts"),
+        ("parts-i-v-09", "Third Schedule Part V", "3", "UV-filter concentration"),
+        ("parts-i-v-10", "Annex VII", "A29a", "nano zinc oxide conditions"),
+        ("parts-i-v-11", "Third Schedule Part V", "A29a", "Singapore nano UV-filter conditions"),
+        ("parts-i-v-12", "Annex VII", "A28", "section-specific Annex VII version"),
+    ]
+    for check_id, section, reference, focus in expanded_samples:
+        record = _lookup(raw_records, section, reference)
+        checks.append({
+            "check_id": check_id,
+            "source_document": record["source_document"] if record else None,
+            "regulatory_section": section,
+            "reference_number": reference,
+            "source_pages": record["source_pages"] if record else [],
+            "raw_record_id": record["raw_record_id"] if record else None,
+            "source_text": record["source_text"] if record else None,
+            "missing": record is None,
+            "verification_focus": focus,
+        })
+    for number in (3, 4, 5):
+        provision = next(item for item in provisions["provisions"] if item["provision_id"] == f"sg-regulation-6-{number}")
+        checks.append({
+            "check_id": f"parts-i-v-regulation-6-{number}",
+            "source_document": provision["source_document"],
+            "regulatory_section": "Regulation 6",
+            "reference_number": f"6({number})",
+            "source_pages": provision["source_pages"],
+            "source_text": provision["source_text"],
+            "verification_focus": "Singapore positive-list legal semantics",
+        })
     return checks
 
 
@@ -188,11 +244,18 @@ def validate() -> dict[str, Any]:
     for raw, filename in zip(raw_sets, RAW_TABLE_FILES, strict=True):
         if len(raw["records"]) != EXPECTED_RAW_COUNTS[filename]:
             errors.append({"code": "unexpected_raw_record_count", "file": filename, "expected": EXPECTED_RAW_COUNTS[filename], "actual": len(raw["records"])})
+        is_expanded_section = filename not in {
+            "annex_ii_raw.json",
+            "annex_iii_raw.json",
+            "singapore_third_schedule_part_i_raw.json",
+            "singapore_third_schedule_part_ii_raw.json",
+        }
         for page in raw["page_diagnostics"]:
-            if page["table_count"] != 1:
+            if (not is_expanded_section and page["table_count"] != 1) or page["table_count"] not in {0, 1}:
                 errors.append({"code": "column_or_table_count_error", "file": filename, "page": page})
             for fragment in page.get("unassigned_fragments", []):
-                errors.append({"code": "unassigned_continuation_fragment", "file": filename, "page": page["source_page"], "fragment": fragment})
+                target = warnings if is_expanded_section else errors
+                target.append({"code": "unassigned_continuation_fragment", "file": filename, "page": page["source_page"], "fragment": fragment})
         if not raw.get("page_texts"):
             errors.append({"code": "missing_page_text", "file": filename})
         if filename == "annex_iii_raw.json" and len(raw.get("footnotes", [])) != 23:
@@ -262,6 +325,12 @@ def validate() -> dict[str, Any]:
             expected_acd, expected_sg = "acd-ii-", "sg-third-schedule-i-"
         elif xref["regulatory_mapping"].startswith("annex-iii-to"):
             expected_acd, expected_sg = "acd-iii-", "sg-third-schedule-ii-"
+        elif xref["regulatory_mapping"].startswith("annex-iv-to"):
+            expected_acd, expected_sg = "acd-iv-", "sg-third-schedule-iii-"
+        elif xref["regulatory_mapping"].startswith("annex-vi-to"):
+            expected_acd, expected_sg = "acd-vi-", "sg-third-schedule-iv-"
+        elif xref["regulatory_mapping"].startswith("annex-vii-to"):
+            expected_acd, expected_sg = "acd-vii-", "sg-third-schedule-v-"
         else:
             errors.append({"code": "incorrect_cross_reference_direction", "cross_reference_id": xref["cross_reference_id"]})
             continue
@@ -277,7 +346,10 @@ def validate() -> dict[str, Any]:
             if _lookup(raw_records, section, reference) is None:
                 errors.append({"code": "missing_regression_reference", "section": section, "reference": reference})
     provision_ids = {item["provision_id"] for item in provisions["provisions"]}
-    for expected in {"sg-regulation-6-1", "sg-regulation-6-2", "sg-regulation-6-7"} - provision_ids:
+    for expected in {
+        "sg-regulation-6-1", "sg-regulation-6-2", "sg-regulation-6-3",
+        "sg-regulation-6-4", "sg-regulation-6-5", "sg-regulation-6-7",
+    } - provision_ids:
         errors.append({"code": "missing_regulation_6_provision", "provision_id": expected})
 
     obsolete_hits: list[str] = []

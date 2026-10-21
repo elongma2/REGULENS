@@ -7,6 +7,8 @@ export type ConcentrationBasis =
   | "hydrochloride"
   | "tetrahydrochloride";
 export type PreparationStage = "finished_product" | "after_mixing" | "ready_for_use";
+export type RegulatedFunction = "colourant" | "preservative" | "uv_filter";
+export type ConditionStatus = "satisfied" | "not_satisfied" | "information_missing" | "professional_review" | "not_applicable";
 
 export type Finding =
   | "no_issue_identified_within_scoped_rules"
@@ -15,7 +17,10 @@ export type Finding =
   | "prohibited_substance_identified"
   | "information_missing"
   | "identity_unresolved"
-  | "professional_review_required";
+  | "professional_review_required"
+  | "permitted_use_within_conditions"
+  | "permitted_use_condition_not_met"
+  | "regulated_function_not_permitted";
 
 export interface Concentration {
   value: number;
@@ -28,12 +33,30 @@ export interface FormulationIngredient {
   name: string;
   cas_number: string | null;
   concentration: Concentration | null;
+  regulated_functions?: RegulatedFunction[];
+}
+
+export interface ProductApplicabilityFacts {
+  rinse_off?: boolean | null;
+  leave_on?: boolean | null;
+  oral_care?: boolean | null;
+  eye_area?: boolean | null;
+  mucous_membrane_contact?: boolean | null;
+  brief_skin_contact?: boolean | null;
+  spray_or_aerosol?: boolean | null;
+  powder_form?: boolean | null;
+  adult_use?: boolean | null;
+  child_use?: boolean | null;
+  sun_protection_purpose?: boolean | null;
+  product_protection_purpose?: boolean | null;
+  solely_hair_colouring?: boolean | null;
 }
 
 export interface FormulationRequest {
   formulation_id: string | null;
   formulation_name: string | null;
   product_context: string | null;
+  product_applicability?: ProductApplicabilityFacts;
   ingredients: FormulationIngredient[];
 }
 
@@ -45,6 +68,7 @@ export interface ScreeningOptions {
   concentration_units: ConcentrationUnit[];
   concentration_bases: Array<ConcentrationBasis | null>;
   preparation_stages: PreparationStage[];
+  regulated_functions?: RegulatedFunction[];
 }
 
 export interface SourceSnapshot {
@@ -168,6 +192,7 @@ export interface CrossReference {
   field_differences: Record<string, unknown>;
   candidate_matches: unknown[];
   professional_review_required: boolean;
+  material_difference?: boolean;
   review_reasons: string[];
 }
 
@@ -226,6 +251,14 @@ export interface RuleEvidence {
   regulation_6_provisions: RegulationProvision[];
   cross_references: CrossReference[];
   acd_counterpart_rules: CounterpartRule[];
+  regulatory_category?: string | null;
+  list_semantics?: string | null;
+  permitted_function?: RegulatedFunction | null;
+  applicability_requirements?: Array<Record<string, unknown>>;
+  combined_limit_requirements?: Array<Record<string, unknown>>;
+  warning_requirements?: Array<Record<string, unknown>>;
+  source_bundle_version?: string | null;
+  source_section_version?: string | null;
 }
 
 export interface RuleEvaluation {
@@ -235,6 +268,31 @@ export interface RuleEvaluation {
   reasons: string[];
   submitted_concentration: Concentration | null;
   evidence: RuleEvidence;
+}
+
+export interface FunctionEvaluation {
+  regulated_function: RegulatedFunction;
+  singapore_part: string;
+  status: ConditionStatus;
+  finding: Finding | null;
+  rule_ids: string[];
+  reasons: string[];
+}
+
+export interface ConditionEvaluation {
+  rule_id: string;
+  condition_type: string;
+  status: ConditionStatus;
+  source_text: string;
+  reason: string | null;
+}
+
+export interface WarningRequirement {
+  rule_id: string;
+  warning_text: string;
+  trigger_text: string | null;
+  applicability: "applicable" | "not_applicable" | "undetermined";
+  source_reference: string;
 }
 
 export interface ReviewExplanation {
@@ -274,6 +332,10 @@ export interface IngredientResult {
   inactive_evidence: RuleEvidence[];
   searched_singapore_parts: string[];
   searched_regulatory_sections: string[];
+  function_evaluations?: FunctionEvaluation[];
+  condition_evaluations?: ConditionEvaluation[];
+  warning_requirements?: WarningRequirement[];
+  incomplete_positive_list_checks?: RegulatedFunction[];
   scope_note: string;
   submitted_row_number: number;
 }
@@ -287,6 +349,9 @@ export interface FormulationSummary {
   information_missing: number;
   identity_unresolved: number;
   no_issue_identified_within_scoped_rules: number;
+  permitted_use_within_conditions?: number;
+  permitted_use_condition_not_met?: number;
+  regulated_function_not_permitted?: number;
   total_requiring_review: number;
   total_unresolved_identities: number;
   duplicate_row_groups: number[][];
@@ -297,6 +362,7 @@ export interface ScreeningResponse {
     formulation_id: string | null;
     formulation_name: string | null;
     product_context: string | null;
+    product_applicability?: ProductApplicabilityFacts;
   };
   dataset: {
     dataset_version: string;
@@ -363,7 +429,7 @@ export interface ACDIngredientSearchResult {
   rule_id: string;
   substance_id: string;
   name: string;
-  annex: "Annex II Part 1" | "Annex III Part 1";
+  annex: "Annex II Part 1" | "Annex III Part 1" | "Annex IV Part 1" | "Annex VI" | "Annex VII";
   reference: string;
   cas_numbers: string[];
   restriction_type: string;
@@ -398,6 +464,7 @@ export interface EditorIngredient {
   unit: ConcentrationUnit;
   basis: ConcentrationBasis | null;
   preparationStage: PreparationStage;
+  regulatedFunctions?: RegulatedFunction[];
 }
 
 export interface FieldIssue {

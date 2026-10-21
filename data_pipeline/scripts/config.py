@@ -24,7 +24,13 @@ SINGAPORE_FULL_PDF = (
 )
 
 RETRIEVAL_DATE = "2026-09-14"
-DATASET_VERSION = "acd-2026-1__sg-2025-12-01"
+DATASET_VERSION = "acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+CANDIDATE_DATASET_VERSION = "acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+CANDIDATE_ROOT = PIPELINE_ROOT / "candidate"
+CANDIDATE_RAW_ROOT = CANDIDATE_ROOT / "raw"
+CANDIDATE_PROCESSED_ROOT = CANDIDATE_ROOT / "processed"
+CANDIDATE_REPORT_ROOT = CANDIDATE_ROOT / "reports"
+CANDIDATE_BASELINE_PATH = CANDIDATE_ROOT / "candidate_output_hashes.json"
 
 EXPECTED_SOURCE_HASHES = {
     "acd_appendix_i": "30690ead067954dc90dafc59833a2663f82827f3ffc44d887658a2d449dbf231",
@@ -79,4 +85,13 @@ SOURCE_DEFINITIONS = {
 
 def ensure_output_directories() -> None:
     for directory in (RAW_ROOT, PROCESSED_ROOT, REPORT_ROOT):
+        directory.mkdir(parents=True, exist_ok=True)
+
+
+def ensure_candidate_directories() -> None:
+    for directory in (
+        CANDIDATE_RAW_ROOT,
+        CANDIDATE_PROCESSED_ROOT,
+        CANDIDATE_REPORT_ROOT,
+    ):
         directory.mkdir(parents=True, exist_ok=True)

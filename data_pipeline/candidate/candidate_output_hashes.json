@@ -1,0 +1,24 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "candidate_only": true,
+  "generated_output_hashes": {
+    "data_pipeline/raw/annex_ii_raw.json": "59fd4dde5d4d02aaa79b0bd2d19a82fe22c72eb406796d5979d264f8bf90bf4c",
+    "data_pipeline/raw/annex_iii_raw.json": "0e503af06209bd84db59f0334811d7fdb801d3f4ea73c2c9db475e52286ea8c3",
+    "data_pipeline/raw/annex_iv_raw.json": "060e4f75c4ce0f9b9b75b5f6f90d4b0e67bb0b8a23d59d88de245adf3fd80325",
+    "data_pipeline/raw/annex_vi_raw.json": "dadd6215b84a5cf747fed55716489041e93a80720ccad77170dd5a696eb3ca79",
+    "data_pipeline/raw/annex_vii_raw.json": "1e7374d066971efb3464c643e248d3c565987c3dd0f17a11d2145b4c1f41b8cd",
+    "data_pipeline/raw/appendix_i_raw.json": "d1badf3bf09021380390b3b1802104cbd11623d878f4450814e4c319feba5f23",
+    "data_pipeline/raw/singapore_regulation_6_raw.json": "178e4cd251d226435afe3c0caed90c01f9fad62b5ac1b89398af87c5e5cc8208",
+    "data_pipeline/raw/singapore_third_schedule_part_i_raw.json": "b9356459021228563e434673162592ef73b72ff5d5cefce610efc8d91e3fd0a6",
+    "data_pipeline/raw/singapore_third_schedule_part_ii_raw.json": "8d43280ffc595e00da64f033b4152c3f0ff24497b9ccff5d786350b39b79c7cd",
+    "data_pipeline/raw/singapore_third_schedule_part_iii_raw.json": "df68f62b50b1de624f2c24141b3714c5dfcf5ec36c1d2d4d3f64dd5d73cb187a",
+    "data_pipeline/raw/singapore_third_schedule_part_iv_raw.json": "7f8de94ceb7d5c105cbbd48bc68b413f706a78c8a797308d52910dcfc1d7d42b",
+    "data_pipeline/raw/singapore_third_schedule_part_v_raw.json": "a37c45d8168aefb998a785306d37e51c1b1edbf7c0c73ecf7a1260782241058e",
+    "data_pipeline/raw/source_manifest.json": "e382c07be38831f06c7c22439f59052f281a4de538fdfdcd224e36159694a0bf",
+    "data_pipeline/processed/product_context.json": "00e80caf43adac049a4a74e8ea569d8ab1af0ee683172ecb857141d9e86b4218",
+    "data_pipeline/processed/rules.json": "bbb5a90670af1e1d7e45eb7af862252381b8565c917b96a666c30f8098b46a78",
+    "data_pipeline/processed/singapore_provisions.json": "ad4457eb3281f472b47a03ecb3077f97799b1814d1e4627999fdb032f8ef96a1",
+    "data_pipeline/processed/source_cross_references.json": "26dbbac8e3babf4c3635b3822b3b5bf438a585ef74bfa02b1030de2050613b8e",
+    "data_pipeline/processed/substances.json": "8e1c37bf33969030f7b4e0aded12b3399f3be049715499a15489c223bb7aa47d"
+  }
+}

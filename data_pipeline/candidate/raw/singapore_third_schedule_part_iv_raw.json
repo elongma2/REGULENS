@@ -1,0 +1,3106 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "source_document": "singapore_regulations_2025_12_01",
+  "section": "Third Schedule Part IV",
+  "section_version": null,
+  "records": [
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-1",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "1",
+      "reference_number_raw": "1",
+      "original_substance_name": "Benzoic acid, and its sodium salt",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "Rinse-off products, except\noral care products:\n2.5% (acid)\nOral care products:\n1.7% (acid)\nLeave on products:\n0.5% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "1 | Benzoic acid, and its sodium salt | Rinse-off products, except\noral care products:\n2.5% (acid) |  | \n |  | Oral care products:\n1.7% (acid) |  | \n |  | Leave on products:\n0.5% (acid) |  |",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            298.906,
+            422.237,
+            373.655
+          ],
+          "cells": [
+            "1",
+            "Benzoic acid, and its sodium salt",
+            "Rinse-off products, except\noral care products:\n2.5% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "1 | Benzoic acid, and its sodium salt | Rinse-off products, except\noral care products:\n2.5% (acid) |  | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            205.549,
+            329.156,
+            422.237,
+            351.406
+          ],
+          "cells": [
+            "",
+            "",
+            "Oral care products:\n1.7% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": " |  | Oral care products:\n1.7% (acid) |  | ",
+          "is_continuation": true
+        },
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            205.549,
+            351.406,
+            422.237,
+            373.655
+          ],
+          "cells": [
+            "",
+            "",
+            "Leave on products:\n0.5% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": " |  | Leave on products:\n0.5% (acid) |  | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-1a",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "1a",
+      "reference_number_raw": "1a",
+      "original_substance_name": "Salts of benzoic acid other than those\nlisted under reference number 1 of this\nPart and esters of benzoic acid",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "1a | Salts of benzoic acid other than those\nlisted under reference number 1 of this\nPart and esters of benzoic acid | 0.5% (acid) |  |",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            373.655,
+            422.237,
+            403.905
+          ],
+          "cells": [
+            "1a",
+            "Salts of benzoic acid other than those\nlisted under reference number 1 of this\nPart and esters of benzoic acid",
+            "0.5% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "1a | Salts of benzoic acid other than those\nlisted under reference number 1 of this\nPart and esters of benzoic acid | 0.5% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-2",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "2",
+      "reference_number_raw": "2",
+      "original_substance_name": "Propionic acid and its salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "2% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "2 | Propionic acid and its salts | 2% (acid) |  |",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            403.905,
+            422.237,
+            422.155
+          ],
+          "cells": [
+            "2",
+            "Propionic acid and its salts",
+            "2% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "2 | Propionic acid and its salts | 2% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-3",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "3",
+      "reference_number_raw": "3",
+      "original_substance_name": "Salicylic acid and its salts1",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5% (acid)",
+      "original_conditions_text": "Salicylic acid:\nNot to be used in products for\nchildren under 3 years of age.\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in preparations\nfor children under 3 years of\nage, except for shampoos",
+      "original_warning_text": "Salicylic acid:\nNot to be used for\nchildren under 3 years of\nage2.1\nSalicylic acid salts:\nNot to be used for\nchildren under 3 years of\nage2.2",
+      "source_text": "3 | Salicylic acid and its salts1 | 0.5% (acid) | Salicylic acid:\nNot to be used in products for\nchildren under 3 years of age.\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation. | Salicylic acid:\nNot to be used for\nchildren under 3 years of\nage2.1\n |  |  | Salicylic acid salts:\nNot to be used in preparations\nfor children under 3 years of\nage, except for shampoos | Salicylic acid salts:\nNot to be used for\nchildren under 3 years of\nage2.2",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            422.155,
+            422.237,
+            562.654
+          ],
+          "cells": [
+            "3",
+            "Salicylic acid and its salts1",
+            "0.5% (acid)",
+            "Salicylic acid:\nNot to be used in products for\nchildren under 3 years of age.\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation.",
+            "Salicylic acid:\nNot to be used for\nchildren under 3 years of\nage2.1"
+          ],
+          "original_row_text": "3 | Salicylic acid and its salts1 | 0.5% (acid) | Salicylic acid:\nNot to be used in products for\nchildren under 3 years of age.\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation. | Salicylic acid:\nNot to be used for\nchildren under 3 years of\nage2.1",
+          "is_continuation": false
+        },
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            277.695,
+            518.404,
+            422.237,
+            562.654
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "Salicylic acid salts:\nNot to be used in preparations\nfor children under 3 years of\nage, except for shampoos",
+            "Salicylic acid salts:\nNot to be used for\nchildren under 3 years of\nage2.2"
+          ],
+          "original_row_text": " |  |  | Salicylic acid salts:\nNot to be used in preparations\nfor children under 3 years of\nage, except for shampoos | Salicylic acid salts:\nNot to be used for\nchildren under 3 years of\nage2.2",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-4",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "4",
+      "reference_number_raw": "4",
+      "original_substance_name": "Sorbic acid (hexa-2,4-dienoic acid) and\nits salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "4 | Sorbic acid (hexa-2,4-dienoic acid) and\nits salts | 0.6% (acid) |  |",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            562.654,
+            422.237,
+            584.903
+          ],
+          "cells": [
+            "4",
+            "Sorbic acid (hexa-2,4-dienoic acid) and\nits salts",
+            "0.6% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "4 | Sorbic acid (hexa-2,4-dienoic acid) and\nits salts | 0.6% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-7",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "7",
+      "reference_number_raw": "7",
+      "original_substance_name": "Biphenyl-2-ol\no‑Phenylphenol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 0.2% (as phenol)\n(b) 0.15% (as phenol)",
+      "original_conditions_text": "(a) Rinse-off products\n(b) Leave-on products",
+      "original_warning_text": "Avoid contact with eyes",
+      "source_text": "7 | Biphenyl-2-ol\no‑Phenylphenol | (a) 0.2% (as phenol)\n(b) 0.15% (as phenol) | (a) Rinse-off products\n(b) Leave-on products | Avoid contact with eyes",
+      "source_pages": [
+        182
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            584.903,
+            422.237,
+            613.153
+          ],
+          "cells": [
+            "7",
+            "Biphenyl-2-ol\no‑Phenylphenol",
+            "(a) 0.2% (as phenol)\n(b) 0.15% (as phenol)",
+            "(a) Rinse-off products\n(b) Leave-on products",
+            "Avoid contact with eyes"
+          ],
+          "original_row_text": "7 | Biphenyl-2-ol\no‑Phenylphenol | (a) 0.2% (as phenol)\n(b) 0.15% (as phenol) | (a) Rinse-off products\n(b) Leave-on products | Avoid contact with eyes",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-8",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "8",
+      "reference_number_raw": "8",
+      "original_substance_name": "Zinc pyrithione 3",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) Hair products:\n1.0 %\n(b) Other products:\n0.5%",
+      "original_conditions_text": "(a) Rinse-off products\nonly\nNot for use in products for oral\nhygiene\n(b) Rinse-off products\nonly\nNot for use in products for oral\nhygiene",
+      "original_warning_text": "",
+      "source_text": "8 | Zinc pyrithione 3 | (a) Hair products:\n1.0 % | (a) Rinse-off products\nonly | \n |  |  | Not for use in products for oral\nhygiene | \n |  | (b) Other products:\n0.5% | (b) Rinse-off products\nonly\nNot for use in products for oral\nhygiene |",
+      "source_pages": [
+        182,
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 182,
+          "table_bbox": [
+            65.28,
+            238.407,
+            422.237,
+            635.465
+          ],
+          "row_bbox": [
+            65.28,
+            613.153,
+            422.237,
+            635.465
+          ],
+          "cells": [
+            "8",
+            "Zinc pyrithione 3",
+            "(a) Hair products:\n1.0 %",
+            "(a) Rinse-off products\nonly",
+            ""
+          ],
+          "original_row_text": "8 | Zinc pyrithione 3 | (a) Hair products:\n1.0 % | (a) Rinse-off products\nonly | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            156.407
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "Not for use in products for oral\nhygiene",
+            ""
+          ],
+          "original_row_text": " |  |  | Not for use in products for oral\nhygiene | ",
+          "is_continuation": true
+        },
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            216.888,
+            112.158,
+            433.576,
+            156.407
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) Other products:\n0.5%",
+            "(b) Rinse-off products\nonly\nNot for use in products for oral\nhygiene",
+            ""
+          ],
+          "original_row_text": " |  | (b) Other products:\n0.5% | (b) Rinse-off products\nonly\nNot for use in products for oral\nhygiene | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-9",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "9",
+      "reference_number_raw": "9",
+      "original_substance_name": "Inorganic sulphites and\nhydrogensulphites4",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2% expressed as free SO2",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "9 | Inorganic sulphites and\nhydrogensulphites4 | 0.2% expressed as free SO2 |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            156.407,
+            433.576,
+            178.657
+          ],
+          "cells": [
+            "9",
+            "Inorganic sulphites and\nhydrogensulphites4",
+            "0.2% expressed as free SO2",
+            "",
+            ""
+          ],
+          "original_row_text": "9 | Inorganic sulphites and\nhydrogensulphites4 | 0.2% expressed as free SO2 |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-11",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "11",
+      "reference_number_raw": "11",
+      "original_substance_name": "Chlorobutanol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "Prohibited in aerosol\ndispensers (sprays)",
+      "original_warning_text": "Contains chlorobutanol",
+      "source_text": "11 | Chlorobutanol | 0.5% | Prohibited in aerosol\ndispensers (sprays) | Contains chlorobutanol",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            178.657,
+            433.576,
+            200.907
+          ],
+          "cells": [
+            "11",
+            "Chlorobutanol",
+            "0.5%",
+            "Prohibited in aerosol\ndispensers (sprays)",
+            "Contains chlorobutanol"
+          ],
+          "original_row_text": "11 | Chlorobutanol | 0.5% | Prohibited in aerosol\ndispensers (sprays) | Contains chlorobutanol",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-12",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "12",
+      "reference_number_raw": "12",
+      "original_substance_name": "4-Hydroxybenzoic acid and its Methyl-\nand Ethyl- esters, and their salts (INCI);\n4-Hydroxybenzoic acid;\nMethylparaben;\nPotassium ethylparaben;\nPotassium paraben;\nSodium methylparaben;\nSodium ethylparaben;\nEthylparaben;\nSodium paraben;\nPotassium methylparaben;\nCalcium paraben",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "12 | 4-Hydroxybenzoic acid and its Methyl-\nand Ethyl- esters, and their salts (INCI);\n4-Hydroxybenzoic acid;\nMethylparaben;\nPotassium ethylparaben;\nPotassium paraben;\nSodium methylparaben;\nSodium ethylparaben;\nEthylparaben;\nSodium paraben;\nPotassium methylparaben;\nCalcium paraben | 0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            200.907,
+            433.576,
+            363.157
+          ],
+          "cells": [
+            "12",
+            "4-Hydroxybenzoic acid and its Methyl-\nand Ethyl- esters, and their salts (INCI);\n4-Hydroxybenzoic acid;\nMethylparaben;\nPotassium ethylparaben;\nPotassium paraben;\nSodium methylparaben;\nSodium ethylparaben;\nEthylparaben;\nSodium paraben;\nPotassium methylparaben;\nCalcium paraben",
+            "0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters",
+            "",
+            ""
+          ],
+          "original_row_text": "12 | 4-Hydroxybenzoic acid and its Methyl-\nand Ethyl- esters, and their salts (INCI);\n4-Hydroxybenzoic acid;\nMethylparaben;\nPotassium ethylparaben;\nPotassium paraben;\nSodium methylparaben;\nSodium ethylparaben;\nEthylparaben;\nSodium paraben;\nPotassium methylparaben;\nCalcium paraben | 0.4% (as acid) for single\nester\n0.8% (as acid) for mixtures\nof esters |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-12a",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "12a",
+      "reference_number_raw": "12a",
+      "original_substance_name": "Butyl 4-hydroxybenzoate and its salts;\nPropyl 4-hydroxybenzoate and its salts;\nButylparaben;\nPropylparaben;\nSodium propylparaben;\nSodium butylparaben;\nPotassium butylparaben;\nPotassium propylparaben",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.14% (as acid) for the sum\nof the individual\nconcentrations\n0.8% (as acid) for mixtures\nof substances mentioned in\nreference numbers 12 and\n12a of this Part, where the\nsum of the individual\nconcentrations of butyl-\nand propylparaben and\ntheir salts does not\nexceed 0.14%",
+      "original_conditions_text": "Not to be used in leave-on\nproducts designed for\napplication on the nappy area\nof children under 3 years of\nage",
+      "original_warning_text": "For leave-on products\ndesigned for children\nunder 3 years of age:\n“Do not use on the\nnappy area”",
+      "source_text": "12a | Butyl 4-hydroxybenzoate and its salts;\nPropyl 4-hydroxybenzoate and its salts;\nButylparaben;\nPropylparaben;\nSodium propylparaben;\nSodium butylparaben;\nPotassium butylparaben;\nPotassium propylparaben | 0.14% (as acid) for the sum\nof the individual\nconcentrations\n0.8% (as acid) for mixtures\nof substances mentioned in\nreference numbers 12 and\n12a of this Part, where the\nsum of the individual\nconcentrations of butyl-\nand propylparaben and\ntheir salts does not\nexceed 0.14% | Not to be used in leave-on\nproducts designed for\napplication on the nappy area\nof children under 3 years of\nage | For leave-on products\ndesigned for children\nunder 3 years of age:\n“Do not use on the\nnappy area”",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            363.157,
+            433.576,
+            475.407
+          ],
+          "cells": [
+            "12a",
+            "Butyl 4-hydroxybenzoate and its salts;\nPropyl 4-hydroxybenzoate and its salts;\nButylparaben;\nPropylparaben;\nSodium propylparaben;\nSodium butylparaben;\nPotassium butylparaben;\nPotassium propylparaben",
+            "0.14% (as acid) for the sum\nof the individual\nconcentrations\n0.8% (as acid) for mixtures\nof substances mentioned in\nreference numbers 12 and\n12a of this Part, where the\nsum of the individual\nconcentrations of butyl-\nand propylparaben and\ntheir salts does not\nexceed 0.14%",
+            "Not to be used in leave-on\nproducts designed for\napplication on the nappy area\nof children under 3 years of\nage",
+            "For leave-on products\ndesigned for children\nunder 3 years of age:\n“Do not use on the\nnappy area”"
+          ],
+          "original_row_text": "12a | Butyl 4-hydroxybenzoate and its salts;\nPropyl 4-hydroxybenzoate and its salts;\nButylparaben;\nPropylparaben;\nSodium propylparaben;\nSodium butylparaben;\nPotassium butylparaben;\nPotassium propylparaben | 0.14% (as acid) for the sum\nof the individual\nconcentrations\n0.8% (as acid) for mixtures\nof substances mentioned in\nreference numbers 12 and\n12a of this Part, where the\nsum of the individual\nconcentrations of butyl-\nand propylparaben and\ntheir salts does not\nexceed 0.14% | Not to be used in leave-on\nproducts designed for\napplication on the nappy area\nof children under 3 years of\nage | For leave-on products\ndesigned for children\nunder 3 years of age:\n“Do not use on the\nnappy area”",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-13",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "13",
+      "reference_number_raw": "13",
+      "original_substance_name": "3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6% (acid)",
+      "original_conditions_text": "Prohibited in aerosol\ndispensers (sprays)",
+      "original_warning_text": "",
+      "source_text": "13 | 3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts | 0.6% (acid) | Prohibited in aerosol\ndispensers (sprays) |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            475.407,
+            433.576,
+            497.656
+          ],
+          "cells": [
+            "13",
+            "3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts",
+            "0.6% (acid)",
+            "Prohibited in aerosol\ndispensers (sprays)",
+            ""
+          ],
+          "original_row_text": "13 | 3-Acetyl-6-methylpyran-2,4 (3H)-dione\n(Dehydroacetic acid) and its salts | 0.6% (acid) | Prohibited in aerosol\ndispensers (sprays) | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-14",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "14",
+      "reference_number_raw": "14",
+      "original_substance_name": "Formic acid and its sodium salt",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5% (expressed as acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "14 | Formic acid and its sodium salt | 0.5% (expressed as acid) |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            497.656,
+            433.576,
+            515.906
+          ],
+          "cells": [
+            "14",
+            "Formic acid and its sodium salt",
+            "0.5% (expressed as acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "14 | Formic acid and its sodium salt | 0.5% (expressed as acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-15",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "15",
+      "reference_number_raw": "15",
+      "original_substance_name": "3,3’-Dibromo-4,4’-\nhexamethylenedioxydi-benzamidine\n(Dibromohexamidine) and its salts\n(including isethionate)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "15 | 3,3’-Dibromo-4,4’-\nhexamethylenedioxydi-benzamidine\n(Dibromohexamidine) and its salts\n(including isethionate) | 0.1% |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            515.906,
+            433.576,
+            554.156
+          ],
+          "cells": [
+            "15",
+            "3,3’-Dibromo-4,4’-\nhexamethylenedioxydi-benzamidine\n(Dibromohexamidine) and its salts\n(including isethionate)",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "15 | 3,3’-Dibromo-4,4’-\nhexamethylenedioxydi-benzamidine\n(Dibromohexamidine) and its salts\n(including isethionate) | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-18",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "18",
+      "reference_number_raw": "18",
+      "original_substance_name": "Undec-10-enoic acid and its salts (+)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2% (acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "18 | Undec-10-enoic acid and its salts (+) | 0.2% (acid) |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            554.156,
+            433.576,
+            572.406
+          ],
+          "cells": [
+            "18",
+            "Undec-10-enoic acid and its salts (+)",
+            "0.2% (acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "18 | Undec-10-enoic acid and its salts (+) | 0.2% (acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-19",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "19",
+      "reference_number_raw": "19",
+      "original_substance_name": "Hexetidine",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "19 | Hexetidine | 0.1% |  |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            572.406,
+            433.576,
+            590.655
+          ],
+          "cells": [
+            "19",
+            "Hexetidine",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "19 | Hexetidine | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-20",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "20",
+      "reference_number_raw": "20",
+      "original_substance_name": "5-Bromo-5-nitro-1,3 dioxane",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Rinse-off products only\nAvoid formation of\nnitrosamines",
+      "original_warning_text": "",
+      "source_text": "20 | 5-Bromo-5-nitro-1,3 dioxane | 0.1% | Rinse-off products only\nAvoid formation of\nnitrosamines |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            590.655,
+            433.576,
+            626.905
+          ],
+          "cells": [
+            "20",
+            "5-Bromo-5-nitro-1,3 dioxane",
+            "0.1%",
+            "Rinse-off products only\nAvoid formation of\nnitrosamines",
+            ""
+          ],
+          "original_row_text": "20 | 5-Bromo-5-nitro-1,3 dioxane | 0.1% | Rinse-off products only\nAvoid formation of\nnitrosamines | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-21",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "21",
+      "reference_number_raw": "21",
+      "original_substance_name": "Bronopol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Avoid formation of\nnitrosamines",
+      "original_warning_text": "",
+      "source_text": "21 | Bronopol | 0.1% | Avoid formation of\nnitrosamines |",
+      "source_pages": [
+        183
+      ],
+      "fragments": [
+        {
+          "source_page": 183,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.196
+          ],
+          "row_bbox": [
+            76.619,
+            626.905,
+            433.576,
+            649.196
+          ],
+          "cells": [
+            "21",
+            "Bronopol",
+            "0.1%",
+            "Avoid formation of\nnitrosamines",
+            ""
+          ],
+          "original_row_text": "21 | Bronopol | 0.1% | Avoid formation of\nnitrosamines | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-22",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "22",
+      "reference_number_raw": "22",
+      "original_substance_name": "2,4-Dichlorobenzyl alcohol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "22 | 2,4-Dichlorobenzyl alcohol | 0.15% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            108.158
+          ],
+          "cells": [
+            "22",
+            "2,4-Dichlorobenzyl alcohol",
+            "0.15%",
+            "",
+            ""
+          ],
+          "original_row_text": "22 | 2,4-Dichlorobenzyl alcohol | 0.15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-23",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "23",
+      "reference_number_raw": "23",
+      "original_substance_name": "Triclocarban5",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%",
+      "original_conditions_text": "Purity criteria:\n— 3,3’,4,4’-\nTetrachloroazoben\nzene less than 1 ppm\n— 3,3’,4,4’-\nTetrachloroazoxyben\nzene less than 1 ppm",
+      "original_warning_text": "",
+      "source_text": "23 | Triclocarban5 | 0.2% | Purity criteria:\n— 3,3’,4,4’-\nTetrachloroazoben\nzene less than 1 ppm\n— 3,3’,4,4’-\nTetrachloroazoxyben\nzene less than 1 ppm |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            108.158,
+            422.237,
+            182.407
+          ],
+          "cells": [
+            "23",
+            "Triclocarban5",
+            "0.2%",
+            "Purity criteria:\n— 3,3’,4,4’-\nTetrachloroazoben\nzene less than 1 ppm\n— 3,3’,4,4’-\nTetrachloroazoxyben\nzene less than 1 ppm",
+            ""
+          ],
+          "original_row_text": "23 | Triclocarban5 | 0.2% | Purity criteria:\n— 3,3’,4,4’-\nTetrachloroazoben\nzene less than 1 ppm\n— 3,3’,4,4’-\nTetrachloroazoxyben\nzene less than 1 ppm | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-24",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "24",
+      "reference_number_raw": "24",
+      "original_substance_name": "4-Chloro-m-cresol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%",
+      "original_conditions_text": "Prohibited in products\nintended to come into contact\nwith mucous membranes",
+      "original_warning_text": "",
+      "source_text": "24 | 4-Chloro-m-cresol | 0.2% | Prohibited in products\nintended to come into contact\nwith mucous membranes |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            182.407,
+            422.237,
+            212.657
+          ],
+          "cells": [
+            "24",
+            "4-Chloro-m-cresol",
+            "0.2%",
+            "Prohibited in products\nintended to come into contact\nwith mucous membranes",
+            ""
+          ],
+          "original_row_text": "24 | 4-Chloro-m-cresol | 0.2% | Prohibited in products\nintended to come into contact\nwith mucous membranes | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-25",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "25",
+      "reference_number_raw": "25",
+      "original_substance_name": "5-Chloro-2-(2,4-dichlorophenoxy)\nphenol (INCI)\nTriclosan",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 0.3%\n(b) 0.2%",
+      "original_conditions_text": "(a) Toothpastes\nHand soaps\nBody soaps/shower\ngels\nDeodorants\n(non‑spray)\nFace powders and\nblemish concealers\nNail products for\ncleaning the\nfingernails and\ntoenails before the\napplication of\nartificial nail systems\nShampoos\nHair conditioners\nFacial cleansers\n(b) Mouthwashes",
+      "original_warning_text": "",
+      "source_text": "25 | 5-Chloro-2-(2,4-dichlorophenoxy)\nphenol (INCI)\nTriclosan | (a) 0.3% | (a) Toothpastes\nHand soaps\nBody soaps/shower\ngels\nDeodorants\n(non‑spray)\nFace powders and\nblemish concealers\nNail products for\ncleaning the\nfingernails and\ntoenails before the\napplication of\nartificial nail systems\nShampoos\nHair conditioners\nFacial cleansers | \n |  | (b) 0.2% | (b) Mouthwashes |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            212.657,
+            422.237,
+            437.155
+          ],
+          "cells": [
+            "25",
+            "5-Chloro-2-(2,4-dichlorophenoxy)\nphenol (INCI)\nTriclosan",
+            "(a) 0.3%",
+            "(a) Toothpastes\nHand soaps\nBody soaps/shower\ngels\nDeodorants\n(non‑spray)\nFace powders and\nblemish concealers\nNail products for\ncleaning the\nfingernails and\ntoenails before the\napplication of\nartificial nail systems\nShampoos\nHair conditioners\nFacial cleansers",
+            ""
+          ],
+          "original_row_text": "25 | 5-Chloro-2-(2,4-dichlorophenoxy)\nphenol (INCI)\nTriclosan | (a) 0.3% | (a) Toothpastes\nHand soaps\nBody soaps/shower\ngels\nDeodorants\n(non‑spray)\nFace powders and\nblemish concealers\nNail products for\ncleaning the\nfingernails and\ntoenails before the\napplication of\nartificial nail systems\nShampoos\nHair conditioners\nFacial cleansers | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            205.549,
+            418.905,
+            422.237,
+            437.155
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) 0.2%",
+            "(b) Mouthwashes",
+            ""
+          ],
+          "original_row_text": " |  | (b) 0.2% | (b) Mouthwashes | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-26",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "26",
+      "reference_number_raw": "26",
+      "original_substance_name": "4-Chloro-3,5-xylenol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "26 | 4-Chloro-3,5-xylenol | 0.5% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            437.155,
+            422.237,
+            455.405
+          ],
+          "cells": [
+            "26",
+            "4-Chloro-3,5-xylenol",
+            "0.5%",
+            "",
+            ""
+          ],
+          "original_row_text": "26 | 4-Chloro-3,5-xylenol | 0.5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-27",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "27",
+      "reference_number_raw": "27",
+      "original_substance_name": "3,3’-bis(1-hydroxymethyl-2,5-\ndioxoimidazolidin-4-yl)-1,1’-\nmethylenediurea (“Imidazolidinyl urea’’)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "27 | 3,3’-bis(1-hydroxymethyl-2,5-\ndioxoimidazolidin-4-yl)-1,1’-\nmethylenediurea (“Imidazolidinyl urea’’) | 0.6% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            455.405,
+            422.237,
+            485.654
+          ],
+          "cells": [
+            "27",
+            "3,3’-bis(1-hydroxymethyl-2,5-\ndioxoimidazolidin-4-yl)-1,1’-\nmethylenediurea (“Imidazolidinyl urea’’)",
+            "0.6%",
+            "",
+            ""
+          ],
+          "original_row_text": "27 | 3,3’-bis(1-hydroxymethyl-2,5-\ndioxoimidazolidin-4-yl)-1,1’-\nmethylenediurea (“Imidazolidinyl urea’’) | 0.6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-28",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "28",
+      "reference_number_raw": "28",
+      "original_substance_name": "Poly(1-hexamethylenebiguanide\nhydrochloride)\nPolyaminopropyl biguanide",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Not to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation",
+      "original_warning_text": "",
+      "source_text": "28 | Poly(1-hexamethylenebiguanide\nhydrochloride)\nPolyaminopropyl biguanide | 0.1% | Not to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            485.654,
+            422.237,
+            523.904
+          ],
+          "cells": [
+            "28",
+            "Poly(1-hexamethylenebiguanide\nhydrochloride)\nPolyaminopropyl biguanide",
+            "0.1%",
+            "Not to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation",
+            ""
+          ],
+          "original_row_text": "28 | Poly(1-hexamethylenebiguanide\nhydrochloride)\nPolyaminopropyl biguanide | 0.1% | Not to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-29",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "29",
+      "reference_number_raw": "29",
+      "original_substance_name": "2-Phenoxyethanol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1.0%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "29 | 2-Phenoxyethanol | 1.0% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            523.904,
+            422.237,
+            542.154
+          ],
+          "cells": [
+            "29",
+            "2-Phenoxyethanol",
+            "1.0%",
+            "",
+            ""
+          ],
+          "original_row_text": "29 | 2-Phenoxyethanol | 1.0% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-30",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "30",
+      "reference_number_raw": "30",
+      "original_substance_name": "Hexamethylenetetramine (methenamine)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "30 | Hexamethylenetetramine (methenamine) | 0.15% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            542.154,
+            422.237,
+            560.403
+          ],
+          "cells": [
+            "30",
+            "Hexamethylenetetramine (methenamine)",
+            "0.15%",
+            "",
+            ""
+          ],
+          "original_row_text": "30 | Hexamethylenetetramine (methenamine) | 0.15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-31",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "31",
+      "reference_number_raw": "31",
+      "original_substance_name": "Methenamine 3-chloroallylochloride",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "31 | Methenamine 3-chloroallylochloride | 0.2% |  |",
+      "source_pages": [
+        184
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            560.403,
+            422.237,
+            578.653
+          ],
+          "cells": [
+            "31",
+            "Methenamine 3-chloroallylochloride",
+            "0.2%",
+            "",
+            ""
+          ],
+          "original_row_text": "31 | Methenamine 3-chloroallylochloride | 0.2% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-32",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "32",
+      "reference_number_raw": "32",
+      "original_substance_name": "1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-\n3,3-dimethylbutan-2-one17\nClimbazole",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 0.2%\n(b) 0.2%\n(c) 0.5%\n(d) 0.5%",
+      "original_conditions_text": "(a) Hair lotions\n(b) Face creams\n(c) Rinse-off shampoos\n(d) Rinse-off hair\nconditioners",
+      "original_warning_text": "",
+      "source_text": "32 | 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-\n3,3-dimethylbutan-2-one17\nClimbazole | (a) 0.2% | (a) Hair lotions | \n |  | (b) 0.2% | (b) Face creams | \n |  | (c) 0.5% | (c) Rinse-off shampoos | \n |  | (d) 0.5% | (d) Rinse-off hair\nconditioners |",
+      "source_pages": [
+        184,
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            65.28,
+            578.653,
+            422.237,
+            633.215
+          ],
+          "cells": [
+            "32",
+            "1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-\n3,3-dimethylbutan-2-one17\nClimbazole",
+            "(a) 0.2%",
+            "(a) Hair lotions",
+            ""
+          ],
+          "original_row_text": "32 | 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)-\n3,3-dimethylbutan-2-one17\nClimbazole | (a) 0.2% | (a) Hair lotions | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 184,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            633.215
+          ],
+          "row_bbox": [
+            205.549,
+            614.903,
+            422.237,
+            633.215
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) 0.2%",
+            "(b) Face creams",
+            ""
+          ],
+          "original_row_text": " |  | (b) 0.2% | (b) Face creams | ",
+          "is_continuation": true
+        },
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            130.407
+          ],
+          "cells": [
+            "",
+            "",
+            "(c) 0.5%",
+            "(c) Rinse-off shampoos",
+            ""
+          ],
+          "original_row_text": " |  | (c) 0.5% | (c) Rinse-off shampoos | ",
+          "is_continuation": true
+        },
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            216.888,
+            108.158,
+            433.576,
+            130.407
+          ],
+          "cells": [
+            "",
+            "",
+            "(d) 0.5%",
+            "(d) Rinse-off hair\nconditioners",
+            ""
+          ],
+          "original_row_text": " |  | (d) 0.5% | (d) Rinse-off hair\nconditioners | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-33",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "33",
+      "reference_number_raw": "33",
+      "original_substance_name": "1,3-bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "33 | 1,3-bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione | 0.6% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            130.407,
+            433.576,
+            152.657
+          ],
+          "cells": [
+            "33",
+            "1,3-bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione",
+            "0.6%",
+            "",
+            ""
+          ],
+          "original_row_text": "33 | 1,3-bis(hydroxymethyl)-5,5-\ndimethylimidazolidine-2,4-dione | 0.6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-34",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "34",
+      "reference_number_raw": "34",
+      "original_substance_name": "Benzyl alcohol6",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "34 | Benzyl alcohol6 | 1% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            152.657,
+            433.576,
+            170.907
+          ],
+          "cells": [
+            "34",
+            "Benzyl alcohol6",
+            "1%",
+            "",
+            ""
+          ],
+          "original_row_text": "34 | Benzyl alcohol6 | 1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-35",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "35",
+      "reference_number_raw": "35",
+      "original_substance_name": "1-Hydroxy-4-methyl-6(2,4,4-\ntrimethylpentyl)-2-pyridon and its\nmonoethanolamine salt (+)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 1%\n(b) 0.5%",
+      "original_conditions_text": "(a) Rinse-off products\n(b) For other products",
+      "original_warning_text": "",
+      "source_text": "35 | 1-Hydroxy-4-methyl-6(2,4,4-\ntrimethylpentyl)-2-pyridon and its\nmonoethanolamine salt (+) | (a) 1% | (a) Rinse-off products | \n |  | (b) 0.5% | (b) For other products |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            170.907,
+            433.576,
+            219.406
+          ],
+          "cells": [
+            "35",
+            "1-Hydroxy-4-methyl-6(2,4,4-\ntrimethylpentyl)-2-pyridon and its\nmonoethanolamine salt (+)",
+            "(a) 1%",
+            "(a) Rinse-off products",
+            ""
+          ],
+          "original_row_text": "35 | 1-Hydroxy-4-methyl-6(2,4,4-\ntrimethylpentyl)-2-pyridon and its\nmonoethanolamine salt (+) | (a) 1% | (a) Rinse-off products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            216.888,
+            201.157,
+            433.576,
+            219.406
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) 0.5%",
+            "(b) For other products",
+            ""
+          ],
+          "original_row_text": " |  | (b) 0.5% | (b) For other products | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-37",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "37",
+      "reference_number_raw": "37",
+      "original_substance_name": "6,6-Dibromo-4,4-dichloro-2,2’-\nmethylene-diphenol (Bromochlorophen)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "37 | 6,6-Dibromo-4,4-dichloro-2,2’-\nmethylene-diphenol (Bromochlorophen) | 0.1% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            219.406,
+            433.576,
+            241.656
+          ],
+          "cells": [
+            "37",
+            "6,6-Dibromo-4,4-dichloro-2,2’-\nmethylene-diphenol (Bromochlorophen)",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "37 | 6,6-Dibromo-4,4-dichloro-2,2’-\nmethylene-diphenol (Bromochlorophen) | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-38",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "38",
+      "reference_number_raw": "38",
+      "original_substance_name": "4-Isopropyl-m-cresol",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "38 | 4-Isopropyl-m-cresol | 0.1% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            241.656,
+            433.576,
+            259.906
+          ],
+          "cells": [
+            "38",
+            "4-Isopropyl-m-cresol",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "38 | 4-Isopropyl-m-cresol | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-39",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "39",
+      "reference_number_raw": "39",
+      "original_substance_name": "Mixture of 5-Chloro-2-methyl-\nisothiazol-3 (2H)-one and 2-\nMethylisothiazol-3 (2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone7",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.0015% (of a mixture in\nthe ratio 3:1 of 5-Chloro-2-\nmethyl-isothiazol-3 (2H)-\none and 2-\nmethylisothiazol-3 (2H)-\none)",
+      "original_conditions_text": "Rinse-off products only",
+      "original_warning_text": "",
+      "source_text": "39 | Mixture of 5-Chloro-2-methyl-\nisothiazol-3 (2H)-one and 2-\nMethylisothiazol-3 (2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone7 | 0.0015% (of a mixture in\nthe ratio 3:1 of 5-Chloro-2-\nmethyl-isothiazol-3 (2H)-\none and 2-\nmethylisothiazol-3 (2H)-\none) | Rinse-off products only |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            259.906,
+            433.576,
+            314.155
+          ],
+          "cells": [
+            "39",
+            "Mixture of 5-Chloro-2-methyl-\nisothiazol-3 (2H)-one and 2-\nMethylisothiazol-3 (2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone7",
+            "0.0015% (of a mixture in\nthe ratio 3:1 of 5-Chloro-2-\nmethyl-isothiazol-3 (2H)-\none and 2-\nmethylisothiazol-3 (2H)-\none)",
+            "Rinse-off products only",
+            ""
+          ],
+          "original_row_text": "39 | Mixture of 5-Chloro-2-methyl-\nisothiazol-3 (2H)-one and 2-\nMethylisothiazol-3 (2H)-one (INCI)\nMethylchloroisothiazolinone (and)\nMethylisothiazolinone7 | 0.0015% (of a mixture in\nthe ratio 3:1 of 5-Chloro-2-\nmethyl-isothiazol-3 (2H)-\none and 2-\nmethylisothiazol-3 (2H)-\none) | Rinse-off products only | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-40",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "40",
+      "reference_number_raw": "40",
+      "original_substance_name": "2-Benzyl-4-chlorophenol (Chlorophene)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "40 | 2-Benzyl-4-chlorophenol (Chlorophene) | 0.2% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            314.155,
+            433.576,
+            332.405
+          ],
+          "cells": [
+            "40",
+            "2-Benzyl-4-chlorophenol (Chlorophene)",
+            "0.2%",
+            "",
+            ""
+          ],
+          "original_row_text": "40 | 2-Benzyl-4-chlorophenol (Chlorophene) | 0.2% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-41",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "41",
+      "reference_number_raw": "41",
+      "original_substance_name": "2-Chloroacetamide",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3%",
+      "original_conditions_text": "",
+      "original_warning_text": "Contains\nchloroacetamide",
+      "source_text": "41 | 2-Chloroacetamide | 0.3% |  | Contains\nchloroacetamide",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            332.405,
+            433.576,
+            354.655
+          ],
+          "cells": [
+            "41",
+            "2-Chloroacetamide",
+            "0.3%",
+            "",
+            "Contains\nchloroacetamide"
+          ],
+          "original_row_text": "41 | 2-Chloroacetamide | 0.3% |  | Contains\nchloroacetamide",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-42",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "42",
+      "reference_number_raw": "42",
+      "original_substance_name": "Chlorhexidine and its digluconate,\ndiacetate and dihydrochloride (+)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3% expressed as\nchlorhexidine",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "42 | Chlorhexidine and its digluconate,\ndiacetate and dihydrochloride (+) | 0.3% expressed as\nchlorhexidine |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            354.655,
+            433.576,
+            376.904
+          ],
+          "cells": [
+            "42",
+            "Chlorhexidine and its digluconate,\ndiacetate and dihydrochloride (+)",
+            "0.3% expressed as\nchlorhexidine",
+            "",
+            ""
+          ],
+          "original_row_text": "42 | Chlorhexidine and its digluconate,\ndiacetate and dihydrochloride (+) | 0.3% expressed as\nchlorhexidine |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-43",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "43",
+      "reference_number_raw": "43",
+      "original_substance_name": "1-Phenoxypropan-2-ol8",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "1.0%",
+      "original_conditions_text": "Rinse-off products only",
+      "original_warning_text": "",
+      "source_text": "43 | 1-Phenoxypropan-2-ol8 | 1.0% | Rinse-off products only |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            376.904,
+            433.576,
+            395.154
+          ],
+          "cells": [
+            "43",
+            "1-Phenoxypropan-2-ol8",
+            "1.0%",
+            "Rinse-off products only",
+            ""
+          ],
+          "original_row_text": "43 | 1-Phenoxypropan-2-ol8 | 1.0% | Rinse-off products only | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-44",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "44",
+      "reference_number_raw": "44",
+      "original_substance_name": "Alkyl (C12-C22) trimethyl ammonium,\nbromide and chloride (+)\nBehentrimonium chloride9\nCetrimonium bromide\nCetrimonium chloride10\nLaurtrimonium bromide\nLaurtrimonium chloride\nSteartrimonium bromide\nSteartrimonium chloride10",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "44 | Alkyl (C12-C22) trimethyl ammonium,\nbromide and chloride (+)\nBehentrimonium chloride9\nCetrimonium bromide\nCetrimonium chloride10\nLaurtrimonium bromide\nLaurtrimonium chloride\nSteartrimonium bromide\nSteartrimonium chloride10 | 0.1% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            395.154,
+            433.576,
+            515.404
+          ],
+          "cells": [
+            "44",
+            "Alkyl (C12-C22) trimethyl ammonium,\nbromide and chloride (+)\nBehentrimonium chloride9\nCetrimonium bromide\nCetrimonium chloride10\nLaurtrimonium bromide\nLaurtrimonium chloride\nSteartrimonium bromide\nSteartrimonium chloride10",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "44 | Alkyl (C12-C22) trimethyl ammonium,\nbromide and chloride (+)\nBehentrimonium chloride9\nCetrimonium bromide\nCetrimonium chloride10\nLaurtrimonium bromide\nLaurtrimonium chloride\nSteartrimonium bromide\nSteartrimonium chloride10 | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-45",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "45",
+      "reference_number_raw": "45",
+      "original_substance_name": "4,4-Dimethyl-1,3-oxazolidine",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "pH of finished product must\nnot be lower than 6",
+      "original_warning_text": "",
+      "source_text": "45 | 4,4-Dimethyl-1,3-oxazolidine | 0.1% | pH of finished product must\nnot be lower than 6 |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            515.404,
+            433.576,
+            537.654
+          ],
+          "cells": [
+            "45",
+            "4,4-Dimethyl-1,3-oxazolidine",
+            "0.1%",
+            "pH of finished product must\nnot be lower than 6",
+            ""
+          ],
+          "original_row_text": "45 | 4,4-Dimethyl-1,3-oxazolidine | 0.1% | pH of finished product must\nnot be lower than 6 | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-46",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "46",
+      "reference_number_raw": "46",
+      "original_substance_name": "N-(Hydroxymethyl)-N-\n(dihydroxymethyl-1,3-dioxo-2,5-\nimidazolinidyl-4)-N’-(hydroxymethyl)\nurea",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "46 | N-(Hydroxymethyl)-N-\n(dihydroxymethyl-1,3-dioxo-2,5-\nimidazolinidyl-4)-N’-(hydroxymethyl)\nurea | 0.5% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            537.654,
+            433.576,
+            575.903
+          ],
+          "cells": [
+            "46",
+            "N-(Hydroxymethyl)-N-\n(dihydroxymethyl-1,3-dioxo-2,5-\nimidazolinidyl-4)-N’-(hydroxymethyl)\nurea",
+            "0.5%",
+            "",
+            ""
+          ],
+          "original_row_text": "46 | N-(Hydroxymethyl)-N-\n(dihydroxymethyl-1,3-dioxo-2,5-\nimidazolinidyl-4)-N’-(hydroxymethyl)\nurea | 0.5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-47",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "47",
+      "reference_number_raw": "47",
+      "original_substance_name": "1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "47 | 1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+) | 0.1% |  |",
+      "source_pages": [
+        185
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            575.903,
+            433.576,
+            606.153
+          ],
+          "cells": [
+            "47",
+            "1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)",
+            "0.1%",
+            "",
+            ""
+          ],
+          "original_row_text": "47 | 1,6-Di(4-amidinophenoxy)-n-hexane\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+) | 0.1% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-48",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "48",
+      "reference_number_raw": "48",
+      "original_substance_name": "Glutaraldehyde (Pentane-1,5-dial)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Prohibited in aerosols (sprays)",
+      "original_warning_text": "Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nfinished product\nexceeds 0.05%)",
+      "source_text": "48 | Glutaraldehyde (Pentane-1,5-dial) | 0.1% | Prohibited in aerosols (sprays) | Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\n |  |  |  | finished product\nexceeds 0.05%)",
+      "source_pages": [
+        185,
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 185,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            636.444
+          ],
+          "row_bbox": [
+            76.619,
+            606.153,
+            433.576,
+            636.444
+          ],
+          "cells": [
+            "48",
+            "Glutaraldehyde (Pentane-1,5-dial)",
+            "0.1%",
+            "Prohibited in aerosols (sprays)",
+            "Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the"
+          ],
+          "original_row_text": "48 | Glutaraldehyde (Pentane-1,5-dial) | 0.1% | Prohibited in aerosols (sprays) | Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the",
+          "is_continuation": false
+        },
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            112.158
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "",
+            "finished product\nexceeds 0.05%)"
+          ],
+          "original_row_text": " |  |  |  | finished product\nexceeds 0.05%)",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-49",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "49",
+      "reference_number_raw": "49",
+      "original_substance_name": "5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0]\noctane",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3%",
+      "original_conditions_text": "Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes",
+      "original_warning_text": "",
+      "source_text": "49 | 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0]\noctane | 0.3% | Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            112.158,
+            422.237,
+            150.407
+          ],
+          "cells": [
+            "49",
+            "5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0]\noctane",
+            "0.3%",
+            "Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes",
+            ""
+          ],
+          "original_row_text": "49 | 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0]\noctane | 0.3% | Prohibited in oral hygiene\nproducts and in products\nintended to come into contact\nwith mucous membranes | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-50",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "50",
+      "reference_number_raw": "50",
+      "original_substance_name": "3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.3%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "50 | 3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin) | 0.3% |  |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            150.407,
+            422.237,
+            172.657
+          ],
+          "cells": [
+            "50",
+            "3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin)",
+            "0.3%",
+            "",
+            ""
+          ],
+          "original_row_text": "50 | 3-(p-Chlorophenoxy)-propane-1,2-diol\n(chlorphenesin) | 0.3% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-51",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "51",
+      "reference_number_raw": "51",
+      "original_substance_name": "Sodium hydroxymethylamino acetate\n(Sodium hydroxymethylglycinate)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.5%",
+      "original_conditions_text": "Not to be used unless the\nmaximum theoretical\nconcentration of releasable\nformaldehyde, irrespective of\nthe source, in the mixture as\nplaced on the market is <0.1%\nw/w",
+      "original_warning_text": "",
+      "source_text": "51 | Sodium hydroxymethylamino acetate\n(Sodium hydroxymethylglycinate) | 0.5% | Not to be used unless the\nmaximum theoretical\nconcentration of releasable\nformaldehyde, irrespective of\nthe source, in the mixture as\nplaced on the market is <0.1%\nw/w |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            172.657,
+            422.237,
+            234.906
+          ],
+          "cells": [
+            "51",
+            "Sodium hydroxymethylamino acetate\n(Sodium hydroxymethylglycinate)",
+            "0.5%",
+            "Not to be used unless the\nmaximum theoretical\nconcentration of releasable\nformaldehyde, irrespective of\nthe source, in the mixture as\nplaced on the market is <0.1%\nw/w",
+            ""
+          ],
+          "original_row_text": "51 | Sodium hydroxymethylamino acetate\n(Sodium hydroxymethylglycinate) | 0.5% | Not to be used unless the\nmaximum theoretical\nconcentration of releasable\nformaldehyde, irrespective of\nthe source, in the mixture as\nplaced on the market is <0.1%\nw/w | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-52",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "52",
+      "reference_number_raw": "52",
+      "original_substance_name": "Silver chloride deposited on Titanium\ndioxide",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.004% calculated as AgCl",
+      "original_conditions_text": "20% AgCl (w/w) on TiO2\nProhibited in products for\nchildren under 3 years of age,\nin oral hygiene products and in\nproducts intended for\napplication around the eyes\nand on the lips",
+      "original_warning_text": "",
+      "source_text": "52 | Silver chloride deposited on Titanium\ndioxide | 0.004% calculated as AgCl | 20% AgCl (w/w) on TiO2\nProhibited in products for\nchildren under 3 years of age,\nin oral hygiene products and in\nproducts intended for\napplication around the eyes\nand on the lips |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            234.906,
+            422.237,
+            303.156
+          ],
+          "cells": [
+            "52",
+            "Silver chloride deposited on Titanium\ndioxide",
+            "0.004% calculated as AgCl",
+            "20% AgCl (w/w) on TiO2\nProhibited in products for\nchildren under 3 years of age,\nin oral hygiene products and in\nproducts intended for\napplication around the eyes\nand on the lips",
+            ""
+          ],
+          "original_row_text": "52 | Silver chloride deposited on Titanium\ndioxide | 0.004% calculated as AgCl | 20% AgCl (w/w) on TiO2\nProhibited in products for\nchildren under 3 years of age,\nin oral hygiene products and in\nproducts intended for\napplication around the eyes\nand on the lips | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-53",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "53",
+      "reference_number_raw": "53",
+      "original_substance_name": "Benzethonium chloride (INCI)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1%",
+      "original_conditions_text": "Rinse-off products, leave-on\nproducts other than for oral\ncare use",
+      "original_warning_text": "",
+      "source_text": "53 | Benzethonium chloride (INCI) | 0.1% | Rinse-off products, leave-on\nproducts other than for oral\ncare use |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            303.156,
+            422.237,
+            333.405
+          ],
+          "cells": [
+            "53",
+            "Benzethonium chloride (INCI)",
+            "0.1%",
+            "Rinse-off products, leave-on\nproducts other than for oral\ncare use",
+            ""
+          ],
+          "original_row_text": "53 | Benzethonium chloride (INCI) | 0.1% | Rinse-off products, leave-on\nproducts other than for oral\ncare use | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-54",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "54",
+      "reference_number_raw": "54",
+      "original_substance_name": "Benzalkonium chloride, bromide and\nsaccharinate11",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.1% calculated as\nBenzalkonium chloride",
+      "original_conditions_text": "",
+      "original_warning_text": "Avoid contact with the\neyes",
+      "source_text": "54 | Benzalkonium chloride, bromide and\nsaccharinate11 | 0.1% calculated as\nBenzalkonium chloride |  | Avoid contact with the\neyes",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            333.405,
+            422.237,
+            355.655
+          ],
+          "cells": [
+            "54",
+            "Benzalkonium chloride, bromide and\nsaccharinate11",
+            "0.1% calculated as\nBenzalkonium chloride",
+            "",
+            "Avoid contact with the\neyes"
+          ],
+          "original_row_text": "54 | Benzalkonium chloride, bromide and\nsaccharinate11 | 0.1% calculated as\nBenzalkonium chloride |  | Avoid contact with the\neyes",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-55",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "55",
+      "reference_number_raw": "55",
+      "original_substance_name": "Benzylhemiformal",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.15%",
+      "original_conditions_text": "Rinse-off products only",
+      "original_warning_text": "",
+      "source_text": "55 | Benzylhemiformal | 0.15% | Rinse-off products only |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            355.655,
+            422.237,
+            373.905
+          ],
+          "cells": [
+            "55",
+            "Benzylhemiformal",
+            "0.15%",
+            "Rinse-off products only",
+            ""
+          ],
+          "original_row_text": "55 | Benzylhemiformal | 0.15% | Rinse-off products only | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-56",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "56",
+      "reference_number_raw": "56",
+      "original_substance_name": "Iodopropynyl butyl-carbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) Rinse-off products\n0.02%\n(b) Leave-on products\n0.01%, except in\ndeodorants and\nantiperspirants\n0.0075%",
+      "original_conditions_text": "Not to be used in oral hygiene\nand lip care products\n(a) Not to be used in\npreparations for\nchildren under 3 years\nof age, except in bath\nproducts, shower gels\nand shampoos\n(b) Not to be used in body\nlotion and body\ncream13\nNot to be used in preparations\nfor children under 3 years of\nage",
+      "original_warning_text": "(a) Not to be used\nfor children\nunder 3 years of\nage12\n(b) Not to be used\nfor children\nunder 3 years of\nage14",
+      "source_text": "56 | Iodopropynyl butyl-carbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate |  | Not to be used in oral hygiene\nand lip care products | \n |  | (a) Rinse-off products\n0.02% | (a) Not to be used in\npreparations for\nchildren under 3 years\nof age, except in bath\nproducts, shower gels\nand shampoos | (a) Not to be used\nfor children\nunder 3 years of\nage12\n |  | (b) Leave-on products\n0.01%, except in\ndeodorants and\nantiperspirants\n0.0075% | (b) Not to be used in body\nlotion and body\ncream13\nNot to be used in preparations\nfor children under 3 years of\nage | (b) Not to be used\nfor children\nunder 3 years of\nage14",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            373.905,
+            422.237,
+            510.654
+          ],
+          "cells": [
+            "56",
+            "Iodopropynyl butyl-carbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate",
+            "",
+            "Not to be used in oral hygiene\nand lip care products",
+            ""
+          ],
+          "original_row_text": "56 | Iodopropynyl butyl-carbamate (IPBC);\n3-Iodo-2-propynylbutylcarbamate |  | Not to be used in oral hygiene\nand lip care products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            205.549,
+            396.155,
+            422.237,
+            450.404
+          ],
+          "cells": [
+            "",
+            "",
+            "(a) Rinse-off products\n0.02%",
+            "(a) Not to be used in\npreparations for\nchildren under 3 years\nof age, except in bath\nproducts, shower gels\nand shampoos",
+            "(a) Not to be used\nfor children\nunder 3 years of\nage12"
+          ],
+          "original_row_text": " |  | (a) Rinse-off products\n0.02% | (a) Not to be used in\npreparations for\nchildren under 3 years\nof age, except in bath\nproducts, shower gels\nand shampoos | (a) Not to be used\nfor children\nunder 3 years of\nage12",
+          "is_continuation": true
+        },
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            205.549,
+            450.404,
+            422.237,
+            510.654
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) Leave-on products\n0.01%, except in\ndeodorants and\nantiperspirants\n0.0075%",
+            "(b) Not to be used in body\nlotion and body\ncream13\nNot to be used in preparations\nfor children under 3 years of\nage",
+            "(b) Not to be used\nfor children\nunder 3 years of\nage14"
+          ],
+          "original_row_text": " |  | (b) Leave-on products\n0.01%, except in\ndeodorants and\nantiperspirants\n0.0075% | (b) Not to be used in body\nlotion and body\ncream13\nNot to be used in preparations\nfor children under 3 years of\nage | (b) Not to be used\nfor children\nunder 3 years of\nage14",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-57",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "57",
+      "reference_number_raw": "57",
+      "original_substance_name": "2-Methyl-2H-isothiazol-3-one (INCI)\nMethylisothiazolinone15",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.0015%",
+      "original_conditions_text": "Rinse-off products only",
+      "original_warning_text": "",
+      "source_text": "57 | 2-Methyl-2H-isothiazol-3-one (INCI)\nMethylisothiazolinone15 | 0.0015% | Rinse-off products only |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            510.654,
+            422.237,
+            538.903
+          ],
+          "cells": [
+            "57",
+            "2-Methyl-2H-isothiazol-3-one (INCI)\nMethylisothiazolinone15",
+            "0.0015%",
+            "Rinse-off products only",
+            ""
+          ],
+          "original_row_text": "57 | 2-Methyl-2H-isothiazol-3-one (INCI)\nMethylisothiazolinone15 | 0.0015% | Rinse-off products only | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-58",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "58",
+      "reference_number_raw": "58",
+      "original_substance_name": "Ethyl Lauroyl Arginate HCl (INCI)16\nEthyl-N-α-dodecanoyl-L-arginate\nhydrochloride",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) Mouthwashes:\n0.15%\n(b) Other products:\n0.4%",
+      "original_conditions_text": "(a) Not to be used in\npreparations for\nchildren under\n10 years of age\n(b) Not to be used in lip\nproducts, oral\nproducts and spray\nproducts",
+      "original_warning_text": "(a) Not to be used\nfor children\nunder 10 years\nof age",
+      "source_text": "58 | Ethyl Lauroyl Arginate HCl (INCI)16\nEthyl-N-α-dodecanoyl-L-arginate\nhydrochloride | (a) Mouthwashes:\n0.15% | (a) Not to be used in\npreparations for\nchildren under\n10 years of age | (a) Not to be used\nfor children\nunder 10 years\nof age\n |  | (b) Other products:\n0.4% | (b) Not to be used in lip\nproducts, oral\nproducts and spray\nproducts |",
+      "source_pages": [
+        186
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            538.903,
+            422.237,
+            615.403
+          ],
+          "cells": [
+            "58",
+            "Ethyl Lauroyl Arginate HCl (INCI)16\nEthyl-N-α-dodecanoyl-L-arginate\nhydrochloride",
+            "(a) Mouthwashes:\n0.15%",
+            "(a) Not to be used in\npreparations for\nchildren under\n10 years of age",
+            "(a) Not to be used\nfor children\nunder 10 years\nof age"
+          ],
+          "original_row_text": "58 | Ethyl Lauroyl Arginate HCl (INCI)16\nEthyl-N-α-dodecanoyl-L-arginate\nhydrochloride | (a) Mouthwashes:\n0.15% | (a) Not to be used in\npreparations for\nchildren under\n10 years of age | (a) Not to be used\nfor children\nunder 10 years\nof age",
+          "is_continuation": false
+        },
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            205.549,
+            577.153,
+            422.237,
+            615.403
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) Other products:\n0.4%",
+            "(b) Not to be used in lip\nproducts, oral\nproducts and spray\nproducts",
+            ""
+          ],
+          "original_row_text": " |  | (b) Other products:\n0.4% | (b) Not to be used in lip\nproducts, oral\nproducts and spray\nproducts | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-59",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "59",
+      "reference_number_raw": "59",
+      "original_substance_name": "1,2,3-Propanetricarboxylic acid, 2-\nhydroxy-, monohydrate and 1,2,3-\nPropanetricarboxylic acid, 2-hydroxy-,\nsilver(1+) salt, monohydrate (INCI)\nCitric acid and Silver citrate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.2%, corresponding to\n0.0024% of silver",
+      "original_conditions_text": "Not to be used in oral products\nand eye products",
+      "original_warning_text": "",
+      "source_text": "59 | 1,2,3-Propanetricarboxylic acid, 2-\nhydroxy-, monohydrate and 1,2,3- | 0.2%, corresponding to\n0.0024% of silver | Not to be used in oral products\nand eye products | \n | Propanetricarboxylic acid, 2-hydroxy-,\nsilver(1+) salt, monohydrate (INCI)\nCitric acid and Silver citrate |  |  |",
+      "source_pages": [
+        186,
+        187
+      ],
+      "fragments": [
+        {
+          "source_page": 186,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            637.694
+          ],
+          "row_bbox": [
+            65.28,
+            615.403,
+            422.237,
+            637.694
+          ],
+          "cells": [
+            "59",
+            "1,2,3-Propanetricarboxylic acid, 2-\nhydroxy-, monohydrate and 1,2,3-",
+            "0.2%, corresponding to\n0.0024% of silver",
+            "Not to be used in oral products\nand eye products",
+            ""
+          ],
+          "original_row_text": "59 | 1,2,3-Propanetricarboxylic acid, 2-\nhydroxy-, monohydrate and 1,2,3- | 0.2%, corresponding to\n0.0024% of silver | Not to be used in oral products\nand eye products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 187,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            162.407
+          ],
+          "row_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            126.158
+          ],
+          "cells": [
+            "",
+            "Propanetricarboxylic acid, 2-hydroxy-,\nsilver(1+) salt, monohydrate (INCI)\nCitric acid and Silver citrate",
+            "",
+            "",
+            ""
+          ],
+          "original_row_text": " | Propanetricarboxylic acid, 2-hydroxy-,\nsilver(1+) salt, monohydrate (INCI)\nCitric acid and Silver citrate |  |  | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-60",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part IV",
+      "reference_number": "60",
+      "reference_number_raw": "60",
+      "original_substance_name": "4-(3-ethoxy-4-hydroxyphenyl)butan-2-\none\nHydroxyethoxyphenyl Butanone",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "0.7%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "60 | 4-(3-ethoxy-4-hydroxyphenyl)butan-2-\none\nHydroxyethoxyphenyl Butanone | 0.7% |  |",
+      "source_pages": [
+        187
+      ],
+      "fragments": [
+        {
+          "source_page": 187,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            162.407
+          ],
+          "row_bbox": [
+            76.619,
+            126.158,
+            433.576,
+            162.407
+          ],
+          "cells": [
+            "60",
+            "4-(3-ethoxy-4-hydroxyphenyl)butan-2-\none\nHydroxyethoxyphenyl Butanone",
+            "0.7%",
+            "",
+            ""
+          ],
+          "original_row_text": "60 | 4-(3-ethoxy-4-hydroxyphenyl)butan-2-\none\nHydroxyethoxyphenyl Butanone | 0.7% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    }
+  ],
+  "page_texts": {
+    "182": "S 683/2007 182\nTHIRD SCHEDULE — continued\n— “Esters” is taken to mean: esters of methyl, ethyl, propyl, isopropyl, butyl,\nisobutyl, phenyl.\n5. All finished products containing substances in this Part and which release\nformaldehyde (Entries 20, 21, 27, 30, 31, 33, 46, 49, 51 and 55) must be labelled\nwith the warning “Contains formaldehyde.” where the concentration of\nformaldehyde in the finished product exceeds 0.05%.\n[S 816/2024 wef 01/11/2024]\nLIST OF PRESERVATIVES ALLOWED\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum authorised Other limitations and Warnings and\nconcentration requirements precautions for use to\nbe shown on label of\nproduct\n1 Benzoic acid, and its sodium salt Rinse-off products, except\noral care products:\n2.5% (acid)\nOral care products:\n1.7% (acid)\nLeave on products:\n0.5% (acid)\n1a Salts of benzoic acid other than those 0.5% (acid)\nlisted under reference number 1 of this\nPart and esters of benzoic acid\n2 Propionic acid and its salts 2% (acid)\n3 Salicylic acid and its salts1 0.5% (acid) Salicylic acid: Salicylic acid:\nNot to be used in products for Not to be used for\nchildren under 3 years of age. children under 3 years of\nage2.1\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation.\nSalicylic acid salts: Salicylic acid salts:\nNot to be used in preparations Not to be used for\nfor children under 3 years of children under 3 years of\nage, except for shampoos age2.2\n4 Sorbic acid (hexa-2,4-dienoic acid) and 0.6% (acid)\nits salts\n7 Biphenyl-2-ol (a) 0.2% (as phenol) (a) Rinse-off products Avoid contact with eyes\no‑Phenylphenol (b) 0.15% (as phenol) (b) Leave-on products\n8 Zinc pyrithione 3 (a) Hair products: (a) Rinse-off products\n1.0 % only\nInformal Consolidation – version in force from 1/12/2025",
+    "183": "183 S 683/2007\nTHIRD SCHEDULE — continued\nNot for use in products for oral\nhygiene\n(b) Other products: (b) Rinse-off products\n0.5% only\nNot for use in products for oral\nhygiene\n9 Inorganic sulphites and 0.2% expressed as free SO2\nhydrogensulphites4\n11 Chlorobutanol 0.5% Prohibited in aerosol Contains chlorobutanol\ndispensers (sprays)\n12 4-Hydroxybenzoic acid and its Methyl- 0.4% (as acid) for single\nand Ethyl- esters, and their salts (INCI); ester\n4-Hydroxybenzoic acid; 0.8% (as acid) for mixtures\nof esters\nMethylparaben;\nPotassium ethylparaben;\nPotassium paraben;\nSodium methylparaben;\nSodium ethylparaben;\nEthylparaben;\nSodium paraben;\nPotassium methylparaben;\nCalcium paraben\n12a Butyl 4-hydroxybenzoate and its salts; 0.14% (as acid) for the sum Not to be used in leave-on For leave-on products\nof the individual products designed for designed for children\nPropyl 4-hydroxybenzoate and its salts; concentrations application on the nappy area under 3 years of age:\nof children under 3 years of\nButylparaben; 0.8% (as acid) for mixtures age “Do not use on the\nof substances mentioned in nappy area”\nPropylparaben;\nreference numbers 12 and\nSodium propylparaben; 12a of this Part, where the\nsum of the individual\nSodium butylparaben; concentrations of butyl-\nand propylparaben and\nPotassium butylparaben; their salts does not\nexceed 0.14%\nPotassium propylparaben\n13 3-Acetyl-6-methylpyran-2,4 (3H)-dione 0.6% (acid) Prohibited in aerosol\n(Dehydroacetic acid) and its salts dispensers (sprays)\n14 Formic acid and its sodium salt 0.5% (expressed as acid)\n15 3,3’-Dibromo-4,4’- 0.1%\nhexamethylenedioxydi-benzamidine\n(Dibromohexamidine) and its salts\n(including isethionate)\n18 Undec-10-enoic acid and its salts (+) 0.2% (acid)\n19 Hexetidine 0.1%\n20 5-Bromo-5-nitro-1,3 dioxane 0.1% Rinse-off products only\nAvoid formation of\nnitrosamines\n21 Bronopol 0.1% Avoid formation of\nnitrosamines\nInformal Consolidation – version in force from 1/12/2025",
+    "184": "S 683/2007 184\nTHIRD SCHEDULE — continued\n22 2,4-Dichlorobenzyl alcohol 0.15%\n23 Triclocarban5 0.2% Purity criteria:\n— 3,3’,4,4’-\nTetrachloroazoben\nzene less than 1 ppm\n— 3,3’,4,4’-\nTetrachloroazoxyben\nzene less than 1 ppm\n24 4-Chloro-m-cresol 0.2% Prohibited in products\nintended to come into contact\nwith mucous membranes\n25 5-Chloro-2-(2,4-dichlorophenoxy) (a) 0.3% (a) Toothpastes\nphenol (INCI)\nHand soaps\nTriclosan\nBody soaps/shower\ngels\nDeodorants\n(non‑spray)\nFace powders and\nblemish concealers\nNail products for\ncleaning the\nfingernails and\ntoenails before the\napplication of\nartificial nail systems\nShampoos\nHair conditioners\nFacial cleansers\n(b) 0.2% (b) Mouthwashes\n26 4-Chloro-3,5-xylenol 0.5%\n27 3,3’-bis(1-hydroxymethyl-2,5- 0.6%\ndioxoimidazolidin-4-yl)-1,1’-\nmethylenediurea (“Imidazolidinyl urea’’)\n28 Poly(1-hexamethylenebiguanide 0.1% Not to be used in applications\nhydrochloride) that may lead to exposure of\nthe end-user’s lungs by\nPolyaminopropyl biguanide inhalation\n29 2-Phenoxyethanol 1.0%\n30 Hexamethylenetetramine (methenamine) 0.15%\n31 Methenamine 3-chloroallylochloride 0.2%\n32 1-(4-Chlorophenoxy)-1-(imidazol-1-yl)- (a) 0.2% (a) Hair lotions\n3,3-dimethylbutan-2-one17\nClimbazole\n(b) 0.2% (b) Face creams\nInformal Consolidation – version in force from 1/12/2025",
+    "185": "185 S 683/2007\nTHIRD SCHEDULE — continued\n(c) 0.5% (c) Rinse-off shampoos\n(d) 0.5% (d) Rinse-off hair\nconditioners\n33 1,3-bis(hydroxymethyl)-5,5- 0.6%\ndimethylimidazolidine-2,4-dione\n34 Benzyl alcohol6 1%\n35 1-Hydroxy-4-methyl-6(2,4,4- (a) 1% (a) Rinse-off products\ntrimethylpentyl)-2-pyridon and its\nmonoethanolamine salt (+)\n(b) 0.5% (b) For other products\n37 6,6-Dibromo-4,4-dichloro-2,2’- 0.1%\nmethylene-diphenol (Bromochlorophen)\n38 4-Isopropyl-m-cresol 0.1%\n39 Mixture of 5-Chloro-2-methyl- 0.0015% (of a mixture in Rinse-off products only\nisothiazol-3 (2H)-one and 2- the ratio 3:1 of 5-Chloro-2-\nMethylisothiazol-3 (2H)-one (INCI) methyl-isothiazol-3 (2H)-\none and 2-\nMethylchloroisothiazolinone (and) methylisothiazol-3 (2H)-\nMethylisothiazolinone7\none)\n40 2-Benzyl-4-chlorophenol (Chlorophene) 0.2%\n41 2-Chloroacetamide 0.3% Contains\nchloroacetamide\n42 Chlorhexidine and its digluconate, 0.3% expressed as\ndiacetate and dihydrochloride (+) chlorhexidine\n43 1-Phenoxypropan-2-ol8 1.0% Rinse-off products only\n44 Alkyl (C12-C22) trimethyl ammonium, 0.1%\nbromide and chloride (+)\nBehentrimonium chloride9\nCetrimonium bromide\nCetrimonium chloride10\nLaurtrimonium bromide\nLaurtrimonium chloride\nSteartrimonium bromide\nSteartrimonium chloride10\n45 4,4-Dimethyl-1,3-oxazolidine 0.1% pH of finished product must\nnot be lower than 6\n46 N-(Hydroxymethyl)-N- 0.5%\n(dihydroxymethyl-1,3-dioxo-2,5-\nimidazolinidyl-4)-N’-(hydroxymethyl)\nurea\n47 1,6-Di(4-amidinophenoxy)-n-hexane 0.1%\n(Hexamidine) and its salts (including\nisethionate and p-hydroxybenzoate (+)\n48 Glutaraldehyde (Pentane-1,5-dial) 0.1% Prohibited in aerosols (sprays) Contains glutaraldehyde\n(where glutaraldehyde\nconcentration in the\nInformal Consolidation – version in force from 1/12/2025",
+    "186": "S 683/2007 186\nTHIRD SCHEDULE — continued\nfinished product\nexceeds 0.05%)\n49 5-Ethyl-3,7-dioxa-1-azabicyclo [3.3.0] 0.3% Prohibited in oral hygiene\noctane products and in products\nintended to come into contact\nwith mucous membranes\n50 3-(p-Chlorophenoxy)-propane-1,2-diol 0.3%\n(chlorphenesin)\n51 Sodium hydroxymethylamino acetate 0.5% Not to be used unless the\n(Sodium hydroxymethylglycinate) maximum theoretical\nconcentration of releasable\nformaldehyde, irrespective of\nthe source, in the mixture as\nplaced on the market is <0.1%\nw/w\n52 Silver chloride deposited on Titanium 0.004% calculated as AgCl 20% AgCl (w/w) on TiO2\ndioxide\nProhibited in products for\nchildren under 3 years of age,\nin oral hygiene products and in\nproducts intended for\napplication around the eyes\nand on the lips\n53 Benzethonium chloride (INCI) 0.1% Rinse-off products, leave-on\nproducts other than for oral\ncare use\n54 Benzalkonium chloride, bromide and 0.1% calculated as Avoid contact with the\nsaccharinate11 Benzalkonium chloride eyes\n55 Benzylhemiformal 0.15% Rinse-off products only\n56 Iodopropynyl butyl-carbamate (IPBC); Not to be used in oral hygiene\n3-Iodo-2-propynylbutylcarbamate and lip care products\n(a) Rinse-off products (a) Not to be used in (a) Not to be used\n0.02% preparations for for children\nchildren under 3 years under 3 years of\nof age, except in bath age12\nproducts, shower gels\nand shampoos\n(b) Leave-on products (b) Not to be used in body (b) Not to be used\n0.01%, except in lotion and body for children\ndeodorants and cream13 under 3 years of\nantiperspirants age14\n0.0075% Not to be used in preparations\nfor children under 3 years of\nage\n57 2-Methyl-2H-isothiazol-3-one (INCI) 0.0015% Rinse-off products only\nMethylisothiazolinone15\n58 Ethyl Lauroyl Arginate HCl (INCI)16 (a) Mouthwashes: (a) Not to be used in (a) Not to be used\n0.15% preparations for for children\nEthyl-N-α-dodecanoyl-L-arginate children under under 10 years\nhydrochloride 10 years of age of age\n(b) Other products: (b) Not to be used in lip\n0.4% products, oral\nproducts and spray\nproducts\n59 1,2,3-Propanetricarboxylic acid, 2- 0.2%, corresponding to Not to be used in oral products\nhydroxy-, monohydrate and 1,2,3- 0.0024% of silver and eye products\nInformal Consolidation – version in force from 1/12/2025",
+    "187": "187 S 683/2007\nTHIRD SCHEDULE — continued\nPropanetricarboxylic acid, 2-hydroxy-,\nsilver(1+) salt, monohydrate (INCI)\nCitric acid and Silver citrate\n60 4-(3-ethoxy-4-hydroxyphenyl)butan-2- 0.7%\none\nHydroxyethoxyphenyl Butanone\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 682/2023 wef 01/11/2023]\n1 For non-preservative usage, see reference number 98, Part II.\n2.1 Solely for products which might be used for children under 3 years of age.\n2.2 Solely for products which might be used for children under 3 years of age and which remain in prolonged contact with the skin.\n3 For non-preservative usage, see reference number 101, Part II.\n4 For non-preservative usage, see reference number 99, Part II.\n5 For non-preservative usage, see reference number 100, Part II.\n6 For non-preservative usage, see reference number 45, Part II.\n7 Methylisothiazolinone is also regulated under reference number 57 of this Part. The 2 entries are mutually exclusive: the use of the mixture\nof Methylchloroisothiazolinone and Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same\nproduct.\n8 For non-preservative usage, see reference number 54, Part II.\n9 For non-preservative usage, see reference number 287, Part II.\n10 For non-preservative usage, see reference number 286, Part II.\n11 For non-preservative usage, see reference number 65, Part II.\n12 Solely for products (other than bath products, shower gels and shampoos) which might be used for children under 3 years of age.\n13 Concerns any product aimed to be applied on a large part of the body.\n14 Solely for products which might be used for children under 3 years of age.\n15 Methylisothiazolinone is also regulated under reference number 39 of this Part in a mixture with Methylchloroisothiazolinone. The 2 entries\nare mutually exclusive: the use of the mixture of Methylchlorothiazolinone and Methylisothiazolinone is incompatible with the use of\nMethylisothiazolinone alone in the same product.\n16 For non-preservative usage, see reference number 207, Part II.\n17 For non-preservative usage, see reference number 326, Part II.\n[S 816/2024 wef 01/11/2024]\n[S 682/2023 wef 01/11/2023]\n[S 9/2023 wef 01/02/2023]\nInformal Consolidation – version in force from 1/12/2025"
+  },
+  "preamble": [
+    {
+      "source_page": 182,
+      "source_text": "S 683/2007 182\nTHIRD SCHEDULE — continued\n— “Esters” is taken to mean: esters of methyl, ethyl, propyl, isopropyl, butyl,\nisobutyl, phenyl.\n5. All finished products containing substances in this Part and which release\nformaldehyde (Entries 20, 21, 27, 30, 31, 33, 46, 49, 51 and 55) must be labelled\nwith the warning “Contains formaldehyde.” where the concentration of\nformaldehyde in the finished product exceeds 0.05%.\n[S 816/2024 wef 01/11/2024]\nLIST OF PRESERVATIVES ALLOWED\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum authorised Other limitations and Warnings and\nconcentration requirements precautions for use to\nbe shown on label of\nproduct\n1 Benzoic acid, and its sodium salt Rinse-off products, except\noral care products:\n2.5% (acid)\nOral care products:\n1.7% (acid)\nLeave on products:\n0.5% (acid)\n1a Salts of benzoic acid other than those 0.5% (acid)\nlisted under reference number 1 of this\nPart and esters of benzoic acid\n2 Propionic acid and its salts 2% (acid)\n3 Salicylic acid and its salts1 0.5% (acid) Salicylic acid: Salicylic acid:\nNot to be used in products for Not to be used for\nchildren under 3 years of age. children under 3 years of\nage2.1\nNot to be used in oral\nproducts.\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation.\nSalicylic acid salts: Salicylic acid salts:\nNot to be used in preparations Not to be used for\nfor children under 3 years of children under 3 years of\nage, except for shampoos age2.2\n4 Sorbic acid (hexa-2,4-dienoic acid) and 0.6% (acid)\nits salts\n7 Biphenyl-2-ol (a) 0.2% (as phenol) (a) Rinse-off products Avoid contact with eyes\no‑Phenylphenol (b) 0.15% (as phenol) (b) Leave-on products\n8 Zinc pyrithione 3 (a) Hair products: (a) Rinse-off products\n1.0 % only\nInformal Consolidation – version in force from 1/12/2025"
+    }
+  ],
+  "footnotes": [
+    {
+      "footnote_number": "1",
+      "source_page": 187,
+      "source_text": "1 For non-preservative usage, see reference number 98, Part II."
+    },
+    {
+      "footnote_number": "2.1",
+      "source_page": 187,
+      "source_text": "2.1 Solely for products which might be used for children under 3 years of age."
+    },
+    {
+      "footnote_number": "2.2",
+      "source_page": 187,
+      "source_text": "2.2 Solely for products which might be used for children under 3 years of age and which remain in prolonged contact with the skin."
+    },
+    {
+      "footnote_number": "3",
+      "source_page": 187,
+      "source_text": "3 For non-preservative usage, see reference number 101, Part II."
+    },
+    {
+      "footnote_number": "4",
+      "source_page": 187,
+      "source_text": "4 For non-preservative usage, see reference number 99, Part II."
+    },
+    {
+      "footnote_number": "5",
+      "source_page": 187,
+      "source_text": "5 For non-preservative usage, see reference number 100, Part II."
+    },
+    {
+      "footnote_number": "6",
+      "source_page": 187,
+      "source_text": "6 For non-preservative usage, see reference number 45, Part II."
+    },
+    {
+      "footnote_number": "7",
+      "source_page": 187,
+      "source_text": "7 Methylisothiazolinone is also regulated under reference number 57 of this Part. The 2 entries are mutually exclusive: the use of the mixture\nof Methylchloroisothiazolinone and Methylisothiazolinone is incompatible with the use of Methylisothiazolinone alone in the same\nproduct."
+    },
+    {
+      "footnote_number": "8",
+      "source_page": 187,
+      "source_text": "8 For non-preservative usage, see reference number 54, Part II."
+    },
+    {
+      "footnote_number": "9",
+      "source_page": 187,
+      "source_text": "9 For non-preservative usage, see reference number 287, Part II."
+    },
+    {
+      "footnote_number": "10",
+      "source_page": 187,
+      "source_text": "10 For non-preservative usage, see reference number 286, Part II."
+    },
+    {
+      "footnote_number": "11",
+      "source_page": 187,
+      "source_text": "11 For non-preservative usage, see reference number 65, Part II."
+    },
+    {
+      "footnote_number": "12",
+      "source_page": 187,
+      "source_text": "12 Solely for products (other than bath products, shower gels and shampoos) which might be used for children under 3 years of age."
+    },
+    {
+      "footnote_number": "13",
+      "source_page": 187,
+      "source_text": "13 Concerns any product aimed to be applied on a large part of the body."
+    },
+    {
+      "footnote_number": "14",
+      "source_page": 187,
+      "source_text": "14 Solely for products which might be used for children under 3 years of age."
+    },
+    {
+      "footnote_number": "15",
+      "source_page": 187,
+      "source_text": "15 Methylisothiazolinone is also regulated under reference number 39 of this Part in a mixture with Methylchloroisothiazolinone. The 2 entries\nare mutually exclusive: the use of the mixture of Methylchlorothiazolinone and Methylisothiazolinone is incompatible with the use of\nMethylisothiazolinone alone in the same product."
+    },
+    {
+      "footnote_number": "16",
+      "source_page": 187,
+      "source_text": "16 For non-preservative usage, see reference number 207, Part II."
+    },
+    {
+      "footnote_number": "17",
+      "source_page": 187,
+      "source_text": "17 For non-preservative usage, see reference number 326, Part II.\n[S 816/2024 wef 01/11/2024]\n[S 682/2023 wef 01/11/2023]\n[S 9/2023 wef 01/02/2023]\nInformal Consolidation – version in force from 1/12/2025"
+    }
+  ],
+  "page_diagnostics": [
+    {
+      "source_page": 182,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 183,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 184,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 185,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 186,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 187,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    }
+  ]
+}

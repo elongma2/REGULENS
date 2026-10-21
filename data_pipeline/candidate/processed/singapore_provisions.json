@@ -1,0 +1,108 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "source_document": "singapore_regulation_6_excerpt",
+  "source_version": "version in force from 1 December 2025",
+  "source_hash": "6b573bf215c5fc35c28e28205c432a786681678902f6fd248a97b84810609e27",
+  "source_url": "https://sso.agc.gov.sg/SL/HPA2007-S683-2007?ProvIds=pr6-",
+  "effective_date": "2025-12-01",
+  "retrieval_date": "2026-09-14",
+  "source_snapshot_generated_at": "2026-09-14",
+  "regulatory_section": "Regulation 6",
+  "provisions": [
+    {
+      "provision_id": "sg-regulation-6-1",
+      "regulation": "6",
+      "paragraph": "1",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        2
+      ],
+      "source_text": "6.—(1)  A cosmetic product shall not contain any substance that is listed in Part I of \nthe Third Schedule unless the presence of such substance —\n(a) is in trace amount;\n(b) is technically unavoidable in good manufacturing practice; or\n(c) where applicable, is in compliance with the conditions specified in that \nPart of that Schedule.\n[S 9/2023 wef 01/02/2023]"
+    },
+    {
+      "provision_id": "sg-regulation-6-2",
+      "regulation": "6",
+      "paragraph": "2",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        2,
+        3
+      ],
+      "source_text": "(2)  A cosmetic product shall not contain any substance that is listed in the second \ncolumn of Part II of the Third Schedule unless —\n(a) the cosmetic product is of a type listed in the third column of that Part of \nthat Schedule;\n(b) the substance as contained in the cosmetic product does not exceed the \nappropriate limit as specified in the fourth column of that Part of that \nSchedule; and\n(c) the cosmetic product complies with the other relevant requirements as \nspecified in the fifth column of that Part of that Schedule.\n[S 9/2023 wef 01/02/2023]"
+    },
+    {
+      "provision_id": "sg-regulation-6-3",
+      "regulation": "6",
+      "paragraph": "3",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        3
+      ],
+      "source_text": "(3)  A cosmetic product, other than a cosmetic product intended solely to colour hair, \nshall not contain any colouring agent unless the colouring agent —\n(a) is listed in Part III of the Third Schedule; and\n(b) is contained in the cosmetic product in accordance with the requirements as \nspecified in that Part of that Schedule.\n[S 9/2023 wef 01/02/2023]"
+    },
+    {
+      "provision_id": "sg-regulation-6-4",
+      "regulation": "6",
+      "paragraph": "4",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        3
+      ],
+      "source_text": "(4)  A cosmetic product shall not contain any preservative unless —\n(a) the preservative is listed in the second column of Part IV of the \nThird Schedule;\n(b) the preservative as contained in the cosmetic product does not exceed the \nappropriate limit as specified in the third column of that Part of that \nSchedule; and\n(c) the cosmetic product complies with the other relevant requirements as \nspecified in the fourth column of that Part of that Schedule.\n[S 9/2023 wef 01/02/2023]"
+    },
+    {
+      "provision_id": "sg-regulation-6-5",
+      "regulation": "6",
+      "paragraph": "5",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        3,
+        4
+      ],
+      "source_text": "(5)  A cosmetic product shall not contain any ultraviolet filter unless —\n(a) the ultraviolet filter is listed in the second column of Part V of the \nThird Schedule;\n(b) the ultraviolet filter as contained in the cosmetic product does not exceed \nthe appropriate limit as specified in the third column of that Part of that \nSchedule; and\n(c) the cosmetic product complies with the other relevant requirements as \nspecified in the fourth column of that Part of that Schedule.\n[S 9/2023 wef 01/02/2023]"
+    },
+    {
+      "provision_id": "sg-regulation-6-7",
+      "regulation": "6",
+      "paragraph": "7",
+      "source_document": "singapore_regulation_6_excerpt",
+      "source_pages": [
+        4
+      ],
+      "source_text": "(7)  For the purposes of section 2 (2)(d)(iv) of the Act, a cosmetic product that does \nnot comply with paragraph (1), (2), (3), (4) or (5) shall be considered to be an \nunwholesome cosmetic product.\n[S 9/2023 wef 01/02/2023]"
+    }
+  ],
+  "structural_mappings": [
+    {
+      "provision_id": "sg-regulation-6-1",
+      "singapore_schedule": "Third Schedule Part I",
+      "acd_section": "Annex II Part 1",
+      "relationship": "corresponding prohibited-substances structure"
+    },
+    {
+      "provision_id": "sg-regulation-6-2",
+      "singapore_schedule": "Third Schedule Part II",
+      "acd_section": "Annex III Part 1",
+      "relationship": "corresponding restricted-substances structure"
+    },
+    {
+      "provision_id": "sg-regulation-6-3",
+      "singapore_schedule": "Third Schedule Part III",
+      "acd_section": "Annex IV Part 1",
+      "relationship": "corresponding permitted-colouring-agents structure"
+    },
+    {
+      "provision_id": "sg-regulation-6-4",
+      "singapore_schedule": "Third Schedule Part IV",
+      "acd_section": "Annex VI",
+      "relationship": "corresponding permitted-preservatives structure"
+    },
+    {
+      "provision_id": "sg-regulation-6-5",
+      "singapore_schedule": "Third Schedule Part V",
+      "acd_section": "Annex VII",
+      "relationship": "corresponding permitted-UV-filters structure"
+    }
+  ],
+  "parity_note": "Structural correspondence does not establish entry-by-entry or version parity between the separately versioned sources."
+}

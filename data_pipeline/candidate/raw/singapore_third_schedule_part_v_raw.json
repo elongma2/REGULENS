@@ -1,0 +1,1856 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "source_document": "singapore_regulations_2025_12_01",
+  "section": "Third Schedule Part V",
+  "section_version": null,
+  "records": [
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-2",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "2",
+      "reference_number_raw": "2",
+      "original_substance_name": "N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene\nmethyl) anilinium methyl sulphate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%",
+      "original_conditions_text": ".",
+      "original_warning_text": ".",
+      "source_text": "2 | N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene\nmethyl) anilinium methyl sulphate | 6% | . | .",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            446.156,
+            422.237,
+            470.406
+          ],
+          "cells": [
+            "2",
+            "N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene\nmethyl) anilinium methyl sulphate",
+            "6%",
+            ".",
+            "."
+          ],
+          "original_row_text": "2 | N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene\nmethyl) anilinium methyl sulphate | 6% | . | .",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-3",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "3",
+      "reference_number_raw": "3",
+      "original_substance_name": "Homosalate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "3 | Homosalate | 10% |  |",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            470.406,
+            422.237,
+            488.656
+          ],
+          "cells": [
+            "3",
+            "Homosalate",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "3 | Homosalate | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-4",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "4",
+      "reference_number_raw": "4",
+      "original_substance_name": "Oxybenzone",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%",
+      "original_conditions_text": "",
+      "original_warning_text": "Contains\noxybenzone1",
+      "source_text": "4 | Oxybenzone | 6% |  | Contains\noxybenzone1",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            488.656,
+            422.237,
+            512.906
+          ],
+          "cells": [
+            "4",
+            "Oxybenzone",
+            "6%",
+            "",
+            "Contains\noxybenzone1"
+          ],
+          "original_row_text": "4 | Oxybenzone | 6% |  | Contains\noxybenzone1",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-6",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "6",
+      "reference_number_raw": "6",
+      "original_substance_name": "2-Phenylbenzimidazole-5-sulphonic acid\nand its potassium, sodium and\ntriethanolamine salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "8% (expressed as\nacid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "6 | 2-Phenylbenzimidazole-5-sulphonic acid\nand its potassium, sodium and\ntriethanolamine salts | 8% (expressed as\nacid) |  |",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            512.906,
+            422.237,
+            546.156
+          ],
+          "cells": [
+            "6",
+            "2-Phenylbenzimidazole-5-sulphonic acid\nand its potassium, sodium and\ntriethanolamine salts",
+            "8% (expressed as\nacid)",
+            "",
+            ""
+          ],
+          "original_row_text": "6 | 2-Phenylbenzimidazole-5-sulphonic acid\nand its potassium, sodium and\ntriethanolamine salts | 8% (expressed as\nacid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-7",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "7",
+      "reference_number_raw": "7",
+      "original_substance_name": "3,3’-(1,4-Phenylenedimethylene) bis(7,7-\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl\nmethanesulfonic acid) and its salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10% (expressed as\nacid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "7 | 3,3’-(1,4-Phenylenedimethylene) bis(7,7-\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl\nmethanesulfonic acid) and its salts | 10% (expressed as\nacid) |  |",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            546.156,
+            422.237,
+            579.405
+          ],
+          "cells": [
+            "7",
+            "3,3’-(1,4-Phenylenedimethylene) bis(7,7-\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl\nmethanesulfonic acid) and its salts",
+            "10% (expressed as\nacid)",
+            "",
+            ""
+          ],
+          "original_row_text": "7 | 3,3’-(1,4-Phenylenedimethylene) bis(7,7-\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl\nmethanesulfonic acid) and its salts | 10% (expressed as\nacid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-8",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "8",
+      "reference_number_raw": "8",
+      "original_substance_name": "1-(4-Tert-butylphenyl)-3-(4-\nmethoxyphenyl)propane-1,3-dione",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "8 | 1-(4-Tert-butylphenyl)-3-(4-\nmethoxyphenyl)propane-1,3-dione | 5% |  |",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            579.405,
+            422.237,
+            603.655
+          ],
+          "cells": [
+            "8",
+            "1-(4-Tert-butylphenyl)-3-(4-\nmethoxyphenyl)propane-1,3-dione",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "8 | 1-(4-Tert-butylphenyl)-3-(4-\nmethoxyphenyl)propane-1,3-dione | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-9",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "9",
+      "reference_number_raw": "9",
+      "original_substance_name": "α-(2-Oxoborn-3-ylidene) toluene-4-\nsulphonic acid and its salts",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6% (expressed as\nacid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "9 | α-(2-Oxoborn-3-ylidene) toluene-4-\nsulphonic acid and its salts | 6% (expressed as\nacid) |  |",
+      "source_pages": [
+        188
+      ],
+      "fragments": [
+        {
+          "source_page": 188,
+          "table_bbox": [
+            65.28,
+            370.657,
+            422.237,
+            627.947
+          ],
+          "row_bbox": [
+            65.28,
+            603.655,
+            422.237,
+            627.947
+          ],
+          "cells": [
+            "9",
+            "α-(2-Oxoborn-3-ylidene) toluene-4-\nsulphonic acid and its salts",
+            "6% (expressed as\nacid)",
+            "",
+            ""
+          ],
+          "original_row_text": "9 | α-(2-Oxoborn-3-ylidene) toluene-4-\nsulphonic acid and its salts | 6% (expressed as\nacid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-10",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "10",
+      "reference_number_raw": "10",
+      "original_substance_name": "2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "(a) 9%\n(b) 10%",
+      "original_conditions_text": "(a) Propellant\nspray products\n(b) Other products",
+      "original_warning_text": "",
+      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7 | (a) 9% | (a) Propellant\nspray products | \n |  | (b) 10% | (b) Other products |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            165.408,
+            433.576,
+            207.907
+          ],
+          "cells": [
+            "10",
+            "2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7",
+            "(a) 9%",
+            "(a) Propellant\nspray products",
+            ""
+          ],
+          "original_row_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7 | (a) 9% | (a) Propellant\nspray products | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            243.631,
+            189.657,
+            433.576,
+            207.907
+          ],
+          "cells": [
+            "",
+            "",
+            "(b) 10%",
+            "(b) Other products",
+            ""
+          ],
+          "original_row_text": " |  | (b) 10% | (b) Other products | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-11",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "11",
+      "reference_number_raw": "11",
+      "original_substance_name": "Polymer of N-{(2 and 4)-[(2-oxoborn-3-\nylidene) methyl] benzyl} acrylamide",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "6%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "11 | Polymer of N-{(2 and 4)-[(2-oxoborn-3-\nylidene) methyl] benzyl} acrylamide | 6% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            207.907,
+            433.576,
+            232.157
+          ],
+          "cells": [
+            "11",
+            "Polymer of N-{(2 and 4)-[(2-oxoborn-3-\nylidene) methyl] benzyl} acrylamide",
+            "6%",
+            "",
+            ""
+          ],
+          "original_row_text": "11 | Polymer of N-{(2 and 4)-[(2-oxoborn-3-\nylidene) methyl] benzyl} acrylamide | 6% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-12",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "12",
+      "reference_number_raw": "12",
+      "original_substance_name": "Octyl methoxycinnamate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "12 | Octyl methoxycinnamate | 10% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            232.157,
+            433.576,
+            250.407
+          ],
+          "cells": [
+            "12",
+            "Octyl methoxycinnamate",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "12 | Octyl methoxycinnamate | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-13",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "13",
+      "reference_number_raw": "13",
+      "original_substance_name": "Ethoxylated-ethyl-4-aminobenzoate (PEG-\n25 PABA)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "13 | Ethoxylated-ethyl-4-aminobenzoate (PEG-\n25 PABA) | 10% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            250.407,
+            433.576,
+            274.657
+          ],
+          "cells": [
+            "13",
+            "Ethoxylated-ethyl-4-aminobenzoate (PEG-\n25 PABA)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "13 | Ethoxylated-ethyl-4-aminobenzoate (PEG-\n25 PABA) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-14",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "14",
+      "reference_number_raw": "14",
+      "original_substance_name": "Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "14 | Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate) | 10% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            274.657,
+            433.576,
+            298.906
+          ],
+          "cells": [
+            "14",
+            "Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "14 | Isopentyl-4-methoxycinnamate (Isoamyl p-\nmethoxycinnamate) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-15",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "15",
+      "reference_number_raw": "15",
+      "original_substance_name": "2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-\noxy)-1,3,5-triazine (Octyl triazone)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "15 | 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-\noxy)-1,3,5-triazine (Octyl triazone) | 5% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            298.906,
+            433.576,
+            323.156
+          ],
+          "cells": [
+            "15",
+            "2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-\noxy)-1,3,5-triazine (Octyl triazone)",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "15 | 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’-\noxy)-1,3,5-triazine (Octyl triazone) | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-16",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "16",
+      "reference_number_raw": "16",
+      "original_substance_name": "Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-\n6-(2-methyl-3-(1,3,3,3-tetramethyl-1-\n(trimethylsilyl)oxy)-disiloxanyl)propyl\n(Drometrizole Trisiloxane)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "15%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "16 | Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-\n6-(2-methyl-3-(1,3,3,3-tetramethyl-1-\n(trimethylsilyl)oxy)-disiloxanyl)propyl\n(Drometrizole Trisiloxane) | 15% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            323.156,
+            433.576,
+            365.406
+          ],
+          "cells": [
+            "16",
+            "Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-\n6-(2-methyl-3-(1,3,3,3-tetramethyl-1-\n(trimethylsilyl)oxy)-disiloxanyl)propyl\n(Drometrizole Trisiloxane)",
+            "15%",
+            "",
+            ""
+          ],
+          "original_row_text": "16 | Phenol,2-(2H-benzotriazol-2-yl)-4-methyl-\n6-(2-methyl-3-(1,3,3,3-tetramethyl-1-\n(trimethylsilyl)oxy)-disiloxanyl)propyl\n(Drometrizole Trisiloxane) | 15% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-17",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "17",
+      "reference_number_raw": "17",
+      "original_substance_name": "Benzoic acid, 4,4’-((6-((4-(((1,1-\ndimethylethyl)amino) carbonyl) phenyl)\namino)-1,3,5-triazine-2,4-diyl)diimino)bis-\n,bis-(2-ethylhexyl)ester)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "17 | Benzoic acid, 4,4’-((6-((4-(((1,1-\ndimethylethyl)amino) carbonyl) phenyl)\namino)-1,3,5-triazine-2,4-diyl)diimino)bis-\n,bis-(2-ethylhexyl)ester) | 10% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            365.406,
+            433.576,
+            407.656
+          ],
+          "cells": [
+            "17",
+            "Benzoic acid, 4,4’-((6-((4-(((1,1-\ndimethylethyl)amino) carbonyl) phenyl)\namino)-1,3,5-triazine-2,4-diyl)diimino)bis-\n,bis-(2-ethylhexyl)ester)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "17 | Benzoic acid, 4,4’-((6-((4-(((1,1-\ndimethylethyl)amino) carbonyl) phenyl)\namino)-1,3,5-triazine-2,4-diyl)diimino)bis-\n,bis-(2-ethylhexyl)ester) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-18",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "18",
+      "reference_number_raw": "18",
+      "original_substance_name": "3-(4’-Methylbenzylidene)-d1-camphor\n(4-Methylbenzylidene camphor)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "4%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "18 | 3-(4’-Methylbenzylidene)-d1-camphor\n(4-Methylbenzylidene camphor) | 4% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            407.656,
+            433.576,
+            437.906
+          ],
+          "cells": [
+            "18",
+            "3-(4’-Methylbenzylidene)-d1-camphor\n(4-Methylbenzylidene camphor)",
+            "4%",
+            "",
+            ""
+          ],
+          "original_row_text": "18 | 3-(4’-Methylbenzylidene)-d1-camphor\n(4-Methylbenzylidene camphor) | 4% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-20",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "20",
+      "reference_number_raw": "20",
+      "original_substance_name": "2-Ethylhexyl salicylate (Octyl Salicylate)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "20 | 2-Ethylhexyl salicylate (Octyl Salicylate) | 5% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            437.906,
+            433.576,
+            456.156
+          ],
+          "cells": [
+            "20",
+            "2-Ethylhexyl salicylate (Octyl Salicylate)",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "20 | 2-Ethylhexyl salicylate (Octyl Salicylate) | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-21",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "21",
+      "reference_number_raw": "21",
+      "original_substance_name": "4-Dimethyl-amino-benzoate of ethyl-2-\nhexyl (octyl dimethyl PABA)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "8%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "21 | 4-Dimethyl-amino-benzoate of ethyl-2-\nhexyl (octyl dimethyl PABA) | 8% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            456.156,
+            433.576,
+            480.405
+          ],
+          "cells": [
+            "21",
+            "4-Dimethyl-amino-benzoate of ethyl-2-\nhexyl (octyl dimethyl PABA)",
+            "8%",
+            "",
+            ""
+          ],
+          "original_row_text": "21 | 4-Dimethyl-amino-benzoate of ethyl-2-\nhexyl (octyl dimethyl PABA) | 8% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-22",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "22",
+      "reference_number_raw": "22",
+      "original_substance_name": "2-Hydroxy-4-methoxybenzophenone-5-\nsulfonic acid (Benzophenone-5) and its\nsodium salt",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5% (of acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "22 | 2-Hydroxy-4-methoxybenzophenone-5-\nsulfonic acid (Benzophenone-5) and its\nsodium salt | 5% (of acid) |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            480.405,
+            433.576,
+            513.655
+          ],
+          "cells": [
+            "22",
+            "2-Hydroxy-4-methoxybenzophenone-5-\nsulfonic acid (Benzophenone-5) and its\nsodium salt",
+            "5% (of acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "22 | 2-Hydroxy-4-methoxybenzophenone-5-\nsulfonic acid (Benzophenone-5) and its\nsodium salt | 5% (of acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-23",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "23",
+      "reference_number_raw": "23",
+      "original_substance_name": "2,2’-Methylene-bis-(6-(2H-benzotriazol-2-\nyl)-4-(tetramethyl-butyl)-1,1,3,3-phenol;\n2,2’-Methylenebis(6-(2H-benzotriazol-2-\nyl)-4-(1,1,3,3-tetramethylbutyl)phenol)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "23 | 2,2’-Methylene-bis-(6-(2H-benzotriazol-2-\nyl)-4-(tetramethyl-butyl)-1,1,3,3-phenol;\n2,2’-Methylenebis(6-(2H-benzotriazol-2-\nyl)-4-(1,1,3,3-tetramethylbutyl)phenol) | 10% |  |",
+      "source_pages": [
+        189
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            513.655,
+            433.576,
+            555.905
+          ],
+          "cells": [
+            "23",
+            "2,2’-Methylene-bis-(6-(2H-benzotriazol-2-\nyl)-4-(tetramethyl-butyl)-1,1,3,3-phenol;\n2,2’-Methylenebis(6-(2H-benzotriazol-2-\nyl)-4-(1,1,3,3-tetramethylbutyl)phenol)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "23 | 2,2’-Methylene-bis-(6-(2H-benzotriazol-2-\nyl)-4-(tetramethyl-butyl)-1,1,3,3-phenol;\n2,2’-Methylenebis(6-(2H-benzotriazol-2-\nyl)-4-(1,1,3,3-tetramethylbutyl)phenol) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-23a",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "23a",
+      "reference_number_raw": "23a",
+      "original_substance_name": "2,2’-Methylenebis(6-(2Hbenzotriazol-2-\nyl)-4-(tetramethylbutyl)-1,1,3,3-phenol);\n2,2’-Methylenebis(6-\n(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol)\nMethylene bis-benzotriazolyl\ntetramethylbutylphenol\n(nano)/(MBBT(nano))",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%5",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 98.5%,\nwith 2,2’-\nmethylene-bis-\n(6(2H-\nbenzotriazol-2-\nyl)-4-(isooctyl)\nphenol) isomer\nfraction not\nexceeding 1.\n5%;\n— Solubility\n< 5 ng/L in\nwater at 25°C;\n— Partition\ncoefficient (Log\nPow): 12.7 at\n25°C;\n— Uncoated;\n— Median particle\nsize D50 (50%\nof number\nbelow this\ndiameter):\n≥ 120 nm of\nmass\ndistribution\nand/or ≥ 60 nm\nof number size\ndistribution.",
+      "original_warning_text": "",
+      "source_text": "23a | 2,2’-Methylenebis(6-(2Hbenzotriazol-2-\nyl)-4-(tetramethylbutyl)-1,1,3,3-phenol);\n2,2’-Methylenebis(6-\n(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol)\nMethylene bis-benzotriazolyl\ntetramethylbutylphenol | 10%5 | Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed: | \n | (nano)/(MBBT(nano)) |  | — Purity ≥ 98.5%,\nwith 2,2’-\nmethylene-bis-\n(6(2H-\nbenzotriazol-2-\nyl)-4-(isooctyl)\nphenol) isomer\nfraction not\nexceeding 1.\n5%;\n— Solubility\n< 5 ng/L in\nwater at 25°C;\n— Partition\ncoefficient (Log\nPow): 12.7 at\n25°C;\n— Uncoated;\n— Median particle\nsize D50 (50%\nof number\nbelow this\ndiameter):\n≥ 120 nm of\nmass\ndistribution\nand/or ≥ 60 nm\nof number size\ndistribution. |",
+      "source_pages": [
+        189,
+        190
+      ],
+      "fragments": [
+        {
+          "source_page": 189,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.197
+          ],
+          "row_bbox": [
+            76.619,
+            555.905,
+            433.576,
+            649.197
+          ],
+          "cells": [
+            "23a",
+            "2,2’-Methylenebis(6-(2Hbenzotriazol-2-\nyl)-4-(tetramethylbutyl)-1,1,3,3-phenol);\n2,2’-Methylenebis(6-\n(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol)\nMethylene bis-benzotriazolyl\ntetramethylbutylphenol",
+            "10%5",
+            "Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:",
+            ""
+          ],
+          "original_row_text": "23a | 2,2’-Methylenebis(6-(2Hbenzotriazol-2-\nyl)-4-(tetramethylbutyl)-1,1,3,3-phenol);\n2,2’-Methylenebis(6-\n(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ntetramethylbutyl)phenol)\nMethylene bis-benzotriazolyl\ntetramethylbutylphenol | 10%5 | Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed: | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            165.408,
+            422.237,
+            456.658
+          ],
+          "cells": [
+            "",
+            "(nano)/(MBBT(nano))",
+            "",
+            "— Purity ≥ 98.5%,\nwith 2,2’-\nmethylene-bis-\n(6(2H-\nbenzotriazol-2-\nyl)-4-(isooctyl)\nphenol) isomer\nfraction not\nexceeding 1.\n5%;\n— Solubility\n< 5 ng/L in\nwater at 25°C;\n— Partition\ncoefficient (Log\nPow): 12.7 at\n25°C;\n— Uncoated;\n— Median particle\nsize D50 (50%\nof number\nbelow this\ndiameter):\n≥ 120 nm of\nmass\ndistribution\nand/or ≥ 60 nm\nof number size\ndistribution.",
+            ""
+          ],
+          "original_row_text": " | (nano)/(MBBT(nano)) |  | — Purity ≥ 98.5%,\nwith 2,2’-\nmethylene-bis-\n(6(2H-\nbenzotriazol-2-\nyl)-4-(isooctyl)\nphenol) isomer\nfraction not\nexceeding 1.\n5%;\n— Solubility\n< 5 ng/L in\nwater at 25°C;\n— Partition\ncoefficient (Log\nPow): 12.7 at\n25°C;\n— Uncoated;\n— Median particle\nsize D50 (50%\nof number\nbelow this\ndiameter):\n≥ 120 nm of\nmass\ndistribution\nand/or ≥ 60 nm\nof number size\ndistribution. | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "5"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-24",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "24",
+      "reference_number_raw": "24",
+      "original_substance_name": "Monosodium salt of 2-2’-(1,4-phenylene)\nbis)-1H-benzimidazole-4,6-disulphonic\nacid",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10% (of acid)",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "24 | Monosodium salt of 2-2’-(1,4-phenylene)\nbis)-1H-benzimidazole-4,6-disulphonic\nacid | 10% (of acid) |  |",
+      "source_pages": [
+        190
+      ],
+      "fragments": [
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            456.658,
+            422.237,
+            489.908
+          ],
+          "cells": [
+            "24",
+            "Monosodium salt of 2-2’-(1,4-phenylene)\nbis)-1H-benzimidazole-4,6-disulphonic\nacid",
+            "10% (of acid)",
+            "",
+            ""
+          ],
+          "original_row_text": "24 | Monosodium salt of 2-2’-(1,4-phenylene)\nbis)-1H-benzimidazole-4,6-disulphonic\nacid | 10% (of acid) |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-25",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "25",
+      "reference_number_raw": "25",
+      "original_substance_name": "(1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-\nhexyloxy)-2-hydroxy]-phenyl}-6-(4-\nmethoxyphenyl)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "25 | (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-\nhexyloxy)-2-hydroxy]-phenyl}-6-(4-\nmethoxyphenyl) | 10% |  |",
+      "source_pages": [
+        190
+      ],
+      "fragments": [
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            489.908,
+            422.237,
+            523.158
+          ],
+          "cells": [
+            "25",
+            "(1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-\nhexyloxy)-2-hydroxy]-phenyl}-6-(4-\nmethoxyphenyl)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "25 | (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl-\nhexyloxy)-2-hydroxy]-phenyl}-6-(4-\nmethoxyphenyl) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-26",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "26",
+      "reference_number_raw": "26",
+      "original_substance_name": "Dimethicodiethylbenzalmalonate\nPolysilicone - 15 (INCI)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "26 | Dimethicodiethylbenzalmalonate\nPolysilicone - 15 (INCI) | 10% |  |",
+      "source_pages": [
+        190
+      ],
+      "fragments": [
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            523.158,
+            422.237,
+            547.407
+          ],
+          "cells": [
+            "26",
+            "Dimethicodiethylbenzalmalonate\nPolysilicone - 15 (INCI)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "26 | Dimethicodiethylbenzalmalonate\nPolysilicone - 15 (INCI) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-27",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "27",
+      "reference_number_raw": "27",
+      "original_substance_name": "Titanium dioxide2",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25%3",
+      "original_conditions_text": "Titanium dioxide in\npowder form\ncontaining 1% or more of\nparticles with aerodynamic\ndiameter ≤ 10 µm allowed\nonly under the conditions\nlaid down under reference\nnumber 338, Part II.",
+      "original_warning_text": "",
+      "source_text": "27 | Titanium dioxide2 | 25%3 | Titanium dioxide in\npowder form\ncontaining 1% or more of\nparticles with aerodynamic\ndiameter ≤ 10 µm allowed\nonly under the conditions\nlaid down under reference\nnumber 338, Part II. |",
+      "source_pages": [
+        190
+      ],
+      "fragments": [
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            547.407,
+            422.237,
+            617.657
+          ],
+          "cells": [
+            "27",
+            "Titanium dioxide2",
+            "25%3",
+            "Titanium dioxide in\npowder form\ncontaining 1% or more of\nparticles with aerodynamic\ndiameter ≤ 10 µm allowed\nonly under the conditions\nlaid down under reference\nnumber 338, Part II.",
+            ""
+          ],
+          "original_row_text": "27 | Titanium dioxide2 | 25%3 | Titanium dioxide in\npowder form\ncontaining 1% or more of\nparticles with aerodynamic\ndiameter ≤ 10 µm allowed\nonly under the conditions\nlaid down under reference\nnumber 338, Part II. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "3"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-27a",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "27a",
+      "reference_number_raw": "27a",
+      "original_substance_name": "Titanium dioxide (nano)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25%3",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 99%\n— Rutile form, or\nrutile with up to\n5% anatase,\nwith crystalline\nstructure and\nphysical\nappearance as\nclusters of\nspherical,\nneedle, or\nlanceolate\nshapes\n— Median particle\nsize based on\nnumber size\ndistribution ≥\n30 nm\n— Aspect ratio\nfrom 1 to 4.5,\nand volume\nspecific surface\narea ≤\n460 m2/cm3\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects\n— Photocatalytic\nactivity ≤ 10%\ncompared to\ncorresponding\nnon-coated or\nnon-doped\nreference\n— Nanoparticles\nare photostable\nin the final\nformulation.",
+      "original_warning_text": "",
+      "source_text": "27a | Titanium dioxide (nano) | 25%3 | Not to be used in\napplications that may | \n |  |  | lead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 99%\n— Rutile form, or\nrutile with up to\n5% anatase,\nwith crystalline\nstructure and\nphysical\nappearance as\nclusters of\nspherical,\nneedle, or\nlanceolate\nshapes\n— Median particle\nsize based on\nnumber size\ndistribution ≥\n30 nm\n— Aspect ratio\nfrom 1 to 4.5,\nand volume\nspecific surface\narea ≤\n460 m2/cm3\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects\n— Photocatalytic\nactivity ≤ 10%\ncompared to\ncorresponding\nnon-coated or | \n |  |  | non-doped\nreference\n— Nanoparticles\nare photostable\nin the final\nformulation. |",
+      "source_pages": [
+        190,
+        191,
+        192
+      ],
+      "fragments": [
+        {
+          "source_page": 190,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            641.948
+          ],
+          "row_bbox": [
+            65.28,
+            617.657,
+            422.237,
+            641.948
+          ],
+          "cells": [
+            "27a",
+            "Titanium dioxide (nano)",
+            "25%3",
+            "Not to be used in\napplications that may",
+            ""
+          ],
+          "original_row_text": "27a | Titanium dioxide (nano) | 25%3 | Not to be used in\napplications that may | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 191,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            645.7
+          ],
+          "row_bbox": [
+            76.619,
+            165.408,
+            433.576,
+            645.7
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "lead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 99%\n— Rutile form, or\nrutile with up to\n5% anatase,\nwith crystalline\nstructure and\nphysical\nappearance as\nclusters of\nspherical,\nneedle, or\nlanceolate\nshapes\n— Median particle\nsize based on\nnumber size\ndistribution ≥\n30 nm\n— Aspect ratio\nfrom 1 to 4.5,\nand volume\nspecific surface\narea ≤\n460 m2/cm3\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects\n— Photocatalytic\nactivity ≤ 10%\ncompared to\ncorresponding\nnon-coated or",
+            ""
+          ],
+          "original_row_text": " |  |  | lead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 99%\n— Rutile form, or\nrutile with up to\n5% anatase,\nwith crystalline\nstructure and\nphysical\nappearance as\nclusters of\nspherical,\nneedle, or\nlanceolate\nshapes\n— Median particle\nsize based on\nnumber size\ndistribution ≥\n30 nm\n— Aspect ratio\nfrom 1 to 4.5,\nand volume\nspecific surface\narea ≤\n460 m2/cm3\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects\n— Photocatalytic\nactivity ≤ 10%\ncompared to\ncorresponding\nnon-coated or | ",
+          "is_continuation": true
+        },
+        {
+          "source_page": 192,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            583.7
+          ],
+          "row_bbox": [
+            65.28,
+            165.408,
+            422.237,
+            231.658
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "non-doped\nreference\n— Nanoparticles\nare photostable\nin the final\nformulation.",
+            ""
+          ],
+          "original_row_text": " |  |  | non-doped\nreference\n— Nanoparticles\nare photostable\nin the final\nformulation. | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "3"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-28",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "28",
+      "reference_number_raw": "28",
+      "original_substance_name": "Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-hexylester\nDiethylamino hydroxybenzoyl hexyl\nBenzoate (INCI)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "28 | Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-hexylester\nDiethylamino hydroxybenzoyl hexyl\nBenzoate (INCI) | 10% |  |",
+      "source_pages": [
+        192
+      ],
+      "fragments": [
+        {
+          "source_page": 192,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            583.7
+          ],
+          "row_bbox": [
+            65.28,
+            231.658,
+            422.237,
+            279.908
+          ],
+          "cells": [
+            "28",
+            "Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-hexylester\nDiethylamino hydroxybenzoyl hexyl\nBenzoate (INCI)",
+            "10%",
+            "",
+            ""
+          ],
+          "original_row_text": "28 | Benzoic acid, 2-[-4-(diethylamino)-2-\nhydroxybenzoyl]-hexylester\nDiethylamino hydroxybenzoyl hexyl\nBenzoate (INCI) | 10% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-29",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "29",
+      "reference_number_raw": "29",
+      "original_substance_name": "1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-\nyl-, including as nanomaterial\nTris-biphenyl triazine Tris-biphenyl\ntriazine (nano) (INCI)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%",
+      "original_conditions_text": "Not to be used in\nsprays.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Median primary\nparticle size>\n80 nm\n— Purity ≥ 98%\n— Uncoated.",
+      "original_warning_text": "",
+      "source_text": "29 | 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-\nyl-, including as nanomaterial\nTris-biphenyl triazine Tris-biphenyl\ntriazine (nano) (INCI) | 10% | Not to be used in\nsprays.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Median primary\nparticle size>\n80 nm\n— Purity ≥ 98%\n— Uncoated. |",
+      "source_pages": [
+        192
+      ],
+      "fragments": [
+        {
+          "source_page": 192,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            583.7
+          ],
+          "row_bbox": [
+            65.28,
+            279.908,
+            422.237,
+            409.158
+          ],
+          "cells": [
+            "29",
+            "1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-\nyl-, including as nanomaterial\nTris-biphenyl triazine Tris-biphenyl\ntriazine (nano) (INCI)",
+            "10%",
+            "Not to be used in\nsprays.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Median primary\nparticle size>\n80 nm\n— Purity ≥ 98%\n— Uncoated.",
+            ""
+          ],
+          "original_row_text": "29 | 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4-\nyl-, including as nanomaterial\nTris-biphenyl triazine Tris-biphenyl\ntriazine (nano) (INCI) | 10% | Not to be used in\nsprays.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Median primary\nparticle size>\n80 nm\n— Purity ≥ 98%\n— Uncoated. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-30",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "30",
+      "reference_number_raw": "30",
+      "original_substance_name": "3,3’-(1,4-Phenylene) bis(5,6-diphenyl-\n1,2,4-triazine)\nPhenylene bis-diphenyltriazine",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.",
+      "original_warning_text": "",
+      "source_text": "30 | 3,3’-(1,4-Phenylene) bis(5,6-diphenyl-\n1,2,4-triazine)\nPhenylene bis-diphenyltriazine | 5% | Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation. |",
+      "source_pages": [
+        192
+      ],
+      "fragments": [
+        {
+          "source_page": 192,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            583.7
+          ],
+          "row_bbox": [
+            65.28,
+            409.158,
+            422.237,
+            460.408
+          ],
+          "cells": [
+            "30",
+            "3,3’-(1,4-Phenylene) bis(5,6-diphenyl-\n1,2,4-triazine)\nPhenylene bis-diphenyltriazine",
+            "5%",
+            "Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.",
+            ""
+          ],
+          "original_row_text": "30 | 3,3’-(1,4-Phenylene) bis(5,6-diphenyl-\n1,2,4-triazine)\nPhenylene bis-diphenyltriazine | 5% | Not to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-31",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "31",
+      "reference_number_raw": "31",
+      "original_substance_name": "2-ethoxyethyl (2Z)-2-cyano-2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene] acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "3%",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers.",
+      "original_warning_text": "",
+      "source_text": "31 | 2-ethoxyethyl (2Z)-2-cyano-2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene] acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate | 3% | Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers. |",
+      "source_pages": [
+        192
+      ],
+      "fragments": [
+        {
+          "source_page": 192,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            583.7
+          ],
+          "row_bbox": [
+            65.28,
+            460.408,
+            422.237,
+            583.7
+          ],
+          "cells": [
+            "31",
+            "2-ethoxyethyl (2Z)-2-cyano-2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene] acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate",
+            "3%",
+            "Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers.",
+            ""
+          ],
+          "original_row_text": "31 | 2-ethoxyethyl (2Z)-2-cyano-2-[3-(3-\nmethoxypropylamino) cyclohex-2-en-1-\nylidene] acetate\nMethoxypropylamino Cyclohexenylidene\nEthoxyethylcyanoacetate | 3% | Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-32",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "32",
+      "reference_number_raw": "32",
+      "original_substance_name": "1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%6",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "32 | 1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine | 10%6 |  |",
+      "source_pages": [
+        193
+      ],
+      "fragments": [
+        {
+          "source_page": 193,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.699
+          ],
+          "row_bbox": [
+            76.619,
+            165.408,
+            433.576,
+            222.658
+          ],
+          "cells": [
+            "32",
+            "1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine",
+            "10%6",
+            "",
+            ""
+          ],
+          "original_row_text": "32 | 1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine | 10%6 |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "6"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-33",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "33",
+      "reference_number_raw": "33",
+      "original_substance_name": "1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine (nano)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "10%6",
+      "original_conditions_text": "Only nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 97 %\n— Median particle\nsize D50\n(50% of the\nnumber below\nthis diameter):\n≥ 50 nm of\nnumber size\ndistribution.\nNot to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.",
+      "original_warning_text": "",
+      "source_text": "33 | 1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine (nano) | 10%6 | Only nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 97 %\n— Median particle\nsize D50\n(50% of the\nnumber below\nthis diameter):\n≥ 50 nm of\nnumber size\ndistribution.\nNot to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation. |",
+      "source_pages": [
+        193
+      ],
+      "fragments": [
+        {
+          "source_page": 193,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.699
+          ],
+          "row_bbox": [
+            76.619,
+            222.658,
+            433.576,
+            408.908
+          ],
+          "cells": [
+            "33",
+            "1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine (nano)",
+            "10%6",
+            "Only nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 97 %\n— Median particle\nsize D50\n(50% of the\nnumber below\nthis diameter):\n≥ 50 nm of\nnumber size\ndistribution.\nNot to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.",
+            ""
+          ],
+          "original_row_text": "33 | 1,1’-(1,4-piperazinediyl)bis[1-[2-[4-\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine (nano) | 10%6 | Only nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 97 %\n— Median particle\nsize D50\n(50% of the\nnumber below\nthis diameter):\n≥ 50 nm of\nnumber size\ndistribution.\nNot to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "6"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-a28",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "A28",
+      "reference_number_raw": "A28",
+      "original_substance_name": "Methyl anthranilate",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "5%",
+      "original_conditions_text": "",
+      "original_warning_text": "",
+      "source_text": "A28 | Methyl anthranilate | 5% |  |",
+      "source_pages": [
+        193
+      ],
+      "fragments": [
+        {
+          "source_page": 193,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.699
+          ],
+          "row_bbox": [
+            76.619,
+            408.908,
+            433.576,
+            427.157
+          ],
+          "cells": [
+            "A28",
+            "Methyl anthranilate",
+            "5%",
+            "",
+            ""
+          ],
+          "original_row_text": "A28 | Methyl anthranilate | 5% |  | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-a29",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "A29",
+      "reference_number_raw": "A29",
+      "original_substance_name": "Zinc oxide",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25%4",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.",
+      "original_warning_text": "",
+      "source_text": "A29 | Zinc oxide | 25%4 | Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation. |",
+      "source_pages": [
+        193
+      ],
+      "fragments": [
+        {
+          "source_page": 193,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.699
+          ],
+          "row_bbox": [
+            76.619,
+            427.157,
+            433.576,
+            478.407
+          ],
+          "cells": [
+            "A29",
+            "Zinc oxide",
+            "25%4",
+            "Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.",
+            ""
+          ],
+          "original_row_text": "A29 | Zinc oxide | 25%4 | Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation. | ",
+          "is_continuation": false
+        }
+      ],
+      "footnote_references": [
+        "4"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": []
+    },
+    {
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-a29a",
+      "source_document": "singapore_regulations_2025_12_01",
+      "section": "Third Schedule Part V",
+      "reference_number": "A29a",
+      "reference_number_raw": "A29a",
+      "original_substance_name": "Zinc oxide (nano)",
+      "cas_number_raw": null,
+      "original_field_of_use_text": null,
+      "original_concentration_text": "25%4",
+      "original_conditions_text": "Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 96%,\nwith wurtzite\ncrystalline\nstructure and\nphysical\nappearance as\nclusters that are\nrod‑like,\nstar‑like or\nisometric\nshapes, with\nimpurities\nconsisting only\nof carbon\ndioxide and\nwater, whilst\nany other\nimpurities are\nless than 1% in\ntotal\n— Median\ndiameter of the\nparticle number\nsize distribution\nD50 (50% of\nthe number\nbelow this\ndiameter)>\n30 nm and D1\n(1% below this\nsize)> 20 nm\n— Water solubility\n< 50 mg/L\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects.",
+      "original_warning_text": "",
+      "source_text": "A29a | Zinc oxide (nano) | 25%4 | Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 96%,\nwith wurtzite\ncrystalline\nstructure and\nphysical\nappearance as\nclusters that are\nrod‑like, | \n |  |  | star‑like or\nisometric\nshapes, with\nimpurities\nconsisting only\nof carbon\ndioxide and\nwater, whilst\nany other\nimpurities are\nless than 1% in\ntotal\n— Median\ndiameter of the\nparticle number\nsize distribution\nD50 (50% of\nthe number\nbelow this\ndiameter)>\n30 nm and D1\n(1% below this\nsize)> 20 nm\n— Water solubility\n< 50 mg/L\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects. |",
+      "source_pages": [
+        193,
+        194
+      ],
+      "fragments": [
+        {
+          "source_page": 193,
+          "table_bbox": [
+            76.619,
+            89.908,
+            433.576,
+            649.699
+          ],
+          "row_bbox": [
+            76.619,
+            478.407,
+            433.576,
+            649.699
+          ],
+          "cells": [
+            "A29a",
+            "Zinc oxide (nano)",
+            "25%4",
+            "Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 96%,\nwith wurtzite\ncrystalline\nstructure and\nphysical\nappearance as\nclusters that are\nrod‑like,",
+            ""
+          ],
+          "original_row_text": "A29a | Zinc oxide (nano) | 25%4 | Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 96%,\nwith wurtzite\ncrystalline\nstructure and\nphysical\nappearance as\nclusters that are\nrod‑like, | ",
+          "is_continuation": false
+        },
+        {
+          "source_page": 194,
+          "table_bbox": [
+            65.28,
+            89.908,
+            422.237,
+            522.658
+          ],
+          "row_bbox": [
+            65.28,
+            165.408,
+            422.237,
+            522.658
+          ],
+          "cells": [
+            "",
+            "",
+            "",
+            "star‑like or\nisometric\nshapes, with\nimpurities\nconsisting only\nof carbon\ndioxide and\nwater, whilst\nany other\nimpurities are\nless than 1% in\ntotal\n— Median\ndiameter of the\nparticle number\nsize distribution\nD50 (50% of\nthe number\nbelow this\ndiameter)>\n30 nm and D1\n(1% below this\nsize)> 20 nm\n— Water solubility\n< 50 mg/L\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects.",
+            ""
+          ],
+          "original_row_text": " |  |  | star‑like or\nisometric\nshapes, with\nimpurities\nconsisting only\nof carbon\ndioxide and\nwater, whilst\nany other\nimpurities are\nless than 1% in\ntotal\n— Median\ndiameter of the\nparticle number\nsize distribution\nD50 (50% of\nthe number\nbelow this\ndiameter)>\n30 nm and D1\n(1% below this\nsize)> 20 nm\n— Water solubility\n< 50 mg/L\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects. | ",
+          "is_continuation": true
+        }
+      ],
+      "footnote_references": [
+        "4"
+      ],
+      "jurisdiction_notes": [],
+      "extraction_flags": [
+        "entry_spans_multiple_pages"
+      ]
+    }
+  ],
+  "page_texts": {
+    "188": "S 683/2007 188\nTHIRD SCHEDULE — continued\nPART V\nLIST OF UV FILTERS WHICH COSMETIC\nPRODUCTS MAY CONTAIN\n1. For the purpose of the ASEAN Cosmetic Directive, UV filters are\nsubstances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful\neffects of these rays.\n2. These UV filters may be added to other cosmetic products within the limits\nand under the conditions laid down in this Part.\n3. Other UV filters used in cosmetic products solely for the purpose of\nprotecting the product against UV rays are not included in this list.\n4. The following warning must be printed on the label of every cosmetic\nsunscreen product that is primarily for the purpose of sun protection:\n“Do not stay too long in the sun, even while using a sunscreen product.”.\nLIST OF PERMITTED UV FILTERS WHICH\nCOSMETIC PRODUCTS MAY CONTAIN\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n2 N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene 6% . .\nmethyl) anilinium methyl sulphate\n3 Homosalate 10%\n4 Oxybenzone 6% Contains\noxybenzone1\n6 2-Phenylbenzimidazole-5-sulphonic acid 8% (expressed as\nand its potassium, sodium and acid)\ntriethanolamine salts\n7 3,3’-(1,4-Phenylenedimethylene) bis(7,7- 10% (expressed as\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl acid)\nmethanesulfonic acid) and its salts\n8 1-(4-Tert-butylphenyl)-3-(4- 5%\nmethoxyphenyl)propane-1,3-dione\n9 α-(2-Oxoborn-3-ylidene) toluene-4- 6% (expressed as\nsulphonic acid and its salts acid)\nInformal Consolidation – version in force from 1/12/2025",
+    "189": "189 S 683/2007\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n10 2-Cyano-3,3-diphenyl acrylic acid, 2- (a) 9% (a) Propellant\nethylhexyl ester (Octocrylene)7 spray products\n(b) 10% (b) Other products\n11 Polymer of N-{(2 and 4)-[(2-oxoborn-3- 6%\nylidene) methyl] benzyl} acrylamide\n12 Octyl methoxycinnamate 10%\n13 Ethoxylated-ethyl-4-aminobenzoate (PEG- 10%\n25 PABA)\n14 Isopentyl-4-methoxycinnamate (Isoamyl p- 10%\nmethoxycinnamate)\n15 2,4,6-Trianilino-(p-carbo-2’-ethylhexyl-1’- 5%\noxy)-1,3,5-triazine (Octyl triazone)\n16 Phenol,2-(2H-benzotriazol-2-yl)-4-methyl- 15%\n6-(2-methyl-3-(1,3,3,3-tetramethyl-1-\n(trimethylsilyl)oxy)-disiloxanyl)propyl\n(Drometrizole Trisiloxane)\n17 Benzoic acid, 4,4’-((6-((4-(((1,1- 10%\ndimethylethyl)amino) carbonyl) phenyl)\namino)-1,3,5-triazine-2,4-diyl)diimino)bis-\n,bis-(2-ethylhexyl)ester)\n18 3-(4’-Methylbenzylidene)-d1-camphor 4%\n(4-Methylbenzylidene camphor)\n20 2-Ethylhexyl salicylate (Octyl Salicylate) 5%\n21 4-Dimethyl-amino-benzoate of ethyl-2- 8%\nhexyl (octyl dimethyl PABA)\n22 2-Hydroxy-4-methoxybenzophenone-5- 5% (of acid)\nsulfonic acid (Benzophenone-5) and its\nsodium salt\n23 2,2’-Methylene-bis-(6-(2H-benzotriazol-2- 10%\nyl)-4-(tetramethyl-butyl)-1,1,3,3-phenol;\n2,2’-Methylenebis(6-(2H-benzotriazol-2-\nyl)-4-(1,1,3,3-tetramethylbutyl)phenol)\n23a 2,2’-Methylenebis(6-(2Hbenzotriazol-2- 10%5 Not to be used in\nyl)-4-(tetramethylbutyl)-1,1,3,3-phenol); applications that may\n2,2’-Methylenebis(6- lead to exposure of the\nend user’s lungs by\n(2H-benzotriazol-2-yl)-4-(1,1,3,3-\ninhalation.\ntetramethylbutyl)phenol)\nOnly nanomaterials\nMethylene bis-benzotriazolyl\nhaving the following\ntetramethylbutylphenol\ncharacteristics are\nallowed:\nInformal Consolidation – version in force from 1/12/2025",
+    "190": "S 683/2007 190\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n(nano)/(MBBT(nano)) — Purity ≥ 98.5%,\nwith 2,2’-\nmethylene-bis-\n(6(2H-\nbenzotriazol-2-\nyl)-4-(isooctyl)\nphenol) isomer\nfraction not\nexceeding 1.\n5%;\n— Solubility\n< 5 ng/L in\nwater at 25°C;\n— Partition\ncoefficient (Log\nPow): 12.7 at\n25°C;\n— Uncoated;\n— Median particle\nsize D50 (50%\nof number\nbelow this\ndiameter):\n≥ 120 nm of\nmass\ndistribution\nand/or ≥ 60 nm\nof number size\ndistribution.\n24 Monosodium salt of 2-2’-(1,4-phenylene) 10% (of acid)\nbis)-1H-benzimidazole-4,6-disulphonic\nacid\n25 (1,3,5)-Triazine-2,4-bis-{[4-(2-ethyl- 10%\nhexyloxy)-2-hydroxy]-phenyl}-6-(4-\nmethoxyphenyl)\n26 Dimethicodiethylbenzalmalonate 10%\nPolysilicone - 15 (INCI)\n27 Titanium dioxide2 25%3 Titanium dioxide in\npowder form\ncontaining 1% or more of\nparticles with aerodynamic\ndiameter ≤ 10 µm allowed\nonly under the conditions\nlaid down under reference\nnumber 338, Part II.\n27a Titanium dioxide (nano) 25%3 Not to be used in\napplications that may\nInformal Consolidation – version in force from 1/12/2025",
+    "191": "191 S 683/2007\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 99%\n— Rutile form, or\nrutile with up to\n5% anatase,\nwith crystalline\nstructure and\nphysical\nappearance as\nclusters of\nspherical,\nneedle, or\nlanceolate\nshapes\n— Median particle\nsize based on\nnumber size\ndistribution ≥\n30 nm\n— Aspect ratio\nfrom 1 to 4.5,\nand volume\nspecific surface\narea ≤\n460 m2/cm3\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects\n— Photocatalytic\nactivity ≤ 10%\ncompared to\ncorresponding\nnon-coated or\nInformal Consolidation – version in force from 1/12/2025",
+    "192": "S 683/2007 192\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\nnon-doped\nreference\n— Nanoparticles\nare photostable\nin the final\nformulation.\n28 Benzoic acid, 2-[-4-(diethylamino)-2- 10%\nhydroxybenzoyl]-hexylester\nDiethylamino hydroxybenzoyl hexyl\nBenzoate (INCI)\n29 1,3,5-Triazine, 2,4,6-tris [1,1′-biphenyl]-4- 10% Not to be used in\nyl-, including as nanomaterial sprays.\nTris-biphenyl triazine Tris-biphenyl Only nanomaterials\ntriazine (nano) (INCI) having the following\ncharacteristics are\nallowed:\n— Median primary\nparticle size>\n80 nm\n— Purity ≥ 98%\n— Uncoated.\n30 3,3’-(1,4-Phenylene) bis(5,6-diphenyl- 5% Not to be used in\n1,2,4-triazine) applications that may\nlead to exposure of the\nPhenylene bis-diphenyltriazine\nend user’s lungs by\ninhalation.\n31 2-ethoxyethyl (2Z)-2-cyano-2-[3-(3- 3% Not to be used in\nmethoxypropylamino) cyclohex-2-en-1- applications that may\nylidene] acetate lead to exposure of the\nMethoxypropylamino Cyclohexenylidene end‑user’s lungs by\nEthoxyethylcyanoacetate inhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers.\nInformal Consolidation – version in force from 1/12/2025",
+    "193": "193 S 683/2007\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n32 1,1’-(1,4-piperazinediyl)bis[1-[2-[4- 10%6\n(diethylamino)-2-hydroxybenzoyl]\nphenyl]-methanone\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine\n33 1,1’-(1,4-piperazinediyl)bis[1-[2-[4- 10%6 Only nanomaterials\n(diethylamino)-2-hydroxybenzoyl] having the following\nphenyl]-methanone characteristics are\nallowed:\nBis-(Diethylaminohydroxybenzoyl\nBenzoyl) Piperazine (nano) — Purity ≥ 97 %\n— Median particle\nsize D50\n(50% of the\nnumber below\nthis diameter):\n≥ 50 nm of\nnumber size\ndistribution.\nNot to be used in\napplications that may\nlead to exposure of the\nend user’s lungs by\ninhalation.\nA28 Methyl anthranilate 5%\nA29 Zinc oxide 25%4 Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nA29a Zinc oxide (nano) 25%4 Not to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nOnly nanomaterials\nhaving the following\ncharacteristics are\nallowed:\n— Purity ≥ 96%,\nwith wurtzite\ncrystalline\nstructure and\nphysical\nappearance as\nclusters that are\nrod‑like,\nInformal Consolidation – version in force from 1/12/2025",
+    "194": "S 683/2007 194\nTHIRD SCHEDULE — continued\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\nstar‑like or\nisometric\nshapes, with\nimpurities\nconsisting only\nof carbon\ndioxide and\nwater, whilst\nany other\nimpurities are\nless than 1% in\ntotal\n— Median\ndiameter of the\nparticle number\nsize distribution\nD50 (50% of\nthe number\nbelow this\ndiameter)>\n30 nm and D1\n(1% below this\nsize)> 20 nm\n— Water solubility\n< 50 mg/L\n— Coating\nmaterials can be\nused that have\nbeen\ndemonstrated to\nbe safe and not\nto affect the\nnanoparticle\nproperties\nrelated to the\nbehaviour or\neffects.\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 9/2023 wef 01/02/2023]\n1 Not required if concentration is 0.5% or less and when it is used only for product protection purposes.\n2 For use as a colourant, see colouring agent CI 77891 in Part III.\n3 In case of combined use of Titanium dioxide and Titanium dioxide (nano), the sum must not exceed the\nmaximum concentration specified in the third column.\nInformal Consolidation – version in force from 1/12/2025",
+    "195": "195 S 683/2007\nTHIRD SCHEDULE — continued\n4 In case of combined use of zinc oxide and zinc oxide (nano), the sum must not exceed the maximum\nconcentration specified in the third column.\n5 In case of combined use of methylene bis-benzotriazolyl tetramethylbutylphenol and methylene bis-\nbenzotriazolyl tetramethylbutylphenol (nano), the sum must not exceed the maximum concentration\nspecified in the third column.\n6 In case of combined use of Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine and Bis-\n(Diethylaminohydroxybenzoyl Benzoyl) Piperazine (nano), the sum must not exceed the maximum\nconcentration specified in the third column\n7 Benzophenone as an impurity and/or degradation product of Octocrylene must be kept at trace level.\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 9/2023 wef 01/02/2023]\n[S 43/2019 wef 21/01/2019]\nPart VI\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VII\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VIII\n[Deleted by S 9/2023 wef 01/02/2023]\nFOURTH SCHEDULE\nRegulation 7(4)(a)\nSTANDARD REFERENCES USED FOR COSMETIC INGREDIENT\nNOMENCLATURE\n1. International Cosmetic Ingredient Dictionary\n2. British Pharmacopeia\n3. United States Pharmacopeia\n4. Chemical Abstract Services.\nInformal Consolidation – version in force from 1/12/2025"
+  },
+  "preamble": [
+    {
+      "source_page": 188,
+      "source_text": "S 683/2007 188\nTHIRD SCHEDULE — continued\nPART V\nLIST OF UV FILTERS WHICH COSMETIC\nPRODUCTS MAY CONTAIN\n1. For the purpose of the ASEAN Cosmetic Directive, UV filters are\nsubstances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful\neffects of these rays.\n2. These UV filters may be added to other cosmetic products within the limits\nand under the conditions laid down in this Part.\n3. Other UV filters used in cosmetic products solely for the purpose of\nprotecting the product against UV rays are not included in this list.\n4. The following warning must be printed on the label of every cosmetic\nsunscreen product that is primarily for the purpose of sun protection:\n“Do not stay too long in the sun, even while using a sunscreen product.”.\nLIST OF PERMITTED UV FILTERS WHICH\nCOSMETIC PRODUCTS MAY CONTAIN\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n2 N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene 6% . .\nmethyl) anilinium methyl sulphate\n3 Homosalate 10%\n4 Oxybenzone 6% Contains\noxybenzone1\n6 2-Phenylbenzimidazole-5-sulphonic acid 8% (expressed as\nand its potassium, sodium and acid)\ntriethanolamine salts\n7 3,3’-(1,4-Phenylenedimethylene) bis(7,7- 10% (expressed as\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl acid)\nmethanesulfonic acid) and its salts\n8 1-(4-Tert-butylphenyl)-3-(4- 5%\nmethoxyphenyl)propane-1,3-dione\n9 α-(2-Oxoborn-3-ylidene) toluene-4- 6% (expressed as\nsulphonic acid and its salts acid)\nInformal Consolidation – version in force from 1/12/2025"
+    }
+  ],
+  "footnotes": [
+    {
+      "footnote_number": "4",
+      "source_page": 195,
+      "source_text": "4 In case of combined use of zinc oxide and zinc oxide (nano), the sum must not exceed the maximum\nconcentration specified in the third column."
+    },
+    {
+      "footnote_number": "5",
+      "source_page": 195,
+      "source_text": "5 In case of combined use of methylene bis-benzotriazolyl tetramethylbutylphenol and methylene bis-\nbenzotriazolyl tetramethylbutylphenol (nano), the sum must not exceed the maximum concentration\nspecified in the third column."
+    },
+    {
+      "footnote_number": "6",
+      "source_page": 195,
+      "source_text": "6 In case of combined use of Bis-(Diethylaminohydroxybenzoyl Benzoyl) Piperazine and Bis-\n(Diethylaminohydroxybenzoyl Benzoyl) Piperazine (nano), the sum must not exceed the maximum\nconcentration specified in the third column"
+    },
+    {
+      "footnote_number": "7",
+      "source_page": 195,
+      "source_text": "7 Benzophenone as an impurity and/or degradation product of Octocrylene must be kept at trace level.\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 9/2023 wef 01/02/2023]\n[S 43/2019 wef 21/01/2019]\nPart VI\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VII\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VIII\n[Deleted by S 9/2023 wef 01/02/2023]"
+    }
+  ],
+  "page_diagnostics": [
+    {
+      "source_page": 188,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 189,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 190,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 191,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 192,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 193,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 194,
+      "table_count": 1,
+      "column_counts": [
+        5
+      ]
+    },
+    {
+      "source_page": 195,
+      "table_count": 0,
+      "column_counts": []
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "check_count": 15,
+  "checks": [
+    {
+      "check_id": "parts-i-v-01",
+      "regulatory_section": "Third Schedule Part III",
+      "reference_number": "12085",
+      "purpose": "colourant concentration and # qualification",
+      "rule_ids": [
+        "sg-third-schedule-iii-12085"
+      ],
+      "source_pages": [
+        169
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-02",
+      "regulatory_section": "Annex IV Part 1",
+      "reference_number": "12085",
+      "purpose": "ACD colourant field-of-application mapping",
+      "rule_ids": [
+        "acd-iv-12085"
+      ],
+      "source_pages": [
+        259,
+        265
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-03",
+      "regulatory_section": "Third Schedule Part III",
+      "reference_number": "10316",
+      "purpose": "eye-area colourant restriction",
+      "rule_ids": [
+        "sg-third-schedule-iii-10316"
+      ],
+      "source_pages": [
+        169
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-04",
+      "regulatory_section": "Third Schedule Part IV",
+      "reference_number": "1",
+      "purpose": "preservative multi-product concentration cases",
+      "rule_ids": [
+        "sg-third-schedule-iv-1"
+      ],
+      "source_pages": [
+        182
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-05",
+      "regulatory_section": "Annex VI",
+      "reference_number": "1",
+      "purpose": "ACD preservative comparison and acid basis",
+      "rule_ids": [
+        "acd-vi-1"
+      ],
+      "source_pages": [
+        266,
+        267
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-06",
+      "regulatory_section": "Third Schedule Part IV",
+      "reference_number": "12",
+      "purpose": "combined paraben limits",
+      "rule_ids": [
+        "sg-third-schedule-iv-12"
+      ],
+      "source_pages": [
+        182,
+        183
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-07",
+      "regulatory_section": "Annex VI",
+      "reference_number": "20",
+      "purpose": "formaldehyde warning and preamble interaction",
+      "rule_ids": [
+        "acd-vi-20"
+      ],
+      "source_pages": [
+        266,
+        272
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-08",
+      "regulatory_section": "Third Schedule Part IV",
+      "reference_number": "2",
+      "purpose": "preservative qualification and salts",
+      "rule_ids": [
+        "sg-third-schedule-iv-2"
+      ],
+      "source_pages": [
+        182
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-09",
+      "regulatory_section": "Third Schedule Part V",
+      "reference_number": "3",
+      "purpose": "UV-filter concentration",
+      "rule_ids": [
+        "sg-third-schedule-v-3"
+      ],
+      "source_pages": [
+        188
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-10",
+      "regulatory_section": "Annex VII",
+      "reference_number": "A29a",
+      "purpose": "nano zinc oxide conditions",
+      "rule_ids": [
+        "acd-vii-a29a"
+      ],
+      "source_pages": [
+        280,
+        282,
+        290
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-11",
+      "regulatory_section": "Third Schedule Part V",
+      "reference_number": "A29a",
+      "purpose": "Singapore nano UV-filter conditions",
+      "rule_ids": [
+        "sg-third-schedule-v-a29a"
+      ],
+      "source_pages": [
+        188,
+        193,
+        194,
+        195
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-12",
+      "regulatory_section": "Annex VII",
+      "reference_number": "A28",
+      "purpose": "section-specific Annex VII version",
+      "rule_ids": [
+        "acd-vii-a28"
+      ],
+      "source_pages": [
+        280,
+        281
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-3",
+      "regulatory_section": "Regulation 6",
+      "reference_number": "6(3)",
+      "purpose": "Singapore positive-list legal semantics",
+      "rule_ids": [
+        "sg-regulation-6-3"
+      ],
+      "source_pages": [],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-4",
+      "regulatory_section": "Regulation 6",
+      "reference_number": "6(4)",
+      "purpose": "Singapore positive-list legal semantics",
+      "rule_ids": [
+        "sg-regulation-6-4"
+      ],
+      "source_pages": [],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-5",
+      "regulatory_section": "Regulation 6",
+      "reference_number": "6(5)",
+      "purpose": "Singapore positive-list legal semantics",
+      "rule_ids": [
+        "sg-regulation-6-5"
+      ],
+      "source_pages": [],
+      "required": true
+    }
+  ]
+}

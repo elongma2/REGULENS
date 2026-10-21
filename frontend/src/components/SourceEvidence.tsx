@@ -1,5 +1,6 @@
 import { ExternalLink, Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { sourceEvidenceUrl } from "../api/screening";
 import { acceptedSnapshotLabel } from "../lib/presentation";
 import type { RuleEvaluation, SourceSnapshot } from "../types/screening";
@@ -52,7 +53,7 @@ export function SourceEvidence({ evaluation, source }: { evaluation: RuleEvaluat
         </a>
       </div>
 
-      {showPage && (
+      {showPage && createPortal(
         <div className="page-modal" role="dialog" aria-modal="true" aria-label="Accepted source page">
           <button className="page-modal-backdrop" onClick={() => setShowPage(false)} aria-label="Close full source page" />
           <div className="page-modal-panel">
@@ -60,6 +61,7 @@ export function SourceEvidence({ evaluation, source }: { evaluation: RuleEvaluat
               <div>
                 <p className="text-sm font-semibold text-slate-900">Accepted source {evidence.source_pages.length > 1 ? "pages" : "page"}</p>
                 <p className="text-xs text-slate-500">{acceptedSnapshotLabel(evaluation)} · Page {evidence.source_pages.join(", ")}</p>
+                <a className="source-link" href={sourceEvidenceUrl(evidence.raw_record_id, "page")} target="_blank" rel="noreferrer">Open full-size page image <ExternalLink size={14} /></a>
               </div>
               <button autoFocus className="icon-button" onClick={() => setShowPage(false)} aria-label="Close full source page"><X size={18} /></button>
             </div>
@@ -75,7 +77,7 @@ export function SourceEvidence({ evaluation, source }: { evaluation: RuleEvaluat
               )}
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </section>
   );

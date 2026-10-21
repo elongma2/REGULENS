@@ -5,9 +5,9 @@ from typing import Any, Literal
 
 from pydantic import Field, field_validator, model_validator
 
-from .formulation import FormulationRequest
+from .formulation import FormulationRequest, ProductApplicabilityFacts
 from .openai import OpenAIUsage
-from .screening import CatalogueIdentity, StrictModel
+from .screening import CatalogueIdentity, RegulatedFunction, StrictModel
 
 
 class AgentSessionState(StrEnum):
@@ -60,9 +60,9 @@ class AgentSourceMetadata(StrictModel):
 
 
 class AgentRowUncertainty(StrictModel):
-    target_field: Literal["ingredient_name", "concentration", "concentration.unit", "preparation_stage"]
+    target_field: Literal["ingredient_name", "concentration", "concentration.unit", "preparation_stage", "regulated_functions"]
     uncertainty_code: Literal[
-        "ingredient_identity", "missing_concentration_unit", "concentration_unavailable", "preparation_stage",
+        "ingredient_identity", "missing_concentration_unit", "concentration_unavailable", "preparation_stage", "ingredient_function",
     ]
     source_value: str | None = None
     proposed_value: Any = None
@@ -82,6 +82,8 @@ class AgentIngredientRow(StrictModel):
     source_metadata: list[AgentSourceMetadata] = Field(default_factory=list)
     issues: list[str] = Field(default_factory=list)
     unresolved_fields: list[AgentRowUncertainty] = Field(default_factory=list)
+    regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
+    function_sources: list[AgentSourceReference] = Field(default_factory=list)
 
 
 class AgentColumnMapping(StrictModel):
@@ -91,6 +93,7 @@ class AgentColumnMapping(StrictModel):
         "ingredient_name", "cas_number", "concentration", "unit", "basis",
         "preparation_stage", "product_context", "formulation_id", "formulation_name",
         "raw_material_name", "notes", "metadata", "ignore",
+        "ingredient_function",
     ]
     confidence: AgentConfidence
 
@@ -113,17 +116,17 @@ class AgentQuestionOption(StrictModel):
 
 class AgentQuestion(StrictModel):
     question_id: str
-    question_type: Literal["identity", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping"]
+    question_type: Literal["identity", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping", "ingredient_function"]
     title: str
     prompt: str
     source_row: int | None = None
     row_id: str | None = None
     target_field: Literal[
-        "ingredient_name", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping",
+        "ingredient_name", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping", "regulated_functions",
     ] | None = None
     uncertainty_code: Literal[
         "ingredient_identity", "missing_concentration_unit", "concentration_unavailable", "preparation_stage",
-        "product_context", "column_mapping",
+        "product_context", "column_mapping", "ingredient_function",
     ] | None = None
     affected_row_ids: list[str] = Field(default_factory=list)
     blocking: bool = True
@@ -166,6 +169,7 @@ class AgentSessionView(StrictModel):
     formulation_id: AgentFieldProvenance | None = None
     formulation_name: AgentFieldProvenance | None = None
     product_context: AgentFieldProvenance | None = None
+    product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
     interpreted_rows: list[AgentIngredientRow] = Field(default_factory=list)
     questions: list[AgentQuestion] = Field(default_factory=list)
     activity: list[AgentActivityItem] = Field(default_factory=list)
@@ -195,6 +199,7 @@ class AgentRowUpdate(StrictModel):
     concentration_basis: Literal["NH3", "free base", "zinc", "sulphate", "hydrochloride", "tetrahydrochloride"] | None = None
     preparation_stage: Literal["finished_product", "after_mixing", "ready_for_use"] | None = None
     remove_concentration: bool = False
+    regulated_functions: list[RegulatedFunction] | None = None
 
     @model_validator(mode="after")
     def require_row_selector(self) -> "AgentRowUpdate":
@@ -220,6 +225,7 @@ class AgentPrepareRequest(StrictModel):
     formulation_id: str | None = None
     formulation_name: str | None = None
     product_context: str | None = None
+    product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
 
     @field_validator("formulation_id", "formulation_name", "product_context")
     @classmethod
@@ -247,6 +253,7 @@ class ModelColumnMapping(StrictModel):
         "ingredient_name", "cas_number", "concentration", "unit", "basis",
         "preparation_stage", "product_context", "formulation_id", "formulation_name",
         "raw_material_name", "notes", "metadata", "ignore",
+        "ingredient_function",
     ]
     confidence: AgentConfidence
 
@@ -267,9 +274,15 @@ class ModelIngredientInterpretation(StrictModel):
     basis_sources: list[ModelSourceReference]
     preparation_stage: Literal["finished_product", "after_mixing", "ready_for_use"] | None
     preparation_stage_sources: list[ModelSourceReference]
+    # OpenAI strict structured outputs require every property to appear in the
+    # schema's `required` array. The model must return empty lists when the CSV
+    # supplies no regulated function.
+    regulated_functions: list[RegulatedFunction]
+    regulated_function_sources: list[ModelSourceReference]
     uncertainties: list[Literal[
         "ingredient_identity", "cas_number", "concentration_value", "concentration_unit",
         "concentration_basis", "preparation_stage",
+        "ingredient_function",
     ]]
     issues: list[str]
 

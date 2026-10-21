@@ -1,8 +1,7 @@
 import { ApiError } from "./screening";
 import type { AgentPreparedFormulation, AgentRowUpdate, AgentSession } from "../types/agent";
-
-const configuredBase = import.meta.env.VITE_API_BASE_URL ?? "/api";
-const apiBase = configuredBase.replace(/\/$/, "");
+import type { ProductApplicabilityFacts } from "../types/screening";
+import { apiFetch } from "./http";
 
 async function parseResponse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => ({}));
@@ -15,7 +14,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
 
 async function agentJson<T>(path: string, init?: RequestInit): Promise<T> {
   try {
-    const response = await fetch(`${apiBase}${path}`, {
+    const response = await apiFetch(path, {
       ...init,
       headers: { "Content-Type": "application/json", ...init?.headers },
     });
@@ -30,7 +29,7 @@ export async function uploadAgentCSV(file: File): Promise<AgentSession> {
   const body = new FormData();
   body.append("file", file);
   try {
-    return parseResponse<AgentSession>(await fetch(`${apiBase}/agent/formulations`, { method: "POST", body }));
+    return parseResponse<AgentSession>(await apiFetch("/agent/formulations", { method: "POST", body }));
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError("Unable to reach the formulation agent.", 0);
@@ -54,7 +53,7 @@ export function answerAgentQuestions(
 
 export function prepareAgentFormulation(
   session: AgentSession,
-  metadata: { formulation_id: string | null; formulation_name: string | null; product_context: string | null },
+  metadata: { formulation_id: string | null; formulation_name: string | null; product_context: string | null; product_applicability?: ProductApplicabilityFacts },
 ): Promise<AgentPreparedFormulation> {
   return agentJson(`/agent/formulations/${encodeURIComponent(session.session_id)}/prepare`, {
     method: "POST",

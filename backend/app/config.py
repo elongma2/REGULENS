@@ -25,10 +25,17 @@ class OpenAISettings:
     explanation_model: str
     agent_timeout_seconds: float = 180.0
     frontend_origins: tuple[str, ...] = LOCAL_DEVELOPMENT_ORIGINS
+    supabase_url: str | None = None
+    supabase_publishable_key: str | None = None
+    supabase_service_role_key: str | None = None
 
     @property
     def configured(self) -> bool:
         return bool(self.api_key)
+
+    @property
+    def supabase_configured(self) -> bool:
+        return bool(self.supabase_url and self.supabase_publishable_key and self.supabase_service_role_key)
 
 
 def _configured_frontend_origins(value: str | None) -> tuple[str, ...]:
@@ -66,6 +73,9 @@ def load_settings(env_path: Path | None = None) -> OpenAISettings:
         explanation_model=os.getenv("OPENAI_EXPLANATION_MODEL") or "gpt-5.6-luna",
         agent_timeout_seconds=_agent_timeout_seconds(os.getenv("OPENAI_AGENT_TIMEOUT_SECONDS")),
         frontend_origins=_configured_frontend_origins(os.getenv("FRONTEND_ORIGIN")),
+        supabase_url=os.getenv("SUPABASE_URL") or None,
+        supabase_publishable_key=os.getenv("SUPABASE_PUBLISHABLE_KEY") or None,
+        supabase_service_role_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY") or None,
     )
 
 
@@ -79,3 +89,4 @@ def log_openai_configuration(settings: OpenAISettings) -> None:
     LOGGER.info("Agent model: %s", settings.agent_model)
     LOGGER.info("Agent request timeout: %s seconds", settings.agent_timeout_seconds)
     LOGGER.info("Explanation model: %s", settings.explanation_model)
+    LOGGER.info("Supabase: %s", "configured" if settings.supabase_configured else "not configured")

@@ -16,6 +16,21 @@ export const findingPresentation: Record<Finding, { label: string; tone: string;
     tone: "text-emerald-700 bg-emerald-50 border-emerald-200",
     dot: "bg-emerald-600",
   },
+  permitted_use_within_conditions: {
+    label: "Listed use conditions met",
+    tone: "text-emerald-700 bg-emerald-50 border-emerald-200",
+    dot: "bg-emerald-600",
+  },
+  permitted_use_condition_not_met: {
+    label: "Listed use condition not met",
+    tone: "text-red-700 bg-red-50 border-red-200",
+    dot: "bg-red-600",
+  },
+  regulated_function_not_permitted: {
+    label: "Regulated function not listed",
+    tone: "text-red-700 bg-red-50 border-red-200",
+    dot: "bg-red-600",
+  },
   professional_review_required: {
     label: "Needs human review",
     tone: "text-amber-800 bg-amber-50 border-amber-200",
@@ -41,21 +56,39 @@ export const findingPresentation: Record<Finding, { label: string; tone: string;
 export const adversePrimaryFindings = new Set<Finding>([
   "prohibited_substance_identified",
   "restriction_exceeded",
+  "permitted_use_condition_not_met",
+  "regulated_function_not_permitted",
   "professional_review_required",
   "information_missing",
   "identity_unresolved",
 ]);
 
+export function requiresAttention(result: IngredientResult): boolean {
+  return adversePrimaryFindings.has(result.primary_finding)
+    || result.review_required
+    || result.identity.status !== "resolved"
+    || (result.incomplete_positive_list_checks?.length ?? 0) > 0;
+}
+
 const confirmedPrecedence: Finding[] = [
   "prohibited_substance_identified",
   "restriction_exceeded",
+  "regulated_function_not_permitted",
+  "permitted_use_condition_not_met",
   "restriction_within_limit",
+  "permitted_use_within_conditions",
   "information_missing",
   "no_issue_identified_within_scoped_rules",
 ];
 
 export function isSingaporeEvaluation(evaluation: RuleEvaluation): boolean {
-  return ["Third Schedule Part I", "Third Schedule Part II"].includes(
+  return [
+    "Third Schedule Part I",
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
+  ].includes(
     evaluation.evidence.regulatory_section,
   );
 }
@@ -79,7 +112,7 @@ export function supportingSingaporeEvaluations(result: IngredientResult): RuleEv
 
 export function regulationLabel(evaluation: RuleEvaluation): string | null {
   const provision = evaluation.evidence.regulation_6_provisions.find(
-    (item) => item.paragraph === "1" || item.paragraph === "2",
+    (item) => ["1", "2", "3", "4", "5"].includes(item.paragraph),
   );
   return provision ? `Regulation 6(${provision.paragraph})` : null;
 }

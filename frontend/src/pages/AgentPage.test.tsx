@@ -1,9 +1,14 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AgentPage } from "./AgentPage";
 import { optionsFixture, testResponse } from "../test/fixtures";
 import type { AgentIngredientRow, AgentPreparedFormulation, AgentSession } from "../types/agent";
+
+function renderAgent(props: { caseId?: string; versionId?: string } = {}) {
+  return render(<MemoryRouter><AgentPage {...props} /></MemoryRouter>);
+}
 
 function json(body: unknown, status = 200): Promise<Response> {
   return Promise.resolve({ ok: status >= 200 && status < 300, status, json: async () => body } as Response);
@@ -235,7 +240,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     const file = new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" });
     await user.upload(screen.getByLabelText("Choose formulation CSV"), file);
     expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
@@ -243,16 +248,19 @@ describe("Formulation Agent page", () => {
     expect(screen.getAllByText("Preparation stage").length).toBeGreaterThan(0);
     expect(within(screen.getByLabelText("Agent Product context")).getByRole("option", { name: "Toothpaste" })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/screen-formulation"))).toBe(false);
+    expect(screen.getByRole("button", { name: "Confirm Formulation" })).toBeDisabled();
+    expect(screen.getByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuenow", "0");
 
     await user.selectOptions(screen.getByLabelText("Agent Product context"), "Toothpaste");
     await user.click(screen.getByRole("button", { name: "Finished product" }));
-    expect(await screen.findByRole("button", { name: "Prepare formulation" })).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Prepare formulation" }));
+    expect(await screen.findByRole("button", { name: "Confirm Formulation" })).toBeEnabled();
+    expect(screen.getByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuenow", "2");
+    await user.click(screen.getByRole("button", { name: "Confirm Formulation" }));
     expect(await screen.findByText("Formulation ready for screening")).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/screen-formulation"))).toBe(false);
 
     await user.click(screen.getByRole("button", { name: /Confirm & Screen/ }));
-    expect(await screen.findByText(/Imported by Formulation Agent/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Screening results" })).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
   });
 
@@ -264,10 +272,10 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
 
-    expect(await screen.findByRole("button", { name: "Needs confirmation · 1 issue" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Clarification needed · 1 issue" })).toBeInTheDocument();
     expect(screen.queryByText("View source")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /View identity evidence/ })).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Identity evidence")).not.toBeInTheDocument();
@@ -286,7 +294,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nGlycerine"], "identity.csv", { type: "text/csv" }));
 
     expect(await screen.findByText("Row 10 · Glycerine")).toBeInTheDocument();
@@ -298,7 +306,7 @@ describe("Formulation Agent page", () => {
 
     await waitFor(() => expect(screen.queryByText("Possible source-backed match")).not.toBeInTheDocument());
     expect(answerBody).toMatchObject({ row_updates: [{ row_id: "row-10", name: "GLYCERIN" }] });
-    expect(screen.getByRole("button", { name: "Resolved" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Input ready" })).toBeInTheDocument();
   });
 
   it("updates the canonical row when a clarification candidate is selected", async () => {
@@ -310,11 +318,12 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nGlycerine"], "identity.csv", { type: "text/csv" }));
     await user.click(await screen.findByRole("button", { name: "Use GLYCERIN" }));
 
     expect(await screen.findByLabelText("Row 10 interpreted name")).toHaveValue("GLYCERIN");
+    expect(screen.getByText("Edited")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Use GLYCERIN" })).not.toBeInTheDocument();
   });
 
@@ -327,12 +336,12 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nGlycerine"], "identity.csv", { type: "text/csv" }));
     await user.click(await screen.findByRole("button", { name: "Keep source value" }));
 
-    expect(await screen.findByRole("button", { name: "Resolved" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Unresolved" })).not.toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Input ready" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Input incomplete" })).not.toBeInTheDocument();
     expect(screen.queryByText("Possible source-backed match")).not.toBeInTheDocument();
     expect(screen.getByLabelText("Row 10 concentration")).toHaveValue("");
   });
@@ -352,7 +361,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nGlycerine"], "identity.csv", { type: "text/csv" }));
     const name = await screen.findByLabelText("Row 10 interpreted name");
     await user.clear(name);
@@ -363,7 +372,7 @@ describe("Formulation Agent page", () => {
     expect(screen.getByText("Corrected supplier identity")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Confirm entered name" }));
 
-    expect(await screen.findByRole("button", { name: "Resolved" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Input ready" })).toBeInTheDocument();
     expect(screen.getByLabelText("Row 10 interpreted name")).toHaveValue("Corrected supplier identity");
     expect(answerBodies.some((body) => {
       const answers = body.answers as Array<{ question_id: string; option_id: string }> | undefined;
@@ -383,7 +392,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nNIACINAMIDE"], "first.csv", { type: "text/csv" }));
     expect(await screen.findByText("first.csv")).toBeInTheDocument();
 
@@ -410,7 +419,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nNIACINAMIDE"], "demo.csv", { type: "text/csv" }));
     expect(await screen.findByText(/uploaded file has been preserved/)).toBeInTheDocument();
     expect(screen.getAllByText("Interpretation could not be completed").length).toBeGreaterThan(0);
@@ -433,7 +442,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nNIACINAMIDE"], "demo.csv", { type: "text/csv" }));
     expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
     await user.selectOptions(screen.getByLabelText("Agent Product context"), "Toothpaste");
@@ -456,9 +465,9 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    render(<AgentPage />);
+    renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nNIACINAMIDE"], "demo.csv", { type: "text/csv" }));
-    await user.click(await screen.findByRole("button", { name: "Prepare formulation" }));
+    await user.click(await screen.findByRole("button", { name: "Confirm Formulation" }));
     await user.click(await screen.findByRole("button", { name: /Confirm & Screen/ }));
     const drawer = await screen.findByLabelText("Regulatory evidence");
     expect(within(drawer).getByText("Input provenance")).toBeInTheDocument();
@@ -466,5 +475,131 @@ describe("Formulation Agent page", () => {
     expect(within(drawer).getAllByText("NIACINAMIDE")).toHaveLength(2);
     expect(within(drawer).getByText("Vitamin B3 Active")).toBeInTheDocument();
     expect(within(drawer).getByText("Brightening active")).toBeInTheDocument();
+  });
+
+  it("preserves tab state and resets findings controls when the screening run changes", async () => {
+    const olderResponse = structuredClone(testResponse);
+    olderResponse.ingredient_results = [olderResponse.ingredient_results[0]];
+    olderResponse.summary = {
+      ...olderResponse.summary,
+      ingredients_submitted: 1,
+      prohibited_substance_identified: 1,
+      restriction_exceeded: 0,
+      identity_unresolved: 0,
+      total_requiring_review: 0,
+      total_unresolved_identities: 0,
+    };
+    const version = {
+      id: "version-1", case_id: "case-1", version_number: 2,
+      original_filename: "saved.csv", status: "screened", revision: 3,
+      created_at: "2026-10-19T00:00:00Z", updated_at: "2026-10-20T00:00:00Z",
+      screening_count: 2, raw_extraction: {}, agent_session: answeredSession(),
+      canonical_formulation: preparedFixture().formulation, product_context: null,
+    };
+    const runs = [
+      { id: "run-new", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-new", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: testResponse, created_at: "2026-10-20T08:00:00Z" },
+      { id: "run-old", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-old", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: olderResponse, created_at: "2026-10-19T08:00:00Z" },
+    ];
+    const workspace = (runId: string) => ({
+      case_id: "case-1",
+      formulation_version_id: "version-1",
+      screening_run_id: runId,
+      clarification_targets: [],
+      review_items: [],
+      notes: [],
+      follow_ups: [],
+    });
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/formulations/version-1/screenings")) return json(runs);
+      if (url.endsWith("/formulations/version-1")) return json(version);
+      if (url.includes("/formulations/version-1/review-workspace")) return json(workspace(url.includes("run-old") ? "run-old" : "run-new"));
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    renderAgent({ caseId: "case-1", versionId: "version-1" });
+
+    const findingsTab = await screen.findByRole("tab", { name: "Results" });
+    const formulationTab = screen.getByRole("tab", { name: "Formulation" });
+    const activityTab = screen.getByRole("tab", { name: "Notes & Activity" });
+    expect(findingsTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Version 2")).toBeInTheDocument();
+    expect(screen.getAllByText("demo.csv")).toHaveLength(1);
+    expect(screen.getAllByText("Singapore")).toHaveLength(1);
+    expect(screen.getByLabelText("Active screening run")).toHaveValue("run-new");
+    const formulationPanel = document.getElementById("review-workspace-panel-formulation")!;
+    expect(formulationPanel).toHaveAttribute("hidden");
+    expect(within(formulationPanel).getByLabelText("Agent Product context")).not.toBeVisible();
+
+    const search = screen.getByRole("textbox", { name: "Search ingredients" });
+    await user.type(search, "Mystery");
+    findingsTab.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(formulationTab).toHaveFocus();
+    expect(formulationTab).toHaveAttribute("aria-selected", "true");
+    expect(screen.queryByRole("textbox", { name: "Search ingredients" })).not.toBeInTheDocument();
+    await user.keyboard("{ArrowLeft}");
+    expect(findingsTab).toHaveFocus();
+    expect(screen.getByRole("textbox", { name: "Search ingredients" })).toHaveValue("Mystery");
+    await user.keyboard("{ArrowRight}{ArrowRight}");
+    expect(activityTab).toHaveFocus();
+    expect(activityTab).toHaveAttribute("aria-selected", "true");
+    expect(document.getElementById("review-workspace-panel-findings")).toHaveAttribute("hidden");
+    expect(screen.queryByRole("textbox", { name: "Search ingredients" })).not.toBeInTheDocument();
+    await user.click(findingsTab);
+
+    await user.selectOptions(screen.getByLabelText("Active screening run"), "run-old");
+    expect(await screen.findByRole("tab", { name: "Results" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("textbox", { name: "Search ingredients" })).toHaveValue("");
+    expect(screen.queryByLabelText("Regulatory evidence")).not.toBeInTheDocument();
+    expect(screen.getAllByText(/Screening 1/).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("shows a saved finding note immediately without reloading the review workspace", async () => {
+    const version = {
+      id: "version-1", case_id: "case-1", version_number: 2,
+      original_filename: "saved.csv", status: "screened", revision: 3,
+      created_at: "2026-10-19T00:00:00Z", updated_at: "2026-10-20T00:00:00Z",
+      screening_count: 1, raw_extraction: {}, agent_session: answeredSession(),
+      canonical_formulation: preparedFixture().formulation, product_context: null,
+    };
+    const run = { id: "run-1", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-new", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: testResponse, created_at: "2026-10-20T08:00:00Z" };
+    const reviewItem = {
+      id: "review-1", screening_run_id: "run-1", subject_type: "ingredient", subject_key: "row-1",
+      submitted_row_number: 1, engine_finding: "prohibited_substance_identified", requires_attention: true,
+      review_status: "not_reviewed", updated_by: null, updated_at: "2026-10-20T08:00:00Z", reviewed_at: null,
+    };
+    const savedNote = {
+      id: "note-1", case_id: "case-1", formulation_version_id: "version-1", clarification_id: null,
+      review_item_id: "review-1", target_type: "review_item", body: "Confirm supplier documentation.",
+      created_by: "user-1", author_name: "A. Reviewer", created_at: "2026-10-21T08:00:00Z",
+    };
+    let workspaceReads = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/formulations/version-1/screenings")) return json([run]);
+      if (url.endsWith("/formulations/version-1")) return json(version);
+      if (url.includes("/formulations/version-1/review-workspace")) {
+        workspaceReads += 1;
+        return json({ case_id: "case-1", formulation_version_id: "version-1", screening_run_id: "run-1", clarification_targets: [], review_items: [reviewItem], notes: [], follow_ups: [] });
+      }
+      if (url.endsWith("/cases/case-1/activity")) return json({ case_id: "case-1", entries: [] });
+      if (url.endsWith("/cases/case-1/review-notes") && init?.method === "POST") return json(savedNote, 201);
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    renderAgent({ caseId: "case-1", versionId: "version-1" });
+
+    expect((await screen.findAllByText("Not reviewed")).length).toBeGreaterThan(0);
+    await user.click(document.getElementById("screening-result-row-1")!);
+    await user.click(await screen.findByRole("tab", { name: "Review" }));
+    await user.type(screen.getByLabelText("Reviewer note"), "Confirm supplier documentation.");
+    await user.click(screen.getByRole("button", { name: "Add note" }));
+
+    expect(await within(screen.getByRole("tabpanel", { name: "Review" })).findByText("Confirm supplier documentation.")).toBeInTheDocument();
+    expect(screen.getAllByText("Confirm supplier documentation.")).toHaveLength(1);
+    expect(workspaceReads).toBe(1);
   });
 });

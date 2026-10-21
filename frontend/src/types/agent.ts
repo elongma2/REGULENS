@@ -1,4 +1,4 @@
-import type { CatalogueIdentity, ConcentrationBasis, ConcentrationUnit, FormulationRequest, OpenAIUsage, PreparationStage } from "./screening";
+import type { CatalogueIdentity, ConcentrationBasis, ConcentrationUnit, FormulationRequest, OpenAIUsage, PreparationStage, ProductApplicabilityFacts, RegulatedFunction } from "./screening";
 
 export type AgentSessionState = "uploaded" | "parsing" | "interpreted" | "needs_confirmation" | "ready" | "failed";
 export type AgentConfidence = "confirmed" | "high_confidence" | "needs_confirmation" | "unresolved";
@@ -50,11 +50,13 @@ export interface AgentIngredientRow {
   source_metadata: AgentSourceMetadata[];
   issues: string[];
   unresolved_fields: AgentRowUncertainty[];
+  regulated_functions?: RegulatedFunction[];
+  function_sources?: AgentSourceReference[];
 }
 
 export interface AgentRowUncertainty {
-  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage";
-  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage";
+  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage" | "regulated_functions";
+  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "ingredient_function";
   source_value: string | null;
   proposed_value: unknown;
 }
@@ -62,13 +64,13 @@ export interface AgentRowUncertainty {
 export interface AgentQuestionOption { option_id: string; label: string; value: unknown; }
 export interface AgentQuestion {
   question_id: string;
-  question_type: "identity" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping";
+  question_type: "identity" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping" | "ingredient_function";
   title: string;
   prompt: string;
   source_row: number | null;
   row_id: string | null;
-  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | null;
-  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | null;
+  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | "regulated_functions" | null;
+  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | "ingredient_function" | null;
   affected_row_ids: string[];
   blocking: boolean;
   options: AgentQuestionOption[];
@@ -98,6 +100,7 @@ export interface AgentSession {
   formulation_id: AgentFieldProvenance<string | null> | null;
   formulation_name: AgentFieldProvenance<string | null> | null;
   product_context: AgentFieldProvenance<string | null> | null;
+  product_applicability?: ProductApplicabilityFacts;
   interpreted_rows: AgentIngredientRow[];
   questions: AgentQuestion[];
   activity: Array<{ activity_id: string; status: "complete" | "warning" | "error"; message: string }>;
@@ -127,6 +130,7 @@ export interface AgentRowUpdate {
   concentration_basis?: ConcentrationBasis | null;
   preparation_stage?: PreparationStage | null;
   remove_concentration?: boolean;
+  regulated_functions?: RegulatedFunction[];
 }
 
 export interface InputProvenance {

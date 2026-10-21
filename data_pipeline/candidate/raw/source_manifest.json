@@ -1,0 +1,99 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "documents": [
+    {
+      "source_document": "acd_appendix_i",
+      "title": "ACD Appendix I - Illustrative List of Cosmetic Products by Categories",
+      "authority": "Health Sciences Authority",
+      "filename": "appendix-i-illustrative-list-by-category-of-cosmetic-products.pdf",
+      "sha256": "30690ead067954dc90dafc59833a2663f82827f3ffc44d887658a2d449dbf231",
+      "page_count": 2,
+      "source_url": "https://file.go.gov.sg/appendix-i-illustrative-list-by-category-of-cosmetic-products.pdf",
+      "document_revision": null,
+      "effective_date": null,
+      "retrieval_date": "2026-09-14",
+      "snapshot_generated_at": null,
+      "pdf_metadata": {
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Method": "Privileged",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Enabled": "true",
+        "Creator": "Acrobat PDFMaker 8.1 for Word",
+        "Producer": "Acrobat Distiller 8.1.0 (Windows)",
+        "ModDate": "D:20260708081200+08'00'",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_ActionId": "c2d0660a-3d34-4fc9-a989-d8a2ad7782ea",
+        "CreationDate": "D:20070927121042+08'00'",
+        "Company": "FDA",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_SetDate": "2026-04-30T01:39:57Z",
+        "Author": "CMT",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_ContentBits": "0",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Name": "Official (Open)",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_SiteId": "0b11c524-9a1c-4e1b-84cb-6336aefc2243",
+        "SourceModified": "D:20070904041718"
+      }
+    },
+    {
+      "source_document": "acd_annexes_2026_1",
+      "title": "Annexes of the ASEAN Cosmetic Directive",
+      "authority": "Health Sciences Authority",
+      "filename": "annexes-of-the-asean-cosmetic-directive.pdf",
+      "sha256": "ffad59f6c01a92c82042c54203ee14969425c2a82bd04c2f4012ff82513e69f1",
+      "page_count": 290,
+      "source_url": "https://file.go.gov.sg/annexes-of-the-asean-cosmetic-directive.pdf",
+      "document_revision": "2026-1, 22 June 2026",
+      "effective_date": null,
+      "retrieval_date": "2026-09-14",
+      "snapshot_generated_at": null,
+      "pdf_metadata": {
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Method": "Privileged",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Enabled": "true",
+        "Creator": "Power PDF Create",
+        "Producer": "Power PDF Create",
+        "ModDate": "D:20260708081237+08'00'",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_ActionId": "f8fb19b1-acd6-4b5a-b28e-365ac23c21fb",
+        "CreationDate": "D:20260623101224+08'00'",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_SetDate": "2026-06-23T06:03:41Z",
+        "Author": "stephanie",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_ContentBits": "0",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_Name": "Official (Open)",
+        "MSIP_Label_5434c4c7-833e-41e4-b0ab-cdb227a2f6f7_SiteId": "0b11c524-9a1c-4e1b-84cb-6336aefc2243"
+      }
+    },
+    {
+      "source_document": "singapore_regulation_6_excerpt",
+      "title": "Health Products (Cosmetic Products - ASEAN Cosmetic Directive) Regulations 2007 - Regulation 6 excerpt",
+      "authority": "Singapore Statutes Online",
+      "filename": "Health Products (Cosmetic Products — ASEAN Cosmeti.pdf",
+      "sha256": "6b573bf215c5fc35c28e28205c432a786681678902f6fd248a97b84810609e27",
+      "page_count": 6,
+      "source_url": "https://sso.agc.gov.sg/SL/HPA2007-S683-2007?ProvIds=pr6-",
+      "document_revision": "version in force from 1 December 2025",
+      "effective_date": "2025-12-01",
+      "retrieval_date": "2026-09-14",
+      "snapshot_generated_at": "2026-09-14",
+      "pdf_metadata": {
+        "Creator": "Aspose.Words",
+        "Producer": "Aspose.Words for .NET 17.9"
+      }
+    },
+    {
+      "source_document": "singapore_regulations_2025_12_01",
+      "title": "Health Products (Cosmetic Products - ASEAN Cosmetic Directive) Regulations 2007",
+      "authority": "Singapore Statutes Online",
+      "filename": "singapore-health-products-cosmetic-products-acd-regulations-2007-current-2025-12-01.pdf",
+      "sha256": "8e9a255e7ba67331db20b6c8ae2572a9edc2b0171b410b111804ddbca4b12ff5",
+      "page_count": 196,
+      "source_url": "https://sso.agc.gov.sg/SL/HPA2007-S683-2007?DocDate=20251128&ViewType=Pdf&_=20251201212702",
+      "document_revision": "informal consolidation - version in force from 1 December 2025",
+      "effective_date": "2025-12-01",
+      "retrieval_date": "2026-09-15",
+      "snapshot_generated_at": "2025-12-01T17:34:45+08:00",
+      "pdf_metadata": {
+        "Title": "133c2da3-e247-4911-a6a2-df4d841ef629 1..196",
+        "EPSprocessor": "PStill version 1.84.42",
+        "PrintEngine": "PTC Arbortext Layout Developer 12.3.9999/W Library-x64",
+        "Creator": "PTC Arbortext Publishing Engine",
+        "CreationDate": "D:20251201173445+08'00'",
+        "Producer": "PDFlib+PDI 10.0.2p2 (C++/Win64)"
+      }
+    }
+  ]
+}

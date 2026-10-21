@@ -6,7 +6,15 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
-from .config import DATASET_VERSION, PROCESSED_ROOT, RAW_ROOT, ensure_output_directories
+from .config import (
+    CANDIDATE_DATASET_VERSION,
+    CANDIDATE_PROCESSED_ROOT,
+    CANDIDATE_RAW_ROOT,
+    DATASET_VERSION,
+    PROCESSED_ROOT,
+    RAW_ROOT,
+    ensure_output_directories,
+)
 from .extract import write_json
 from .models import ConcentrationConstraint, NormalizedRule, SubstanceRecord
 
@@ -34,6 +42,25 @@ RAW_FILES = {
     "Annex III Part 1": "annex_iii_raw.json",
     "Third Schedule Part I": "singapore_third_schedule_part_i_raw.json",
     "Third Schedule Part II": "singapore_third_schedule_part_ii_raw.json",
+    "Annex IV Part 1": "annex_iv_raw.json",
+    "Annex VI": "annex_vi_raw.json",
+    "Annex VII": "annex_vii_raw.json",
+    "Third Schedule Part III": "singapore_third_schedule_part_iii_raw.json",
+    "Third Schedule Part IV": "singapore_third_schedule_part_iv_raw.json",
+    "Third Schedule Part V": "singapore_third_schedule_part_v_raw.json",
+}
+
+SECTION_METADATA = {
+    "Annex II Part 1": ("acd-ii", "prohibited", "prohibited", "prohibited", None),
+    "Annex III Part 1": ("acd-iii", "restricted", "restricted", "restricted", None),
+    "Third Schedule Part I": ("sg-third-schedule-i", "prohibited", "prohibited", "prohibited", None),
+    "Third Schedule Part II": ("sg-third-schedule-ii", "restricted", "restricted", "restricted", None),
+    "Annex IV Part 1": ("acd-iv", "permitted", "colourant", "positive_list", "colourant"),
+    "Annex VI": ("acd-vi", "permitted", "preservative", "positive_list", "preservative"),
+    "Annex VII": ("acd-vii", "permitted", "uv_filter", "positive_list", "uv_filter"),
+    "Third Schedule Part III": ("sg-third-schedule-iii", "permitted", "colourant", "positive_list", "colourant"),
+    "Third Schedule Part IV": ("sg-third-schedule-iv", "permitted", "preservative", "positive_list", "preservative"),
+    "Third Schedule Part V": ("sg-third-schedule-v", "permitted", "uv_filter", "positive_list", "uv_filter"),
 }
 
 
@@ -164,8 +191,8 @@ def parse_concentration(
     )
 
 
-def _source_lookup() -> dict[str, dict[str, Any]]:
-    manifest = load_json(RAW_ROOT / "source_manifest.json")
+def _source_lookup(raw_root: Path = RAW_ROOT) -> dict[str, dict[str, Any]]:
+    manifest = load_json(raw_root / "source_manifest.json")
     return {document["source_document"]: document for document in manifest["documents"]}
 
 
@@ -206,23 +233,136 @@ def _case_maps(record: dict[str, Any]) -> tuple[list[str] | None, dict[str, dict
     return labels, {name: value or {} for name, value in maps.items()}
 
 
+def _applicability_requirements(text: str | None) -> list[dict[str, Any]]:
+    folded = conservative_text(text)
+    requirements: list[dict[str, Any]] = []
+    patterns = (
+        ("rinse_off", "rinse-off", True),
+        ("leave_on", "leave-on", True),
+        ("oral_care", "oral care", True),
+        ("eye_area", "vicinity of eyes", True),
+        ("mucous_membrane_contact", "not intended to come into contact with the mucous", False),
+        ("brief_skin_contact", "come into contact only briefly with the skin", True),
+        ("spray_or_aerosol", "spray", True),
+        ("powder_form", "powder", True),
+        ("child_use", "children", True),
+        ("sun_protection_purpose", "sunscreen", True),
+    )
+    for fact, marker, expected in patterns:
+        if marker in folded:
+            requirements.append({"fact": fact, "expected": expected, "source_text": text or ""})
+    if "except those intended to be applied in the vicinity of eyes" in folded:
+        requirements = [item for item in requirements if item["fact"] != "eye_area"]
+        requirements.append({"fact": "eye_area", "expected": False, "source_text": text or ""})
+    return requirements
+
+
+def _warning_requirements(warning: str | None) -> list[dict[str, Any]]:
+    if not warning or not warning.strip() or warning.strip() in {".", "-"}:
+        return []
+    return [{
+        "warning_text": warning.strip(),
+        "trigger_text": None,
+        "applicability": "professional_review",
+    }]
+
+
+def _preamble_warning_requirements(
+    section: str,
+    reference_number: str,
+    preamble: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Link source-wide warning rules to the entries named by the source."""
+    if section not in {"Annex VI", "Third Schedule Part IV"}:
+        return []
+    for item in preamble:
+        text = item.get("source_text") or ""
+        match = re.search(
+            r"(?is)(?:Entries|entries)\s+([0-9,\s]+(?:and\s+\d+)?)\)?\s+must\s+be\s+labelled\s+"
+            r"with\s+the\s+warning\s+[“\"]([^”\"]+)[”\"]\.?\s+where\s+(.+?0\.05%)",
+            text,
+        )
+        if not match:
+            continue
+        named_references = set(re.findall(r"\d+", match.group(1)))
+        if reference_number not in named_references:
+            continue
+        return [{
+            "warning_text": match.group(2).strip(),
+            "trigger_text": match.group(3).strip(),
+            "applicability": "professional_review",
+        }]
+    return []
+
+
+def _preamble_uv_warning_requirements(
+    section: str,
+    preamble: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if section not in {"Annex VII", "Third Schedule Part V"}:
+        return []
+    for item in preamble:
+        text = item.get("source_text") or ""
+        match = re.search(
+            r"(?is)(Do not stay too long in the sun, even while using a sunscreen product)",
+            text,
+        )
+        if match:
+            return [{
+                "warning_text": match.group(1),
+                "trigger_text": "Applies to a primary sunscreen product.",
+                "applicability": "professional_review",
+            }]
+    return []
+
+
+def _combined_limit_requirements(
+    footnotes: list[dict[str, Any]],
+    concentration: ConcentrationConstraint | None,
+) -> list[dict[str, Any]]:
+    if concentration is None:
+        return []
+    requirements: list[dict[str, Any]] = []
+    known_groups = (
+        ("zinc oxide", "zinc-oxide-and-zinc-oxide-nano", ["A29", "A29a"]),
+        ("titanium dioxide", "titanium-dioxide-and-titanium-dioxide-nano", ["27", "27a"]),
+        (
+            "methylene bis-benzotriazolyl tetramethylbutylphenol",
+            "mbbt-and-mbbt-nano",
+            ["23", "23a"],
+        ),
+        (
+            "bis-(diethylaminohydroxybenzoyl benzoyl) piperazine",
+            "piperazine-and-piperazine-nano",
+            ["32", "33"],
+        ),
+    )
+    for note in footnotes:
+        source_text = note.get("source_text") or ""
+        folded = conservative_text(source_text)
+        if "combined use" not in folded or "sum" not in folded:
+            continue
+        for marker, group_key, references in known_groups:
+            if marker not in folded:
+                continue
+            requirements.append({
+                "group_key": group_key,
+                "maximum": concentration.model_dump(),
+                "constituent_references": references,
+                "source_text": source_text,
+            })
+            break
+    return requirements
+
+
 def normalize_rule_source(
-    raw: dict[str, Any], source: dict[str, Any]
+    raw: dict[str, Any], source: dict[str, Any], *, raw_file_prefix: str = "data_pipeline/raw"
 ) -> tuple[list[NormalizedRule], list[SubstanceRecord]]:
     section = raw["section"]
-    restriction_type = "prohibited" if section.endswith("Part I") and "III" not in section else "restricted"
-    # Annex II also ends in Part 1, not Part I.
-    if section == "Annex II Part 1":
-        restriction_type = "prohibited"
+    prefix, restriction_type, regulatory_category, list_semantics, permitted_function = SECTION_METADATA[section]
     rules: list[NormalizedRule] = []
     substances: list[SubstanceRecord] = []
     note_lookup = _footnote_lookup(raw)
-    prefix = {
-        "Annex II Part 1": "acd-ii",
-        "Annex III Part 1": "acd-iii",
-        "Third Schedule Part I": "sg-third-schedule-i",
-        "Third Schedule Part II": "sg-third-schedule-ii",
-    }[section]
     for record in raw["records"]:
         active = _active(record)
         ref_slug = slug(record["reference_number"])
@@ -251,15 +391,24 @@ def normalize_rule_source(
             )
         footnotes = [note for number in record.get("footnote_references", []) for note in note_lookup.get(number, [])]
         supporting_source_texts: list[dict[str, Any]] = []
+        if raw.get("preamble"):
+            supporting_source_texts.extend(
+                {
+                    "source_page": int(item["source_page"]),
+                    "relationship": "schedule or annex preamble",
+                    "source_text": item["source_text"],
+                }
+                for item in raw["preamble"]
+            )
         if section == "Annex II Part 1" and record["reference_number"] == "419":
-            supporting_source_texts = [
+            supporting_source_texts.extend([
                 {
                     "source_page": int(page_number),
                     "relationship": "supporting definition for reference 419",
                     "source_text": text,
                 }
                 for page_number, text in raw.get("supporting_definitions", {}).items()
-            ]
+            ])
         contributing_pages = sorted(
             {
                 *record["source_pages"],
@@ -270,11 +419,14 @@ def normalize_rule_source(
         base_reasons: list[str] = []
         if malformed:
             base_reasons.append("malformed_cas_identifier_preserved")
-        if any(flag != "entry_spans_multiple_pages" for flag in record["extraction_flags"]):
+        if any(
+            flag != "entry_spans_multiple_pages" and not flag.startswith("reference_qualification:")
+            for flag in record["extraction_flags"]
+        ):
             base_reasons.append("nonstandard_extraction_fragment")
         if record.get("jurisdiction_notes"):
             base_reasons.append("jurisdiction_specific_source_wording")
-        labels, maps = _case_maps(record) if restriction_type == "restricted" and active else (None, {})
+        labels, maps = _case_maps(record) if restriction_type in {"restricted", "permitted"} and active else (None, {})
         case_fields = (
             "original_field_of_use_text",
             "original_concentration_text",
@@ -325,11 +477,21 @@ def normalize_rule_source(
                 "maximum_concentration",
                 default_stage=default_stage,
             )
+            combined_limit_requirements = _combined_limit_requirements(footnotes, concentration)
+            warning_requirements = [
+                *_warning_requirements(warning),
+                *_preamble_warning_requirements(
+                    section,
+                    record["reference_number"],
+                    raw.get("preamble", []),
+                ),
+                *_preamble_uv_warning_requirements(section, raw.get("preamble", [])),
+            ]
             reasons = list(base_reasons)
-            if restriction_type == "restricted" and active and concentration_text and concentration is None:
+            if restriction_type in {"restricted", "permitted"} and active and concentration_text and concentration is None:
                 if CONCENTRATION_RE.search(concentration_text):
                     reasons.append("concentration_contains_multiple_or_ambiguous_values")
-            if restriction_type == "restricted" and active and not concentration_text:
+            if restriction_type in {"restricted", "permitted"} and active and not concentration_text:
                 condition_limit = parse_concentration(other_conditions, "other_conditions")
                 if condition_limit:
                     concentration = condition_limit
@@ -357,6 +519,8 @@ def normalize_rule_source(
                     case_label=case_label,
                     source_document=source["source_document"],
                     source_version=source["document_revision"],
+                    source_bundle_version=source["document_revision"],
+                    source_section_version=raw.get("section_version") or source["document_revision"],
                     source_hash=source["sha256"],
                     effective_date=source["effective_date"],
                     source_snapshot_generated_at=source["snapshot_generated_at"],
@@ -366,11 +530,29 @@ def normalize_rule_source(
                     substance_name=record["original_substance_name"],
                     cas_numbers=cas_numbers,
                     restriction_type=restriction_type,
+                    regulatory_category=regulatory_category,
+                    list_semantics=list_semantics,
+                    permitted_function=permitted_function,
+                    regulatory_identifiers={
+                        "cas": cas_numbers,
+                        "reference": [record["reference_number"]],
+                        "ci": [record["reference_number"]] if regulatory_category == "colourant" else [],
+                        "qualifications": sorted(
+                            flag.split(":", 1)[1]
+                            for flag in record["extraction_flags"]
+                            if flag.startswith("reference_qualification:")
+                        ),
+                    },
                     product_context=product_context,
                     concentration=concentration,
                     concentration_text=concentration_text,
                     other_conditions=other_conditions,
                     required_warning=warning,
+                    applicability_requirements=_applicability_requirements(
+                        "\n".join(filter(None, (product_context, other_conditions)))
+                    ),
+                    combined_limit_requirements=combined_limit_requirements,
+                    warning_requirements=warning_requirements,
                     footnotes=footnotes,
                     supporting_source_texts=supporting_source_texts,
                     jurisdiction_notes=record.get("jurisdiction_notes", []),
@@ -380,7 +562,7 @@ def normalize_rule_source(
                     document_revision=source["document_revision"],
                     retrieval_date=source["retrieval_date"],
                     raw_record_id=record["raw_record_id"],
-                    raw_file=f"data_pipeline/raw/{RAW_FILES[section]}",
+                    raw_file=f"{raw_file_prefix}/{RAW_FILES[section]}",
                     active=active,
                     normalization_status=case_status,
                     review_reasons=sorted(set(reasons)),
@@ -479,6 +661,71 @@ def normalize_all() -> dict[str, Path]:
             "rules": [item.model_dump() for item in rules],
         },
     )
+    write_json(outputs["singapore_provisions"], provisions)
+    return outputs
+
+
+def normalize_candidate_all() -> dict[str, Path]:
+    CANDIDATE_PROCESSED_ROOT.mkdir(parents=True, exist_ok=True)
+    sources = _source_lookup(CANDIDATE_RAW_ROOT)
+    sections = list(RAW_FILES)
+    inputs = [load_json(CANDIDATE_RAW_ROOT / RAW_FILES[section]) for section in sections]
+    rules: list[NormalizedRule] = []
+    substances: list[SubstanceRecord] = []
+    for raw in inputs:
+        source_rules, source_substances = normalize_rule_source(
+            raw,
+            sources[raw["source_document"]],
+            raw_file_prefix="data_pipeline/candidate/raw",
+        )
+        rules.extend(source_rules)
+        substances.extend(source_substances)
+
+    appendix = load_json(CANDIDATE_RAW_ROOT / "appendix_i_raw.json")
+    regulation = load_json(CANDIDATE_RAW_ROOT / "singapore_regulation_6_raw.json")
+    regulation_source = sources[regulation["source_document"]]
+    product_context = build_product_context(appendix, sources[appendix["source_document"]])
+    product_context["dataset_version"] = CANDIDATE_DATASET_VERSION
+    provisions = {
+        "dataset_version": CANDIDATE_DATASET_VERSION,
+        "source_document": regulation["source_document"],
+        "source_version": regulation_source["document_revision"],
+        "source_hash": regulation_source["sha256"],
+        "source_url": regulation_source["source_url"],
+        "effective_date": regulation_source["effective_date"],
+        "retrieval_date": regulation_source["retrieval_date"],
+        "source_snapshot_generated_at": regulation_source["snapshot_generated_at"],
+        "regulatory_section": "Regulation 6",
+        "provisions": regulation["provisions"],
+        "structural_mappings": regulation["structural_mappings"],
+        "parity_note": "Structural correspondence does not establish entry-by-entry or version parity between the separately versioned sources.",
+    }
+    outputs = {
+        "product_context": CANDIDATE_PROCESSED_ROOT / "product_context.json",
+        "substances": CANDIDATE_PROCESSED_ROOT / "substances.json",
+        "rules": CANDIDATE_PROCESSED_ROOT / "rules.json",
+        "singapore_provisions": CANDIDATE_PROCESSED_ROOT / "singapore_provisions.json",
+    }
+    write_json(outputs["product_context"], product_context)
+    write_json(outputs["substances"], {
+        "dataset_version": CANDIDATE_DATASET_VERSION,
+        "substances": [item.model_dump() for item in substances],
+    })
+    source_footnotes = [
+        {
+            "source_document": raw["source_document"],
+            "regulatory_section": raw["section"],
+            "preamble": raw.get("preamble", []),
+            "footnotes": raw.get("footnotes", []),
+        }
+        for raw in inputs
+        if raw.get("footnotes") or raw.get("preamble")
+    ]
+    write_json(outputs["rules"], {
+        "dataset_version": CANDIDATE_DATASET_VERSION,
+        "source_footnotes": source_footnotes,
+        "rules": [item.model_dump() for item in rules],
+    })
     write_json(outputs["singapore_provisions"], provisions)
     return outputs
 

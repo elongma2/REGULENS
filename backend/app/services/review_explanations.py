@@ -122,6 +122,25 @@ def fallback_explanation(result) -> ReviewExplanation:
     reasons = " ".join(result.review_reasons).casefold()
     submitted = _submitted_fact(result)
     regulatory = _regulatory_fact(result)
+    if result.primary_finding.value == "regulated_function_not_permitted":
+        functions = ", ".join(item.value.replace("_", " ") for item in result.submitted_ingredient.regulated_functions)
+        return ReviewExplanation(
+            title="Regulated use needs attention",
+            summary=f"The ingredient was submitted for use as {functions or 'a regulated function'}, but no matching entry was found in the current Singapore list.",
+            what_to_check="Confirm the ingredient identity and its intended function against the Singapore source.",
+            submitted_fact=submitted,
+            regulatory_fact=regulatory,
+            source="deterministic_fallback",
+        )
+    if result.primary_finding.value == "permitted_use_condition_not_met":
+        return ReviewExplanation(
+            title="Listed use condition is not met",
+            summary="The submitted use does not meet one or more conditions in the Singapore entry.",
+            what_to_check="Check the submitted function, concentration, and product use against the source conditions.",
+            submitted_fact=submitted,
+            regulatory_fact=regulatory,
+            source="deterministic_fallback",
+        )
     if ReviewType.IDENTITY in result.review_types:
         if (
             "resolve_to_different" in reasons

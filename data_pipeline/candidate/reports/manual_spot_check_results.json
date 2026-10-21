@@ -1,0 +1,103 @@
+{
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "completed_date": "2026-10-19",
+  "method": "Rendered-page comparison against the immutable source PDFs and normalized candidate JSON.",
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "pending": 0
+  },
+  "results": [
+    {
+      "check_id": "parts-i-v-01",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part III rendered page 169 compared with sg-third-schedule-iii-12085.",
+      "notes": "CI 12085#, Red, all cosmetic products, and 3% maximum in the finished product match the source row."
+    },
+    {
+      "check_id": "parts-i-v-02",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex IV rendered pages 259 and 265 compared with acd-iv-12085.",
+      "notes": "CI 12085 (2), Red, column-1 application, 3% finished-product limit, and footnote (2) match. The footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-03",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part III rendered page 169 compared with sg-third-schedule-iii-10316.",
+      "notes": "CI 10316#, Yellow, and the exclusion for products applied near the eyes match the source row."
+    },
+    {
+      "check_id": "parts-i-v-04",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered page 182 compared with sg-third-schedule-iv-1.",
+      "notes": "Benzoic acid/sodium salt product-specific limits of 2.5%, 1.7%, and 0.5%, expressed as acid, match."
+    },
+    {
+      "check_id": "parts-i-v-05",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VI rendered pages 266 and 267 compared with acd-vi-1.",
+      "notes": "Names, CAS 65-85-0 and 532-32-1, three product-specific limits, and acid basis match."
+    },
+    {
+      "check_id": "parts-i-v-06",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered pages 182 and 183 compared with sg-third-schedule-iv-12.",
+      "notes": "Named parabens/salts and the 0.4% single-ester and 0.8% mixture limits expressed as acid match."
+    },
+    {
+      "check_id": "parts-i-v-07",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VI rendered pages 266 and 272 compared with acd-vi-20.",
+      "notes": "Identity, CAS, 0.1%, rinse-off restriction, nitrosamine condition, and the preamble formaldehyde warning match. The structured warning linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-08",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered page 182 compared with sg-third-schedule-iv-2.",
+      "notes": "Propionic acid and its salts at 2% maximum expressed as acid match."
+    },
+    {
+      "check_id": "parts-i-v-09",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part V rendered page 188 compared with sg-third-schedule-v-3.",
+      "notes": "Homosalate and the 10% maximum authorised concentration match."
+    },
+    {
+      "check_id": "parts-i-v-10",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VII rendered pages 280, 282, and 290 compared with acd-vii-a29a.",
+      "notes": "Zinc Oxide (nano), CAS, 25%, inhalation restriction, nano characteristics, combined-use footnote (2), and section version 2025-2 match. The combined-footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-11",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part V rendered pages 188, 193, 194, and 195 compared with sg-third-schedule-v-a29a.",
+      "notes": "Zinc oxide (nano), 25%, inhalation restriction, continuation conditions, and combined-use footnote (4) match. The combined-footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-12",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VII rendered pages 280 and 281 compared with acd-vii-a28.",
+      "notes": "Menthyl anthranilate at 5% and Annex VII section version 2025-2 dated 12 December 2025 match."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-3",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered page 3 compared with sg-regulation-6-3.",
+      "notes": "The solely-hair-colouring exception and Part III listing/use requirements match Regulation 6(3)."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-4",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered page 3 compared with sg-regulation-6-4.",
+      "notes": "Part IV listing, maximum concentration, and other-requirements clauses match Regulation 6(4)."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-5",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered pages 3 and 4 compared with sg-regulation-6-5.",
+      "notes": "Part V listing, maximum concentration, and other-requirements clauses match Regulation 6(5)."
+    }
+  ]
+}

@@ -14,6 +14,8 @@ from .config import (
     ACD_PDF,
     APPENDIX_I_PDF,
     DATASET_VERSION,
+    CANDIDATE_DATASET_VERSION,
+    CANDIDATE_RAW_ROOT,
     RAW_ROOT,
     SINGAPORE_FULL_PDF,
     SINGAPORE_REGULATION_6_PDF,
@@ -25,6 +27,8 @@ from .models import RawFragment, RawRecord, SourceDocument
 
 ACD_ANNEX_II_VERTICAL_LINES = [86.744, 404.0, 481.0, 548.3]
 ACD_ANNEX_III_VERTICAL_LINES = [55.224, 122.69, 292.66, 418.68, 540.17, 660.43, 819.36]
+ACD_ANNEX_VI_VERTICAL_LINES = [62.304, 112.952, 321.1, 449.06, 577.27, 705.46]
+ACD_ANNEX_VII_VERTICAL_LINES = [73.704, 126.05, 373.56, 450.14, 616.75, 747.34]
 REFERENCE_RE = re.compile(
     r"^(?:A?\d+[a-z]?)(?:\s*(?:-|to)\s*(?:A?\d+[a-z]?))?$", re.IGNORECASE
 )
@@ -111,6 +115,10 @@ def _finalize_record(
     reference_index: int,
     substance_index: int,
     cas_index: int | None,
+    field_of_use_index: int | None = None,
+    concentration_index: int | None = None,
+    conditions_index: int | None = None,
+    warning_index: int | None = None,
 ) -> RawRecord:
     fragments: list[RawFragment] = record["fragments"]
     combined = [join_cell_fragments(fragment.cells[index] for fragment in fragments) for index in range(column_count)]
@@ -126,8 +134,8 @@ def _finalize_record(
         }
     )
     cas_number_raw = combined[cas_index] if cas_index is not None else None
-    if cas_index is None and column_count == 6:
-        # Annex III places CAS identifiers inside the substance cell. Keep the
+    if cas_index is None and column_count >= 5:
+        # Several annexes place CAS identifiers inside the substance cell. Keep the
         # exact extracted spelling here, including line breaks and malformed
         # source values; normalization validates and canonicalizes separately.
         extracted_identifiers = [
@@ -143,10 +151,10 @@ def _finalize_record(
         reference_number_raw=combined[reference_index],
         original_substance_name=combined[substance_index],
         cas_number_raw=cas_number_raw,
-        original_field_of_use_text=combined[2] if column_count == 6 else None,
-        original_concentration_text=combined[3] if column_count == 6 else None,
-        original_conditions_text=combined[4] if column_count == 6 else None,
-        original_warning_text=combined[5] if column_count == 6 else None,
+        original_field_of_use_text=(combined[field_of_use_index] if field_of_use_index is not None else (combined[2] if column_count == 6 else None)),
+        original_concentration_text=(combined[concentration_index] if concentration_index is not None else (combined[3] if column_count == 6 else None)),
+        original_conditions_text=(combined[conditions_index] if conditions_index is not None else (combined[4] if column_count == 6 else None)),
+        original_warning_text=(combined[warning_index] if warning_index is not None else (combined[5] if column_count == 6 else None)),
         source_text=source_text,
         source_pages=sorted({fragment.source_page for fragment in fragments}),
         fragments=fragments,
@@ -191,6 +199,10 @@ def _extract_table_records(
     reference_index: int = 0,
     substance_index: int = 1,
     cas_index: int | None = None,
+    field_of_use_index: int | None = None,
+    concentration_index: int | None = None,
+    conditions_index: int | None = None,
+    warning_index: int | None = None,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[int, str]]:
     records: list[RawRecord] = []
     page_diagnostics: list[dict[str, Any]] = []
@@ -233,9 +245,12 @@ def _extract_table_records(
                     ):
                         continue
                     reference_raw = cells[reference_index]
-                    reference_first_line = re.sub(
+                    reference_first_line_raw = re.sub(
                         r"\s+", " ", reference_raw.splitlines()[0]
                     ).strip() if reference_raw else ""
+                    reference_first_line = re.sub(
+                        r"\s*(?:\((?:\d+|\+)\)|[+#*]+)\s*$", "", reference_first_line_raw
+                    ).strip()
                     is_new_reference = bool(REFERENCE_RE.fullmatch(reference_first_line))
                     if is_new_reference:
                         if current is not None:
@@ -246,6 +261,10 @@ def _extract_table_records(
                                     reference_index=reference_index,
                                     substance_index=substance_index,
                                     cas_index=cas_index,
+                                    field_of_use_index=field_of_use_index,
+                                    concentration_index=concentration_index,
+                                    conditions_index=conditions_index,
+                                    warning_index=warning_index,
                                 )
                             )
                         current = {
@@ -257,6 +276,12 @@ def _extract_table_records(
                             "extraction_flags": [],
                             "footnote_references": set(),
                         }
+                        qualifiers = re.findall(r"\((\d+|\+)\)|([+#*])", reference_first_line_raw)
+                        if qualifiers:
+                            current["extraction_flags"].extend(
+                                f"reference_qualification:{next(value for value in match if value)}"
+                                for match in qualifiers
+                            )
                     elif current is None:
                         page_diagnostics[-1].setdefault("unassigned_fragments", []).append(
                             " | ".join(cells)
@@ -286,25 +311,65 @@ def _extract_table_records(
                 reference_index=reference_index,
                 substance_index=substance_index,
                 cas_index=cas_index,
+                field_of_use_index=field_of_use_index,
+                concentration_index=concentration_index,
+                conditions_index=conditions_index,
+                warning_index=warning_index,
             )
         )
     return [record.model_dump() for record in records], page_diagnostics, page_texts
 
 
 def _extract_parenthesized_footnotes(page_texts: dict[int, str]) -> list[dict[str, Any]]:
+    """Extract source footnotes without mistaking ordinary table rows for notes.
+
+    ACD sections use parenthesized markers such as ``(2)`` while the current
+    Singapore consolidation uses bare markers such as ``4``.  The latter are
+    accepted only when followed by wording used by the source footnotes.  This
+    deliberately conservative rule keeps table references such as ``60`` out
+    of the footnote collection.
+    """
     notes: list[dict[str, Any]] = []
     for page_number, text in page_texts.items():
-        matches = list(re.finditer(r"(?m)^\((\d{1,2})\)\s+", text))
+        source_text = text.split("FOURTH SCHEDULE", 1)[0]
+        matches = list(re.finditer(
+            r"(?m)^(?:"
+            r"\((?P<parenthesized>\d{1,2}(?:\.\d+)?)\)\s+|"
+            r"(?P<plain>\d{1,2}(?:\.\d+)?)(?:\.)?\s+"
+            r"(?=(?:For\b|In case\b|Not required\b|Benzophenone\b|The\b|Lakes\b|"
+            r"Adopted\b|Solely\b|Concerns\b|Methylisothiazolinone\b))"
+            r")",
+            source_text,
+        ))
         for index, match in enumerate(matches):
-            end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+            end = matches[index + 1].start() if index + 1 < len(matches) else len(source_text)
             notes.append(
                 {
-                    "footnote_number": match.group(1),
+                    "footnote_number": match.group("parenthesized") or match.group("plain"),
                     "source_page": page_number,
-                    "source_text": text[match.start():end].strip(),
+                    "source_text": source_text[match.start():end].strip(),
                 }
             )
     return notes
+
+
+def _attach_inline_footnote_references(records: list[dict[str, Any]]) -> None:
+    """Attach visibly printed footnote markers to their extracted records."""
+    for record in records:
+        references = set(record.get("footnote_references", []))
+        for value in (
+            record.get("reference_number_raw"),
+            record.get("original_concentration_text"),
+            record.get("original_conditions_text"),
+            record.get("original_warning_text"),
+        ):
+            if not value:
+                continue
+            references.update(re.findall(r"\((\d{1,2}(?:\.\d+)?)\)", value))
+        concentration = (record.get("original_concentration_text") or "").strip()
+        if match := re.search(r"%\s*(\d{1,2})$", concentration):
+            references.add(match.group(1))
+        record["footnote_references"] = sorted(references)
 
 
 def extract_appendix_i() -> dict[str, Any]:
@@ -436,6 +501,9 @@ def extract_regulation_6() -> dict[str, Any]:
         "provisions": [
             clause(1, r"\n\(2\)", [2]),
             clause(2, r"\n\(3\)", [2, 3]),
+            clause(3, r"\n\(4\)", [3]),
+            clause(4, r"\n\(5\)", [3]),
+            clause(5, r"\n\(6\)", [3, 4]),
             clause(7, r"\Z", [4]),
         ],
         "structural_mappings": [
@@ -450,6 +518,24 @@ def extract_regulation_6() -> dict[str, Any]:
                 "singapore_schedule": "Third Schedule Part II",
                 "acd_section": "Annex III Part 1",
                 "relationship": "corresponding restricted-substances structure",
+            },
+            {
+                "provision_id": "sg-regulation-6-3",
+                "singapore_schedule": "Third Schedule Part III",
+                "acd_section": "Annex IV Part 1",
+                "relationship": "corresponding permitted-colouring-agents structure",
+            },
+            {
+                "provision_id": "sg-regulation-6-4",
+                "singapore_schedule": "Third Schedule Part IV",
+                "acd_section": "Annex VI",
+                "relationship": "corresponding permitted-preservatives structure",
+            },
+            {
+                "provision_id": "sg-regulation-6-5",
+                "singapore_schedule": "Third Schedule Part V",
+                "acd_section": "Annex VII",
+                "relationship": "corresponding permitted-UV-filters structure",
             },
         ],
     }
@@ -521,6 +607,244 @@ def extract_singapore_part_ii() -> dict[str, Any]:
         "footnote_page_text": page_168,
         "page_diagnostics": diagnostics,
     }
+
+
+COLOURANT_APPLICATIONS = {
+    2: "allowed in all cosmetic products",
+    3: "allowed in all cosmetic products except those intended to be applied in the vicinity of eyes",
+    4: "allowed only in cosmetic products intended not to come into contact with mucous membranes",
+    5: "allowed only in cosmetic products intended to come into contact only briefly with the skin",
+}
+
+
+def _apply_acd_colourant_columns(records: list[dict[str, Any]]) -> None:
+    for record in records:
+        selected: list[str] = []
+        limitations: list[str] = []
+        colours: list[str] = []
+        for fragment in record["fragments"]:
+            cells = fragment["cells"]
+            if len(cells) < 7:
+                continue
+            if cells[1]:
+                colours.append(cells[1])
+            for index in range(2, 6):
+                if conservative := clean_cell(cells[index]):
+                    if "x" in conservative.casefold():
+                        selected.append(COLOURANT_APPLICATIONS[index])
+            if cells[6]:
+                limitations.append(cells[6])
+        record["original_field_of_use_text"] = join_cell_fragments(dict.fromkeys(selected)) or None
+        record["original_conditions_text"] = join_cell_fragments(dict.fromkeys(limitations)) or None
+        record["original_concentration_text"] = record["original_conditions_text"]
+        record["original_warning_text"] = None
+        record["cas_number_raw"] = None
+        if colours:
+            record["jurisdiction_notes"] = sorted(set(record.get("jurisdiction_notes", []) + [f"source_colour:{value}" for value in colours]))
+
+
+def _source_section(
+    *,
+    section: str,
+    records: list[dict[str, Any]],
+    diagnostics: list[dict[str, Any]],
+    page_texts: dict[int, str],
+    preamble_pages: list[int],
+    footnote_pages: list[int],
+    section_version: str | None = None,
+) -> dict[str, Any]:
+    _attach_inline_footnote_references(records)
+    return {
+        "dataset_version": CANDIDATE_DATASET_VERSION,
+        "source_document": (
+            "acd_annexes_2026_1" if section.startswith("Annex") else "singapore_regulations_2025_12_01"
+        ),
+        "section": section,
+        "section_version": section_version,
+        "records": records,
+        "page_texts": page_texts,
+        "preamble": [
+            {"source_page": page, "source_text": page_texts.get(page, "")}
+            for page in preamble_pages
+        ],
+        "footnotes": _extract_parenthesized_footnotes(
+            {page: page_texts.get(page, "") for page in footnote_pages}
+        ),
+        "page_diagnostics": diagnostics,
+    }
+
+
+def extract_acd_annex_iv() -> dict[str, Any]:
+    records, diagnostics, page_texts = _extract_table_records(
+        pdf_path=ACD_PDF,
+        source_document="acd_annexes_2026_1",
+        section="Annex IV Part 1",
+        page_numbers=range(259, 266),
+        column_count=7,
+        reference_index=0,
+        substance_index=0,
+    )
+    _apply_acd_colourant_columns(records)
+    return _source_section(
+        section="Annex IV Part 1",
+        records=records,
+        diagnostics=diagnostics,
+        page_texts=page_texts,
+        preamble_pages=[259],
+        footnote_pages=[265],
+    )
+
+
+def extract_acd_annex_vi() -> dict[str, Any]:
+    records, diagnostics, page_texts = _extract_table_records(
+        pdf_path=ACD_PDF,
+        source_document="acd_annexes_2026_1",
+        section="Annex VI",
+        page_numbers=range(267, 280),
+        column_count=5,
+        reference_index=0,
+        substance_index=1,
+        concentration_index=2,
+        conditions_index=3,
+        warning_index=4,
+    )
+    with pdfplumber.open(ACD_PDF) as document:
+        page_texts[266] = document.pages[265].extract_text(x_tolerance=0.5) or ""
+    return _source_section(
+        section="Annex VI",
+        records=records,
+        diagnostics=diagnostics,
+        page_texts=page_texts,
+        preamble_pages=[266],
+        footnote_pages=[279],
+    )
+
+
+def extract_acd_annex_vii() -> dict[str, Any]:
+    records, diagnostics, page_texts = _extract_table_records(
+        pdf_path=ACD_PDF,
+        source_document="acd_annexes_2026_1",
+        section="Annex VII",
+        page_numbers=range(281, 291),
+        column_count=5,
+        vertical_lines=ACD_ANNEX_VII_VERTICAL_LINES,
+        reference_index=0,
+        substance_index=1,
+        concentration_index=2,
+        conditions_index=3,
+        warning_index=4,
+    )
+    with pdfplumber.open(ACD_PDF) as document:
+        page_texts[280] = document.pages[279].extract_text(x_tolerance=0.5) or ""
+    return _source_section(
+        section="Annex VII",
+        records=records,
+        diagnostics=diagnostics,
+        page_texts=page_texts,
+        preamble_pages=[280],
+        footnote_pages=[290],
+        section_version="2025-2, 12 December 2025",
+    )
+
+
+def extract_singapore_part_iii() -> dict[str, Any]:
+    records, diagnostics, page_texts = _extract_table_records(
+        pdf_path=SINGAPORE_FULL_PDF,
+        source_document="singapore_regulations_2025_12_01",
+        section="Third Schedule Part III",
+        page_numbers=range(169, 182),
+        column_count=3,
+        text_x_tolerance=0.5,
+        reference_index=0,
+        substance_index=0,
+        field_of_use_index=2,
+        concentration_index=2,
+        conditions_index=2,
+    )
+    return _source_section(
+        section="Third Schedule Part III",
+        records=records,
+        diagnostics=diagnostics,
+        page_texts=page_texts,
+        preamble_pages=[169],
+        footnote_pages=[181],
+    )
+
+
+def _extract_singapore_positive_part(section: str, pages: range, preamble_page: int) -> dict[str, Any]:
+    records, diagnostics, page_texts = _extract_table_records(
+        pdf_path=SINGAPORE_FULL_PDF,
+        source_document="singapore_regulations_2025_12_01",
+        section=section,
+        page_numbers=pages,
+        column_count=5,
+        text_x_tolerance=0.5,
+        reference_index=0,
+        substance_index=1,
+        concentration_index=2,
+        conditions_index=3,
+        warning_index=4,
+    )
+    return _source_section(
+        section=section,
+        records=records,
+        diagnostics=diagnostics,
+        page_texts=page_texts,
+        preamble_pages=[preamble_page],
+        footnote_pages=[pages.stop - 1],
+    )
+
+
+def extract_singapore_part_iv() -> dict[str, Any]:
+    return _extract_singapore_positive_part("Third Schedule Part IV", range(182, 188), 182)
+
+
+def extract_singapore_part_v() -> dict[str, Any]:
+    return _extract_singapore_positive_part("Third Schedule Part V", range(188, 196), 188)
+
+
+def extract_candidate_all() -> dict[str, Path]:
+    CANDIDATE_RAW_ROOT.mkdir(parents=True, exist_ok=True)
+    outputs = {
+        "source_manifest": CANDIDATE_RAW_ROOT / "source_manifest.json",
+        "appendix_i": CANDIDATE_RAW_ROOT / "appendix_i_raw.json",
+        "annex_ii": CANDIDATE_RAW_ROOT / "annex_ii_raw.json",
+        "annex_iii": CANDIDATE_RAW_ROOT / "annex_iii_raw.json",
+        "annex_iv": CANDIDATE_RAW_ROOT / "annex_iv_raw.json",
+        "annex_vi": CANDIDATE_RAW_ROOT / "annex_vi_raw.json",
+        "annex_vii": CANDIDATE_RAW_ROOT / "annex_vii_raw.json",
+        "regulation_6": CANDIDATE_RAW_ROOT / "singapore_regulation_6_raw.json",
+        "singapore_part_i": CANDIDATE_RAW_ROOT / "singapore_third_schedule_part_i_raw.json",
+        "singapore_part_ii": CANDIDATE_RAW_ROOT / "singapore_third_schedule_part_ii_raw.json",
+        "singapore_part_iii": CANDIDATE_RAW_ROOT / "singapore_third_schedule_part_iii_raw.json",
+        "singapore_part_iv": CANDIDATE_RAW_ROOT / "singapore_third_schedule_part_iv_raw.json",
+        "singapore_part_v": CANDIDATE_RAW_ROOT / "singapore_third_schedule_part_v_raw.json",
+    }
+    manifest = source_manifest()
+    manifest["dataset_version"] = CANDIDATE_DATASET_VERSION
+    existing = {
+        "appendix_i": extract_appendix_i(),
+        "annex_ii": extract_acd_annex_ii(),
+        "annex_iii": extract_acd_annex_iii(),
+        "regulation_6": extract_regulation_6(),
+        "singapore_part_i": extract_singapore_part_i(),
+        "singapore_part_ii": extract_singapore_part_ii(),
+    }
+    for document in existing.values():
+        document["dataset_version"] = CANDIDATE_DATASET_VERSION
+    values = {
+        "source_manifest": manifest,
+        **existing,
+        "annex_iv": extract_acd_annex_iv(),
+        "annex_vi": extract_acd_annex_vi(),
+        "annex_vii": extract_acd_annex_vii(),
+        "singapore_part_iii": extract_singapore_part_iii(),
+        "singapore_part_iv": extract_singapore_part_iv(),
+        "singapore_part_v": extract_singapore_part_v(),
+    }
+    for key, output in outputs.items():
+        write_json(output, values[key])
+    return outputs
 
 
 def extract_all() -> dict[str, Path]:

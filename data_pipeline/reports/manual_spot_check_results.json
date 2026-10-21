@@ -1,33 +1,224 @@
 {
-  "dataset_version": "acd-2026-1__sg-2025-12-01",
-  "completed_date": "2026-09-15",
-  "method": "Rendered-page visual comparison against the immutable source PDFs, followed by raw and normalized JSON inspection.",
-  "accepted_baseline_sha256": "8dc52418c1360074a52221966cd3e74e1dcd108233d8ad8045797a6c34e25017",
+  "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "completed_date": "2026-10-19",
+  "method": "Rendered-page comparison against the immutable source PDFs and normalized accepted JSON.",
+  "accepted_baseline_sha256": "7ddf5dd7f050710a788012982359107befd246995bf87c3a4cc4b2828a8c61ca",
   "summary": {
-    "total": 20,
-    "passed": 20,
-    "failed": 0
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "pending": 0
   },
   "results": [
-    {"check_id": "spot-01", "result": "PASS", "evidence_checked": "ACD Appendix I page 2", "notes": "Category wording and the explicitly non-exhaustive list were preserved."},
-    {"check_id": "spot-02", "result": "PASS", "evidence_checked": "ACD Appendix I page 2", "notes": "The hair-care category and all six nested examples were preserved."},
-    {"check_id": "spot-03", "result": "PASS", "evidence_checked": "Singapore Regulation 6 PDF page 2", "notes": "Paragraph 6(1), including trace, technical-unavoidability, and GMP wording, matches the source."},
-    {"check_id": "spot-04", "result": "PASS", "evidence_checked": "Singapore Regulation 6 PDF pages 2-3", "notes": "Paragraph 6(2) and its Part II column semantics match the source across the page break."},
-    {"check_id": "spot-05", "result": "PASS", "evidence_checked": "Singapore Regulation 6 PDF page 4", "notes": "Paragraph 6(7) and the unwholesome-product consequence match the source."},
-    {"check_id": "spot-06", "result": "PASS", "evidence_checked": "ACD Annex II page 2", "notes": "A1140 retains the conditional 0.1% unavoidable-trace wording and is now marked for review."},
-    {"check_id": "spot-07", "result": "PASS", "evidence_checked": "ACD Annex II pages 14-15", "notes": "Reference 391 is joined across pages without losing the Annex III and Annex IV exceptions."},
-    {"check_id": "spot-08", "result": "PASS", "evidence_checked": "ACD Annex II page 16 and supporting pages 98-101", "notes": "Reference 419 and all four pages of category definitions remain linked as supporting evidence."},
-    {"check_id": "spot-09", "result": "PASS", "evidence_checked": "ACD Annex II pages 74-82", "notes": "Reference 1539 retains its substance condition and the full nine-page CAS sequence through item 177."},
-    {"check_id": "spot-10", "result": "PASS", "evidence_checked": "ACD Annex II page 96", "notes": "Reference 1711 preserves source CAS text 607-285-6 and flags it as malformed rather than changing it."},
-    {"check_id": "spot-11", "result": "PASS", "evidence_checked": "ACD Annex III page 106", "notes": "Reference 6 maps toothpaste to 5% and other uses to 3% as two unambiguous child rules."},
-    {"check_id": "spot-12", "result": "PASS", "evidence_checked": "ACD Annex III page 108", "notes": "Reference 8a recovers line-wrapped CAS 16245-77-5 and retains the 2% after-mixing limit and warnings."},
-    {"check_id": "spot-13", "result": "PASS", "evidence_checked": "ACD Annex III pages 113-114", "notes": "Reference 12 retains nested product, concentration, supply, and warning cases and remains manual review."},
-    {"check_id": "spot-14", "result": "PASS", "evidence_checked": "ACD Annex III page 114", "notes": "Reference 13 retains the 2.2% formaldehyde basis, Lao PDR limitation, and label warning."},
-    {"check_id": "spot-15", "result": "PASS", "evidence_checked": "ACD Annex III pages 181-182", "notes": "Reference 250 retains its headerless continuation, both use cases, limits, nitrosamine condition, and continued warning."},
-    {"check_id": "spot-16", "result": "PASS", "evidence_checked": "ACD Annex III page 215", "notes": "Reference 288 retains Singapore-specific non-preservative wording and the 0.3%/0.2% cases."},
-    {"check_id": "spot-17", "result": "PASS", "evidence_checked": "ACD Annex III page 252", "notes": "Reference 339 retains both product cases, both limits, UV restriction, and 50 microgram/kg nitrosamine condition."},
-    {"check_id": "spot-18", "result": "PASS", "evidence_checked": "ACD Annex III page 252", "notes": "Reference 342 is correctly split into mouthwash 0.001%, toothpaste 0.1%, and other products 1%."},
-    {"check_id": "spot-19", "result": "PASS", "evidence_checked": "Singapore Third Schedule page 13", "notes": "Part I A1140 retains Singapore's exact finished-product trace wording and is kept separate from ACD wording."},
-    {"check_id": "spot-20", "result": "PASS", "evidence_checked": "Singapore Third Schedule pages 165-166", "notes": "Part II reference 339 joins both pages and retains separate (a)/(b) limits and conditions."}
+    {
+      "check_id": "spot-01",
+      "result": "PASS",
+      "evidence_checked": "ACD Appendix I page 2",
+      "notes": "Category wording and the explicitly non-exhaustive list were preserved."
+    },
+    {
+      "check_id": "spot-02",
+      "result": "PASS",
+      "evidence_checked": "ACD Appendix I page 2",
+      "notes": "The hair-care category and all six nested examples were preserved."
+    },
+    {
+      "check_id": "spot-03",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 PDF page 2",
+      "notes": "Paragraph 6(1), including trace, technical-unavoidability, and GMP wording, matches the source."
+    },
+    {
+      "check_id": "spot-04",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 PDF pages 2-3",
+      "notes": "Paragraph 6(2) and its Part II column semantics match the source across the page break."
+    },
+    {
+      "check_id": "spot-05",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 PDF page 4",
+      "notes": "Paragraph 6(7) and the unwholesome-product consequence match the source."
+    },
+    {
+      "check_id": "spot-06",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex II page 2",
+      "notes": "A1140 retains the conditional 0.1% unavoidable-trace wording and is now marked for review."
+    },
+    {
+      "check_id": "spot-07",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex II pages 14-15",
+      "notes": "Reference 391 is joined across pages without losing the Annex III and Annex IV exceptions."
+    },
+    {
+      "check_id": "spot-08",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex II page 16 and supporting pages 98-101",
+      "notes": "Reference 419 and all four pages of category definitions remain linked as supporting evidence."
+    },
+    {
+      "check_id": "spot-09",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex II pages 74-82",
+      "notes": "Reference 1539 retains its substance condition and the full nine-page CAS sequence through item 177."
+    },
+    {
+      "check_id": "spot-10",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex II page 96",
+      "notes": "Reference 1711 preserves source CAS text 607-285-6 and flags it as malformed rather than changing it."
+    },
+    {
+      "check_id": "spot-11",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 106",
+      "notes": "Reference 6 maps toothpaste to 5% and other uses to 3% as two unambiguous child rules."
+    },
+    {
+      "check_id": "spot-12",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 108",
+      "notes": "Reference 8a recovers line-wrapped CAS 16245-77-5 and retains the 2% after-mixing limit and warnings."
+    },
+    {
+      "check_id": "spot-13",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III pages 113-114",
+      "notes": "Reference 12 retains nested product, concentration, supply, and warning cases and remains manual review."
+    },
+    {
+      "check_id": "spot-14",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 114",
+      "notes": "Reference 13 retains the 2.2% formaldehyde basis, Lao PDR limitation, and label warning."
+    },
+    {
+      "check_id": "spot-15",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III pages 181-182",
+      "notes": "Reference 250 retains its headerless continuation, both use cases, limits, nitrosamine condition, and continued warning."
+    },
+    {
+      "check_id": "spot-16",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 215",
+      "notes": "Reference 288 retains Singapore-specific non-preservative wording and the 0.3%/0.2% cases."
+    },
+    {
+      "check_id": "spot-17",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 252",
+      "notes": "Reference 339 retains both product cases, both limits, UV restriction, and 50 microgram/kg nitrosamine condition."
+    },
+    {
+      "check_id": "spot-18",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex III page 252",
+      "notes": "Reference 342 is correctly split into mouthwash 0.001%, toothpaste 0.1%, and other products 1%."
+    },
+    {
+      "check_id": "spot-19",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule page 13",
+      "notes": "Part I A1140 retains Singapore's exact finished-product trace wording and is kept separate from ACD wording."
+    },
+    {
+      "check_id": "spot-20",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule pages 165-166",
+      "notes": "Part II reference 339 joins both pages and retains separate (a)/(b) limits and conditions."
+    },
+    {
+      "check_id": "parts-i-v-01",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part III rendered page 169 compared with sg-third-schedule-iii-12085.",
+      "notes": "CI 12085#, Red, all cosmetic products, and 3% maximum in the finished product match the source row."
+    },
+    {
+      "check_id": "parts-i-v-02",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex IV rendered pages 259 and 265 compared with acd-iv-12085.",
+      "notes": "CI 12085 (2), Red, column-1 application, 3% finished-product limit, and footnote (2) match. The footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-03",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part III rendered page 169 compared with sg-third-schedule-iii-10316.",
+      "notes": "CI 10316#, Yellow, and the exclusion for products applied near the eyes match the source row."
+    },
+    {
+      "check_id": "parts-i-v-04",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered page 182 compared with sg-third-schedule-iv-1.",
+      "notes": "Benzoic acid/sodium salt product-specific limits of 2.5%, 1.7%, and 0.5%, expressed as acid, match."
+    },
+    {
+      "check_id": "parts-i-v-05",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VI rendered pages 266 and 267 compared with acd-vi-1.",
+      "notes": "Names, CAS 65-85-0 and 532-32-1, three product-specific limits, and acid basis match."
+    },
+    {
+      "check_id": "parts-i-v-06",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered pages 182 and 183 compared with sg-third-schedule-iv-12.",
+      "notes": "Named parabens/salts and the 0.4% single-ester and 0.8% mixture limits expressed as acid match."
+    },
+    {
+      "check_id": "parts-i-v-07",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VI rendered pages 266 and 272 compared with acd-vi-20.",
+      "notes": "Identity, CAS, 0.1%, rinse-off restriction, nitrosamine condition, and the preamble formaldehyde warning match. The structured warning linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-08",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part IV rendered page 182 compared with sg-third-schedule-iv-2.",
+      "notes": "Propionic acid and its salts at 2% maximum expressed as acid match."
+    },
+    {
+      "check_id": "parts-i-v-09",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part V rendered page 188 compared with sg-third-schedule-v-3.",
+      "notes": "Homosalate and the 10% maximum authorised concentration match."
+    },
+    {
+      "check_id": "parts-i-v-10",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VII rendered pages 280, 282, and 290 compared with acd-vii-a29a.",
+      "notes": "Zinc Oxide (nano), CAS, 25%, inhalation restriction, nano characteristics, combined-use footnote (2), and section version 2025-2 match. The combined-footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-11",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part V rendered pages 188, 193, 194, and 195 compared with sg-third-schedule-v-a29a.",
+      "notes": "Zinc oxide (nano), 25%, inhalation restriction, continuation conditions, and combined-use footnote (4) match. The combined-footnote linkage was corrected before this PASS was recorded."
+    },
+    {
+      "check_id": "parts-i-v-12",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VII rendered pages 280 and 281 compared with acd-vii-a28.",
+      "notes": "Menthyl anthranilate at 5% and Annex VII section version 2025-2 dated 12 December 2025 match."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-3",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered page 3 compared with sg-regulation-6-3.",
+      "notes": "The solely-hair-colouring exception and Part III listing/use requirements match Regulation 6(3)."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-4",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered page 3 compared with sg-regulation-6-4.",
+      "notes": "Part IV listing, maximum concentration, and other-requirements clauses match Regulation 6(4)."
+    },
+    {
+      "check_id": "parts-i-v-regulation-6-5",
+      "result": "PASS",
+      "evidence_checked": "Singapore Regulation 6 rendered pages 3 and 4 compared with sg-regulation-6-5.",
+      "notes": "Part V listing, maximum concentration, and other-requirements clauses match Regulation 6(5)."
+    }
   ]
 }

@@ -86,6 +86,7 @@ def test_health_reports_runtime_availability_without_secrets(client):
         "formulation_agent": "not_configured",
         "agent_model": "gpt-5.6-sol",
         "explanation_model": "gpt-5.6-luna",
+        "persistence": "not_configured",
     }
     assert "OPENAI_API_KEY" not in response.text
 
@@ -102,7 +103,7 @@ def test_local_frontend_origin_is_allowed_without_wildcard_cors(client):
 
     assert response.status_code == 200
     assert response.headers["access-control-allow-origin"] == "http://localhost:5173"
-    assert response.headers["access-control-allow-methods"] == "GET, POST, OPTIONS"
+    assert response.headers["access-control-allow-methods"] == "GET, POST, PATCH, DELETE, OPTIONS"
     assert response.headers["access-control-allow-origin"] != "*"
 
 
@@ -113,8 +114,8 @@ def test_screening_options_are_source_backed_and_unambiguous(client, store):
     assert payload["jurisdiction"] == "Singapore"
     assert payload["dataset_version"] == store.dataset_version
     assert payload["accepted_baseline_sha256"] == store.baseline_manifest_hash
-    assert len(payload["product_contexts"]) == 82
-    assert len(set(payload["product_contexts"])) == 82
+    assert len(payload["product_contexts"]) == 106
+    assert len(set(payload["product_contexts"])) == 106
     assert payload["concentration_units"] == ["percent", "mg/kg", "ppm"]
     assert payload["concentration_bases"] == [
         None,
@@ -164,6 +165,9 @@ def test_valid_multi_ingredient_aggregation(client):
         "information_missing": 1,
         "identity_unresolved": 1,
         "no_issue_identified_within_scoped_rules": 0,
+        "permitted_use_within_conditions": 0,
+        "permitted_use_condition_not_met": 0,
+        "regulated_function_not_permitted": 0,
         "total_requiring_review": 2,
         "total_unresolved_identities": 1,
         "duplicate_row_groups": [],
@@ -543,6 +547,12 @@ def test_niacinamide_is_catalogue_resolved_with_bounded_no_listing_result(client
         "Third Schedule Part II",
         "Annex II Part 1",
         "Annex III Part 1",
+        "Third Schedule Part III",
+        "Third Schedule Part IV",
+        "Third Schedule Part V",
+        "Annex IV Part 1",
+        "Annex VI",
+        "Annex VII",
     ]
     assert result["rule_evaluations"] == []
 

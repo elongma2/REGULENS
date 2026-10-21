@@ -11,13 +11,28 @@ from data_pipeline.scripts.normalize import cas_is_valid, conservative_text
 from backend.app.services.search_names import derived_except_search_name
 
 
-SINGAPORE_SECTIONS = {"Third Schedule Part I", "Third Schedule Part II"}
-ACD_SECTIONS = {"Annex II Part 1", "Annex III Part 1"}
+SINGAPORE_SECTIONS = {
+    "Third Schedule Part I",
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
+}
+ACD_SECTIONS = {"Annex II Part 1", "Annex III Part 1", "Annex IV Part 1", "Annex VI", "Annex VII"}
 REGULATORY_SEARCH_SCOPE = (
     "Third Schedule Part I",
     "Third Schedule Part II",
     "Annex II Part 1",
     "Annex III Part 1",
+)
+ALL_REGULATORY_SEARCH_SCOPE = (
+    *REGULATORY_SEARCH_SCOPE,
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
+    "Annex IV Part 1",
+    "Annex VI",
+    "Annex VII",
 )
 
 
@@ -57,6 +72,7 @@ class RegulatoryStore:
     substances_by_name: dict[str, tuple[dict[str, Any], ...]]
     substances_by_derived_search_name: dict[str, tuple[dict[str, Any], ...]]
     substances_by_cas: dict[str, tuple[dict[str, Any], ...]]
+    substances_by_ci: dict[str, tuple[dict[str, Any], ...]]
     singapore_rules_by_reference: dict[str, tuple[dict[str, Any], ...]]
     singapore_rules_by_schedule_reference: dict[tuple[str, str], tuple[dict[str, Any], ...]]
     rules_by_raw_record_id: dict[str, tuple[dict[str, Any], ...]]
@@ -64,6 +80,9 @@ class RegulatoryStore:
     cross_references_by_rule_id: dict[str, tuple[dict[str, Any], ...]]
     provisions_by_id: dict[str, dict[str, Any]]
     source_backed_contexts: dict[str, str]
+    singapore_rules_by_function: dict[str, tuple[dict[str, Any], ...]]
+    positive_list_functions: frozenset[str]
+    regulatory_search_scope: tuple[str, ...]
 
     def linked_singapore_substances(self, acd_substance_id: str) -> tuple[dict[str, Any], ...]:
         linked: dict[str, dict[str, Any]] = {}
@@ -109,15 +128,19 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
     provisions_document = _load_json(processed_root / "singapore_provisions.json")
     cross_reference_document = _load_json(processed_root / "source_cross_references.json")
     source_manifest_document = _load_json(raw_root / "source_manifest.json")
-    raw_documents = [
-        _load_json(raw_root / name)
-        for name in (
+    raw_names = (
             "annex_ii_raw.json",
             "annex_iii_raw.json",
+            "annex_iv_raw.json",
+            "annex_vi_raw.json",
+            "annex_vii_raw.json",
             "singapore_third_schedule_part_i_raw.json",
             "singapore_third_schedule_part_ii_raw.json",
+            "singapore_third_schedule_part_iii_raw.json",
+            "singapore_third_schedule_part_iv_raw.json",
+            "singapore_third_schedule_part_v_raw.json",
         )
-    ]
+    raw_documents = [_load_json(raw_root / name) for name in raw_names if (raw_root / name).exists()]
 
     dataset_version = baseline["dataset_version"]
     versioned_documents = [
@@ -150,6 +173,7 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
     singapore_by_reference: dict[str, list[dict[str, Any]]] = defaultdict(list)
     singapore_by_schedule_reference: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     rules_by_raw_record: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    rules_by_function: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for rule in rules:
         substance_id = rule.get("substance_id")
         if substance_id:
@@ -165,10 +189,13 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
                 (rule["regulatory_section"], rule["reference_number"].casefold())
             ].append(rule)
         rules_by_raw_record[rule["raw_record_id"]].append(rule)
+        if rule["regulatory_section"] in SINGAPORE_SECTIONS and rule.get("permitted_function"):
+            rules_by_function[rule["permitted_function"]].append(rule)
 
     by_name: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_derived_name: dict[str, list[dict[str, Any]]] = defaultdict(list)
     by_cas: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    by_ci: dict[str, dict[str, dict[str, Any]]] = defaultdict(dict)
     for substance in substances:
         if not substance["active"]:
             continue
@@ -179,6 +206,16 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
         for cas_number in substance["cas_numbers"]:
             if cas_is_valid(cas_number):
                 by_cas[cas_number].append(substance)
+
+    for rule in rules:
+        substance_id = rule.get("substance_id")
+        substance = substances_by_id.get(substance_id) if substance_id else None
+        if substance is None or not substance.get("active"):
+            continue
+        for ci_identifier in (rule.get("regulatory_identifiers") or {}).get("ci", []):
+            key = conservative_text(str(ci_identifier))
+            if key:
+                by_ci[key][substance_id] = substance
 
     by_rule_id: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for cross_reference in cross_references:
@@ -213,6 +250,7 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
         substances_by_name=_tuples(by_name),
         substances_by_derived_search_name=_tuples(by_derived_name),
         substances_by_cas=_tuples(by_cas),
+        substances_by_ci={key: tuple(values[item] for item in sorted(values)) for key, values in by_ci.items()},
         singapore_rules_by_reference=_tuples(singapore_by_reference),
         singapore_rules_by_schedule_reference=_tuples(singapore_by_schedule_reference),
         rules_by_raw_record_id=_tuples(rules_by_raw_record),
@@ -220,4 +258,10 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
         cross_references_by_rule_id=_tuples(by_rule_id),
         provisions_by_id=provisions_by_id,
         source_backed_contexts=contexts,
+        singapore_rules_by_function=_tuples(rules_by_function),
+        positive_list_functions=frozenset(rules_by_function),
+        regulatory_search_scope=tuple(
+            section for section in ALL_REGULATORY_SEARCH_SCOPE
+            if any(rule["regulatory_section"] == section for rule in rules)
+        ),
     )

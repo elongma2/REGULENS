@@ -13,7 +13,7 @@ from backend.app.models.screening import ConcentrationInput, Finding, IdentitySt
 from backend.app.models.screening import SingaporeLinkageStatus
 from backend.app.services.compliance import screen_ingredient
 from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
-from backend.app.services.loader import AcceptedBaselineError, REGULATORY_SEARCH_SCOPE, load_accepted_store
+from backend.app.services.loader import ALL_REGULATORY_SEARCH_SCOPE, AcceptedBaselineError, load_accepted_store
 from backend.app.services.regulatory_search import search_acd_rules
 from backend.app.services.resolver import resolve_ingredient
 from backend.app.services.review_pack import build_review_pack
@@ -48,7 +48,7 @@ def test_catalogue_identity_without_scoped_listing_is_bounded_no_issue(store, in
     assert result.identity.singapore_linkage_status == SingaporeLinkageStatus.NOT_APPLICABLE
     assert result.identity.linkage_evidence is None
     assert result.review_required is False
-    assert result.searched_regulatory_sections == list(REGULATORY_SEARCH_SCOPE)
+    assert result.searched_regulatory_sections == list(ALL_REGULATORY_SEARCH_SCOPE)
     assert "No matching entry was identified" in result.scope_note
     assert "overall product compliance" in result.scope_note
 
@@ -148,11 +148,15 @@ def test_unresolved_identity_short_circuits_before_lookup(store):
     assert result.review_required is True
 
 
-def test_pentachloroethane_is_ambiguous(store):
+def test_duplicate_pentachloroethane_entries_resolve_to_one_identity_group(store):
     result = screen_ingredient(store, IngredientInput(name="Pentachloroethane"))
-    assert result.primary_finding == Finding.PROFESSIONAL_REVIEW
-    assert result.identity.status == IdentityStatus.AMBIGUOUS
+    assert result.primary_finding == Finding.PROHIBITED
+    assert result.identity.status == IdentityStatus.RESOLVED
     assert len(result.identity.singapore_candidates) == 2
+    assert set(result.identity.resolved_singapore_substance_ids) == {
+        "substance-sg-third-schedule-i-264",
+        "substance-sg-third-schedule-i-1170",
+    }
 
 
 def test_aminophylline_is_deterministically_prohibited(store):
@@ -178,7 +182,13 @@ def test_no_product_context_required_when_no_matched_rule_needs_it(store):
     )
     result = screen_ingredient(synthetic, IngredientInput(name="Aminophylline"))
     assert result.primary_finding == Finding.NO_ISSUE
-    assert result.searched_singapore_parts == ["Third Schedule Part I", "Third Schedule Part II"]
+    assert result.searched_singapore_parts == [
+        "Third Schedule Part I",
+        "Third Schedule Part II",
+        "Third Schedule Part III",
+        "Third Schedule Part IV",
+        "Third Schedule Part V",
+    ]
 
 
 def test_missing_context_for_context_specific_rule(store):

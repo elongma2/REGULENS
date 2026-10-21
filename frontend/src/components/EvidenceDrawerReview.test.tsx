@@ -85,4 +85,38 @@ describe("review guidance", () => {
     expect(screen.getByText("Source")).toBeInTheDocument();
     expect(screen.getByText("Source CAS for Aminophylline: 317-34-0")).toBeInTheDocument();
   });
+
+  it("uses accessible detail tabs and exposes ad hoc review guidance", async () => {
+    const user = userEvent.setup();
+    render(<EvidenceDrawer result={reviewResult()} sources={[]} reviewDataState="not_applicable" onClose={vi.fn()} />);
+
+    const evidenceTab = screen.getByRole("tab", { name: "Regulatory Evidence" });
+    const reviewTab = screen.getByRole("tab", { name: "Review" });
+    const evidencePanel = screen.getByRole("tabpanel", { name: "Regulatory Evidence" });
+    const reviewPanel = document.getElementById("drawer-panel-review")!;
+    expect(evidenceTab).toHaveAttribute("aria-selected", "true");
+    expect(reviewPanel).toHaveAttribute("hidden");
+
+    await user.click(reviewTab);
+    expect(reviewTab).toHaveAttribute("aria-selected", "true");
+    expect(evidencePanel).toHaveAttribute("hidden");
+    expect(screen.getByText("Not saved in a case")).toBeInTheDocument();
+    expect(reviewPanel).not.toHaveAttribute("hidden");
+
+    await user.keyboard("{ArrowLeft}");
+    expect(evidenceTab).toHaveFocus();
+    expect(evidenceTab).toHaveAttribute("aria-selected", "true");
+  });
+
+  it("navigates in filtered order through explicit previous and next handlers", async () => {
+    const user = userEvent.setup();
+    const onPrevious = vi.fn();
+    const onNext = vi.fn();
+    render(<EvidenceDrawer result={reviewResult()} sources={[]} hasPrevious={false} hasNext onPrevious={onPrevious} onNext={onNext} onClose={vi.fn()} />);
+
+    expect(screen.getByRole("button", { name: "Previous result" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Next result" }));
+    expect(onNext).toHaveBeenCalledOnce();
+    expect(onPrevious).not.toHaveBeenCalled();
+  });
 });
