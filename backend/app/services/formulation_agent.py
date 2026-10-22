@@ -19,6 +19,7 @@ from openai import (
 from pydantic import ValidationError
 
 from data_pipeline.identity.eu_common_ingredient_glossary.scripts.pipeline import search_name
+from data_pipeline.scripts.normalize import cas_is_valid
 
 from backend.app.models.agent import (
     AgentActivityItem,
@@ -609,6 +610,11 @@ class FormulationAgentService:
                 touched_at=time.monotonic(),
             )
 
+    def forget(self, session_id: str) -> None:
+        """Drop an optional process-local copy after its persistent version is deleted."""
+        with self._lock:
+            self._sessions.pop(session_id, None)
+
     def retry(self, session_id: str) -> AgentSessionView:
         with self._lock:
             session = self._get(session_id)
@@ -873,6 +879,12 @@ class FormulationAgentService:
                 if not item.cas_sources or all(reference.source_value.strip() != proposed_cas for reference in item.cas_sources):
                     raise AgentExecutionError("agent_invalid_source_reference", "A proposed CAS number is not present in its cited cells.")
                 cas_value = proposed_cas
+                if not cas_is_valid(cas_value):
+                    row_uncertainties.append(AgentRowUncertainty(
+                        target_field="cas_number",
+                        uncertainty_code="cas_number",
+                        source_value=cas_value,
+                    ))
 
             concentration = None
             value_reference = item.concentration_value_sources[0] if item.concentration_value_sources else None
@@ -1247,6 +1259,19 @@ class FormulationAgentService:
             row.identity_catalogue_id = exact["ingredient_id"] if exact else None
             row.catalogue_identity = self._catalogue_evidence(exact)
             self._remove_uncertainty(row, "ingredient_identity")
+        elif question.question_type == "cas_number":
+            row = self._select_row(view, question.row_id, question.source_row)
+            if option_id != "remove_invalid_cas":
+                raise ValueError("Unsupported CAS number answer")
+            source_value = row.cas_number.source_value if row.cas_number else None
+            row.cas_number = AgentFieldProvenance(
+                value=None,
+                source_value=source_value,
+                source_row=row.source_row,
+                interpretation_method="user_removed_invalid_cas",
+                confirmed_by_user=True,
+            )
+            self._remove_uncertainty(row, "cas_number")
         elif question.question_type == "unit":
             row = self._select_row(view, question.row_id, question.source_row)
             if option_id == "leave_unavailable":
@@ -1398,6 +1423,23 @@ class FormulationAgentService:
                         affected_row_ids=[row.row_id],
                         options=options,
                     ))
+                elif uncertainty.uncertainty_code == "cas_number":
+                    questions.append(AgentQuestion(
+                        question_id=f"cas:{row.row_id}",
+                        question_type="cas_number",
+                        title="CAS number",
+                        prompt=f'"{uncertainty.source_value}" is not a valid CAS number. Correct it in the row or remove it.',
+                        source_row=row.source_row,
+                        row_id=row.row_id,
+                        target_field="cas_number",
+                        uncertainty_code="cas_number",
+                        affected_row_ids=[row.row_id],
+                        options=[AgentQuestionOption(
+                            option_id="remove_invalid_cas",
+                            label="Remove CAS number",
+                            value=None,
+                        )],
+                    ))
                 elif uncertainty.uncertainty_code == "missing_concentration_unit":
                     questions.append(AgentQuestion(
                         question_id=f"unit:{row.row_id}",
@@ -1515,7 +1557,17 @@ class FormulationAgentService:
                     source_value=row.name.source_value,
                 ))
         if update.cas_number is not None:
-            row.cas_number = AgentFieldProvenance(value=update.cas_number or None, source_value=row.cas_number.source_value if row.cas_number else None, source_row=row.source_row, interpretation_method="user_edited", confirmed_by_user=True)
+            edited_cas = update.cas_number.strip()
+            if edited_cas and not cas_is_valid(edited_cas):
+                raise ValueError("CAS number must use valid syntax and checksum, or be removed")
+            row.cas_number = AgentFieldProvenance(
+                value=edited_cas or None,
+                source_value=row.cas_number.source_value if row.cas_number else None,
+                source_row=row.source_row,
+                interpretation_method="user_edited",
+                confirmed_by_user=True,
+            )
+            self._remove_uncertainty(row, "cas_number")
         if update.regulated_functions is not None:
             row.regulated_functions = list(dict.fromkeys(update.regulated_functions))
             self._remove_uncertainty(row, "ingredient_function")

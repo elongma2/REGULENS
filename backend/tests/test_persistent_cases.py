@@ -34,6 +34,7 @@ class FakePersistentGateway:
         self.clarifications: list[dict] = []
         self.notes: list[dict] = []
         self.follow_ups: list[dict] = []
+        self.deleted_users: set[UUID] = set()
 
     def verify_user(self, token: str) -> AuthenticatedUser:
         users = {
@@ -114,6 +115,26 @@ class FakePersistentGateway:
         self.clarifications = [item for item in self.clarifications if item.get("formulation_version_id") not in version_ids]
         self.notes = [item for item in self.notes if item.get("case_id") != str(case_id)]
         self.follow_ups = [item for item in self.follow_ups if item.get("case_id") != str(case_id)]
+
+    def delete_formulation(self, user_id: UUID, version_id: UUID | str) -> str:
+        version = self.get_version(user_id, version_id)
+        version_key = str(version_id)
+        del self.versions[version_key]
+        screening_ids = {item["id"] for item in self.screenings if item.get("formulation_version_id") == version_key}
+        review_item_ids = {item["id"] for item in self.review_items if item.get("screening_run_id") in screening_ids}
+        self.screenings = [item for item in self.screenings if item.get("formulation_version_id") != version_key]
+        self.review_items = [item for item in self.review_items if item.get("screening_run_id") not in screening_ids]
+        self.clarifications = [item for item in self.clarifications if item.get("formulation_version_id") != version_key]
+        self.notes = [item for item in self.notes if item.get("formulation_version_id") != version_key and item.get("review_item_id") not in review_item_ids]
+        self.follow_ups = [item for item in self.follow_ups if item.get("formulation_version_id") != version_key and item.get("review_item_id") not in review_item_ids]
+        return version["case_id"]
+
+    def delete_account(self, user_id: UUID) -> None:
+        owned_cases = [case_id for case_id, row in self.cases.items() if row["organisation_id"] == str(self.organisations[user_id])]
+        for case_id in owned_cases:
+            self.delete_case(user_id, case_id)
+        self.organisations.pop(user_id, None)
+        self.deleted_users.add(user_id)
 
     def list_formulations(self, user_id: UUID, case_id: UUID | str) -> list[dict]:
         self._case(user_id, case_id)
@@ -401,6 +422,30 @@ def test_case_delete_returns_retryable_error_when_cleanup_fails():
         assert response.status_code == 503
         assert response.json()["detail"]["code"] == "case_deletion_failed"
         assert case_id in gateway.cases
+
+
+def test_formulation_delete_requires_typed_confirmation_and_is_private(persistent_client):
+    client, gateway = persistent_client
+    case_id = client.post("/cases", headers=_auth(), json={"name": "Versions"}).json()["id"]
+    version_id = str(uuid4()); timestamp = _now()
+    gateway.versions[version_id] = {
+        "id": version_id, "case_id": case_id, "version_number": 2, "original_filename": "v2.csv",
+        "status": "screened", "revision": 1, "created_at": timestamp, "updated_at": timestamp,
+        "screening_count": 0, "raw_extraction": {}, "agent_session": None,
+        "canonical_formulation": None, "product_context": None,
+    }
+    assert client.request("DELETE", f"/formulations/{version_id}", headers=_auth(), json={"confirmation": "delete"}).status_code == 422
+    assert client.request("DELETE", f"/formulations/{version_id}", headers=_auth("token-b"), json={"confirmation": "DELETE"}).status_code == 404
+    assert client.request("DELETE", f"/formulations/{version_id}", headers=_auth(), json={"confirmation": "DELETE"}).status_code == 204
+    assert version_id not in gateway.versions
+    assert case_id in gateway.cases
+
+
+def test_account_delete_requires_typed_confirmation(persistent_client):
+    client, gateway = persistent_client
+    assert client.request("DELETE", "/me", headers=_auth(), json={"confirmation": "delete"}).status_code == 422
+    assert client.request("DELETE", "/me", headers=_auth(), json={"confirmation": "DELETE"}).status_code == 204
+    assert USER_A in gateway.deleted_users
 
 
 def test_review_workspace_keeps_human_state_separate_and_private(persistent_client):

@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from backend.app.services.supabase_gateway import CaseDeletionError, SupabaseGateway
+from backend.app.services.supabase_gateway import CaseDeletionError, FormulationDeletionError, SupabaseGateway
 
 
 class _DeleteQuery:
@@ -19,6 +19,10 @@ class _DeleteQuery:
 
     def delete(self):
         self.operation = "delete"
+        return self
+
+    def update(self, _changes):
+        self.operation = "update"
         return self
 
     def eq(self, field: str, value: str):
@@ -61,9 +65,9 @@ class _DeleteClient:
         self.rows = {
             "cases": [{"id": case_id, "organisation_id": "org-1"}],
             "formulation_versions": [
-                {"case_id": case_id, "source_storage_path": "org-1/case/version-1.csv"},
-                {"case_id": case_id, "source_storage_path": "org-1/case/version-2.xlsx"},
-                {"case_id": case_id, "source_storage_path": "org-1/case/version-1.csv"},
+                {"id": "version-1", "case_id": case_id, "source_storage_path": "org-1/case/version-1.csv"},
+                {"id": "version-2", "case_id": case_id, "source_storage_path": "org-1/case/version-2.xlsx"},
+                {"id": "version-copy", "case_id": case_id, "source_storage_path": "org-1/case/version-1.csv"},
             ],
         }
         self.events: list[str] = []
@@ -80,6 +84,7 @@ def _gateway(client: _DeleteClient) -> SupabaseGateway:
     gateway = object.__new__(SupabaseGateway)
     gateway.client = client
     gateway._case_row = lambda _user_id, _case_id: client.rows["cases"][0]  # type: ignore[method-assign]
+    gateway._version_row = lambda _user_id, version_id: next(row for row in client.rows["formulation_versions"] if row["id"] == str(version_id))  # type: ignore[method-assign]
     return gateway
 
 
@@ -113,3 +118,24 @@ def test_case_deletion_verifies_that_the_database_record_was_removed():
         _gateway(client).delete_case(uuid4(), case_id)
 
     assert client.rows["cases"]
+
+
+def test_formulation_deletion_removes_file_before_version_record():
+    client = _DeleteClient(str(uuid4()))
+
+    case_id = _gateway(client).delete_formulation(uuid4(), "version-2")
+
+    assert case_id == client.rows["cases"][0]["id"]
+    assert client.removed_paths == ["org-1/case/version-2.xlsx"]
+    assert client.events.index("storage:remove") < client.events.index("database:delete:formulation_versions")
+    assert all(row["id"] != "version-2" for row in client.rows["formulation_versions"])
+
+
+def test_formulation_deletion_keeps_version_when_storage_cleanup_fails():
+    client = _DeleteClient(str(uuid4()), storage_error=True)
+
+    with pytest.raises(FormulationDeletionError, match="version was kept"):
+        _gateway(client).delete_formulation(uuid4(), "version-1")
+
+    assert any(row["id"] == "version-1" for row in client.rows["formulation_versions"])
+    assert "database:delete:formulation_versions" not in client.events

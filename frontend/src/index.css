@@ -349,9 +349,11 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .case-form { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 12px; margin-bottom: 20px; border: 1px solid #dfe5ec; border-radius: 12px; background: white; padding: 16px; }
 .case-form label > span { font-weight: 400; color: #94a3b8; }
 .case-form > div { display: flex; gap: 8px; }
-.case-list { overflow: hidden; border: 1px solid #dfe5ec; border-radius: 12px; background: white; }
+.case-list { overflow: visible; border: 1px solid #dfe5ec; border-radius: 12px; background: white; }
 .case-list-row { display: grid; grid-template-columns: 1.2fr 1fr auto; align-items: center; gap: 20px; border-bottom: 1px solid #eef2f6; padding: 17px 20px; color: #334155; }
-.case-list-row:last-child { border-bottom: 0; }
+.case-list-row:first-child { border-radius: 11px 11px 0 0; }
+.case-list-row:last-child { border-bottom: 0; border-radius: 0 0 11px 11px; }
+.case-list-row:only-child { border-radius: 11px; }
 .case-list-row:hover { background: #f8fafc; }
 .case-list-row > div { display: grid; gap: 4px; }
 .case-list-row strong { color: #0f172a; }
@@ -895,4 +897,38 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (prefers-reduced-motion: reduce) {
   .nav-active-indicator, .sidebar-links .nav-item, .sidebar-links .nav-item svg { transition: none; }
   .sidebar-links .nav-item:hover svg { transform: none; }
+}
+
+/* Permanent deletion and account controls */
+.version-list > .version-list-row { display: flex; align-items: stretch; gap: 0; border-bottom: 1px solid #eef2f6; background: white; }
+.version-list > .version-list-row:last-child { border-bottom: 0; }
+.version-list-row > a { display: grid; flex: 1; min-width: 0; grid-template-columns: 1fr 1fr; gap: 20px; padding: 14px 16px; text-align: left; }
+.version-list-row > a:hover { background: #f8fafc; }
+.polished-version-list > .version-list-row > a { grid-template-columns: minmax(0, 1fr) minmax(180px, .8fr) auto; align-items: center; min-height: 58px; padding: 10px 15px; }
+.polished-version-list > .version-list-row > a:focus-visible { outline: 0; box-shadow: inset 0 0 0 2px var(--brand-teal); }
+.version-delete-button { display: grid; width: 44px; flex: 0 0 44px; place-items: center; align-self: stretch; border: 0; border-left: 1px solid #eef2f6; background: #fff; color: #94a3b8; }
+.version-delete-button:hover, .version-delete-button:focus-visible { background: #fff5f3; color: #a9423b; }
+.case-workspace-breadcrumb { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.danger-text-button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #a9423b; font: inherit; }
+.danger-text-button:hover { text-decoration: underline; }
+.typed-delete-body { display: grid; gap: 7px; padding: 0 18px 16px 62px; color: #5f504c; font-size: 12px; }
+.typed-delete-body input { width: 100%; border: 1px solid #cfc6c2; border-radius: 8px; padding: 9px 10px; background: #fff; color: #1f2937; font: inherit; letter-spacing: .04em; }
+.typed-delete-body input:focus { outline: 2px solid rgb(21 92 82 / 20%); border-color: var(--brand-teal); }
+.auth-success { border-left: 3px solid #198754; background: #effaf4; padding: 9px 11px; color: #17643f; font-size: 12px; }
+.account-page { display: grid; gap: 20px; width: min(860px, 100%); margin: 0 auto; padding: 42px 34px 70px; }
+.account-page > header > p:last-child { margin-top: 7px; color: #64748b; }
+.account-panel, .account-danger { border: 1px solid #dce4e1; border-radius: 12px; background: #fff; padding: 20px; }
+.account-panel dl { display: grid; margin: 0 0 20px; }
+.account-panel dl > div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 18px; border-bottom: 1px solid #edf1ef; padding: 11px 0; }
+.account-panel dt { color: #64748b; font-size: 12px; }
+.account-panel dd { margin: 0; color: #172033; font-weight: 600; overflow-wrap: anywhere; }
+.account-danger { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-color: #ebd8d5; background: #fffdfc; }
+.account-danger h2 { color: #552f2b; font-size: 16px; }
+.account-danger p { margin-top: 5px; color: #756763; font-size: 12px; line-height: 1.5; }
+
+@media (max-width: 700px) {
+  .polished-version-list > .version-list-row > a { grid-template-columns: 1fr; gap: 8px; }
+  .account-page { padding: 28px 16px 80px; }
+  .account-danger { align-items: flex-start; flex-direction: column; }
+  .typed-delete-body { padding-left: 18px; }
 }

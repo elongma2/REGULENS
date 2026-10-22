@@ -330,18 +330,24 @@ def resolve_ingredient(
     )
     reasons: list[str] = []
     if cas_number and cas_number.strip():
-        reasons.append("supplied_cas_cannot_be_corroborated_by_catalogue_source")
-        return IdentityResolution(
-            status=IdentityStatus.REVIEW_REQUIRED,
-            match_methods=["exact_catalogue_name"],
-            singapore_candidates=regulatory.singapore_candidates,
-            acd_candidates=regulatory.acd_candidates,
-            identity_source_type=IdentitySourceType.INGREDIENT_CATALOGUE,
-            identity_source_name=IDENTITY_SOURCE_NAME,
-            singapore_linkage_status=SingaporeLinkageStatus.NOT_APPLICABLE,
-            catalogue_identity=catalogue_identity,
-            reasons=reasons,
-        )
+        # The accepted common-ingredient glossary is a name catalogue and does
+        # not provide CAS mappings for ordinary ingredients. A valid CAS that
+        # is absent from the accepted regulatory indexes must therefore not
+        # downgrade an exact name match. Known conflicts have already returned
+        # above from the regulatory resolver.
+        if not cas_is_valid(cas_number.strip()):
+            reasons.append("supplied_cas_is_malformed")
+            return IdentityResolution(
+                status=IdentityStatus.REVIEW_REQUIRED,
+                match_methods=["exact_catalogue_name"],
+                singapore_candidates=regulatory.singapore_candidates,
+                acd_candidates=regulatory.acd_candidates,
+                identity_source_type=IdentitySourceType.INGREDIENT_CATALOGUE,
+                identity_source_name=IDENTITY_SOURCE_NAME,
+                singapore_linkage_status=SingaporeLinkageStatus.NOT_APPLICABLE,
+                catalogue_identity=catalogue_identity,
+                reasons=reasons,
+            )
     return IdentityResolution(
         status=IdentityStatus.RESOLVED,
         match_methods=["exact_catalogue_name"],

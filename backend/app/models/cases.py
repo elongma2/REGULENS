@@ -107,3 +107,7 @@ class SignedFileView(StrictModel):
     url: str
     expires_in: int
 
+
+class PermanentDeleteRequest(StrictModel):
+    confirmation: Literal["DELETE"]
+

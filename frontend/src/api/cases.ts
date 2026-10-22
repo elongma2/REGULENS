@@ -23,12 +23,14 @@ export const getCase = (id: string) => json<CaseView>(`/cases/${encodeURICompone
 export const createCase = (name: string, clientName: string | null) => json<CaseView>("/cases", { method: "POST", body: JSON.stringify({ name, client_name: clientName }) });
 export const updateCase = (id: string, changes: Partial<Pick<CaseView, "name" | "client_name" | "product_type" | "status">>) => json<CaseView>(`/cases/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify(changes) });
 export async function deleteCase(id: string): Promise<void> { await parse<unknown>(await apiFetch(`/cases/${encodeURIComponent(id)}`, { method: "DELETE" })); }
+export async function deleteAccount(): Promise<void> { await json<unknown>("/me", { method: "DELETE", body: JSON.stringify({ confirmation: "DELETE" }) }); }
 
 export async function uploadCaseFormulation(caseId: string, file: File): Promise<FormulationVersion> {
   const body = new FormData(); body.append("file", file);
   return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
 }
 export const getFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}`);
+export async function deleteFormulationVersion(id: string): Promise<void> { await json<unknown>(`/formulations/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify({ confirmation: "DELETE" }) }); }
 export const retryFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}/interpret`, { method: "POST" });
 export function answerFormulationVersion(session: AgentSession, answers: Array<{ question_id: string; option_id: string; value?: unknown }> = [], rowUpdates: AgentRowUpdate[] = []) {
   return json<FormulationVersion>(`/formulations/${encodeURIComponent(session.session_id)}/answers`, { method: "POST", body: JSON.stringify({ revision: session.revision, answers, row_updates: rowUpdates }) });
