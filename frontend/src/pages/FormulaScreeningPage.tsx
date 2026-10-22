@@ -1,6 +1,7 @@
-import { AlertTriangle, Check, LoaderCircle, ShieldCheck } from "lucide-react";
+import { AlertTriangle, Check, Download, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ApiError, getScreeningOptions, screenFormulation } from "../api/screening";
+import { downloadAdHocScreeningReport } from "../api/reports";
 import { EvidenceDrawer } from "../components/EvidenceDrawer";
 import { FormulaEditor } from "../components/FormulaEditor";
 import { ScreeningResultsPanel } from "../components/ScreeningResultsPanel";
@@ -108,6 +109,8 @@ export function FormulaScreeningPage() {
   const [error, setError] = useState<string | null>(null);
   const [integrityFailure, setIntegrityFailure] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [lastRequest, setLastRequest] = useState<FormulationRequest | null>(null);
 
   useEffect(() => {
     getScreeningOptions()
@@ -132,6 +135,7 @@ export function FormulaScreeningPage() {
     setLoading(true);
     try {
       const next = await screenFormulation(built.request);
+      setLastRequest(built.request);
       setResponse(next);
       const firstAttention = next.ingredient_results.find(
         (result) => adversePrimaryFindings.has(result.primary_finding) || result.review_required,
@@ -154,6 +158,19 @@ export function FormulaScreeningPage() {
     }
   };
 
+  const exportReport = async () => {
+    if (!lastRequest || exporting) return;
+    setExporting(true);
+    setError(null);
+    try {
+      await downloadAdHocScreeningReport(lastRequest);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The PDF report could not be generated.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const formLabel = [formulationId.trim(), formulationName.trim()].filter(Boolean).join(" · ") || "Untitled formulation";
   const workflowStep = loading ? 1 : response ? 2 : 0;
 
@@ -164,9 +181,14 @@ export function FormulaScreeningPage() {
         <header className="screening-sticky-header">
           <div className="screening-title-bar">
             <h1 className="page-title">Formula screening</h1>
-            <button className="primary-button" type="button" onClick={submit} disabled={loading || integrityFailure || !options}>
-              {loading ? <><LoaderCircle className="animate-spin" size={16} /> Screening…</> : "Run screen"}
-            </button>
+            <div className="screening-title-actions">
+              {response && <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exporting || !lastRequest}>
+                {exporting ? <><LoaderCircle className="animate-spin" size={15} /> Preparing PDF…</> : <><Download size={15} /> Export PDF</>}
+              </button>}
+              <button className="primary-button" type="button" onClick={submit} disabled={loading || integrityFailure || !options}>
+                {loading ? <><LoaderCircle className="animate-spin" size={16} /> Screening…</> : "Run screen"}
+              </button>
+            </div>
           </div>
           <nav className="workflow-progress screening-workflow-progress" aria-label="Formula screening workflow">
             <ol>

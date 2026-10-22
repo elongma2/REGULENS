@@ -1,9 +1,10 @@
-import { AlertTriangle, ArrowRight, Check, FileUp, ListChecks, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Download, FileUp, ListChecks, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { answerAgentQuestions, prepareAgentFormulation, retryAgentSession, uploadAgentCSV } from "../api/agent";
 import { answerFormulationVersion, getFormulationVersion, listFormulationScreenings, prepareFormulationVersion, retryFormulationVersion, screenFormulationVersion } from "../api/cases";
 import { ApiError, getScreeningOptions, screenFormulation } from "../api/screening";
+import { downloadAdHocScreeningReport, downloadSavedScreeningReport } from "../api/reports";
 import { addFollowUp, addReviewerNote, getReviewWorkspace, updateFollowUp, updateReviewStatus } from "../api/review";
 import { EvidenceDrawer, type DrawerTab } from "../components/EvidenceDrawer";
 import { HelpHint } from "../components/HelpHint";
@@ -92,6 +93,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   const [selectedRow, setSelectedRow] = useState<number | null>(null);
   const [manualValues, setManualValues] = useState<Record<string, { value: string; unit: ConcentrationUnit; stage: PreparationStage }>>({});
   const [retrying, setRetrying] = useState(false);
+  const [exportingReport, setExportingReport] = useState(false);
   const [highlightedRow, setHighlightedRow] = useState<string | null>(null);
   const [highlightedQuestion, setHighlightedQuestion] = useState<string | null>(null);
   const [loadingPersisted, setLoadingPersisted] = useState(Boolean(versionId));
@@ -352,6 +354,25 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
     } catch (caught) {
       setError(caught instanceof ApiError ? caught.message : "Screening failed.");
     } finally { setBusy(false); }
+  };
+
+  const exportReport = async () => {
+    if (!response || exportingReport) return;
+    setExportingReport(true);
+    setError(null);
+    try {
+      if (versionId && activeScreeningRunId) {
+        await downloadSavedScreeningReport(activeScreeningRunId);
+      } else if (prepared) {
+        await downloadAdHocScreeningReport(prepared.formulation);
+      } else {
+        throw new Error("The confirmed formulation is unavailable for export.");
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The PDF report could not be generated.");
+    } finally {
+      setExportingReport(false);
+    }
   };
 
   const selectedReviewItem = reviewWorkspace?.review_items.find((item) => item.submitted_row_number === selectedRow) ?? null;
@@ -687,7 +708,9 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
             <h1 className="page-title">{response ? "Screening results" : prepared ? "Confirm your screening input" : "Review your formulation"}</h1>
             {!response && <p className="guided-subtitle">Confirm the source values before running regulatory screening.{versionId && " · Saved formulation workspace"}</p>}
           </div>
-          {!session && <span className="guided-market">Singapore screening</span>}
+          {response ? <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exportingReport}>
+            {exportingReport ? <><LoaderCircle className="animate-spin" size={15} /> Preparing PDF…</> : <><Download size={15} /> Export PDF</>}
+          </button> : !session && <span className="guided-market">Singapore screening</span>}
         </header>
 
         <div className={`guided-workflow-sticky ${response ? "is-screened" : ""}`}>

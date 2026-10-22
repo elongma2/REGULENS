@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime
+from io import BytesIO
 from typing import Annotated, Any
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile, status
+from fastapi.responses import StreamingResponse
 
 from backend.app.dependencies import CurrentUser, get_current_user, get_supabase_gateway
 from backend.app.models.agent import (
@@ -28,7 +31,7 @@ from backend.app.models.cases import (
     ScreeningRunView,
     SignedFileView,
 )
-from backend.app.models.formulation import FormulationRequest
+from backend.app.models.formulation import FormulationRequest, FormulationScreeningResponse
 from backend.app.services.agent_csv import CSVUploadError, MAX_FILE_BYTES, ParsedCSV, parse_formulation_upload
 from backend.app.services.formulation import screen_formulation
 from backend.app.services.formulation_agent import (
@@ -37,6 +40,7 @@ from backend.app.services.formulation_agent import (
     FormulationAgentService,
 )
 from backend.app.services.parsing import UnsupportedProductContextError
+from backend.app.services.screening_report import build_screening_report, screening_report_filename
 from backend.app.services.supabase_gateway import (
     CaseDeletionError,
     ResourceNotFoundError,
@@ -458,6 +462,32 @@ def get_screening(
         return _screening(gateway.get_screening(user.id, screening_id))
     except ResourceNotFoundError as error:
         raise _not_found(error) from error
+
+
+@router.get("/screenings/{screening_id}/report.pdf", response_class=StreamingResponse)
+def screening_report(
+    screening_id: UUID,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+) -> StreamingResponse:
+    try:
+        saved = gateway.get_screening(user.id, screening_id)
+    except ResourceNotFoundError as error:
+        raise _not_found(error) from error
+    response = FormulationScreeningResponse.model_validate(saved["result_snapshot"])
+    screened_at = datetime.fromisoformat(str(saved["created_at"]).replace("Z", "+00:00"))
+    return StreamingResponse(
+        BytesIO(build_screening_report(
+            response,
+            jurisdiction=saved["jurisdiction"],
+            screening_reference=str(saved["id"]),
+            screened_at=screened_at,
+        )),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{screening_report_filename(response)}"'
+        },
+    )
 
 
 @router.get("/formulations/{version_id}/file", response_model=SignedFileView)

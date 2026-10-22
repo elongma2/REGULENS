@@ -76,7 +76,7 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173`. The Vite development proxy strips `/api`, so `/api/screen-formulation`, `/api/screening-options`, `/api/ingredients`, and `/api/acd-ingredients` reach the corresponding backend routes. Set `VITE_API_BASE_URL` to the backend origin, such as `http://127.0.0.1:8000`, when bypassing that proxy.
+Open `http://127.0.0.1:5173`. The Vite development proxy strips `/api`, so `/api/screen-formulation`, `/api/screen-formulation/report`, `/api/screening-options`, `/api/ingredients`, and `/api/acd-ingredients` reach the corresponding backend routes. Set `VITE_API_BASE_URL` to the backend origin, such as `http://127.0.0.1:8000`, when bypassing that proxy.
 
 ## Persistent private case workspaces
 
@@ -111,6 +111,7 @@ The persistent API surface is:
 - `POST /formulations/{formulation_version_id}/screen`
 - `GET /formulations/{formulation_version_id}/screenings`
 - `GET /screenings/{screening_run_id}`
+- `GET /screenings/{screening_run_id}/report.pdf`
 - `GET /formulations/{formulation_version_id}/file`
 - `GET /cases/{case_id}/review-overview`
 - `GET /formulations/{formulation_version_id}/review-workspace?screening_run_id=...`
@@ -120,6 +121,8 @@ The persistent API surface is:
 - `PATCH /follow-ups/{follow_up_id}`
 
 All domain routes require `Authorization: Bearer <Supabase access token>`. In a configured deployment, `/screen-formulation` is also authenticated and remains the non-persisted New Screen scratch workflow. Regulatory options, searches, evidence, and `/health` remain public. The backend derives the user from the bearer token, uses a server-only service-role client, and repeats membership checks before every trusted database or Storage operation. RLS separately scopes browser-accessible records and private Storage objects through organisation membership. Inaccessible resources return 404.
+
+Completed results can be downloaded as traceable PDF reports. `POST /screen-formulation/report` deterministically re-screens the submitted scratch formulation and returns a PDF, while `GET /screenings/{screening_run_id}/report.pdf` renders the immutable saved result snapshot after the usual organisation access check.
 
 The pilot schema intentionally keeps the established Pydantic payloads as JSONB:
 

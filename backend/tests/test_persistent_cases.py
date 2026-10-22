@@ -361,6 +361,12 @@ def test_persisted_version_survives_new_app_and_screening_runs_are_immutable_sna
     runs = client.get(f"/formulations/{version_id}/screenings", headers=_auth()).json()
     assert len(runs) == 2
 
+    report = client.get(f"/screenings/{first.json()['id']}/report.pdf", headers=_auth())
+    assert report.status_code == 200
+    assert report.headers["content-type"] == "application/pdf"
+    assert report.content.startswith(b"%PDF-")
+    assert client.get(f"/screenings/{first.json()['id']}/report.pdf", headers=_auth("token-b")).status_code == 404
+
 
 def test_case_delete_cascades_fake_versions_and_screenings(persistent_client):
     client, gateway = persistent_client
