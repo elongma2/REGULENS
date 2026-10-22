@@ -7,6 +7,7 @@ import { FormulaScreeningPage } from "./pages/FormulaScreeningPage";
 import { FormulationWorkspacePage } from "./pages/FormulationWorkspacePage";
 import { SignInPage, SignUpPage } from "./pages/AuthPages";
 import { SourcesPage } from "./pages/SourcesPage";
+import { AccountPage } from "./pages/AccountPage";
 
 function Protected() {
   const auth = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="/cases/:caseId/formulations/:versionId" element={<FormulationWorkspacePage />} />
         <Route path="/screen" element={<FormulaScreeningPage />} />
         <Route path="/sources" element={<SourcesPage />} />
+        <Route path="/account" element={<AccountPage />} />
         <Route path="*" element={<Navigate to="/cases" replace />} />
       </Route>
     </Route>

@@ -1,12 +1,13 @@
 import { AlertCircle, ArrowRight, Clipboard, FileUp, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deleteCase, getCase, uploadCaseFormulation } from "../api/cases";
+import { deleteCase, deleteFormulationVersion, getCase, uploadCaseFormulation } from "../api/cases";
 import { CaseDeleteDialog } from "../components/CaseDeleteDialog";
+import { TypedDeleteDialog } from "../components/TypedDeleteDialog";
 import { addReviewerNote, getCaseActivity, getReviewOverview } from "../api/review";
 import { currentVersion, formatRelativeDate, resolveCaseAction, reviewerItemsRemaining, workflowFilter, workflowLabel } from "../lib/cases";
 import { reviewStatusPresentation } from "../lib/reviewPresentation";
-import type { CaseView } from "../types/cases";
+import type { CaseView, FormulationVersionSummary } from "../types/cases";
 import type { ActivityContext, CaseActivity, CaseActivityEntry, ReviewerNote, ReviewOverview } from "../types/review";
 
 type LoadState = "loading" | "available" | "unavailable";
@@ -65,6 +66,9 @@ export function CasePage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [versionToDelete, setVersionToDelete] = useState<FormulationVersionSummary | null>(null);
+  const [versionDeleting, setVersionDeleting] = useState(false);
+  const [versionDeleteError, setVersionDeleteError] = useState<string | null>(null);
   const [overview, setOverview] = useState<ReviewOverview | null>(null);
   const [overviewState, setOverviewState] = useState<LoadState>("loading");
   const [activity, setActivity] = useState<CaseActivity | null>(null);
@@ -182,6 +186,20 @@ export function CasePage() {
     } finally { setDeleting(false); }
   };
 
+  const removeVersion = async () => {
+    if (!versionToDelete || versionDeleting) return;
+    setVersionDeleting(true); setVersionDeleteError(null);
+    try {
+      await deleteFormulationVersion(versionToDelete.id);
+      setRecord((current) => current ? { ...current, formulations: current.formulations.filter((item) => item.id !== versionToDelete.id) } : current);
+      setVersionToDelete(null);
+      setOverview(null); setActivity(null);
+      void loadOverview(); void loadActivity();
+    } catch (caught) {
+      setVersionDeleteError(caught instanceof Error ? caught.message : "The formulation version could not be deleted.");
+    } finally { setVersionDeleting(false); }
+  };
+
   if (recordLoading) return <main className="workspace"><div className="case-page"><div className="case-overview-skeleton" aria-label="Loading case"><span /><span /><span /></div></div></main>;
   if (!record) return <main className="workspace"><div className="case-page"><div className="page-error-row" role="alert"><AlertCircle size={16} />{error || "The case could not be loaded."}</div></div></main>;
 
@@ -199,7 +217,7 @@ export function CasePage() {
 
   return (
     <main className="workspace">
-      <div className="case-page case-overview-page" aria-hidden={deleteDialogOpen}>
+      <div className="case-page case-overview-page" aria-hidden={deleteDialogOpen || Boolean(versionToDelete)}>
         <header className="case-header case-overview-header">
           <div>
             <Link className="breadcrumb-link" to="/cases">← Cases</Link>
@@ -247,11 +265,14 @@ export function CasePage() {
           ) : (
             <div className="version-list polished-version-list">
               {record.formulations.map((version, index) => (
-                <Link key={version.id} to={`/cases/${caseId}/formulations/${version.id}?tab=${version.status === "screened" ? "results" : "formulation"}`}>
-                  <div><strong>Version {version.version_number}</strong>{index === 0 && <span className="quiet-badge">Current</span>}<small>{version.original_filename || "Filename unavailable"}</small></div>
-                  <div><span className={`workflow-state-badge is-${workflowFilter({ ...record, latest_formulation: version })}`}>{workflowLabel({ ...record, latest_formulation: version })}</span><small>{formatRelativeDate(version.updated_at)} · {version.screening_count} screening run{version.screening_count === 1 ? "" : "s"}</small></div>
-                  <span className="version-row-action">{version.status === "failed" ? "Retry interpretation" : "Open"}<ArrowRight size={14} /></span>
-                </Link>
+                <div className="version-list-row" key={version.id}>
+                  <Link to={`/cases/${caseId}/formulations/${version.id}?tab=${version.status === "screened" ? "results" : "formulation"}`}>
+                    <div><strong>Version {version.version_number}</strong>{index === 0 && <span className="quiet-badge">Current</span>}<small>{version.original_filename || "Filename unavailable"}</small></div>
+                    <div><span className={`workflow-state-badge is-${workflowFilter({ ...record, latest_formulation: version })}`}>{workflowLabel({ ...record, latest_formulation: version })}</span><small>{formatRelativeDate(version.updated_at)} · {version.screening_count} screening run{version.screening_count === 1 ? "" : "s"}</small></div>
+                    <span className="version-row-action">{version.status === "failed" ? "Retry interpretation" : "Open"}<ArrowRight size={14} /></span>
+                  </Link>
+                  <button className="version-delete-button" type="button" aria-label={`Delete formulation version ${version.version_number}`} onClick={() => { setVersionToDelete(version); setVersionDeleteError(null); }}><Trash2 size={15} /></button>
+                </div>
               ))}
             </div>
           )}
@@ -265,6 +286,7 @@ export function CasePage() {
         </section>
       </div>
       <CaseDeleteDialog caseName={deleteDialogOpen ? record.name : null} busy={deleting} error={deleteError} onCancel={() => { if (!deleting) { setDeleteDialogOpen(false); setDeleteError(null); } }} onConfirm={() => void remove()} />
+      <TypedDeleteDialog open={Boolean(versionToDelete)} title={`Delete formulation version ${versionToDelete?.version_number ?? ""}?`} description="This permanently removes its uploaded file, interpretation, clarifications, screening runs, finding reviews, formulation and finding notes, and linked follow-ups. Case-level notes remain." actionLabel="Delete formulation" busy={versionDeleting} error={versionDeleteError} onCancel={() => { if (!versionDeleting) { setVersionToDelete(null); setVersionDeleteError(null); } }} onConfirm={() => void removeVersion()} />
     </main>
   );
 }

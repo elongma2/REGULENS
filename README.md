@@ -101,10 +101,12 @@ supabase test db
 The persistent API surface is:
 
 - `GET /me`
+- `DELETE /me` — permanently remove an eligible sole-member account after the JSON confirmation `{ "confirmation": "DELETE" }`
 - `GET|POST /cases`
 - `GET|PATCH|DELETE /cases/{case_id}`
 - `GET|POST /cases/{case_id}/formulations`
 - `GET|PATCH /formulations/{formulation_version_id}`
+- `DELETE /formulations/{formulation_version_id}` — permanently remove one version after the JSON confirmation `{ "confirmation": "DELETE" }`
 - `POST /formulations/{formulation_version_id}/interpret`
 - `POST /formulations/{formulation_version_id}/answers`
 - `POST /formulations/{formulation_version_id}/prepare`
@@ -138,11 +140,13 @@ The pilot schema intentionally keeps the established Pydantic payloads as JSONB:
 | `reviewer_notes` | Append-only, attributable notes linked to a case, formulation, clarification, or review item |
 | `follow_up_actions` | Open or resolved reviewer actions linked to the same reusable review targets |
 
-Foreign keys cascade from cases through versions, clarifications, screening runs, and professional-review records. Case deletion first removes the corresponding private Storage objects, then deletes the case and related database records. Uploaded regulatory source datasets are never stored in the user-file bucket.
+Foreign keys cascade from cases through versions, clarifications, screening runs, and professional-review records. Case and formulation-version deletion remove the corresponding private Storage objects before deleting database records. Version numbers are allocated from a monotonic per-case counter, so deleting the latest version never reuses its number. Case-level notes remain when one formulation version is removed. Uploaded regulatory source datasets are never stored in the user-file bucket.
+
+The authenticated **Account** page supports permanent account deletion with typed `DELETE` confirmation. Deletion is allowed only when the user owns every workspace and is its sole member. The backend removes all private formulation files, deletes eligible workspace data through the server-only database function, and deletes the Supabase Auth user last. Shared-workspace membership returns `409 account_deletion_blocked_shared_workspace`; the browser never receives the service-role key.
 
 Professional review remains separate from regulatory evaluation. Each saved screening creates a fresh set of review items in the same database transaction. Findings that need attention start at **Not reviewed** and can move through **In review**, **Awaiting information**, and **Reviewed**. This status never edits the stored finding or implies approval or compliance. Notes are append-only; follow-ups can be edited, resolved, and reopened. Earlier screening runs keep their original findings, notes, status, and actions when a formulation is screened again. The formulation workspace lets reviewers filter findings, add contextual notes and follow-ups, and inspect a historical screening run with its matching review state. The case page summarises the latest run, outstanding clarifications, open actions, note count, and recent human activity.
 
-`supabase db reset` for local development or `supabase db push` for a linked hosted project applies both the persistent-case migration and the professional-review migration. The latter backfills review items for existing screening snapshots without inventing notes or completed statuses. Run `supabase test db` against the local Supabase stack to verify table policies, cross-organisation isolation, append-only notes, immutable engine fields, and private Storage access.
+`supabase db reset` for local development or `supabase db push` for a linked hosted project applies the persistent-case, professional-review, and permanent-deletion migrations. The review migration backfills review items for existing screening snapshots without inventing notes or completed statuses. The deletion migration backfills each case's next version counter and installs the service-role-only account cleanup function. Run `supabase test db` against the local Supabase stack to verify table policies, cross-organisation isolation, append-only notes, immutable engine fields, monotonic version allocation, and private Storage access.
 
 Process-local Agent sessions created before this migration have no durable source and cannot be imported. Persistence begins with formulations uploaded into a case after the migration is applied.
 

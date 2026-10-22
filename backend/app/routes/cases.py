@@ -28,6 +28,7 @@ from backend.app.models.cases import (
     FormulationVersionPatch,
     FormulationVersionSummary,
     FormulationVersionView,
+    PermanentDeleteRequest,
     ScreeningRunView,
     SignedFileView,
 )
@@ -42,7 +43,10 @@ from backend.app.services.formulation_agent import (
 from backend.app.services.parsing import UnsupportedProductContextError
 from backend.app.services.screening_report import build_screening_report, screening_report_filename
 from backend.app.services.supabase_gateway import (
+    AccountDeletionBlockedError,
+    AccountDeletionError,
     CaseDeletionError,
+    FormulationDeletionError,
     ResourceNotFoundError,
     RevisionConflictError,
     SupabaseGateway,
@@ -95,6 +99,8 @@ def _question_value(view: AgentSessionView, question: Any) -> tuple[Any, Any]:
     field = question.target_field
     if field == "ingredient_name":
         return row.name.source_value, row.name.value
+    if field == "cas_number" and row.cas_number:
+        return row.cas_number.source_value, row.cas_number.value
     if field in {"concentration", "concentration.unit"} and row.concentration:
         source = row.concentration.value.source_value if row.concentration.value else None
         proposed = row.concentration.unit.value if field == "concentration.unit" and row.concentration.unit else (
@@ -193,6 +199,26 @@ def me(
         return CurrentUserView.model_validate(gateway.me(user))
     except ResourceNotFoundError as error:
         raise _not_found(error) from error
+
+
+@router.delete("/me", status_code=204)
+def delete_account(
+    payload: PermanentDeleteRequest,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+) -> None:
+    try:
+        gateway.delete_account(user.id)
+    except AccountDeletionBlockedError as error:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "account_deletion_blocked_shared_workspace", "message": str(error)},
+        ) from error
+    except AccountDeletionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "account_deletion_failed", "message": str(error)},
+        ) from error
 
 
 @router.get("/cases", response_model=list[CaseListItem])
@@ -345,6 +371,28 @@ def patch_formulation(
         raise _not_found(error) from error
     except RevisionConflictError as error:
         raise HTTPException(status_code=409, detail={"code": "agent_revision_conflict", "message": str(error)}) from error
+
+
+@router.delete("/formulations/{version_id}", status_code=204)
+def delete_formulation(
+    version_id: UUID,
+    payload: PermanentDeleteRequest,
+    request: Request,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+) -> None:
+    try:
+        gateway.delete_formulation(user.id, version_id)
+        service = getattr(request.app.state, "formulation_agent", None)
+        if service is not None:
+            service.forget(str(version_id))
+    except ResourceNotFoundError as error:
+        raise _not_found(error) from error
+    except FormulationDeletionError as error:
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "formulation_deletion_failed", "message": str(error)},
+        ) from error
 
 
 @router.post("/formulations/{version_id}/interpret", response_model=FormulationVersionView)

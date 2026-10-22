@@ -1,4 +1,4 @@
-import { FileText, FlaskConical, FolderKanban, LogOut } from "lucide-react";
+import { FileText, FlaskConical, FolderKanban, LogOut, UserRound } from "lucide-react";
 import type { CSSProperties } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
@@ -22,7 +22,8 @@ export function Sidebar() {
         {activeIndex >= 0 && <span className="nav-active-indicator" aria-hidden="true" />}
         {items.map(({ label, icon: Icon, to }) => <NavLink key={to} to={to} className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : "text-slate-500"}`}><Icon size={17} strokeWidth={1.8} /><span>{label}</span></NavLink>)}
       </div>
-      <button className="nav-item mt-auto text-slate-500" type="button" onClick={() => void auth.signOut()}><LogOut size={17} /><span>Sign out</span></button>
+      <NavLink to="/account" className={({ isActive }) => `nav-item mt-auto ${isActive ? "nav-item-active" : "text-slate-500"}`}><UserRound size={17} /><span>Account</span></NavLink>
+      <button className="nav-item text-slate-500" type="button" onClick={() => void auth.signOut()}><LogOut size={17} /><span>Sign out</span></button>
     </nav>
   </aside>;
 }

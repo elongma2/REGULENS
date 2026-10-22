@@ -1,5 +1,5 @@
 begin;
-select plan(26);
+select plan(30);
 
 insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -94,6 +94,11 @@ $$;
 select is((select version_number from public.formulation_versions where id = '11111111-eeee-4eee-8eee-111111111111'), 2, 'second upload receives version 2');
 select is((select status from public.clarifications where id = '11111111-cccc-4ccc-8ccc-111111111111'), 'resolved', 'resolved clarification state persists');
 
+delete from public.formulation_versions where id = '11111111-eeee-4eee-8eee-111111111111';
+select is((select count(*) from public.formulation_versions where id = '11111111-eeee-4eee-8eee-111111111111'), 0::bigint, 'service role can remove a formulation version');
+select is((select next_formulation_version_number from public.cases where id = '11111111-aaaa-4aaa-8aaa-111111111111'), 3, 'deleting the newest version does not rewind the case version counter');
+select ok(not has_function_privilege('authenticated', 'public.delete_account_domain_data(uuid)', 'EXECUTE'), 'authenticated users cannot invoke account-domain cleanup');
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);
 select is((select count(*) from public.cases where id = '11111111-aaaa-4aaa-8aaa-111111111111'), 1::bigint, 'User A can select their case');
@@ -131,7 +136,11 @@ select is((select count(*) from public.review_items where id = '11111111-ffff-4f
 select is((select count(*) from public.reviewer_notes where id = '33333333-aaaa-4aaa-8aaa-111111111111'), 0::bigint, 'User B cannot select User A reviewer note');
 select is((select count(*) from public.follow_up_actions where id = '33333333-bbbb-4bbb-8bbb-111111111111'), 0::bigint, 'User B cannot select User A follow-up');
 select is((select count(*) from storage.objects where name like '%/serum.csv'), 0::bigint, 'User B cannot select User A private file');
+delete from public.formulation_versions where id = '11111111-bbbb-4bbb-8bbb-111111111111';
+reset role;
+select is((select count(*) from public.formulation_versions where id = '11111111-bbbb-4bbb-8bbb-111111111111'), 1::bigint, 'User B cannot delete User A formulation');
 
+set local role authenticated;
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);
 update public.screening_runs set result_snapshot = '{"marker":"changed"}'
 where id = '11111111-dddd-4ddd-8ddd-111111111111';

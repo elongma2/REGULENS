@@ -1,10 +1,10 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CasePage } from "./CasePage";
 
-const api = vi.hoisted(() => ({ getCase: vi.fn(), deleteCase: vi.fn(), uploadCaseFormulation: vi.fn() }));
+const api = vi.hoisted(() => ({ getCase: vi.fn(), deleteCase: vi.fn(), deleteFormulationVersion: vi.fn(), uploadCaseFormulation: vi.fn() }));
 const reviewApi = vi.hoisted(() => ({ getReviewOverview: vi.fn(), getCaseActivity: vi.fn(), addReviewerNote: vi.fn() }));
 vi.mock("../api/cases", () => api);
 vi.mock("../api/review", () => reviewApi);
@@ -29,6 +29,7 @@ describe("case detail", () => {
   beforeEach(() => {
     api.getCase.mockReset().mockResolvedValue(savedCase);
     api.deleteCase.mockReset().mockResolvedValue(undefined);
+    api.deleteFormulationVersion.mockReset().mockResolvedValue(undefined);
     reviewApi.addReviewerNote.mockReset().mockResolvedValue(savedCaseNote);
     reviewApi.getCaseActivity.mockReset().mockResolvedValue({ case_id: "case-1", entries: [] });
     reviewApi.getReviewOverview.mockReset().mockResolvedValue({
@@ -67,6 +68,20 @@ describe("case detail", () => {
     await user.click(within(dialog).getByRole("button", { name: "Delete case" }));
     expect(api.deleteCase).toHaveBeenCalledWith("case-1");
     expect(await screen.findByRole("heading", { name: "Cases list" })).toBeInTheDocument();
+  });
+
+  it("requires typed confirmation before deleting one formulation version", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    await user.click(await screen.findByRole("button", { name: "Delete formulation version 2" }));
+    const dialog = screen.getByRole("dialog", { name: /Delete formulation version 2/ });
+    const action = within(dialog).getByRole("button", { name: "Delete formulation" });
+    expect(action).toBeDisabled();
+    await user.type(within(dialog).getByLabelText(/Type DELETE/i), "DELETE");
+    await user.click(action);
+    await waitFor(() => expect(api.deleteFormulationVersion).toHaveBeenCalledWith("version-2"));
+    expect(screen.queryByText("Version 2")).not.toBeInTheDocument();
+    expect(screen.getByText("Version 1")).toBeInTheDocument();
   });
 
   it("keeps a case-note draft when saving fails", async () => {

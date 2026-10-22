@@ -10,6 +10,7 @@ interface AuthValue {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<boolean>;
   signOut: () => Promise<void>;
+  clearLocalSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
@@ -50,6 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     async signOut() {
       if (supabase) await supabase.auth.signOut();
+    },
+    async clearLocalSession() {
+      if (supabase) await supabase.auth.signOut({ scope: "local" });
+      setSession(null);
     },
   }), [loading, session]);
 

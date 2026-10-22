@@ -55,8 +55,8 @@ export interface AgentIngredientRow {
 }
 
 export interface AgentRowUncertainty {
-  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage" | "regulated_functions";
-  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "ingredient_function";
+  target_field: "ingredient_name" | "cas_number" | "concentration" | "concentration.unit" | "preparation_stage" | "regulated_functions";
+  uncertainty_code: "ingredient_identity" | "cas_number" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "ingredient_function";
   source_value: string | null;
   proposed_value: unknown;
 }
@@ -64,13 +64,13 @@ export interface AgentRowUncertainty {
 export interface AgentQuestionOption { option_id: string; label: string; value: unknown; }
 export interface AgentQuestion {
   question_id: string;
-  question_type: "identity" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping" | "ingredient_function";
+  question_type: "identity" | "cas_number" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping" | "ingredient_function";
   title: string;
   prompt: string;
   source_row: number | null;
   row_id: string | null;
-  target_field: "ingredient_name" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | "regulated_functions" | null;
-  uncertainty_code: "ingredient_identity" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | "ingredient_function" | null;
+  target_field: "ingredient_name" | "cas_number" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | "regulated_functions" | null;
+  uncertainty_code: "ingredient_identity" | "cas_number" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | "ingredient_function" | null;
   affected_row_ids: string[];
   blocking: boolean;
   options: AgentQuestionOption[];

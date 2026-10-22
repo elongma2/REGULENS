@@ -318,6 +318,29 @@ def test_direct_unit_edit_resolves_only_that_row_question(store, catalogue):
     assert not any(item.uncertainty_code == "missing_concentration_unit" for item in updated.interpreted_rows[0].unresolved_fields)
 
 
+def test_malformed_imported_cas_blocks_until_removed(store, catalogue):
+    def runner(parsed, accepted_store, accepted_catalogue, model):
+        return interpretation(
+            [{"source_row": 2, "source_name": "NIACINAMIDE", "interpreted_name": "NIACINAMIDE", "identity_status": "exact_match", "source_cas": "123-45-6", "source_concentration": None, "concentration_value": None, "concentration_unit": None, "issues": []}],
+            mappings=[
+                {"source_column_index": 0, "mapped_field": "ingredient_name", "confidence": "high_confidence"},
+                {"source_column_index": 1, "mapped_field": "cas_number", "confidence": "high_confidence"},
+            ],
+        )
+
+    service = FormulationAgentService(store, catalogue, model_runner=runner)
+    session = service.create(parse_csv_upload("bad-cas.csv", b"INCI,CAS\nNIACINAMIDE,123-45-6\n"))
+    question = next(item for item in session.questions if item.question_type == "cas_number")
+    assert question.row_id == session.interpreted_rows[0].row_id
+
+    updated = service.apply_answers(session.session_id, AgentAnswersRequest(
+        revision=session.revision,
+        answers=[AgentAnswer(question_id=question.question_id, option_id="remove_invalid_cas")],
+    ))
+    assert updated.interpreted_rows[0].cas_number.value is None
+    assert all(item.question_type != "cas_number" for item in updated.questions)
+
+
 def test_non_exact_identity_requires_confirmation(store, catalogue):
     def candidate_runner(parsed, accepted_store, accepted_catalogue, model):
         return interpretation([

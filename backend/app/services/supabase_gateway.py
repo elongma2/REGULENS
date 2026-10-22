@@ -29,6 +29,18 @@ class CaseDeletionError(RuntimeError):
     pass
 
 
+class FormulationDeletionError(RuntimeError):
+    pass
+
+
+class AccountDeletionError(RuntimeError):
+    pass
+
+
+class AccountDeletionBlockedError(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class AuthenticatedUser:
     id: UUID
@@ -101,12 +113,22 @@ class SupabaseGateway:
             return []
         cases = self.client.table("cases").select("*").in_("organisation_id", organisation_ids).order("updated_at", desc=True).execute().data or []
         for case in cases:
-            versions = self.list_formulations(user_id, case["id"])
+            # The cases query is already scoped to the user's organisations, so
+            # avoid repeating case and membership lookups for every enrichment.
+            versions = self._list_formulations_for_authorized_case(case["id"])
             case["formulations"] = versions
             case["latest_formulation"] = versions[0] if versions else None
-            case["latest_finding_count"] = self._latest_finding_count(user_id, versions[0]["id"]) if versions else None
+            case["latest_finding_count"] = (
+                self._latest_finding_count_for_authorized_version(versions[0]["id"])
+                if versions else None
+            )
             try:
-                overview = self.review_overview(user_id, case["id"])
+                overview = self._review_overview_for_authorized_case(
+                    user_id,
+                    case,
+                    versions,
+                    include_context_items=False,
+                )
                 case["review_summary"] = {
                     "latest_screening_run_id": overview["latest_screening_run_id"],
                     "latest_screening_formulation_version_id": overview["latest_screening_formulation_version_id"],
@@ -172,6 +194,92 @@ class SupabaseGateway:
         if remaining:
             raise CaseDeletionError("Case records could not be removed. Please retry or contact the workspace administrator.")
 
+    def delete_formulation(self, user_id: UUID, version_id: str | UUID) -> str:
+        version = self._version_row(user_id, version_id)
+        storage_path = version.get("source_storage_path")
+        if storage_path:
+            try:
+                self.remove_file(storage_path)
+            except Exception as error:
+                LOGGER.warning("Formulation %s storage cleanup failed; database deletion was not started", version_id, exc_info=True)
+                raise FormulationDeletionError(
+                    "The uploaded file could not be removed. The formulation version was kept so you can retry."
+                ) from error
+        try:
+            self.client.table("formulation_versions").delete().eq("id", str(version_id)).execute()
+            remaining = self.client.table("formulation_versions").select("id").eq(
+                "id", str(version_id)
+            ).limit(1).execute().data or []
+            if not remaining:
+                self.client.table("cases").update({"updated_at": datetime.now(UTC).isoformat()}).eq(
+                    "id", str(version["case_id"])
+                ).execute()
+        except Exception as error:
+            LOGGER.exception("Formulation %s database deletion failed after storage cleanup", version_id)
+            raise FormulationDeletionError(
+                "The formulation records could not be removed. Please retry or contact the workspace administrator."
+            ) from error
+        if remaining:
+            raise FormulationDeletionError(
+                "The formulation records could not be removed. Please retry or contact the workspace administrator."
+            )
+        return str(version["case_id"])
+
+    def delete_account(self, user_id: UUID) -> None:
+        memberships = self._memberships(user_id)
+        organisation_ids = [str(item["organisation_id"]) for item in memberships]
+        for membership in memberships:
+            member_rows = self.client.table("organisation_members").select("user_id").eq(
+                "organisation_id", str(membership["organisation_id"])
+            ).execute().data or []
+            if membership.get("role") != "owner" or len(member_rows) != 1:
+                raise AccountDeletionBlockedError(
+                    "Account deletion is unavailable while a workspace has another member or you are not its sole owner."
+                )
+
+        paths: list[str] = []
+        if organisation_ids:
+            cases = self.client.table("cases").select("id").in_(
+                "organisation_id", organisation_ids
+            ).execute().data or []
+            case_ids = [str(item["id"]) for item in cases]
+            if case_ids:
+                versions = self.client.table("formulation_versions").select("source_storage_path").in_(
+                    "case_id", case_ids
+                ).execute().data or []
+                paths = list(dict.fromkeys(
+                    item["source_storage_path"] for item in versions if item.get("source_storage_path")
+                ))
+        if paths:
+            try:
+                self.client.storage.from_(FORMULATION_BUCKET).remove(paths)
+            except Exception as error:
+                LOGGER.warning("Account %s storage cleanup failed; domain deletion was not started", user_id, exc_info=True)
+                raise AccountDeletionError(
+                    "Uploaded files could not be removed. Your account and saved work were kept so you can retry."
+                ) from error
+
+        if memberships:
+            try:
+                self.client.rpc("delete_account_domain_data", {"p_user_id": str(user_id)}).execute()
+            except Exception as error:
+                if "account_deletion_blocked_shared_workspace" in str(error):
+                    raise AccountDeletionBlockedError(
+                        "Account deletion is unavailable while a workspace has another member or you are not its sole owner."
+                    ) from error
+                LOGGER.exception("Account %s domain deletion failed", user_id)
+                raise AccountDeletionError(
+                    "Your saved workspace could not be removed. Your account was kept so you can retry."
+                ) from error
+
+        try:
+            self.client.auth.admin.delete_user(str(user_id))
+        except Exception as error:
+            LOGGER.exception("Account %s Auth deletion failed after domain cleanup", user_id)
+            raise AccountDeletionError(
+                "Your saved workspace was removed, but sign-in cleanup did not finish. Retry account deletion to complete it."
+            ) from error
+
     def upload_file(self, path: str, content: bytes, content_type: str | None) -> None:
         options = {"content-type": content_type or "application/octet-stream", "upsert": "false"}
         self.client.storage.from_(FORMULATION_BUCKET).upload(path, content, options)
@@ -201,14 +309,17 @@ class SupabaseGateway:
         }).execute().data
         return response[0] if isinstance(response, list) else response
 
-    def list_formulations(self, user_id: UUID, case_id: str | UUID) -> list[dict[str, Any]]:
-        self._case_row(user_id, case_id)
+    def _list_formulations_for_authorized_case(self, case_id: str | UUID) -> list[dict[str, Any]]:
         rows = self.client.table("formulation_versions").select(
             "id,case_id,version_number,original_filename,status,revision,created_at,updated_at"
         ).eq("case_id", str(case_id)).order("version_number", desc=True).execute().data or []
         for row in rows:
             row["screening_count"] = len(self.client.table("screening_runs").select("id").eq("formulation_version_id", row["id"]).execute().data or [])
         return rows
+
+    def list_formulations(self, user_id: UUID, case_id: str | UUID) -> list[dict[str, Any]]:
+        self._case_row(user_id, case_id)
+        return self._list_formulations_for_authorized_case(case_id)
 
     def get_version(self, user_id: UUID, version_id: str | UUID) -> dict[str, Any]:
         row = self._version_row(user_id, version_id)
@@ -390,21 +501,35 @@ class SupabaseGateway:
         if str(target_case_id) != str(case["id"]):
             raise ResourceNotFoundError("Review target not found")
 
-    def review_overview(self, user_id: UUID, case_id: str | UUID) -> dict[str, Any]:
-        case = self._case_row(user_id, case_id)
-        versions = self.list_formulations(user_id, case_id)
+    def _review_overview_for_authorized_case(
+        self,
+        user_id: UUID,
+        case: dict[str, Any],
+        versions: list[dict[str, Any]],
+        *,
+        include_context_items: bool,
+    ) -> dict[str, Any]:
+        case_id = case["id"]
         current = versions[0] if versions else None
         latest_rows = []
         if versions:
-            latest_rows = self.client.table("screening_runs").select("*").in_(
+            run_columns = "*" if include_context_items else "id,formulation_version_id,created_at"
+            latest_rows = self.client.table("screening_runs").select(run_columns).in_(
                 "formulation_version_id", [version["id"] for version in versions]
             ).order("created_at", desc=True).limit(1).execute().data or []
         latest_run = latest_rows[0] if latest_rows else None
         items = []
         if latest_run:
-            items = self.client.table("review_items").select("*").eq("screening_run_id", latest_run["id"]).execute().data or []
-        notes = self.client.table("reviewer_notes").select("*").eq("case_id", str(case_id)).order("created_at", desc=True).execute().data or []
-        follow_ups = self.client.table("follow_up_actions").select("*").eq("case_id", str(case_id)).execute().data or []
+            item_columns = "*" if include_context_items else "review_status,requires_attention,updated_at"
+            items = self.client.table("review_items").select(item_columns).eq("screening_run_id", latest_run["id"]).execute().data or []
+        note_columns = "*" if include_context_items else "created_at"
+        notes = self.client.table("reviewer_notes").select(note_columns).eq(
+            "case_id", str(case_id)
+        ).order("created_at", desc=True).execute().data or []
+        follow_up_columns = "*" if include_context_items else "status,updated_at"
+        follow_ups = self.client.table("follow_up_actions").select(follow_up_columns).eq(
+            "case_id", str(case_id)
+        ).execute().data or []
         unresolved = 0
         if current:
             unresolved = len(self.client.table("clarifications").select("id").eq(
@@ -417,12 +542,15 @@ class SupabaseGateway:
         activity_dates = [row.get("created_at") for row in notes]
         activity_dates += [row.get("updated_at") for row in follow_ups]
         activity_dates += [row.get("updated_at") for row in items if row.get("review_status") != "not_reviewed"]
-        recent_case_notes = self._decorate_authors([
-            row for row in notes if self._target_type(row) == "case"
-        ][:5])
-        open_follow_up_items = self._decorate_follow_ups(user_id, [
-            row for row in follow_ups if row.get("status") == "open"
-        ])
+        recent_case_notes = []
+        open_follow_up_items = []
+        if include_context_items:
+            recent_case_notes = self._decorate_authors([
+                row for row in notes if self._target_type(row) == "case"
+            ][:5])
+            open_follow_up_items = self._decorate_follow_ups(user_id, [
+                row for row in follow_ups if row.get("status") == "open"
+            ])
         result_snapshot = latest_run.get("result_snapshot") if latest_run else None
         return {
             "case_id": case["id"],
@@ -440,6 +568,16 @@ class SupabaseGateway:
             "recent_case_notes": recent_case_notes,
             "open_follow_up_items": open_follow_up_items,
         }
+
+    def review_overview(self, user_id: UUID, case_id: str | UUID) -> dict[str, Any]:
+        case = self._case_row(user_id, case_id)
+        versions = self._list_formulations_for_authorized_case(case_id)
+        return self._review_overview_for_authorized_case(
+            user_id,
+            case,
+            versions,
+            include_context_items=True,
+        )
 
     def case_activity(self, user_id: UUID, case_id: str | UUID) -> dict[str, Any]:
         case = self._case_row(user_id, case_id)
@@ -716,7 +854,13 @@ class SupabaseGateway:
         return response.get("signedURL") or response.get("signed_url")
 
     def _latest_finding_count(self, user_id: UUID, version_id: str | UUID) -> int | None:
-        runs = self.list_screenings(user_id, version_id)
+        self._version_row(user_id, version_id)
+        return self._latest_finding_count_for_authorized_version(version_id)
+
+    def _latest_finding_count_for_authorized_version(self, version_id: str | UUID) -> int | None:
+        runs = self.client.table("screening_runs").select("result_snapshot").eq(
+            "formulation_version_id", str(version_id)
+        ).order("created_at", desc=True).limit(1).execute().data or []
         if not runs:
             return None
         ingredients = (runs[0].get("result_snapshot") or {}).get("ingredient_results") or []

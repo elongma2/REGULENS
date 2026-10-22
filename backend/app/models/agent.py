@@ -60,9 +60,9 @@ class AgentSourceMetadata(StrictModel):
 
 
 class AgentRowUncertainty(StrictModel):
-    target_field: Literal["ingredient_name", "concentration", "concentration.unit", "preparation_stage", "regulated_functions"]
+    target_field: Literal["ingredient_name", "cas_number", "concentration", "concentration.unit", "preparation_stage", "regulated_functions"]
     uncertainty_code: Literal[
-        "ingredient_identity", "missing_concentration_unit", "concentration_unavailable", "preparation_stage", "ingredient_function",
+        "ingredient_identity", "cas_number", "missing_concentration_unit", "concentration_unavailable", "preparation_stage", "ingredient_function",
     ]
     source_value: str | None = None
     proposed_value: Any = None
@@ -116,16 +116,16 @@ class AgentQuestionOption(StrictModel):
 
 class AgentQuestion(StrictModel):
     question_id: str
-    question_type: Literal["identity", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping", "ingredient_function"]
+    question_type: Literal["identity", "cas_number", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping", "ingredient_function"]
     title: str
     prompt: str
     source_row: int | None = None
     row_id: str | None = None
     target_field: Literal[
-        "ingredient_name", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping", "regulated_functions",
+        "ingredient_name", "cas_number", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping", "regulated_functions",
     ] | None = None
     uncertainty_code: Literal[
-        "ingredient_identity", "missing_concentration_unit", "concentration_unavailable", "preparation_stage",
+        "ingredient_identity", "cas_number", "missing_concentration_unit", "concentration_unavailable", "preparation_stage",
         "product_context", "column_mapping", "ingredient_function",
     ] | None = None
     affected_row_ids: list[str] = Field(default_factory=list)

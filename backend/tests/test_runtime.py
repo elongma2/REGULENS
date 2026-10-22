@@ -53,6 +53,25 @@ def test_catalogue_identity_without_scoped_listing_is_bounded_no_issue(store, in
     assert "overall product compliance" in result.scope_note
 
 
+def test_exact_catalogue_name_with_valid_unmapped_cas_resolves_by_name(store, ingredient_catalog):
+    result = resolve_ingredient(store, "NIACINAMIDE", "123-45-5", ingredient_catalog)
+    assert result.status == IdentityStatus.RESOLVED
+    assert result.match_methods == ["exact_catalogue_name"]
+    assert result.catalogue_identity.canonical_name == "NIACINAMIDE"
+    assert "supplied_cas_cannot_be_corroborated_by_catalogue_source" not in result.reasons
+
+
+def test_exact_catalogue_name_with_malformed_cas_still_requires_review(store, ingredient_catalog):
+    result = resolve_ingredient(store, "NIACINAMIDE", "123-45-6", ingredient_catalog)
+    assert result.status == IdentityStatus.REVIEW_REQUIRED
+    assert "supplied_cas_is_malformed" in result.reasons
+
+
+def test_unknown_cas_without_name_remains_unresolved(store, ingredient_catalog):
+    result = resolve_ingredient(store, None, "123-45-5", ingredient_catalog)
+    assert result.status == IdentityStatus.UNRESOLVED
+
+
 def test_literal_except_alias_finds_conditional_regulatory_record(store, ingredient_catalog):
     result = screen_ingredient(
         store,
