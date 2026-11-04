@@ -246,12 +246,13 @@ describe("Formulation Agent page", () => {
     expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
     expect(screen.getByText("Source value → structured value")).toBeInTheDocument();
     expect(screen.getAllByText("Preparation stage").length).toBeGreaterThan(0);
-    expect(within(screen.getByLabelText("Agent Product context")).getByRole("option", { name: "Toothpaste" })).toBeInTheDocument();
+    await user.click(screen.getByLabelText("Agent Product context"));
+    expect(screen.getByRole("option", { name: "Toothpaste" })).toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([input]) => String(input).endsWith("/screen-formulation"))).toBe(false);
     expect(screen.getByRole("button", { name: "Confirm Formulation" })).toBeDisabled();
     expect(screen.getByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuenow", "0");
 
-    await user.selectOptions(screen.getByLabelText("Agent Product context"), "Toothpaste");
+    await user.click(screen.getByRole("option", { name: "Toothpaste" }));
     await user.click(screen.getByRole("button", { name: "Finished product" }));
     expect(await screen.findByRole("button", { name: "Confirm Formulation" })).toBeEnabled();
     expect(screen.getByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuenow", "2");
@@ -472,8 +473,10 @@ describe("Formulation Agent page", () => {
     renderAgent();
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI\nNIACINAMIDE"], "demo.csv", { type: "text/csv" }));
     expect(await screen.findByText("Analysis complete")).toBeInTheDocument();
-    await user.selectOptions(screen.getByLabelText("Agent Product context"), "Toothpaste");
+    await user.click(screen.getByLabelText("Agent Product context"));
+    await user.click(screen.getByRole("option", { name: "Toothpaste" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("This Agent session has expired. Upload the CSV again to continue.");
+    expect(screen.getByLabelText("Agent Product context")).toHaveTextContent("Choose a product context");
     expect(screen.getByText("demo.csv")).toBeInTheDocument();
     expect(screen.getByLabelText("Row 2 interpreted name")).toHaveValue("NIACINAMIDE");
   });

@@ -83,6 +83,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .field-control { width: 100%; height: 34px; border: 1px solid #d8e0e8; border-radius: 7px; background: white; padding: 0 9px; font-size: 12px; color: #1e293b; }
 .field-control:hover:not(:disabled) { border-color: #b8c4d1; }
 .field-control:disabled { cursor: not-allowed; background: #f8fafc; color: #94a3b8; }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .ingredient-combobox { position: relative; }
 .ingredient-options { position: absolute; z-index: 40; top: calc(100% + 4px); left: 0; width: min(28rem, 80vw); max-height: 20rem; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 10px; background: white; box-shadow: 0 12px 28px rgb(15 23 42 / 10%); }
 .ingredient-option, .ingredient-option-state { display: flex; width: 100%; flex-direction: column; align-items: flex-start; gap: 2px; border-bottom: 1px solid #f1f5f9; padding: 10px 12px; text-align: left; }
@@ -95,6 +96,25 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .ingredient-source-filters > span { margin-right: auto; font-weight: 650; color: #334155; }
 .ingredient-source-filters label { display: inline-flex; cursor: pointer; align-items: center; gap: 4px; white-space: nowrap; }
 .ingredient-source-filters input { accent-color: #334155; }
+.product-context-combobox { position: relative; min-width: 0; }
+.product-context-trigger { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; text-align: left; cursor: pointer; }
+.product-context-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.product-context-trigger > svg { color: #667a72; transition: transform 160ms ease; }
+.product-context-trigger[aria-expanded="true"] > svg { transform: rotate(180deg); }
+.product-context-trigger.is-unresolved { color: #765b25; }
+.product-context-popover { position: absolute; z-index: 45; top: calc(100% + 6px); right: 0; display: grid; width: min(42rem, calc(100vw - 48px)); max-height: min(32rem, 60dvh); grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; border: 1px solid #ccd9d2; border-radius: 12px; background: #fffefd; box-shadow: 0 20px 50px -24px rgb(30 67 56 / 30%); }
+.product-context-search { position: relative; display: flex; min-height: 46px; align-items: center; gap: 8px; border-bottom: 1px solid #e3eae6; padding: 8px 12px; color: #6b7a73; }
+.product-context-search:focus-within { box-shadow: inset 0 0 0 2px var(--brand-teal); }
+.product-context-search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #233a32; font-size: 13px; }
+.product-context-result-count { border-bottom: 1px solid #edf1ee; background: #f7f9f6; padding: 7px 12px; color: #708078; font-size: 10px; font-weight: 650; }
+.product-context-options { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 5px; }
+.product-context-options > button { display: grid; width: 100%; min-height: 40px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; border: 0; border-radius: 8px; background: transparent; padding: 8px 10px; color: #2d4139; font-size: 12px; line-height: 1.45; text-align: left; cursor: pointer; }
+.product-context-options > button > span { min-width: 0; overflow-wrap: anywhere; }
+.product-context-options > button > svg { color: var(--brand-teal); }
+.product-context-options > button:hover, .product-context-options > button.is-highlighted { background: #eef5f0; }
+.product-context-options > button[aria-selected="true"] { background: #e4f0e8; color: var(--brand-teal-deep); font-weight: 650; }
+.product-context-options > button:focus-visible { outline: 2px solid var(--brand-teal); outline-offset: -2px; }
+.product-context-empty { margin: 0; padding: 18px 12px; color: #6b7a73; font-size: 12px; text-align: center; }
 .field-error { border-color: #ef4444; }
 .input-error { margin: 3px 0 0; font-size: 10px; line-height: 1.2; color: #b91c1c; }
 .ingredient-grid { display: grid; grid-template-columns: 1.55fr 1fr 1.1fr .75fr 1fr 1.2fr 32px; column-gap: 9px; align-items: start; }

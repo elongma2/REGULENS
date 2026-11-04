@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Check, FileUp, ListChecks, LoaderCircle, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, Download, FileUp, ListChecks, LoaderCircle, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { answerAgentQuestions, prepareAgentFormulation, retryAgentSession, uploadAgentCSV } from "../api/agent";
@@ -9,6 +9,7 @@ import { addFollowUp, addReviewerNote, getReviewWorkspace, updateFollowUp, updat
 import { EvidenceDrawer, type DrawerTab } from "../components/EvidenceDrawer";
 import { HelpHint } from "../components/HelpHint";
 import { NotesActivityPanel } from "../components/NotesActivityPanel";
+import { ProductContextCombobox } from "../components/ProductContextCombobox";
 import { ScreeningResultsPanel } from "../components/ScreeningResultsPanel";
 import { formatConcentration, requiresAttention } from "../lib/screening";
 import { idleWriteState, type WriteState } from "../lib/reviewPresentation";
@@ -98,6 +99,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   const [formulationId, setFormulationId] = useState("");
   const [formulationName, setFormulationName] = useState("");
   const [productContext, setProductContext] = useState("");
+  const [pendingProductContext, setPendingProductContext] = useState<string | null>(null);
   const [productApplicability, setProductApplicability] = useState<ProductApplicabilityFacts>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -270,11 +272,22 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   };
 
   const changeProductContext = async (value: string) => {
-    setProductContext(value);
     const contextQuestion = session?.questions.find((question) => question.question_type === "product_context") ?? null;
-    if (!contextQuestion) return;
+    if (!contextQuestion) {
+      setProductContext(value);
+      return;
+    }
     const option = contextQuestion.options.find((item) => item.value === (value || null));
-    if (option) await answer(contextQuestion, option.option_id);
+    if (!option) {
+      setError("This product context is not available for the saved formulation state. Reload the formulation and choose from its accepted list.");
+      return;
+    }
+    setPendingProductContext(value);
+    try {
+      await answer(contextQuestion, option.option_id);
+    } finally {
+      setPendingProductContext(null);
+    }
   };
 
   const saveRow = async (rowId: string, draft: RowDraft, field: "name" | "cas" | "concentration" | "functions") => {
@@ -655,6 +668,9 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
     } : null;
   })() : null;
   const contextQuestion = session?.questions.find((question) => question.question_type === "product_context") ?? null;
+  const productContextOptions = contextQuestion
+    ? contextQuestion.options.flatMap((option) => typeof option.value === "string" ? [option.value] : [])
+    : options?.product_contexts ?? [];
   const clarificationQuestions = session?.questions.filter((question) => question.question_type !== "product_context") ?? [];
   const stageQuestion = session?.questions.find((question) => question.question_type === "preparation_stage") ?? null;
   const blockingItems = session?.questions.flatMap((question) => {
@@ -1024,11 +1040,13 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                   <div className="field-label">
                     <div className="flex items-center gap-1.5"><span>Product context</span><HelpHint label="Agent Product context"><p>Some restrictions depend on the exact cosmetic product type. Select only an accepted backend option; the Agent does not infer a regulatory hierarchy.</p></HelpHint></div>
                     <span className="optional-label">Optional when unavailable</span>
-                    <select aria-label="Agent Product context" className="field-control" value={contextQuestion && !productContext ? "__unresolved" : productContext} disabled={busy} onChange={(event) => void changeProductContext(event.target.value)}>
-                      {contextQuestion && <option value="__unresolved" disabled>Choose a product context</option>}
-                      <option value="">No product context supplied</option>
-                      {options?.product_contexts.map((context) => <option key={context}>{context}</option>)}
-                    </select>
+                    <ProductContextCombobox
+                      value={pendingProductContext ?? productContext}
+                      options={productContextOptions}
+                      unresolved={Boolean(contextQuestion && !productContext)}
+                      disabled={busy}
+                      onSelect={changeProductContext}
+                    />
                   </div>
                 </div>
                 <div className="agent-detail-notes">
