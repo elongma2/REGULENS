@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Check, FileUp, ListChecks, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, FileUp, ListChecks, LoaderCircle, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { answerAgentQuestions, prepareAgentFormulation, retryAgentSession, uploadAgentCSV } from "../api/agent";
@@ -9,17 +9,23 @@ import { EvidenceDrawer, type DrawerTab } from "../components/EvidenceDrawer";
 import { HelpHint } from "../components/HelpHint";
 import { NotesActivityPanel } from "../components/NotesActivityPanel";
 import { ScreeningResultsPanel } from "../components/ScreeningResultsPanel";
-import { requiresAttention } from "../lib/screening";
+import { formatConcentration, requiresAttention } from "../lib/screening";
 import { idleWriteState, type WriteState } from "../lib/reviewPresentation";
-import type { AgentPreparedFormulation, AgentQuestion, AgentSession, InputProvenance } from "../types/agent";
+import type { AgentPreparedFormulation, AgentQuestion, AgentRowAddition, AgentSession, InputProvenance } from "../types/agent";
 import type { ScreeningRun } from "../types/cases";
 import type { FollowUp, ReviewDataState, ReviewerNote, ReviewItem, ReviewStatus, ReviewWorkspace } from "../types/review";
-import type { ConcentrationBasis, ConcentrationUnit, PreparationStage, ProductApplicabilityFacts, RegulatedFunction, ScreeningOptions, ScreeningResponse } from "../types/screening";
+import type { ConcentrationBasis, ConcentrationType, ConcentrationUnit, PreparationStage, ProductApplicabilityFacts, RegulatedFunction, ScreeningOptions, ScreeningResponse } from "../types/screening";
 
 interface RowDraft {
   name: string;
   cas: string;
   value: string;
+  concentrationType: ConcentrationType;
+  lowerBound: string;
+  upperBound: string;
+  lowerInclusive: boolean;
+  upperInclusive: boolean;
+  originalText: string;
   unit: ConcentrationUnit | "";
   basis: ConcentrationBasis | null;
   stage: PreparationStage | "";
@@ -63,6 +69,12 @@ function rowDrafts(session: AgentSession): Record<string, RowDraft> {
     name: String(row.name.value ?? ""),
     cas: String(row.cas_number?.value ?? ""),
     value: row.concentration?.value?.value == null ? "" : String(row.concentration.value.value),
+    concentrationType: row.concentration?.concentration_type?.value ?? "exact",
+    lowerBound: row.concentration?.lower_bound?.value == null ? "" : String(row.concentration.lower_bound.value),
+    upperBound: row.concentration?.upper_bound?.value == null ? "" : String(row.concentration.upper_bound.value),
+    lowerInclusive: row.concentration?.lower_inclusive ?? true,
+    upperInclusive: row.concentration?.upper_inclusive ?? true,
+    originalText: row.concentration?.original_text ?? "",
     unit: row.concentration?.unit?.value ?? "",
     basis: row.concentration?.basis.value ?? null,
     stage: row.concentration?.preparation_stage?.value ?? "",
@@ -112,6 +124,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   const [clarificationActions, setClarificationActions] = useState<Record<string, string>>({});
   const [activityRefreshToken, setActivityRefreshToken] = useState(0);
   const [confirmationTracker, setConfirmationTracker] = useState<{ sessionId: string | null; total: number }>({ sessionId: null, total: 0 });
+  const [newIngredient, setNewIngredient] = useState({ name: "", cas: "", value: "", unit: "percent" as ConcentrationUnit });
 
   const writeState = (key: string): WriteState => reviewWriteStates[key] ?? idleWriteState;
   const setWriteState = (key: string, state: WriteState) => setReviewWriteStates((current) => ({ ...current, [key]: state }));
@@ -275,12 +288,28 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
         : field === "functions"
           ? { row_id: rowId, regulated_functions: draft.regulatedFunctions }
         : (() => {
-            if (!draft.value.trim()) { setError("Enter a numeric concentration or use Leave unavailable in its clarification card."); return null; }
-            const parsed = Number(draft.value);
-            if (!Number.isFinite(parsed) || parsed < 0) { setError("Concentration edits must be non-negative numbers."); return null; }
+            const numeric = (raw: string, label: string): number | null => {
+              if (!raw.trim()) { setError(`Enter ${label}.`); return null; }
+              const parsed = Number(raw);
+              if (!Number.isFinite(parsed) || parsed < 0) { setError(`${label} must be a non-negative number.`); return null; }
+              return parsed;
+            };
+            const value = ["exact", "approximate"].includes(draft.concentrationType) ? numeric(draft.value, "a concentration") : null;
+            const lower = ["range", "lower_bound"].includes(draft.concentrationType) ? numeric(draft.lowerBound, "a lower bound") : null;
+            const upper = ["range", "upper_bound"].includes(draft.concentrationType) ? numeric(draft.upperBound, "an upper bound") : null;
+            if ((["exact", "approximate"].includes(draft.concentrationType) && value == null)
+              || (["range", "lower_bound"].includes(draft.concentrationType) && lower == null)
+              || (["range", "upper_bound"].includes(draft.concentrationType) && upper == null)) return null;
+            if (draft.concentrationType === "range" && lower! > upper!) { setError("The concentration range lower bound cannot exceed its upper bound."); return null; }
             return {
               row_id: rowId,
-              concentration_value: parsed,
+              concentration_type: draft.concentrationType,
+              concentration_value: value,
+              concentration_lower_bound: lower,
+              concentration_upper_bound: upper,
+              concentration_lower_inclusive: draft.lowerInclusive,
+              concentration_upper_inclusive: draft.upperInclusive,
+              concentration_original_text: draft.originalText || null,
               concentration_unit: draft.unit || null,
               concentration_basis: draft.basis,
               preparation_stage: draft.stage || null,
@@ -294,6 +323,49 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
       setPrepared(null);
     }
     catch (caught) { setError(caught instanceof Error ? caught.message : "Row edits could not be saved."); }
+    finally { setBusy(false); }
+  };
+
+  const addIngredient = async () => {
+    if (!session || busy || !newIngredient.name.trim()) return;
+    const value = newIngredient.value.trim() ? Number(newIngredient.value) : null;
+    if (value != null && (!Number.isFinite(value) || value < 0)) { setError("Concentration must be a non-negative number."); return; }
+    const addition: AgentRowAddition = {
+      name: newIngredient.name.trim(),
+      cas_number: optional(newIngredient.cas),
+      concentration: value == null ? null : {
+        concentration_type: "exact",
+        value,
+        lower_bound: null,
+        upper_bound: null,
+        lower_inclusive: null,
+        upper_inclusive: null,
+        original_text: newIngredient.value.trim(),
+        unit: newIngredient.unit,
+        basis: null,
+        preparation_stage: "finished_product",
+      },
+      regulated_functions: [],
+    };
+    setBusy(true); setError(null);
+    try {
+      const next = versionId
+        ? (await answerFormulationVersion(session, [], [], [addition])).agent_session
+        : await answerAgentQuestions(session, [], [], [addition]);
+      setSession(next); setPrepared(null); setNewIngredient({ name: "", cas: "", value: "", unit: "percent" });
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "The ingredient could not be added."); }
+    finally { setBusy(false); }
+  };
+
+  const removeIngredient = async (rowId: string) => {
+    if (!session || busy) return;
+    setBusy(true); setError(null);
+    try {
+      const next = versionId
+        ? (await answerFormulationVersion(session, [], [], [], [rowId])).agent_session
+        : await answerAgentQuestions(session, [], [], [], [rowId]);
+      setSession(next); setPrepared(null);
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "The ingredient could not be removed."); }
     finally { setBusy(false); }
   };
 
@@ -743,7 +815,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
             <p>{busy ? "Regulens is identifying the formulation structure and ingredient fields." : "or"}</p>
             <button className="secondary-button" type="button" onClick={() => fileInput.current?.click()} disabled={busy}>Browse files</button>
             <input ref={fileInput} className="sr-only" type="file" accept=".csv,.xlsx,.xls,.txt,.tsv,.json,.pdf,text/csv,application/json,application/pdf" aria-label="Choose formulation CSV" onChange={(event) => void upload(event.target.files?.[0])} />
-            <small>CSV, XLSX, XLS, TXT, TSV, JSON, and PDF supported · maximum 2 MiB</small>
+            <small>CSV, spreadsheets, text, JSON, and selectable-text PDF supported · maximum 2 MiB · no scanned-image OCR</small>
           </section>
         )}
 
@@ -848,7 +920,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
               <section className="agent-ready-panel">
                 <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Formulation ready for screening</p><h2 className="section-title">{prepared.formulation.ingredients.length} ingredients</h2></div><Sparkles size={19} className="text-emerald-700" /></div>
                 <div className="agent-ready-meta"><span>Formulation</span><strong>{prepared.formulation.formulation_name ?? "Untitled formulation"}</strong><span>Product context</span><strong>{prepared.formulation.product_context ?? "Not supplied"}</strong></div>
-                <div className="mt-4 overflow-x-auto"><table className="agent-table"><thead><tr><th>Ingredient</th><th>Function</th><th>CAS</th><th>Concentration</th><th>Basis</th><th>Preparation stage</th><th>Source rows</th></tr></thead><tbody>{prepared.formulation.ingredients.map((ingredient, index) => <tr key={`${ingredient.name}-${index}`}><td><strong>{ingredient.name}</strong></td><td>{ingredient.regulated_functions?.map((item) => item.replaceAll("_", " ")).join(", ") || "Not declared"}</td><td>{ingredient.cas_number ?? "—"}</td><td>{ingredient.concentration ? `${ingredient.concentration.value} ${ingredient.concentration.unit}` : "—"}</td><td>{ingredient.concentration?.basis ?? "No specific basis"}</td><td>{ingredient.concentration ? ingredient.concentration.preparation_stage.replaceAll("_", " ") : "—"}</td><td>{prepared.row_provenance[index]?.source_rows.join(", ")}</td></tr>)}</tbody></table></div>
+                <div className="mt-4 overflow-x-auto"><table className="agent-table"><thead><tr><th>Ingredient</th><th>Function</th><th>CAS</th><th>Concentration</th><th>Basis</th><th>Preparation stage</th><th>Source rows</th></tr></thead><tbody>{prepared.formulation.ingredients.map((ingredient, index) => <tr key={`${ingredient.name}-${index}`}><td><strong>{ingredient.name}</strong></td><td>{ingredient.regulated_functions?.map((item) => item.replaceAll("_", " ")).join(", ") || "Not declared"}</td><td>{ingredient.cas_number ?? "—"}</td><td>{formatConcentration(ingredient.concentration)}</td><td>{ingredient.concentration?.basis ?? "No specific basis"}</td><td>{ingredient.concentration?.preparation_stage ? ingredient.concentration.preparation_stage.replaceAll("_", " ") : "—"}</td><td>{prepared.row_provenance[index]?.source_rows.join(", ")}</td></tr>)}</tbody></table></div>
                 <div className="mt-5 flex justify-between gap-3"><button className="secondary-button" type="button" onClick={() => setPrepared(null)}>Back to interpretation</button><button className="primary-button" type="button" onClick={screenPrepared} disabled={busy}>{busy ? <><LoaderCircle className="animate-spin" size={15} /> Screening…</> : <><Check size={15} /> Confirm & Screen</>}</button></div>
               </section>
             )}
@@ -981,24 +1053,38 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                       const basisEdited = fieldWasEdited(row.concentration?.basis?.value, row.concentration?.basis?.source_value, row.concentration?.basis?.confirmed_by_user);
                       const stageEdited = fieldWasEdited(row.concentration?.preparation_stage?.value, row.concentration?.preparation_stage?.source_value, row.concentration?.preparation_stage?.confirmed_by_user);
                       return <tr id={`agent-row-${row.row_id}`} className={highlightedRow === row.row_id ? "agent-target-highlight" : ""} key={row.row_id}>
-                        <td><small>Row{row.source_rows.length > 1 ? "s" : ""} {row.source_rows.join(", ")}</small><strong>{row.name.source_value}</strong></td>
+                        <td><small>Row{row.source_rows.length > 1 ? "s" : ""} {row.source_rows.join(", ")}{row.source_pages?.length ? ` · PDF page${row.source_pages.length > 1 ? "s" : ""} ${row.source_pages.join(", ")}` : ""}</small><strong>{row.name.source_value}</strong>{row.name.source_references[0]?.source_snippet && <span className="mt-1 block max-w-xs text-xs text-slate-500" title={row.name.source_references[0].source_snippet}>{row.name.source_references[0].source_snippet}</span>}</td>
                         <td><div className="agent-field-stack">
                           <label><span>Ingredient name {nameEdited && <em className="edited-field-marker">Edited</em>}</span><input data-agent-field="ingredient_name" className="field-control" aria-label={`Row ${row.source_row} interpreted name`} value={draft.name} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, name: event.target.value } }))} onBlur={() => void saveRow(row.row_id, draft, "name")} /></label>
                           <label><span>CAS, if supplied {casEdited && <em className="edited-field-marker">Edited</em>}</span><input data-agent-field="cas_number" className="field-control" aria-label={`Row ${row.source_row} CAS`} value={draft.cas} placeholder="—" onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, cas: event.target.value } }))} onBlur={() => void saveRow(row.row_id, draft, "cas")} /></label>
                           <fieldset data-agent-field="regulated_functions" className="mt-2"><legend className="text-xs font-medium text-slate-600">Regulated function</legend><div className="mt-1 flex flex-wrap gap-2">{(["colourant", "preservative", "uv_filter"] as RegulatedFunction[]).map((value) => <label className="inline-flex items-center gap-1 text-xs" key={value}><input type="checkbox" checked={draft.regulatedFunctions.includes(value)} onChange={(event) => { const next = { ...draft, regulatedFunctions: event.target.checked ? [...draft.regulatedFunctions, value] : draft.regulatedFunctions.filter((item) => item !== value) }; setDrafts((current) => ({ ...current, [row.row_id]: next })); void saveRow(row.row_id, next, "functions"); }} />{value.replace("_", " ")}</label>)}</div></fieldset>
                         </div></td>
                         <td><div className="agent-concentration-grid">
-                          <label><span>Value {valueEdited && <em className="edited-field-marker">Edited</em>}</span><input data-agent-field="concentration" className="field-control" aria-label={`Row ${row.source_row} concentration`} value={draft.value} placeholder="—" onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, value: event.target.value } }))} onBlur={() => { if (draft.value.trim()) void saveRow(row.row_id, draft, "concentration"); }} /></label>
-                          <label><span>Unit {unitEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="concentration.unit" className="field-control" aria-label={`Row ${row.source_row} unit`} value={draft.unit} onChange={(event) => { const next = { ...draft, unit: event.target.value as ConcentrationUnit | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (next.value.trim()) void saveRow(row.row_id, next, "concentration"); }}><option value="">Choose unit</option><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select></label>
+                          <label><span>Reported quantity {valueEdited && <em className="edited-field-marker">Edited</em>}</span><select className="field-control" aria-label={`Row ${row.source_row} concentration type`} value={draft.concentrationType} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, concentrationType: event.target.value as ConcentrationType } }))}><option value="exact">Exact</option><option value="range">Range</option><option value="upper_bound">Upper bound</option><option value="lower_bound">Lower bound</option><option value="approximate">Approximate</option><option value="unknown">Not disclosed</option></select></label>
+                          {["exact", "approximate"].includes(draft.concentrationType) && <label><span>Value</span><input data-agent-field="concentration" className="field-control" aria-label={`Row ${row.source_row} concentration`} value={draft.value} placeholder="—" onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, value: event.target.value } }))} onBlur={() => { if (draft.value.trim()) void saveRow(row.row_id, draft, "concentration"); }} /></label>}
+                          {["range", "lower_bound"].includes(draft.concentrationType) && <label><span>Lower bound</span><input className="field-control" aria-label={`Row ${row.source_row} lower bound`} value={draft.lowerBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerBound: event.target.value } }))} /></label>}
+                          {["range", "upper_bound"].includes(draft.concentrationType) && <label><span>Upper bound</span><input className="field-control" aria-label={`Row ${row.source_row} upper bound`} value={draft.upperBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperBound: event.target.value } }))} /></label>}
+                          {draft.concentrationType === "upper_bound" && <label><span>Boundary</span><select className="field-control" aria-label={`Row ${row.source_row} upper boundary`} value={draft.upperInclusive ? "inclusive" : "strict"} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperInclusive: event.target.value === "inclusive" } }))}><option value="strict">Less than (&lt;)</option><option value="inclusive">At most (≤)</option></select></label>}
+                          {draft.concentrationType === "lower_bound" && <label><span>Boundary</span><select className="field-control" aria-label={`Row ${row.source_row} lower boundary`} value={draft.lowerInclusive ? "inclusive" : "strict"} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerInclusive: event.target.value === "inclusive" } }))}><option value="strict">Greater than (&gt;)</option><option value="inclusive">At least (≥)</option></select></label>}
+                          {draft.concentrationType === "range" && <label className="col-span-full flex items-center gap-3 text-xs text-slate-600"><input type="checkbox" checked={draft.lowerInclusive} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerInclusive: event.target.checked } }))} /> Include lower bound <input type="checkbox" checked={draft.upperInclusive} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperInclusive: event.target.checked } }))} /> Include upper bound</label>}
+                          {draft.originalText && <p className="col-span-full text-xs text-slate-500">Submitted: {draft.originalText}</p>}
+                          <label><span>Unit {unitEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="concentration.unit" className="field-control" aria-label={`Row ${row.source_row} unit`} value={draft.unit} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, unit: event.target.value as ConcentrationUnit | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); }}><option value="">Choose unit</option><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select></label>
                           <label><span>Basis {basisEdited && <em className="edited-field-marker">Edited</em>}</span><select className="field-control" aria-label={`Row ${row.source_row} basis`} value={draft.basis ?? ""} onChange={(event) => { const next = { ...draft, basis: optional(event.target.value) as ConcentrationBasis | null }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (next.value.trim()) void saveRow(row.row_id, next, "concentration"); }}><option value="">No specific basis</option>{options?.concentration_bases.filter((basis): basis is ConcentrationBasis => basis !== null).map((basis) => <option key={basis} value={basis}>{basis}</option>)}</select></label>
-                          <label><span>Preparation stage {stageEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="preparation_stage" className="field-control" aria-label={`Row ${row.source_row} stage`} value={draft.stage} onChange={(event) => { const next = { ...draft, stage: event.target.value as PreparationStage | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (next.value.trim()) void saveRow(row.row_id, next, "concentration"); }}><option value="">Choose stage</option><option value="finished_product">Finished product</option><option value="after_mixing">After mixing for use</option><option value="ready_for_use">Ready for use</option></select></label>
+                          <label><span>Preparation stage {stageEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="preparation_stage" className="field-control" aria-label={`Row ${row.source_row} stage`} value={draft.stage} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, stage: event.target.value as PreparationStage | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); }}><option value="">Choose stage</option><option value="finished_product">Finished product</option><option value="after_mixing">After mixing for use</option><option value="ready_for_use">Ready for use</option></select></label>
+                          <button className="secondary-button" type="button" disabled={busy} onClick={() => void saveRow(row.row_id, draft, "concentration")}>Save quantity</button>
                         </div></td>
                         <td>
                           <button className={`agent-row-status ${rowQuestions.length ? "warning" : rowStatus === "Input incomplete" ? "unresolved" : "ready"}`} type="button" title={rowStatus === "Input ready" ? "All required formulation input is complete" : undefined} onClick={() => rowQuestions[0] && focusQuestion(rowQuestions[0].question_id)}>{rowStatus}{rowQuestions.length ? ` · ${rowQuestions.length} issue${rowQuestions.length === 1 ? "" : "s"}` : ""}</button>
+                          <button className="mt-2 inline-flex items-center gap-1 text-xs text-slate-500 hover:text-red-700" type="button" disabled={busy} onClick={() => void removeIngredient(row.row_id)}><Trash2 size={13} /> Remove</button>
                         </td>
                       </tr>;
                     })}</tbody>
                   </table>
+                </div>
+                <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+                  <strong className="text-sm text-slate-800">Add a missing ingredient</strong>
+                  <p className="mt-1 text-xs text-slate-500">Use this when a partial PDF or SDS does not include every ingredient you know about.</p>
+                  <div className="mt-3 grid gap-2 md:grid-cols-5"><input className="field-control" aria-label="New ingredient name" placeholder="Ingredient name" value={newIngredient.name} onChange={(event) => setNewIngredient((current) => ({ ...current, name: event.target.value }))} /><input className="field-control" aria-label="New ingredient CAS" placeholder="CAS (optional)" value={newIngredient.cas} onChange={(event) => setNewIngredient((current) => ({ ...current, cas: event.target.value }))} /><input className="field-control" aria-label="New ingredient concentration" placeholder="Exact value (optional)" value={newIngredient.value} onChange={(event) => setNewIngredient((current) => ({ ...current, value: event.target.value }))} /><select className="field-control" aria-label="New ingredient unit" value={newIngredient.unit} onChange={(event) => setNewIngredient((current) => ({ ...current, unit: event.target.value as ConcentrationUnit }))}><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select><button className="secondary-button" type="button" disabled={busy || !newIngredient.name.trim()} onClick={() => void addIngredient()}><Plus size={14} /> Add ingredient</button></div>
                 </div>
               </section>
             )}
@@ -1027,7 +1113,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
             {session.interpreted_rows.some((row) => row.source_metadata.length > 0) && (
               <details className="agent-source-metadata">
                 <summary>Source metadata</summary>
-                <p>Preserved exactly from non-regulatory CSV columns. These values are not sent to the screening engine.</p>
+                <p>Preserved from the uploaded document. These supporting values are not sent to the regulatory screening engine.</p>
                 <div className="mt-3 overflow-x-auto">
                   <table className="agent-table"><thead><tr><th>Source row</th><th>Column</th><th>Original value</th></tr></thead><tbody>
                     {session.interpreted_rows.flatMap((row) => row.source_metadata.map((item, index) => <tr key={`${row.row_id}-${item.source_row}-${item.source_column_index}-${index}`}><td>Row {item.source_row ?? row.source_row}</td><td>{item.source_column}</td><td>{item.source_value}</td></tr>))}

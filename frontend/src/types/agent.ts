@@ -1,4 +1,4 @@
-import type { CatalogueIdentity, ConcentrationBasis, ConcentrationUnit, FormulationRequest, OpenAIUsage, PreparationStage, ProductApplicabilityFacts, RegulatedFunction } from "./screening";
+import type { CatalogueIdentity, ConcentrationBasis, ConcentrationType, ConcentrationUnit, DocumentCompleteness, FormulationRequest, OpenAIUsage, PreparationStage, ProductApplicabilityFacts, RegulatedFunction, SourceDocumentType } from "./screening";
 
 export type AgentSessionState = "uploaded" | "parsing" | "interpreted" | "needs_confirmation" | "ready" | "failed";
 export type AgentConfidence = "confirmed" | "high_confidence" | "needs_confirmation" | "unresolved";
@@ -19,10 +19,18 @@ export interface AgentSourceReference {
   source_column_index: number;
   source_column: string | null;
   source_value: string;
+  source_page?: number | null;
+  source_snippet?: string | null;
 }
 
 export interface AgentConcentration {
-  value: AgentFieldProvenance<number> | null;
+  concentration_type?: AgentFieldProvenance<ConcentrationType> | null;
+  value: AgentFieldProvenance<number | null> | null;
+  lower_bound?: AgentFieldProvenance<number> | null;
+  upper_bound?: AgentFieldProvenance<number> | null;
+  lower_inclusive?: boolean | null;
+  upper_inclusive?: boolean | null;
+  original_text?: string | null;
   unit: AgentFieldProvenance<ConcentrationUnit | null> | null;
   basis: AgentFieldProvenance<ConcentrationBasis | null>;
   preparation_stage: AgentFieldProvenance<PreparationStage | null> | null;
@@ -34,12 +42,15 @@ export interface AgentSourceMetadata {
   source_column_index: number;
   source_value: string;
   mapped_as: string;
+  source_page?: number | null;
+  source_snippet?: string | null;
 }
 
 export interface AgentIngredientRow {
   row_id: string;
   source_row: number;
   source_rows: number[];
+  source_pages?: number[];
   source_cells: string[];
   name: AgentFieldProvenance<string>;
   cas_number: AgentFieldProvenance<string | null> | null;
@@ -64,13 +75,13 @@ export interface AgentRowUncertainty {
 export interface AgentQuestionOption { option_id: string; label: string; value: unknown; }
 export interface AgentQuestion {
   question_id: string;
-  question_type: "identity" | "cas_number" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping" | "ingredient_function";
+  question_type: "identity" | "cas_number" | "unit" | "preparation_stage" | "product_context" | "non_numeric_concentration" | "mapping" | "ingredient_function" | "document_completeness" | "document_scope";
   title: string;
   prompt: string;
   source_row: number | null;
   row_id: string | null;
-  target_field: "ingredient_name" | "cas_number" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | "regulated_functions" | null;
-  uncertainty_code: "ingredient_identity" | "cas_number" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | "ingredient_function" | null;
+  target_field: "ingredient_name" | "cas_number" | "concentration" | "concentration.unit" | "preparation_stage" | "product_context" | "column_mapping" | "regulated_functions" | "document_completeness" | "document_scope" | null;
+  uncertainty_code: "ingredient_identity" | "cas_number" | "missing_concentration_unit" | "concentration_unavailable" | "preparation_stage" | "product_context" | "column_mapping" | "ingredient_function" | "document_completeness" | "document_scope" | null;
   affected_row_ids: string[];
   blocking: boolean;
   options: AgentQuestionOption[];
@@ -95,6 +106,12 @@ export interface AgentSession {
   revision: number;
   state: AgentSessionState;
   filename: string;
+  source_format?: string;
+  source_document_type?: SourceDocumentType;
+  document_completeness?: DocumentCompleteness;
+  document_completeness_confirmed?: boolean;
+  multiple_products_detected?: boolean;
+  document_scope_confirmed?: boolean;
   detected_table: { header_row: number; data_start_row: number; header_rows: number[]; data_rows: number[]; source_row_count: number; source_column_count: number; delimiter: string } | null;
   column_mappings: Array<{ source_column: string; source_column_index: number; mapped_field: string; confidence: AgentConfidence }>;
   formulation_id: AgentFieldProvenance<string | null> | null;
@@ -126,10 +143,23 @@ export interface AgentRowUpdate {
   name?: string;
   cas_number?: string | null;
   concentration_value?: number | null;
+  concentration_type?: ConcentrationType | null;
+  concentration_lower_bound?: number | null;
+  concentration_upper_bound?: number | null;
+  concentration_lower_inclusive?: boolean | null;
+  concentration_upper_inclusive?: boolean | null;
+  concentration_original_text?: string | null;
   concentration_unit?: ConcentrationUnit | null;
   concentration_basis?: ConcentrationBasis | null;
   preparation_stage?: PreparationStage | null;
   remove_concentration?: boolean;
+  regulated_functions?: RegulatedFunction[];
+}
+
+export interface AgentRowAddition {
+  name: string;
+  cas_number?: string | null;
+  concentration?: import("./screening").Concentration | null;
   regulated_functions?: RegulatedFunction[];
 }
 

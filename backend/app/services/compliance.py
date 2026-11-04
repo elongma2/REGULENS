@@ -5,6 +5,7 @@ from data_pipeline.scripts.normalize import conservative_text
 from backend.app.models.screening import (
     ConditionEvaluation,
     ConditionStatus,
+    ConcentrationType,
     Finding,
     FunctionEvaluation,
     IdentityStatus,
@@ -37,6 +38,44 @@ FUNCTION_PARTS = {
     RegulatedFunction.PRESERVATIVE: "Third Schedule Part IV",
     RegulatedFunction.UV_FILTER: "Third Schedule Part V",
 }
+
+
+def _concentration_relation(submitted, comparator: str, limit: float) -> str:
+    """Classify a submitted exact/interval concentration against one upper limit."""
+    kind = submitted.concentration_type
+    if kind == ConcentrationType.UNKNOWN:
+        return "unknown"
+    if kind == ConcentrationType.APPROXIMATE:
+        return "potential"
+    if kind == ConcentrationType.EXACT:
+        if comparator == "less_than_or_equal":
+            return "within" if submitted.value <= limit else "exceeds"
+        return "within" if submitted.value < limit else "exceeds"
+
+    lower = submitted.lower_bound
+    upper = submitted.upper_bound
+    lower_inclusive = submitted.lower_inclusive is not False
+    upper_inclusive = submitted.upper_inclusive is not False
+
+    fully_within = False
+    if upper is not None:
+        if comparator == "less_than_or_equal":
+            fully_within = upper <= limit
+        else:
+            fully_within = upper < limit or (upper == limit and not upper_inclusive)
+
+    fully_exceeds = False
+    if lower is not None:
+        if comparator == "less_than_or_equal":
+            fully_exceeds = lower > limit or (lower == limit and not lower_inclusive)
+        else:
+            fully_exceeds = lower >= limit
+
+    if fully_within:
+        return "within"
+    if fully_exceeds:
+        return "exceeds"
+    return "potential"
 
 
 def _material_source_difference(store: RegulatoryStore, rule: dict) -> bool:
@@ -198,6 +237,28 @@ def _evaluate_positive_rule(
                 missing_reasons,
             )
         submitted = ingredient.concentration
+        if submitted.concentration_type == ConcentrationType.UNKNOWN:
+            reason = f"{rule['rule_id']}: concentration was not disclosed"
+            missing_reasons.append(reason)
+            return (
+                RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_information_missing", reasons=[reason], submitted_concentration=submitted, evidence=evidence),
+                conditions,
+                _warning_results(rule, WarningApplicability.UNDETERMINED),
+                None,
+                review_reasons,
+                missing_reasons,
+            )
+        if submitted.unit is None or submitted.preparation_stage is None:
+            reason = f"{rule['rule_id']}: concentration unit and preparation stage are required"
+            missing_reasons.append(reason)
+            return (
+                RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_information_missing", reasons=[reason], submitted_concentration=submitted, evidence=evidence),
+                conditions,
+                _warning_results(rule, WarningApplicability.UNDETERMINED),
+                None,
+                review_reasons,
+                missing_reasons,
+            )
         incompatible = [
             field for field in ("unit", "basis", "preparation_stage")
             if not _same(getattr(submitted, field), constraint.get(field))
@@ -226,7 +287,19 @@ def _evaluate_positive_rule(
                 review_reasons,
                 missing_reasons,
             )
-        within = submitted.value <= limit if comparator == "less_than_or_equal" else submitted.value < limit
+        relation = _concentration_relation(submitted, comparator, float(limit))
+        if relation == "potential":
+            reason = f"{rule['rule_id']}: reported concentration range or approximate value cannot be conclusively compared with the limit"
+            review_reasons.append(reason)
+            return (
+                RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_professional_review", reasons=[reason], submitted_concentration=submitted, evidence=evidence),
+                conditions,
+                _warning_results(rule, WarningApplicability.UNDETERMINED),
+                None,
+                review_reasons,
+                missing_reasons,
+            )
+        within = relation == "within"
         finding = Finding.PERMITTED_USE_WITHIN_CONDITIONS if within else Finding.PERMITTED_USE_CONDITION_NOT_MET
         return (
             RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="deterministic", finding=finding, submitted_concentration=submitted, evidence=evidence),
@@ -476,6 +549,32 @@ def screen_ingredient(
             )
             continue
         submitted = ingredient.concentration
+        if submitted.concentration_type == ConcentrationType.UNKNOWN:
+            reason = f"{rule['rule_id']}: concentration was not disclosed"
+            missing_reasons.append(reason)
+            evaluations.append(
+                RuleEvaluation(
+                    rule_id=rule["rule_id"],
+                    evaluation_status="withheld_information_missing",
+                    reasons=[reason],
+                    submitted_concentration=submitted,
+                    evidence=evidence,
+                )
+            )
+            continue
+        if submitted.unit is None or submitted.preparation_stage is None:
+            reason = f"{rule['rule_id']}: concentration unit and preparation stage are required"
+            missing_reasons.append(reason)
+            evaluations.append(
+                RuleEvaluation(
+                    rule_id=rule["rule_id"],
+                    evaluation_status="withheld_information_missing",
+                    reasons=[reason],
+                    submitted_concentration=submitted,
+                    evidence=evidence,
+                )
+            )
+            continue
         incompatible = []
         if not _same(submitted.unit, constraint.get("unit")):
             incompatible.append("unit")
@@ -511,7 +610,21 @@ def screen_ingredient(
                 )
             )
             continue
-        within = submitted.value <= limit if comparator == "less_than_or_equal" else submitted.value < limit
+        relation = _concentration_relation(submitted, comparator, float(limit))
+        if relation == "potential":
+            reason = f"{rule['rule_id']}: reported concentration range or approximate value cannot be conclusively compared with the limit"
+            review_reasons.append(reason)
+            evaluations.append(
+                RuleEvaluation(
+                    rule_id=rule["rule_id"],
+                    evaluation_status="withheld_professional_review",
+                    reasons=[reason],
+                    submitted_concentration=submitted,
+                    evidence=evidence,
+                )
+            )
+            continue
+        within = relation == "within"
         finding = Finding.WITHIN_LIMIT if within else Finding.RESTRICTION_EXCEEDED
         confirmed.append(finding)
         ancillary_reasons = []

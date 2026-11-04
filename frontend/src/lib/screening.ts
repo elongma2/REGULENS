@@ -119,8 +119,16 @@ export function regulationLabel(evaluation: RuleEvaluation): string | null {
 
 export function formatConcentration(value: IngredientResult["submitted_ingredient"]["concentration"]): string {
   if (!value) return "—";
-  const unit = value.unit === "percent" ? "%" : ` ${value.unit}`;
-  return `${value.value}${unit}`;
+  if (value.original_text) return value.original_text;
+  const unit = value.unit === "percent" ? "%" : value.unit ? ` ${value.unit}` : "";
+  switch (value.concentration_type ?? "exact") {
+    case "range": return `${value.lower_bound}–${value.upper_bound}${unit}`;
+    case "upper_bound": return `${value.upper_inclusive ? "≤" : "<"}${value.upper_bound}${unit}`;
+    case "lower_bound": return `${value.lower_inclusive ? "≥" : ">"}${value.lower_bound}${unit}`;
+    case "approximate": return `Approximately ${value.value}${unit}`;
+    case "unknown": return "Not disclosed";
+    default: return `${value.value}${unit}`;
+  }
 }
 
 export function humanizeCode(value: string): string {

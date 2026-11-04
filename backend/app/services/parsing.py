@@ -28,10 +28,18 @@ def _ingredient_signature(ingredient: FormulationIngredientRequest) -> tuple[Has
     concentration_signature: tuple[Hashable, ...] | None = None
     if concentration is not None:
         concentration_signature = (
+            concentration.concentration_type.value,
             concentration.value,
-            concentration.unit.value,
+            concentration.lower_bound,
+            concentration.upper_bound,
+            concentration.lower_inclusive,
+            concentration.upper_inclusive,
+            concentration.original_text,
+            concentration.unit.value if concentration.unit is not None else None,
             concentration.basis.value if concentration.basis is not None else None,
-            concentration.preparation_stage.value,
+            concentration.preparation_stage.value
+            if concentration.preparation_stage is not None
+            else None,
         )
     return (
         conservative_text(ingredient.name),

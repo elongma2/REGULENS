@@ -1,6 +1,6 @@
 import { ApiError } from "./screening";
 import { apiFetch } from "./http";
-import type { AgentPreparedFormulation, AgentRowUpdate, AgentSession } from "../types/agent";
+import type { AgentPreparedFormulation, AgentRowAddition, AgentRowUpdate, AgentSession } from "../types/agent";
 import type { CaseView, CurrentUser, FormulationVersion, ScreeningRun } from "../types/cases";
 
 async function parse<T>(response: Response): Promise<T> {
@@ -32,8 +32,8 @@ export async function uploadCaseFormulation(caseId: string, file: File): Promise
 export const getFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}`);
 export async function deleteFormulationVersion(id: string): Promise<void> { await json<unknown>(`/formulations/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify({ confirmation: "DELETE" }) }); }
 export const retryFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}/interpret`, { method: "POST" });
-export function answerFormulationVersion(session: AgentSession, answers: Array<{ question_id: string; option_id: string; value?: unknown }> = [], rowUpdates: AgentRowUpdate[] = []) {
-  return json<FormulationVersion>(`/formulations/${encodeURIComponent(session.session_id)}/answers`, { method: "POST", body: JSON.stringify({ revision: session.revision, answers, row_updates: rowUpdates }) });
+export function answerFormulationVersion(session: AgentSession, answers: Array<{ question_id: string; option_id: string; value?: unknown }> = [], rowUpdates: AgentRowUpdate[] = [], addRows: AgentRowAddition[] = [], removeRowIds: string[] = []) {
+  return json<FormulationVersion>(`/formulations/${encodeURIComponent(session.session_id)}/answers`, { method: "POST", body: JSON.stringify({ revision: session.revision, answers, row_updates: rowUpdates, add_rows: addRows, remove_row_ids: removeRowIds }) });
 }
 export function prepareFormulationVersion(session: AgentSession, metadata: { formulation_id: string | null; formulation_name: string | null; product_context: string | null; product_applicability?: import("../types/screening").ProductApplicabilityFacts }) {
   return json<AgentPreparedFormulation>(`/formulations/${encodeURIComponent(session.session_id)}/prepare`, { method: "POST", body: JSON.stringify({ revision: session.revision, ...metadata }) });

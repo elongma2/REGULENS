@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import re
 from datetime import date, datetime, time
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,6 +22,7 @@ MAX_ROWS = 500
 MAX_COLUMNS = 50
 MAX_CELL_CHARACTERS = 8_192
 MAX_DECODED_CHARACTERS = 250_000
+MAX_PDF_PAGES = 50
 
 
 class CSVUploadError(ValueError):
@@ -35,6 +37,18 @@ class ParsedCSV:
     filename: str
     delimiter: str
     rows: tuple[tuple[str, ...], ...]
+    source_format: str = "structured_grid"
+    row_pages: tuple[int | None, ...] = ()
+    row_snippets: tuple[str, ...] = ()
+    page_count: int | None = None
+
+    def page_for_row(self, source_row: int) -> int | None:
+        index = source_row - 1
+        return self.row_pages[index] if 0 <= index < len(self.row_pages) else None
+
+    def snippet_for_row(self, source_row: int) -> str | None:
+        index = source_row - 1
+        return self.row_snippets[index] if 0 <= index < len(self.row_snippets) else None
 
 
 def _decode_csv(content: bytes) -> str:
@@ -97,11 +111,54 @@ def parse_formulation_upload(filename: str, content: bytes) -> ParsedCSV:
         return _validate_rows(safe_name, rows, "\t")
     if suffix == ".pdf":
         try:
-            text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(content)).pages)
+            reader = PdfReader(io.BytesIO(content))
+            if len(reader.pages) > MAX_PDF_PAGES:
+                raise CSVUploadError(
+                    "agent_pdf_too_many_pages",
+                    f"PDF files are limited to {MAX_PDF_PAGES} pages",
+                    413,
+                )
+            pdf_rows: list[tuple[str, ...]] = []
+            row_pages: list[int | None] = []
+            row_snippets: list[str] = []
+            extracted_characters = 0
+            for page_number, page in enumerate(reader.pages, start=1):
+                if "/Contents" not in page:
+                    continue
+                page_text = page.extract_text(extraction_mode="layout") or ""
+                extracted_characters += len(page_text)
+                if extracted_characters > MAX_DECODED_CHARACTERS:
+                    raise CSVUploadError(
+                        "agent_csv_too_large",
+                        "Extracted PDF text exceeds 250,000 characters",
+                        413,
+                    )
+                for raw_line in page_text.splitlines():
+                    line = " ".join(raw_line.split()).strip()
+                    if not line:
+                        continue
+                    pdf_rows.append((line,))
+                    row_pages.append(page_number)
+                    row_snippets.append(line[:1_000])
         except (PdfReadError, OSError, ValueError) as error:
+            if isinstance(error, CSVUploadError):
+                raise
             raise CSVUploadError("agent_csv_malformed", "The PDF could not be read") from error
-        if len(text) > MAX_DECODED_CHARACTERS:
-            raise CSVUploadError("agent_csv_too_large", "Extracted PDF text exceeds 250,000 characters", 413)
+        if not pdf_rows or not any(re.search(r"[A-Za-z0-9]", row[0]) for row in pdf_rows):
+            raise CSVUploadError(
+                "agent_pdf_text_unavailable",
+                "Unable to extract text from this PDF. Please upload a text-based PDF or a supported spreadsheet.",
+            )
+        validated = _validate_rows(safe_name, pdf_rows, "pdf_text")
+        return ParsedCSV(
+            filename=validated.filename,
+            delimiter=validated.delimiter,
+            rows=validated.rows,
+            source_format="pdf",
+            row_pages=tuple(row_pages),
+            row_snippets=tuple(row_snippets),
+            page_count=len(reader.pages),
+        )
     else:
         text = _decode_csv(content)
     if not text.strip():

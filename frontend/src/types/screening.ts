@@ -8,6 +8,9 @@ export type ConcentrationBasis =
   | "tetrahydrochloride";
 export type PreparationStage = "finished_product" | "after_mixing" | "ready_for_use";
 export type RegulatedFunction = "colourant" | "preservative" | "uv_filter";
+export type ConcentrationType = "exact" | "range" | "upper_bound" | "lower_bound" | "approximate" | "unknown";
+export type SourceDocumentType = "formulation" | "sds_msds" | "unknown";
+export type DocumentCompleteness = "full_formulation" | "partial_disclosure" | "unknown";
 export type ConditionStatus = "satisfied" | "not_satisfied" | "information_missing" | "professional_review" | "not_applicable";
 
 export type Finding =
@@ -23,10 +26,16 @@ export type Finding =
   | "regulated_function_not_permitted";
 
 export interface Concentration {
-  value: number;
-  unit: ConcentrationUnit;
+  concentration_type?: ConcentrationType;
+  value: number | null;
+  lower_bound?: number | null;
+  upper_bound?: number | null;
+  lower_inclusive?: boolean | null;
+  upper_inclusive?: boolean | null;
+  original_text?: string | null;
+  unit: ConcentrationUnit | null;
   basis: ConcentrationBasis | null;
-  preparation_stage: PreparationStage;
+  preparation_stage: PreparationStage | null;
 }
 
 export interface FormulationIngredient {
@@ -57,6 +66,9 @@ export interface FormulationRequest {
   formulation_name: string | null;
   product_context: string | null;
   product_applicability?: ProductApplicabilityFacts;
+  source_document_type?: SourceDocumentType;
+  document_completeness?: DocumentCompleteness;
+  source_filename?: string | null;
   ingredients: FormulationIngredient[];
 }
 
@@ -363,6 +375,9 @@ export interface ScreeningResponse {
     formulation_name: string | null;
     product_context: string | null;
     product_applicability?: ProductApplicabilityFacts;
+    source_document_type?: SourceDocumentType;
+    document_completeness?: DocumentCompleteness;
+    source_filename?: string | null;
   };
   dataset: {
     dataset_version: string;

@@ -8,7 +8,7 @@ from pydantic import Field, field_validator, model_validator
 from data_pipeline.scripts.normalize import CAS_STRUCTURE_RE, cas_is_valid
 
 from .openai import OpenAIUsage
-from .screening import Finding, RegulatedFunction, ScreeningResult, StrictModel
+from .screening import ConcentrationType, Finding, RegulatedFunction, ScreeningResult, StrictModel
 from .identity_catalogue import IdentityCatalogueDataset, IdentityLinkageDataset
 
 
@@ -33,18 +33,49 @@ class PreparationStage(StrEnum):
     READY_FOR_USE = "ready_for_use"
 
 
+class SourceDocumentType(StrEnum):
+    FORMULATION = "formulation"
+    SDS_MSDS = "sds_msds"
+    UNKNOWN = "unknown"
+
+
+class DocumentCompleteness(StrEnum):
+    FULL_FORMULATION = "full_formulation"
+    PARTIAL_DISCLOSURE = "partial_disclosure"
+    UNKNOWN = "unknown"
+
+
 StrictFiniteFloat = Annotated[float, Field(strict=True, ge=0, allow_inf_nan=False)]
 
 
 class FormulationConcentration(StrictModel):
-    value: StrictFiniteFloat
-    unit: ConcentrationUnit
+    concentration_type: ConcentrationType = ConcentrationType.EXACT
+    value: StrictFiniteFloat | None = None
+    lower_bound: StrictFiniteFloat | None = None
+    upper_bound: StrictFiniteFloat | None = None
+    lower_inclusive: bool | None = None
+    upper_inclusive: bool | None = None
+    original_text: str | None = None
+    unit: ConcentrationUnit | None
     basis: ConcentrationBasis | None
-    preparation_stage: PreparationStage
+    preparation_stage: PreparationStage | None
 
     @model_validator(mode="after")
     def enforce_percentage_ceiling(self) -> "FormulationConcentration":
-        if self.unit == ConcentrationUnit.PERCENT and self.value > 100:
+        if self.concentration_type in {ConcentrationType.EXACT, ConcentrationType.APPROXIMATE}:
+            if self.value is None:
+                raise ValueError("Exact and approximate concentrations require a value")
+        elif self.concentration_type == ConcentrationType.RANGE:
+            if self.lower_bound is None or self.upper_bound is None:
+                raise ValueError("A concentration range requires lower and upper bounds")
+            if self.lower_bound > self.upper_bound:
+                raise ValueError("Concentration lower bound cannot exceed upper bound")
+        elif self.concentration_type == ConcentrationType.UPPER_BOUND and self.upper_bound is None:
+            raise ValueError("An upper-bound concentration requires an upper bound")
+        elif self.concentration_type == ConcentrationType.LOWER_BOUND and self.lower_bound is None:
+            raise ValueError("A lower-bound concentration requires a lower bound")
+        values = [value for value in (self.value, self.lower_bound, self.upper_bound) if value is not None]
+        if self.unit == ConcentrationUnit.PERCENT and any(value > 100 for value in values):
             raise ValueError("Percentage concentration cannot exceed 100")
         return self
 
@@ -94,9 +125,12 @@ class FormulationRequest(StrictModel):
     formulation_name: str | None = None
     product_context: str | None = None
     product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
+    source_document_type: SourceDocumentType = SourceDocumentType.FORMULATION
+    document_completeness: DocumentCompleteness = DocumentCompleteness.FULL_FORMULATION
+    source_filename: str | None = None
     ingredients: list[FormulationIngredientRequest] = Field(min_length=1)
 
-    @field_validator("formulation_id", "formulation_name", "product_context")
+    @field_validator("formulation_id", "formulation_name", "product_context", "source_filename")
     @classmethod
     def reject_blank_optional_text(cls, value: str | None) -> str | None:
         if value is not None and not value.strip():
@@ -109,6 +143,9 @@ class FormulationMetadata(StrictModel):
     formulation_name: str | None
     product_context: str | None
     product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)
+    source_document_type: SourceDocumentType = SourceDocumentType.FORMULATION
+    document_completeness: DocumentCompleteness = DocumentCompleteness.FULL_FORMULATION
+    source_filename: str | None = None
 
 
 class SourceSnapshot(StrictModel):

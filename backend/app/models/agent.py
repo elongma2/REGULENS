@@ -5,9 +5,15 @@ from typing import Any, Literal
 
 from pydantic import Field, field_validator, model_validator
 
-from .formulation import FormulationRequest, ProductApplicabilityFacts
+from .formulation import (
+    DocumentCompleteness,
+    FormulationConcentration,
+    FormulationRequest,
+    ProductApplicabilityFacts,
+    SourceDocumentType,
+)
 from .openai import OpenAIUsage
-from .screening import CatalogueIdentity, RegulatedFunction, StrictModel
+from .screening import CatalogueIdentity, ConcentrationType, RegulatedFunction, StrictModel
 
 
 class AgentSessionState(StrEnum):
@@ -42,10 +48,18 @@ class AgentSourceReference(StrictModel):
     source_column_index: int
     source_column: str | None = None
     source_value: str
+    source_page: int | None = None
+    source_snippet: str | None = None
 
 
 class AgentConcentration(StrictModel):
+    concentration_type: AgentFieldProvenance | None = None
     value: AgentFieldProvenance | None = None
+    lower_bound: AgentFieldProvenance | None = None
+    upper_bound: AgentFieldProvenance | None = None
+    lower_inclusive: bool | None = None
+    upper_inclusive: bool | None = None
+    original_text: str | None = None
     unit: AgentFieldProvenance | None = None
     basis: AgentFieldProvenance
     preparation_stage: AgentFieldProvenance | None = None
@@ -57,6 +71,8 @@ class AgentSourceMetadata(StrictModel):
     source_column_index: int
     source_value: str
     mapped_as: str
+    source_page: int | None = None
+    source_snippet: str | None = None
 
 
 class AgentRowUncertainty(StrictModel):
@@ -72,6 +88,7 @@ class AgentIngredientRow(StrictModel):
     row_id: str
     source_row: int
     source_rows: list[int] = Field(default_factory=list)
+    source_pages: list[int] = Field(default_factory=list)
     source_cells: list[str]
     name: AgentFieldProvenance
     cas_number: AgentFieldProvenance | None = None
@@ -116,17 +133,17 @@ class AgentQuestionOption(StrictModel):
 
 class AgentQuestion(StrictModel):
     question_id: str
-    question_type: Literal["identity", "cas_number", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping", "ingredient_function"]
+    question_type: Literal["identity", "cas_number", "unit", "preparation_stage", "product_context", "non_numeric_concentration", "mapping", "ingredient_function", "document_completeness", "document_scope"]
     title: str
     prompt: str
     source_row: int | None = None
     row_id: str | None = None
     target_field: Literal[
-        "ingredient_name", "cas_number", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping", "regulated_functions",
+        "ingredient_name", "cas_number", "concentration", "concentration.unit", "preparation_stage", "product_context", "column_mapping", "regulated_functions", "document_completeness", "document_scope",
     ] | None = None
     uncertainty_code: Literal[
         "ingredient_identity", "cas_number", "missing_concentration_unit", "concentration_unavailable", "preparation_stage",
-        "product_context", "column_mapping", "ingredient_function",
+        "product_context", "column_mapping", "ingredient_function", "document_completeness", "document_scope",
     ] | None = None
     affected_row_ids: list[str] = Field(default_factory=list)
     blocking: bool = True
@@ -164,6 +181,12 @@ class AgentSessionView(StrictModel):
     revision: int
     state: AgentSessionState
     filename: str
+    source_format: str = "structured_grid"
+    source_document_type: SourceDocumentType = SourceDocumentType.FORMULATION
+    document_completeness: DocumentCompleteness = DocumentCompleteness.FULL_FORMULATION
+    document_completeness_confirmed: bool = True
+    multiple_products_detected: bool = False
+    document_scope_confirmed: bool = True
     detected_table: AgentDetectedTable | None = None
     column_mappings: list[AgentColumnMapping] = Field(default_factory=list)
     formulation_id: AgentFieldProvenance | None = None
@@ -195,6 +218,12 @@ class AgentRowUpdate(StrictModel):
     name: str | None = None
     cas_number: str | None = None
     concentration_value: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    concentration_type: ConcentrationType | None = None
+    concentration_lower_bound: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    concentration_upper_bound: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    concentration_lower_inclusive: bool | None = None
+    concentration_upper_inclusive: bool | None = None
+    concentration_original_text: str | None = None
     concentration_unit: Literal["percent", "mg/kg", "ppm"] | None = None
     concentration_basis: Literal["NH3", "free base", "zinc", "sulphate", "hydrochloride", "tetrahydrochloride"] | None = None
     preparation_stage: Literal["finished_product", "after_mixing", "ready_for_use"] | None = None
@@ -208,14 +237,23 @@ class AgentRowUpdate(StrictModel):
         return self
 
 
+class AgentRowAddition(StrictModel):
+    name: str = Field(min_length=1)
+    cas_number: str | None = None
+    concentration: FormulationConcentration | None = None
+    regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
+
+
 class AgentAnswersRequest(StrictModel):
     revision: int
     answers: list[AgentAnswer] = Field(default_factory=list)
     row_updates: list[AgentRowUpdate] = Field(default_factory=list)
+    add_rows: list[AgentRowAddition] = Field(default_factory=list)
+    remove_row_ids: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def require_change(self) -> "AgentAnswersRequest":
-        if not self.answers and not self.row_updates:
+        if not self.answers and not self.row_updates and not self.add_rows and not self.remove_row_ids:
             raise ValueError("At least one answer or row update is required")
         return self
 
@@ -267,6 +305,7 @@ class ModelIngredientInterpretation(StrictModel):
     proposed_cas: str | None
     cas_sources: list[ModelSourceReference]
     concentration_value: float | None
+    concentration_text: str | None
     concentration_unit: Literal["percent", "mg/kg", "ppm"] | None
     concentration_value_sources: list[ModelSourceReference]
     concentration_unit_sources: list[ModelSourceReference]
@@ -298,12 +337,19 @@ class ModelFormulationMetadata(StrictModel):
     product_context: ModelMetadataValue
 
 
+class ModelDocumentAssessment(StrictModel):
+    multiple_products_detected: bool
+    reasons: list[str]
+    sources: list[ModelSourceReference]
+
+
 class ModelInterpretation(StrictModel):
     header_rows: list[int] = Field(min_length=1)
     data_rows: list[int] = Field(min_length=1)
     column_mappings: list[ModelColumnMapping]
     ingredients: list[ModelIngredientInterpretation]
     formulation_metadata: ModelFormulationMetadata
+    document_assessment: ModelDocumentAssessment
 
 
 class AgentModelRun(StrictModel):

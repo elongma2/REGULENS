@@ -1,5 +1,5 @@
 import { ApiError } from "./screening";
-import type { AgentPreparedFormulation, AgentRowUpdate, AgentSession } from "../types/agent";
+import type { AgentPreparedFormulation, AgentRowAddition, AgentRowUpdate, AgentSession } from "../types/agent";
 import type { ProductApplicabilityFacts } from "../types/screening";
 import { apiFetch } from "./http";
 
@@ -44,10 +44,12 @@ export function answerAgentQuestions(
   session: AgentSession,
   answers: Array<{ question_id: string; option_id: string; value?: unknown }> = [],
   rowUpdates: AgentRowUpdate[] = [],
+  addRows: AgentRowAddition[] = [],
+  removeRowIds: string[] = [],
 ): Promise<AgentSession> {
   return agentJson(`/agent/formulations/${encodeURIComponent(session.session_id)}/answers`, {
     method: "POST",
-    body: JSON.stringify({ revision: session.revision, answers, row_updates: rowUpdates }),
+    body: JSON.stringify({ revision: session.revision, answers, row_updates: rowUpdates, add_rows: addRows, remove_row_ids: removeRowIds }),
   });
 }
 

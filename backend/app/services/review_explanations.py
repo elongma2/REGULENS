@@ -93,7 +93,23 @@ def _submitted_fact(result) -> str | None:
     if concentration is None:
         return None
     unit = _display_unit(concentration.unit)
-    value = f"{concentration.value:g}{unit if unit == '%' else f' {unit}'}".strip()
+    suffix = unit if unit == "%" else f" {unit}" if unit else ""
+    if concentration.original_text:
+        value = concentration.original_text
+    elif concentration.concentration_type.value == "range":
+        value = f"{concentration.lower_bound:g}–{concentration.upper_bound:g}{suffix}"
+    elif concentration.concentration_type.value == "upper_bound":
+        marker = "≤" if concentration.upper_inclusive else "<"
+        value = f"{marker}{concentration.upper_bound:g}{suffix}"
+    elif concentration.concentration_type.value == "lower_bound":
+        marker = "≥" if concentration.lower_inclusive else ">"
+        value = f"{marker}{concentration.lower_bound:g}{suffix}"
+    elif concentration.concentration_type.value == "approximate":
+        value = f"Approximately {concentration.value:g}{suffix}"
+    elif concentration.concentration_type.value == "unknown":
+        value = "Concentration not disclosed"
+    else:
+        value = f"{concentration.value:g}{suffix}"
     stage = _stage_label(concentration.preparation_stage)
     return f"{value} · {stage}" if stage else value
 

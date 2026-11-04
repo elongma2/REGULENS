@@ -29,6 +29,15 @@ class RegulatedFunction(StrEnum):
     UV_FILTER = "uv_filter"
 
 
+class ConcentrationType(StrEnum):
+    EXACT = "exact"
+    RANGE = "range"
+    UPPER_BOUND = "upper_bound"
+    LOWER_BOUND = "lower_bound"
+    APPROXIMATE = "approximate"
+    UNKNOWN = "unknown"
+
+
 class ConditionStatus(StrEnum):
     SATISFIED = "satisfied"
     NOT_SATISFIED = "not_satisfied"
@@ -69,16 +78,22 @@ class SingaporeLinkageStatus(StrEnum):
 
 
 class ConcentrationInput(StrictModel):
-    value: float = Field(ge=0, allow_inf_nan=False)
-    unit: str = Field(min_length=1)
+    concentration_type: ConcentrationType = ConcentrationType.EXACT
+    value: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    lower_bound: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    upper_bound: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+    lower_inclusive: bool | None = None
+    upper_inclusive: bool | None = None
+    original_text: str | None = None
+    unit: str | None
     basis: str | None
-    preparation_stage: str = Field(min_length=1)
+    preparation_stage: str | None
 
     @field_validator("unit", "preparation_stage")
     @classmethod
-    def require_nonblank_semantics(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("Concentration unit and preparation stage cannot be blank")
+    def require_nonblank_semantics(cls, value: str | None) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Concentration unit and preparation stage must be null or non-blank")
         return value
 
     @field_validator("basis")
@@ -87,6 +102,22 @@ class ConcentrationInput(StrictModel):
         if value is not None and not value.strip():
             raise ValueError("Concentration basis must be null or non-blank")
         return value
+
+    @model_validator(mode="after")
+    def validate_interval(self) -> "ConcentrationInput":
+        if self.concentration_type in {ConcentrationType.EXACT, ConcentrationType.APPROXIMATE}:
+            if self.value is None:
+                raise ValueError("Exact and approximate concentrations require a value")
+        elif self.concentration_type == ConcentrationType.RANGE:
+            if self.lower_bound is None or self.upper_bound is None:
+                raise ValueError("A concentration range requires lower and upper bounds")
+            if self.lower_bound > self.upper_bound:
+                raise ValueError("Concentration lower bound cannot exceed upper bound")
+        elif self.concentration_type == ConcentrationType.UPPER_BOUND and self.upper_bound is None:
+            raise ValueError("An upper-bound concentration requires an upper bound")
+        elif self.concentration_type == ConcentrationType.LOWER_BOUND and self.lower_bound is None:
+            raise ValueError("A lower-bound concentration requires a lower bound")
+        return self
 
 
 class IngredientInput(StrictModel):

@@ -38,6 +38,7 @@ def interpretation(
     header_rows: list[int] | None = None,
     data_rows: list[int] | None = None,
     formulation_metadata: dict | None = None,
+    document_assessment: dict | None = None,
 ) -> ModelInterpretation:
     """Translate concise test fixtures into the strict semantic-output contract."""
     mappings = mappings or [
@@ -72,9 +73,10 @@ def interpretation(
             "cas_sources": ([{
                 "source_row": source_row,
                 "source_column_index": cas_column,
-                "source_value": old["source_cas"],
+                "source_value": old.get("source_cas_cell", old["source_cas"]),
             }] if old.get("source_cas") else []),
             "concentration_value": old.get("concentration_value"),
+            "concentration_text": old.get("concentration_text", concentration_source),
             "concentration_unit": old.get("concentration_unit"),
             "concentration_value_sources": ([{
                 "source_row": source_row,
@@ -101,6 +103,11 @@ def interpretation(
             "formulation_id": null_metadata,
             "formulation_name": null_metadata,
             "product_context": null_metadata,
+        },
+        "document_assessment": document_assessment or {
+            "multiple_products_detected": False,
+            "reasons": [],
+            "sources": [],
         },
     })
 
@@ -237,7 +244,11 @@ def test_agent_upload_confirmation_prepare_and_existing_screening(client):
     assert prepared.status_code == 200
     canonical = prepared.json()["formulation"]
     assert canonical["ingredients"][0]["concentration"] == {
-        "value": 5.0, "unit": "percent", "basis": None, "preparation_stage": "finished_product"
+        "concentration_type": "exact", "value": 5.0,
+        "lower_bound": None, "upper_bound": None,
+        "lower_inclusive": None, "upper_inclusive": None,
+        "original_text": "5%", "unit": "percent", "basis": None,
+        "preparation_stage": "finished_product",
     }
     screened = client.post("/screen-formulation", json=canonical)
     assert screened.status_code == 200
@@ -441,6 +452,7 @@ def test_optional_source_metadata_is_preserved_and_inci_is_the_identity_field(st
                 "source_cas": None,
                 "source_concentration": "5%",
                 "concentration_value": 5,
+                "concentration_text": "5",
                 "concentration_unit": "percent",
                 "issues": [],
             }],
@@ -613,6 +625,7 @@ def test_logical_ingredient_can_combine_exact_cells_from_multiple_rows(store, ca
                 "proposed_cas": None,
                 "cas_sources": [],
                 "concentration_value": 5,
+                "concentration_text": "5",
                 "concentration_unit": None,
                 "concentration_value_sources": [{"source_row": 4, "source_column_index": 0, "source_value": "5"}],
                 "concentration_unit_sources": [],
@@ -629,6 +642,11 @@ def test_logical_ingredient_can_combine_exact_cells_from_multiple_rows(store, ca
                 "formulation_id": {"value": None, "sources": []},
                 "formulation_name": {"value": "Night Serum", "sources": [{"source_row": 1, "source_column_index": 0, "source_value": "Night Serum"}]},
                 "product_context": {"value": None, "sources": []},
+            },
+            "document_assessment": {
+                "multiple_products_detected": False,
+                "reasons": [],
+                "sources": [],
             },
         })
 

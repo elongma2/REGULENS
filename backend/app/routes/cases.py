@@ -70,11 +70,23 @@ def _parsed(raw: dict[str, Any]) -> ParsedCSV:
         filename=str(raw["filename"]),
         delimiter=str(raw.get("delimiter") or ","),
         rows=tuple(tuple(str(cell) for cell in row) for row in raw["rows"]),
+        source_format=str(raw.get("source_format") or "structured_grid"),
+        row_pages=tuple(raw.get("row_pages") or ()),
+        row_snippets=tuple(str(value) for value in (raw.get("row_snippets") or ())),
+        page_count=raw.get("page_count"),
     )
 
 
 def _raw(parsed: ParsedCSV) -> dict[str, Any]:
-    return {"filename": parsed.filename, "delimiter": parsed.delimiter, "rows": [list(row) for row in parsed.rows]}
+    return {
+        "filename": parsed.filename,
+        "delimiter": parsed.delimiter,
+        "rows": [list(row) for row in parsed.rows],
+        "source_format": parsed.source_format,
+        "row_pages": list(parsed.row_pages),
+        "row_snippets": list(parsed.row_snippets),
+        "page_count": parsed.page_count,
+    }
 
 
 def _status(view: AgentSessionView) -> str:
@@ -98,10 +110,22 @@ def _question_value(view: AgentSessionView, question: Any) -> tuple[Any, Any]:
     if field == "cas_number" and row.cas_number:
         return row.cas_number.source_value, row.cas_number.value
     if field in {"concentration", "concentration.unit"} and row.concentration:
-        source = row.concentration.value.source_value if row.concentration.value else None
-        proposed = row.concentration.unit.value if field == "concentration.unit" and row.concentration.unit else (
-            row.concentration.value.value if row.concentration.value else None
+        source = (
+            row.concentration.value.source_value
+            if row.concentration.value and row.concentration.value.source_value
+            else row.concentration.original_text
         )
+        proposed = row.concentration.unit.value if field == "concentration.unit" and row.concentration.unit else {
+            "concentration_type": (
+                row.concentration.concentration_type.value
+                if row.concentration.concentration_type else None
+            ),
+            "value": row.concentration.value.value if row.concentration.value else None,
+            "lower_bound": row.concentration.lower_bound.value if row.concentration.lower_bound else None,
+            "upper_bound": row.concentration.upper_bound.value if row.concentration.upper_bound else None,
+            "lower_inclusive": row.concentration.lower_inclusive,
+            "upper_inclusive": row.concentration.upper_inclusive,
+        }
         return source, proposed
     if field == "preparation_stage" and row.concentration and row.concentration.preparation_stage:
         return row.concentration.preparation_stage.source_value, row.concentration.preparation_stage.value
@@ -125,9 +149,18 @@ def _clarifications(view: AgentSessionView) -> list[dict[str, Any]]:
 
 
 def _view_from_row(row: dict[str, Any]) -> FormulationVersionView:
-    return FormulationVersionView.model_validate({
-        key: value for key, value in row.items() if key in FormulationVersionView.model_fields
-    })
+    payload = {key: value for key, value in row.items() if key in FormulationVersionView.model_fields}
+    agent_session = payload.get("agent_session")
+    if isinstance(agent_session, dict):
+        agent_session = dict(agent_session)
+        agent_session["questions"] = [
+            question
+            for question in agent_session.get("questions", [])
+            if question.get("question_type") != "document_completeness"
+        ]
+        agent_session["document_completeness_confirmed"] = True
+        payload["agent_session"] = agent_session
+    return FormulationVersionView.model_validate(payload)
 
 
 def _summary(row: dict[str, Any]) -> FormulationVersionSummary:
@@ -181,6 +214,11 @@ def _hydrate(
     if not row.get("raw_extraction") or not row.get("agent_session"):
         raise HTTPException(status_code=409, detail={"code": "formulation_state_unavailable", "message": "This formulation has no resumable interpretation state."})
     view = AgentSessionView.model_validate(row["agent_session"])
+    view.questions = [
+        question for question in view.questions
+        if question.question_type != "document_completeness"
+    ]
+    view.document_completeness_confirmed = True
     view.revision = row["revision"]
     _agent_service(request).restore(_parsed(row["raw_extraction"]), view)
     return row, view
@@ -314,8 +352,15 @@ async def upload_formulation(
     storage_path = f"{case['organisation_id']}/{case_id}/{version_id}/{parsed.filename}"
     initial = AgentSessionView(
         session_id=str(version_id), revision=0, state=AgentSessionState.PARSING,
-        filename=parsed.filename, model=_agent_service(request).model,
-        activity=[AgentActivityItem(activity_id=str(uuid4()), status="complete", message=f"Read {len(parsed.rows)} formulation rows")],
+        filename=parsed.filename, source_format=parsed.source_format,
+        model=_agent_service(request).model,
+        activity=[AgentActivityItem(
+            activity_id=str(uuid4()), status="complete",
+            message=(
+                f"Extracted {len(parsed.rows)} text lines from {parsed.page_count or 0} PDF page(s)"
+                if parsed.source_format == "pdf" else f"Read {len(parsed.rows)} formulation rows"
+            ),
+        )],
     )
     gateway.upload_file(storage_path, content, file.content_type)
     try:

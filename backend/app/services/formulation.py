@@ -25,10 +25,20 @@ def _runtime_ingredient(ingredient) -> IngredientInput:
     runtime_concentration = None
     if concentration is not None:
         runtime_concentration = ConcentrationInput(
+            concentration_type=concentration.concentration_type,
             value=concentration.value,
-            unit=concentration.unit.value,
+            lower_bound=concentration.lower_bound,
+            upper_bound=concentration.upper_bound,
+            lower_inclusive=concentration.lower_inclusive,
+            upper_inclusive=concentration.upper_inclusive,
+            original_text=concentration.original_text,
+            unit=concentration.unit.value if concentration.unit is not None else None,
             basis=concentration.basis.value if concentration.basis is not None else None,
-            preparation_stage=concentration.preparation_stage.value,
+            preparation_stage=(
+                concentration.preparation_stage.value
+                if concentration.preparation_stage is not None
+                else None
+            ),
         )
     return IngredientInput(
         name=ingredient.name,
@@ -77,12 +87,15 @@ def screen_formulation(
         )
         for row_number, result in enumerate(results, start=1)
     ]
-    return FormulationScreeningResponse(
+    response = FormulationScreeningResponse(
         formulation=FormulationMetadata(
             formulation_id=request.formulation_id,
             formulation_name=request.formulation_name,
             product_context=request.product_context,
             product_applicability=request.product_applicability,
+            source_document_type=request.source_document_type,
+            document_completeness=request.document_completeness,
+            source_filename=request.source_filename,
         ),
         dataset=DatasetIdentity(
             dataset_version=store.dataset_version,
@@ -108,3 +121,4 @@ def screen_formulation(
         summary=summary,
         ingredient_results=ingredient_results,
     )
+    return response

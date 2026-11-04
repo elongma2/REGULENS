@@ -21,7 +21,8 @@ function concentrationComparison(evaluation: RuleEvaluation) {
   const limit = evaluation.evidence.concentration;
   if (evaluation.evaluation_status !== "deterministic" ||
     !["restriction_exceeded", "restriction_within_limit"].includes(evaluation.finding ?? "") ||
-    !submitted || !limit || typeof limit.value !== "number" || submitted.unit !== limit.unit ||
+    !submitted || (submitted.concentration_type ?? "exact") !== "exact" || typeof submitted.value !== "number" ||
+    !limit || typeof limit.value !== "number" || submitted.unit !== limit.unit ||
     submitted.basis !== (limit.basis ?? null) || submitted.preparation_stage !== limit.preparation_stage ||
     limit.comparator !== "less_than_or_equal") return null;
   return { submitted, limit, difference: submitted.value - limit.value };

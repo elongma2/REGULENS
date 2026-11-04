@@ -281,6 +281,33 @@ describe("Formulation Agent page", () => {
     expect(screen.queryByLabelText("Identity evidence")).not.toBeInTheDocument();
   });
 
+  it("shows PDF provenance without document-type or completeness classification", async () => {
+    const pdfSession: AgentSession = {
+      ...baseSession,
+      filename: "supplier-sds.pdf",
+      source_format: "pdf",
+      interpreted_rows: [{
+        ...row,
+        source_pages: [2],
+        name: { ...row.name, source_references: [{ source_row: 2, source_column_index: 0, source_column: null, source_value: "NIACINAMIDE 5%", source_page: 2, source_snippet: "NIACINAMIDE 5%" }] },
+      }],
+    };
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/agent/formulations")) return json(pdfSession, 201);
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    renderAgent();
+    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["pdf"], "supplier-sds.pdf", { type: "application/pdf" }));
+
+    expect(await screen.findByText(/PDF page 2/)).toBeInTheDocument();
+    expect(screen.queryByText(/MSDS\/SDS document/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Partial ingredient disclosure/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Document completeness/)).not.toBeInTheDocument();
+  });
+
   it("shows the affected row and resolves an identity clarification from a direct row edit", async () => {
     let answerBody: Record<string, unknown> | null = null;
     vi.spyOn(globalThis, "fetch").mockImplementation((input, init) => {
