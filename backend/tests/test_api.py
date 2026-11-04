@@ -75,6 +75,31 @@ def test_valid_one_ingredient_request(client):
     assert payload["ingredient_results"][0]["submitted_row_number"] == 1
 
 
+def test_screening_report_is_a_downloadable_traceable_pdf(client):
+    response = client.post(
+        "/screen-formulation/report",
+        json={
+            "formulation_id": "FORM-REPORT-001",
+            "formulation_name": "Example report",
+            "ingredients": [ingredient("Tosylchloramide sodium", 0.21)],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert "FORM-REPORT-001-screening-report.pdf" in response.headers["content-disposition"]
+    assert response.content.startswith(b"%PDF-")
+
+    from pypdf import PdfReader
+
+    text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(response.content)).pages)
+    assert "Formulation Screening Report" in text
+    assert "Tosylchloramide sodium" in text
+    assert "Restriction limit exceeded" in text
+    assert "acd-2026-1__sg-2025-12-01__parts-i-v-r1" in text
+    assert "not a product approval" in text
+
+
 def test_health_reports_runtime_availability_without_secrets(client):
     response = client.get("/health")
 

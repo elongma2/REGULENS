@@ -162,4 +162,3 @@ def test_case_directory_summary_uses_narrow_columns_and_skips_context_decoration
     assert ("review_items", "review_status,requires_attention,updated_at") in client.selected
     assert ("reviewer_notes", "created_at") in client.selected
     assert ("follow_up_actions", "status,updated_at") in client.selected
-

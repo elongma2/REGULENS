@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+from io import BytesIO
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi.responses import StreamingResponse
 from typing import Annotated
 
 from backend.app.dependencies import CurrentUser, get_current_user_if_configured
@@ -26,6 +28,7 @@ from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, Ingred
 from backend.app.services.loader import RegulatoryStore
 from backend.app.services.parsing import UnsupportedProductContextError
 from backend.app.services.regulatory_search import search_acd_rules
+from backend.app.services.screening_report import build_screening_report, screening_report_filename
 from backend.app.services.source_rendering import (
     IdentitySourceEvidenceRenderer,
     RenderedSourceEvidence,
@@ -84,6 +87,24 @@ def _accepted_ingredient_catalog(request: Request) -> IngredientCatalog:
             detail={"code": "accepted_identity_baseline_integrity_failure", "message": message},
         )
     return catalogue
+
+
+def _deterministic_screening(formulation: FormulationRequest, request: Request) -> FormulationScreeningResponse:
+    try:
+        return screen_formulation(
+            _accepted_store(request),
+            formulation,
+            ingredient_catalog=getattr(request.app.state, "ingredient_catalog", None),
+            catalogue_error=getattr(request.app.state, "identity_catalogue_error", None),
+        )
+    except UnsupportedProductContextError as error:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail={
+                "code": "unsupported_product_context",
+                "message": str(error),
+            },
+        ) from error
 
 
 def _identity_source_renderer(request: Request) -> IdentitySourceEvidenceRenderer:
@@ -258,27 +279,30 @@ def screen_formulation_route(
     request: Request,
     _user: Annotated[CurrentUser | None, Depends(get_current_user_if_configured)],
 ) -> FormulationScreeningResponse:
+    deterministic_response = _deterministic_screening(formulation, request)
+    explanation_service = request.app.state.review_explanation_service
     try:
-        deterministic_response = screen_formulation(
-            _accepted_store(request),
-            formulation,
-            ingredient_catalog=getattr(request.app.state, "ingredient_catalog", None),
-            catalogue_error=getattr(request.app.state, "identity_catalogue_error", None),
+        return explanation_service.enrich(deterministic_response)
+    except Exception as error:
+        LOGGER.warning(
+            "Review explanation enrichment failed (%s); deterministic fallback retained",
+            type(error).__name__,
         )
-        explanation_service = request.app.state.review_explanation_service
-        try:
-            return explanation_service.enrich(deterministic_response)
-        except Exception as error:
-            LOGGER.warning(
-                "Review explanation enrichment failed (%s); deterministic fallback retained",
-                type(error).__name__,
-            )
-            return explanation_service.fallback_only(deterministic_response)
-    except UnsupportedProductContextError as error:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-            detail={
-                "code": "unsupported_product_context",
-                "message": str(error),
-            },
-        ) from error
+        return explanation_service.fallback_only(deterministic_response)
+
+
+@router.post("/screen-formulation/report", response_class=StreamingResponse)
+def screen_formulation_report_route(
+    formulation: FormulationRequest,
+    request: Request,
+    _user: Annotated[CurrentUser | None, Depends(get_current_user_if_configured)],
+) -> StreamingResponse:
+    deterministic_response = _deterministic_screening(formulation, request)
+    response = request.app.state.review_explanation_service.fallback_only(deterministic_response)
+    return StreamingResponse(
+        BytesIO(build_screening_report(response)),
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{screening_report_filename(response)}"'
+        },
+    )
