@@ -81,6 +81,7 @@ export function FormulaEditor(props: FormulaEditorProps) {
     ["mucous_membrane_contact", "Contacts mucous membranes"],
     ["brief_skin_contact", "Only brief skin contact"],
     ["spray_or_aerosol", "Spray or aerosol"],
+    ["inhalation_exposure", "May expose the lungs by inhalation"],
     ["powder_form", "Powder form"],
     ["sun_protection_purpose", "Intended for sun protection"],
     ["product_protection_purpose", "UV use protects the product"],

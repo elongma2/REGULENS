@@ -118,6 +118,7 @@ class ProductApplicabilityFacts(StrictModel):
     sun_protection_purpose: bool | None = None
     product_protection_purpose: bool | None = None
     solely_hair_colouring: bool | None = None
+    inhalation_exposure: bool | None = None
 
 
 class FormulationRequest(StrictModel):

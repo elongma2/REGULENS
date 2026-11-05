@@ -95,6 +95,8 @@ def _deterministic_screening(formulation: FormulationRequest, request: Request) 
             _accepted_store(request),
             formulation,
             ingredient_catalog=getattr(request.app.state, "ingredient_catalog", None),
+            linkage_store=getattr(request.app.state, "ingredient_linkage", None),
+            linkage_error=getattr(request.app.state, "identity_linkage_error", None),
             catalogue_error=getattr(request.app.state, "identity_catalogue_error", None),
         )
     except UnsupportedProductContextError as error:

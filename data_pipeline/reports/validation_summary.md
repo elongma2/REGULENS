@@ -3,12 +3,12 @@
 Status: **passed**
 
 - Raw records: 4389
-- Normalized rules: 4464
+- Normalized rules: 4466
 - Cross-references: 2223
 - Structural errors: 0
-- Professional-review items: 2777
-- Manual spot checks: 35
-- Completed spot checks: 35
+- Professional-review items: 2775
+- Manual spot checks: 37
+- Completed spot checks: 37
 - Reproducibility: `matched_previous_run`
 - Accepted baseline: `matched`
 

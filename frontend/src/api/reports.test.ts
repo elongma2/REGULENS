@@ -32,7 +32,7 @@ describe("screening report downloads", () => {
 
     expect(apiFetch).toHaveBeenCalledWith("/screen-formulation/report", expect.objectContaining({ method: "POST" }));
     expect(click).toHaveBeenCalledOnce();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:report");
+    await vi.waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:report"));
   });
 
   it("requests the immutable saved screening report", async () => {
@@ -42,5 +42,13 @@ describe("screening report downloads", () => {
     await downloadSavedScreeningReport("run/1");
 
     expect(apiFetch).toHaveBeenCalledWith("/screenings/run%2F1/report.pdf");
+  });
+
+  it("replaces the browser's opaque fetch failure with an actionable message", async () => {
+    apiFetch.mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await expect(downloadSavedScreeningReport("run-1")).rejects.toThrow(
+      "The PDF report server could not be reached. Please try again.",
+    );
   });
 });

@@ -1,21 +1,24 @@
 {
-  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__sg-2025-12-01",
+  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1",
   "identity_dataset_version": "eu-glossary-2025-1175",
   "identity_dataset_hash": "e146c81b5978c373ac1f20c677ba20c5221e02b7f128b4b095ff711075331094",
-  "singapore_regulatory_baseline": "sg-2025-12-01",
-  "singapore_regulatory_baseline_hash": "7ddf5dd7f050710a788012982359107befd246995bf87c3a4cc4b2828a8c61ca",
+  "singapore_regulatory_baseline": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "singapore_regulatory_baseline_hash": "a3de95512af1397940d089de60b9639c8cb3448987656c35a2b4572793660ed0",
   "screened_scope": [
     "Third Schedule Part I",
-    "Third Schedule Part II"
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V"
   ],
   "counts": {
-    "accepted_records": 0,
-    "linked": 0,
+    "accepted_records": 2,
+    "linked": 2,
     "verified_not_represented": 0,
     "unresolved": 0
   },
-  "review_input_sha256": "fabd9bdf49a838974c4534bb52478405e0f80aa9ecaa3f278d18754f9abd8eb0",
+  "review_input_sha256": "edd429c0cd7328db613ce05b6957086c78fd6dd8cea0c09cab21c682682a2add",
   "generated_output_hashes": {
-    "data_pipeline/identity/eu_singapore_linkage/accepted/linkages.json": "26dd93ab5531055c501731dd797aceb4ededee96015edda6e89c0380a6bbb83b"
+    "data_pipeline/identity/eu_singapore_linkage/accepted/linkages.json": "e739e7b1cc7893dc8f75c4ef0d417054e4d56734b39f65ef226a9f62a59ec8e5"
   }
 }

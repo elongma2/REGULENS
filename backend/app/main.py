@@ -19,6 +19,11 @@ from backend.app.services.ingredient_catalog import (
     IngredientCatalog,
     load_accepted_ingredient_catalog,
 )
+from backend.app.services.ingredient_linkage import (
+    AcceptedIngredientLinkageError,
+    IngredientLinkageStore,
+    load_accepted_ingredient_linkages,
+)
 from backend.app.services.source_rendering import IdentitySourceEvidenceRenderer, SourceEvidenceRenderer
 from backend.app.services.review_explanations import ReviewExplanationService
 from backend.app.services.supabase_gateway import SupabaseGateway
@@ -45,6 +50,7 @@ def create_app(
     settings_loader: Callable[[], OpenAISettings] = get_settings,
     review_explanation_factory: Callable[[OpenAISettings], ReviewExplanationService] | None = None,
     supabase_gateway_factory: Callable[[OpenAISettings], SupabaseGateway] | None = None,
+    ingredient_linkage_loader: Callable[[], IngredientLinkageStore] = load_accepted_ingredient_linkages,
 ) -> FastAPI:
     settings = settings_loader()
     persistence_configured = settings.supabase_configured or supabase_gateway_factory is not None
@@ -56,6 +62,8 @@ def create_app(
         application.state.baseline_error = None
         application.state.ingredient_catalog = None
         application.state.identity_catalogue_error = None
+        application.state.ingredient_linkage = None
+        application.state.identity_linkage_error = None
         application.state.identity_source_evidence_renderer = None
         application.state.formulation_agent = None
         application.state.review_explanation_service = None
@@ -75,11 +83,16 @@ def create_app(
             )
         except AcceptedIdentityCatalogueError as error:
             application.state.identity_catalogue_error = str(error)
+        try:
+            application.state.ingredient_linkage = ingredient_linkage_loader()
+        except AcceptedIngredientLinkageError as error:
+            application.state.identity_linkage_error = str(error)
         if application.state.regulatory_store is not None:
             if formulation_agent_factory is None:
                 application.state.formulation_agent = FormulationAgentService(
                     application.state.regulatory_store,
                     application.state.ingredient_catalog,
+                    linkage_store=application.state.ingredient_linkage,
                     model_runner=OpenAIFormulationInterpreter(
                         api_key=settings.api_key,
                         timeout_seconds=settings.agent_timeout_seconds,
@@ -127,6 +140,7 @@ def create_app(
             "status": "ok" if regulatory_available and identity_available else "degraded",
             "regulatory_baseline": "available" if regulatory_available else "unavailable",
             "identity_catalogue": "available" if identity_available else "unavailable",
+            "identity_linkage": "available" if application.state.ingredient_linkage is not None else "unavailable",
             "formulation_agent": "configured" if settings.configured else "not_configured",
             "agent_model": settings.agent_model,
             "explanation_model": settings.explanation_model,

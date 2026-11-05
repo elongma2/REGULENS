@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import shutil
 from pathlib import Path
 
@@ -24,9 +25,14 @@ def bindings() -> dict:
     return {
         "identity_dataset_version": "eu-glossary-2025-1175",
         "identity_dataset_hash": "e146c81b5978c373ac1f20c677ba20c5221e02b7f128b4b095ff711075331094",
-        "singapore_regulatory_baseline": "sg-2025-12-01",
-        "singapore_regulatory_baseline_hash": "7ddf5dd7f050710a788012982359107befd246995bf87c3a4cc4b2828a8c61ca",
-        "screened_scope": ["Third Schedule Part I", "Third Schedule Part II"],
+        "singapore_regulatory_baseline": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+        "singapore_regulatory_baseline_hash": hashlib.sha256(
+            (ROOT / "data_pipeline" / "accepted_output_hashes.json").read_bytes()
+        ).hexdigest(),
+        "screened_scope": [
+            "Third Schedule Part I", "Third Schedule Part II", "Third Schedule Part III",
+            "Third Schedule Part IV", "Third Schedule Part V",
+        ],
     }
 
 
@@ -52,15 +58,24 @@ def review_input(*decisions: dict) -> dict:
     return {**bindings(), "decisions": list(decisions)}
 
 
-def test_initial_accepted_linkage_manifest_is_independent_and_empty():
+def test_accepted_linkage_manifest_contains_only_source_approved_records():
     store = load_accepted_ingredient_linkages(ROOT)
     assert store.counts == {
-        "accepted_records": 0,
-        "linked": 0,
+        "accepted_records": 2,
+        "linked": 2,
         "verified_not_represented": 0,
         "unresolved": 0,
     }
-    assert store.records_by_catalogue_id == {}
+    assert set(store.records_by_catalogue_id) == {
+        "eu-2025-1175-entry-17797",
+        "eu-2025-1175-entry-20709",
+    }
+    octocrylene = store.records_by_catalogue_id["eu-2025-1175-entry-17797"]
+    assert octocrylene["supported_cas_numbers"] == ["6197-30-4"]
+    assert {item["rule_id"] for item in octocrylene["singapore_targets"]} == {
+            "sg-third-schedule-v-10-case-a",
+            "sg-third-schedule-v-10-case-b",
+    }
 
 
 def test_linkage_loader_rejects_modified_accepted_output(tmp_path):
@@ -74,12 +89,33 @@ def test_linkage_loader_rejects_modified_accepted_output(tmp_path):
         load_accepted_ingredient_linkages(tmp_path)
 
 
-def test_dormant_review_queue_is_empty_deterministic_and_never_promotes_candidates():
+def test_review_queue_contains_only_the_unpromoted_ci_42090_candidate():
     first = build_review_queue(ROOT)
     second = build_review_queue(ROOT)
     assert first == second
-    assert first["candidate_count"] == 0
-    assert first["records"] == []
+    assert first["candidate_count"] == 1
+    assert {item["catalogue_canonical_name"] for item in first["records"]} == {
+        "CI 42090"
+    }
+    assert all(item["current_status"] == "unresolved" for item in first["records"])
+    ci_42090 = first["records"][0]
+    assert ci_42090["supported_cas_numbers"] == [
+        "2650-18-2",
+        "3844-45-9",
+        "68921-42-6",
+    ]
+
+
+def test_octocrylene_source_keeps_the_singapore_benzophenone_trace_footnote():
+    raw = json.loads(
+        (ROOT / "data_pipeline" / "raw" / "singapore_third_schedule_part_v_raw.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    footnote = next(item for item in raw["footnotes"] if item.get("footnote_number") == "7")
+    assert footnote["source_page"] == 195
+    assert "Benzophenone as an impurity and/or degradation product of Octocrylene" in footnote["source_text"]
+    assert "must be kept at trace level" in footnote["source_text"]
 
 
 def test_reviewed_absence_and_multitarget_link_are_derived_deterministically():

@@ -10,11 +10,14 @@ from backend.app.models.screening import (
     CatalogueIdentity,
     IdentityCandidate,
     IdentityResolution,
+    IdentifierLookupEvidence,
+    IdentityOutcome,
     IdentitySourceType,
     IdentityStatus,
     SingaporeLinkageStatus,
 )
 from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, IngredientCatalog
+from backend.app.services.ingredient_linkage import IngredientLinkageStore, assess_linkage
 from backend.app.services.loader import ACD_SECTIONS, SINGAPORE_SECTIONS, RegulatoryStore
 
 
@@ -297,24 +300,77 @@ def resolve_ingredient(
     cas_number: str | None,
     ingredient_catalog: IngredientCatalog | None = None,
     catalogue_error: str | None = None,
+    linkage_store: IngredientLinkageStore | None = None,
 ) -> IdentityResolution:
     regulatory = _resolve_regulatory_ingredient(store, name, cas_number)
-    if regulatory.status != IdentityStatus.UNRESOLVED or not (name and name.strip()):
-        return regulatory
+
+    name_sg_ids = sorted({item.substance_id for item in regulatory.singapore_candidates if any("name" in method or "ci" in method for method in item.match_methods)})
+    cas_sg_ids = sorted({item.substance_id for item in regulatory.singapore_candidates if any("cas" in method for method in item.match_methods)})
+    name_acd_ids = sorted({item.substance_id for item in regulatory.acd_candidates if any("name" in method or "ci" in method for method in item.match_methods)})
+    cas_acd_ids = sorted({item.substance_id for item in regulatory.acd_candidates if any("cas" in method for method in item.match_methods)})
+    ci_match = CI_IDENTIFIER.fullmatch(name or "")
+    identifier_evidence = [
+        IdentifierLookupEvidence(
+            identifier_type="name",
+            submitted_value=name,
+            outcome=("matched" if name_sg_ids or name_acd_ids else "unmatched") if name and name.strip() else "not_supplied",
+            matched_singapore_substance_ids=name_sg_ids,
+            matched_acd_substance_ids=name_acd_ids,
+        ),
+        IdentifierLookupEvidence(
+            identifier_type="cas",
+            submitted_value=cas_number,
+            outcome=("malformed" if cas_number and not cas_is_valid(cas_number.strip()) else "matched" if cas_sg_ids or cas_acd_ids else "unmatched") if cas_number and cas_number.strip() else "not_supplied",
+            matched_singapore_substance_ids=cas_sg_ids,
+            matched_acd_substance_ids=cas_acd_ids,
+        ),
+        IdentifierLookupEvidence(
+            identifier_type="ci",
+            submitted_value=(ci_match.group("identifier") if ci_match else None),
+            outcome=("matched" if ci_match and (name_sg_ids or name_acd_ids) else "unmatched") if ci_match else "not_supplied",
+            matched_singapore_substance_ids=name_sg_ids if ci_match else [],
+            matched_acd_substance_ids=name_acd_ids if ci_match else [],
+        ),
+    ]
+
+    def finalize(value: IdentityResolution, outcome: IdentityOutcome, action: str | None = None) -> IdentityResolution:
+        ids = value.resolved_singapore_substance_ids or ([value.resolved_singapore_substance_id] if value.resolved_singapore_substance_id else [])
+        rule_ids = sorted({rule["rule_id"] for substance_id in ids for rule in store.rules_by_substance_id.get(substance_id, ()) if rule["regulatory_section"] in SINGAPORE_SECTIONS})
+        return value.model_copy(update={
+            "identity_outcome": outcome,
+            "identifier_evidence": identifier_evidence,
+            "applicable_regulatory_record_ids": rule_ids,
+            "reviewer_action": action,
+        })
+
+    if not (name and name.strip()):
+        if regulatory.status == IdentityStatus.RESOLVED:
+            outcome = IdentityOutcome.SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS if len(regulatory.resolved_singapore_substance_ids) > 1 else IdentityOutcome.VERIFIED
+            return finalize(regulatory, outcome)
+        if regulatory.status == IdentityStatus.AMBIGUOUS:
+            return finalize(regulatory, IdentityOutcome.MULTIPLE_POSSIBLE_IDENTITIES, "Confirm the ingredient name or provide another verified identifier.")
+        return finalize(regulatory, IdentityOutcome.UNRESOLVED, "Confirm the ingredient name or provide a source-backed CAS number.")
 
     if ingredient_catalog is None:
         if not catalogue_error:
-            return regulatory
-        return regulatory.model_copy(
+            return finalize(regulatory, IdentityOutcome.UNRESOLVED, "Confirm the ingredient identity against an accepted source.")
+        return finalize(regulatory.model_copy(
             update={
                 "status": IdentityStatus.REVIEW_REQUIRED,
                 "reasons": ["ingredient_catalogue_unavailable_identity_verification_withheld"],
             }
-        )
+        ), IdentityOutcome.UNRESOLVED, "Retry when the accepted ingredient catalogue is available.")
 
     ingredient = ingredient_catalog.find_exact_name(name)
     if ingredient is None:
-        return regulatory
+        if regulatory.status == IdentityStatus.RESOLVED:
+            outcome = IdentityOutcome.SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS if len(regulatory.resolved_singapore_substance_ids) > 1 else IdentityOutcome.VERIFIED
+            return finalize(regulatory, outcome)
+        if "supplied_name_and_cas_resolve_to_different_singapore_identities" in regulatory.reasons:
+            return finalize(regulatory, IdentityOutcome.GENUINE_NAME_CAS_CONFLICT, "Confirm the correct ingredient name and CAS number.")
+        if regulatory.status == IdentityStatus.AMBIGUOUS:
+            return finalize(regulatory, IdentityOutcome.MULTIPLE_POSSIBLE_IDENTITIES, "Confirm which source-backed ingredient was submitted.")
+        return finalize(regulatory, IdentityOutcome.UNRESOLVED, "Confirm the ingredient identity against an accepted source.")
     catalogue_identity = CatalogueIdentity(
         ingredient_id=ingredient["ingredient_id"],
         canonical_name=ingredient["canonical_name"],
@@ -328,6 +384,76 @@ def resolve_ingredient(
         identity_dataset_version=ingredient_catalog.dataset_version,
         accepted_baseline_sha256=ingredient_catalog.baseline_manifest_hash,
     )
+    identifier_evidence.append(IdentifierLookupEvidence(
+        identifier_type="catalogue",
+        submitted_value=name,
+        outcome="matched",
+        matched_catalogue_ingredient_id=ingredient["ingredient_id"],
+    ))
+
+    if linkage_store is not None:
+        record = linkage_store.find(ingredient["ingredient_id"])
+        if record is not None:
+            assessment = assess_linkage(linkage_store, record, ingredient, ingredient_catalog, store)
+            if assessment.effective_status == SingaporeLinkageStatus.LINKED:
+                target_ids = list(assessment.singapore_substance_ids)
+                linked_candidates = [
+                    _candidate(store.substances_by_id[substance_id], ["accepted_identity_linkage"])
+                    for substance_id in target_ids
+                ]
+                supplied_cas = cas_number.strip() if cas_number else None
+                supported_cas = set(record.get("supported_cas_numbers", []))
+                conflicting_cas_ids = set(cas_sg_ids) - set(target_ids)
+                if supplied_cas and conflicting_cas_ids and supplied_cas not in supported_cas:
+                    return finalize(regulatory.model_copy(update={
+                        "status": IdentityStatus.AMBIGUOUS,
+                        "catalogue_identity": catalogue_identity,
+                        "linkage_evidence": assessment.evidence,
+                        "singapore_linkage_status": assessment.effective_status,
+                        "reasons": ["supplied_name_and_cas_resolve_to_different_verified_identity_groups"],
+                    }), IdentityOutcome.GENUINE_NAME_CAS_CONFLICT, "Confirm the correct ingredient name and CAS number.")
+                candidates = _merge([*regulatory.singapore_candidates, *linked_candidates])
+                outcome = IdentityOutcome.SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS if len(target_ids) > 1 else IdentityOutcome.VERIFIED
+                return finalize(IdentityResolution(
+                    status=IdentityStatus.RESOLVED,
+                    match_methods=sorted({*regulatory.match_methods, "exact_catalogue_name", "accepted_identity_linkage"}),
+                    singapore_candidates=candidates,
+                    acd_candidates=regulatory.acd_candidates,
+                    resolved_singapore_substance_id=target_ids[0],
+                    resolved_singapore_substance_ids=target_ids,
+                    identity_source_type=IdentitySourceType.INGREDIENT_CATALOGUE,
+                    identity_source_name=IDENTITY_SOURCE_NAME,
+                    singapore_linkage_status=assessment.effective_status,
+                    catalogue_identity=catalogue_identity,
+                    linkage_evidence=assessment.evidence,
+                ), outcome)
+
+    if "supplied_name_and_cas_resolve_to_different_singapore_identities" in regulatory.reasons:
+        # A CI identifier can appear in one positive-list record while the CAS
+        # is carried by a separate restricted-list record. Until a reviewed
+        # identity group links those entries, preserve ambiguity without
+        # asserting that they are different chemicals.
+        ci_cross_record_evidence = bool(
+            ci_match
+            and any(
+                conservative_text(ci_match.group("identifier"))
+                in conservative_text(candidate.original_substance_name)
+                for candidate in regulatory.acd_candidates
+                if any("cas" in method for method in candidate.match_methods)
+            )
+        )
+        return finalize(
+            regulatory.model_copy(update={
+                "catalogue_identity": catalogue_identity,
+                "reasons": (
+                    ["submitted_ci_and_cas_refer_to_related_distinct_forms_without_an_accepted_form_linkage"]
+                    if ci_cross_record_evidence else regulatory.reasons
+                ),
+            }),
+            IdentityOutcome.RELATED_DISTINCT_FORMS if ci_cross_record_evidence else IdentityOutcome.GENUINE_NAME_CAS_CONFLICT,
+            "Confirm the exact chemical form supplied and its source-backed regulatory identity."
+            if ci_cross_record_evidence else "Confirm the correct ingredient name and CAS number.",
+        )
     reasons: list[str] = []
     if cas_number and cas_number.strip():
         # The accepted common-ingredient glossary is a name catalogue and does
@@ -337,7 +463,7 @@ def resolve_ingredient(
         # above from the regulatory resolver.
         if not cas_is_valid(cas_number.strip()):
             reasons.append("supplied_cas_is_malformed")
-            return IdentityResolution(
+            return finalize(IdentityResolution(
                 status=IdentityStatus.REVIEW_REQUIRED,
                 match_methods=["exact_catalogue_name"],
                 singapore_candidates=regulatory.singapore_candidates,
@@ -347,8 +473,30 @@ def resolve_ingredient(
                 singapore_linkage_status=SingaporeLinkageStatus.NOT_APPLICABLE,
                 catalogue_identity=catalogue_identity,
                 reasons=reasons,
-            )
-    return IdentityResolution(
+            ), IdentityOutcome.NAME_RECOGNISED_CAS_UNVERIFIED, "Correct or remove the malformed CAS number.")
+
+    # A unique source-backed CAS match can still be evaluated while the exact
+    # catalogue name relationship awaits linkage review. This is not a
+    # verified name-CAS conflict.
+    if cas_sg_ids and regulatory.status == IdentityStatus.REVIEW_REQUIRED and len(set(cas_sg_ids)) >= 1:
+        unique = set(cas_sg_ids)
+        if _is_one_chemical_identity(store, unique, cas_number.strip() if cas_number else None):
+            ordered = sorted(unique)
+            return finalize(regulatory.model_copy(update={
+                "status": IdentityStatus.REVIEW_REQUIRED,
+                "resolved_singapore_substance_id": ordered[0],
+                "resolved_singapore_substance_ids": ordered,
+                "identity_source_type": IdentitySourceType.ACD_REGULATORY,
+                "identity_source_name": "ASEAN Cosmetic Directive",
+                "catalogue_identity": catalogue_identity,
+                "reasons": ["cas_recognised_but_name_relationship_not_accepted"],
+            }), IdentityOutcome.CAS_RECOGNISED_NAME_UNVERIFIED, "Confirm that the submitted name belongs to the CAS-matched ingredient.")
+
+    if regulatory.status == IdentityStatus.RESOLVED:
+        outcome = IdentityOutcome.SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS if len(regulatory.resolved_singapore_substance_ids) > 1 else IdentityOutcome.VERIFIED
+        return finalize(regulatory, outcome)
+
+    return finalize(IdentityResolution(
         status=IdentityStatus.RESOLVED,
         match_methods=["exact_catalogue_name"],
         singapore_candidates=regulatory.singapore_candidates,
@@ -357,4 +505,4 @@ def resolve_ingredient(
         identity_source_name=IDENTITY_SOURCE_NAME,
         singapore_linkage_status=SingaporeLinkageStatus.NOT_APPLICABLE,
         catalogue_identity=catalogue_identity,
-    )
+    ), IdentityOutcome.NAME_RECOGNISED_CAS_UNVERIFIED if cas_number else IdentityOutcome.VERIFIED)

@@ -1,6 +1,6 @@
 {
   "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
-  "check_count": 15,
+  "check_count": 17,
   "checks": [
     {
       "check_id": "parts-i-v-01",
@@ -165,6 +165,37 @@
       "source_pages": [
         280,
         281
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-13",
+      "regulatory_section": "Third Schedule Part V",
+      "reference_number": "10",
+      "purpose": "Octocrylene 9%/10% branches and footnote 7",
+      "rule_ids": [
+        "sg-third-schedule-v-10-case-a",
+        "sg-third-schedule-v-10-case-b"
+      ],
+      "source_pages": [
+        188,
+        189,
+        195
+      ],
+      "required": true
+    },
+    {
+      "check_id": "parts-i-v-14",
+      "regulatory_section": "Annex VII",
+      "reference_number": "10",
+      "purpose": "ACD Octocrylene comparison branches",
+      "rule_ids": [
+        "acd-vii-10-case-a",
+        "acd-vii-10-case-b"
+      ],
+      "source_pages": [
+        280,
+        284
       ],
       "required": true
     },

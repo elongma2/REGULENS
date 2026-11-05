@@ -14,7 +14,9 @@ from backend.app.models.formulation import (
 )
 from backend.app.models.screening import ConcentrationInput, IngredientInput
 from backend.app.services.compliance import screen_ingredient
+from backend.app.services.resolver import resolve_ingredient
 from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, IngredientCatalog
+from backend.app.services.ingredient_linkage import IngredientLinkageStore
 from backend.app.services.loader import RegulatoryStore
 from backend.app.models.identity_catalogue import IdentityCatalogueDataset, IdentityLinkageDataset
 from backend.app.services.parsing import validate_formulation_request
@@ -48,23 +50,98 @@ def _runtime_ingredient(ingredient) -> IngredientInput:
     )
 
 
+def _combined_contexts(store, ingredients, identities) -> dict[str, dict]:
+    requirements: dict[str, dict] = {}
+    for identity in identities:
+        ids = identity.resolved_singapore_substance_ids or (
+            [identity.resolved_singapore_substance_id] if identity.resolved_singapore_substance_id else []
+        )
+        for substance_id in ids:
+            for rule in store.rules_by_substance_id.get(substance_id, ()):
+                for requirement in rule.get("combined_limit_requirements", []):
+                    requirements[requirement["group_key"]] = requirement
+
+    output: dict[str, dict] = {}
+    for group_key, requirement in requirements.items():
+        expected = set(requirement.get("constituent_references", []))
+        contributions: dict[str, list] = {reference: [] for reference in expected}
+        for ingredient, identity in zip(ingredients, identities, strict=True):
+            exact_refs = {
+                candidate.reference_number
+                for candidate in identity.singapore_candidates
+                if any(method in {"exact_name", "exact_ci", "accepted_identity_linkage"} for method in candidate.match_methods)
+            }
+            for reference in expected & exact_refs:
+                contributions[reference].append(ingredient.concentration)
+        missing = sorted(reference for reference, values in contributions.items() if not values)
+        maximum = requirement["maximum"]
+        values: list[float] = []
+        compatible = not missing
+        for concentrations in contributions.values():
+            for concentration in concentrations:
+                if (
+                    concentration is None
+                    or concentration.concentration_type.value != "exact"
+                    or concentration.value is None
+                    or concentration.unit != maximum["unit"]
+                    or concentration.basis != maximum.get("basis")
+                    or concentration.preparation_stage != maximum["preparation_stage"]
+                ):
+                    compatible = False
+                else:
+                    values.append(concentration.value)
+        output[group_key] = {
+            "status": "complete" if compatible else "incomplete",
+            "total": sum(values) if compatible else None,
+            "missing_references": missing,
+            "constituent_references": sorted(expected),
+        }
+    return output
+
+
 def screen_formulation(
     store: RegulatoryStore,
     request: FormulationRequest,
     ingredient_catalog: IngredientCatalog | None = None,
+    linkage_store: IngredientLinkageStore | None = None,
+    linkage_error: str | None = None,
     catalogue_error: str | None = None,
 ) -> FormulationScreeningResponse:
+    linkage_active = bool(
+        linkage_store is not None
+        and linkage_store.singapore_regulatory_baseline == store.dataset_version
+        and set(linkage_store.screened_scope) == {
+            "Third Schedule Part I", "Third Schedule Part II", "Third Schedule Part III",
+            "Third Schedule Part IV", "Third Schedule Part V",
+        }
+    )
     duplicate_groups = validate_formulation_request(request, store)
+    runtime_ingredients = [_runtime_ingredient(ingredient) for ingredient in request.ingredients]
+    identities = [
+        resolve_ingredient(
+            store,
+            ingredient.name,
+            ingredient.cas_number,
+            ingredient_catalog=ingredient_catalog,
+            linkage_store=linkage_store,
+            catalogue_error=catalogue_error,
+        )
+        for ingredient in runtime_ingredients
+    ]
+    combined_contexts = _combined_contexts(store, runtime_ingredients, identities)
     results = [
         screen_ingredient(
             store,
-            _runtime_ingredient(ingredient),
+            ingredient,
             request.product_context,
             request.product_applicability.model_dump(),
             ingredient_catalog=ingredient_catalog,
+            linkage_store=linkage_store,
             catalogue_error=catalogue_error,
+            identity_resolution=identity,
+            combined_contexts=combined_contexts,
         )
-        for ingredient in request.ingredients
+        for ingredient, identity in zip(runtime_ingredients, identities, strict=True)
     ]
     primary_counts = Counter(result.primary_finding for result in results)
     summary_values = {
@@ -113,9 +190,17 @@ def screen_formulation(
                 error=(catalogue_error if ingredient_catalog is None else None),
             ),
             identity_linkage=IdentityLinkageDataset(
-                available=False,
-                screened_scope=[],
-                error=None,
+                available=linkage_active,
+                dataset_version=(linkage_store.dataset_version if linkage_active else None),
+                accepted_baseline_sha256=(linkage_store.baseline_manifest_hash if linkage_active else None),
+                identity_dataset_version=(linkage_store.identity_dataset_version if linkage_active else None),
+                singapore_regulatory_baseline=(linkage_store.singapore_regulatory_baseline if linkage_active else None),
+                screened_scope=(list(linkage_store.screened_scope) if linkage_active else []),
+                accepted_records=(linkage_store.counts["accepted_records"] if linkage_active else None),
+                linked=(linkage_store.counts["linked"] if linkage_active else None),
+                verified_not_represented=(linkage_store.counts["verified_not_represented"] if linkage_active else None),
+                unresolved=(linkage_store.counts["unresolved"] if linkage_active else None),
+                error=(linkage_error or ("Accepted identity linkage is not bound to the active Parts I-V baseline." if linkage_store is not None and not linkage_active else None)),
             ),
         ),
         summary=summary,

@@ -392,7 +392,9 @@
           "is_continuation": true
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "7"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -1204,6 +1206,7 @@
         }
       ],
       "footnote_references": [
+        "2",
         "3"
       ],
       "jurisdiction_notes": [],
@@ -1777,6 +1780,21 @@
   ],
   "footnotes": [
     {
+      "footnote_number": "1",
+      "source_page": 194,
+      "source_text": "1 Not required if concentration is 0.5% or less and when it is used only for product protection purposes."
+    },
+    {
+      "footnote_number": "2",
+      "source_page": 194,
+      "source_text": "2 For use as a colourant, see colouring agent CI 77891 in Part III."
+    },
+    {
+      "footnote_number": "3",
+      "source_page": 194,
+      "source_text": "3 In case of combined use of Titanium dioxide and Titanium dioxide (nano), the sum must not exceed the\nmaximum concentration specified in the third column.\nInformal Consolidation – version in force from 1/12/2025"
+    },
+    {
       "footnote_number": "4",
       "source_page": 195,
       "source_text": "4 In case of combined use of zinc oxide and zinc oxide (nano), the sum must not exceed the maximum\nconcentration specified in the third column."
@@ -1794,7 +1812,7 @@
     {
       "footnote_number": "7",
       "source_page": 195,
-      "source_text": "7 Benzophenone as an impurity and/or degradation product of Octocrylene must be kept at trace level.\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 9/2023 wef 01/02/2023]\n[S 43/2019 wef 21/01/2019]\nPart VI\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VII\n[Deleted by S 9/2023 wef 01/02/2023]\nPart VIII\n[Deleted by S 9/2023 wef 01/02/2023]"
+      "source_text": "7 Benzophenone as an impurity and/or degradation product of Octocrylene must be kept at trace level.\n[S 768/2025 wef 01/12/2025]\n[S 816/2024 wef 01/11/2024]\n[S 9/2023 wef 01/02/2023]\n[S 43/2019 wef 21/01/2019]"
     }
   ],
   "page_diagnostics": [

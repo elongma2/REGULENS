@@ -84,6 +84,39 @@ def test_candidate_links_acd_colourant_qualification_footnote():
     assert rule["footnotes"][0]["source_page"] == 265
 
 
+def test_octocrylene_cases_and_inline_footnote_are_source_linked():
+    document = _load(ROOT / "data_pipeline" / "candidate" / "processed" / "rules.json")
+    rules = {item["rule_id"]: item for item in document["rules"]}
+
+    spray = rules["sg-third-schedule-v-10-case-a"]
+    other = rules["sg-third-schedule-v-10-case-b"]
+    assert spray["concentration"]["value"] == 9
+    assert spray["applicability_requirements"] == [{
+        "fact": "spray_or_aerosol",
+        "expected": True,
+        "source_text": "Propellant\nspray products",
+        "role": "case_selector",
+    }]
+    assert other["concentration"]["value"] == 10
+    assert other["applicability_requirements"] == [{
+        "fact": "spray_or_aerosol",
+        "expected": False,
+        "source_text": "Other products",
+        "role": "case_selector",
+    }]
+    for rule in (spray, other):
+        assert rule["footnotes"][0]["footnote_number"] == "7"
+        assert "Benzophenone" in rule["footnotes"][0]["source_text"]
+        assert "Part VI" not in rule["footnotes"][0]["source_text"]
+
+
+def test_part_v_footnote_block_covers_both_source_pages():
+    raw = _load(ROOT / "data_pipeline" / "candidate" / "raw" / "singapore_third_schedule_part_v_raw.json")
+    assert {item["footnote_number"] for item in raw["footnotes"]} == {
+        "1", "2", "3", "4", "5", "6", "7"
+    }
+
+
 def test_candidate_has_all_five_cross_reference_directions_and_material_differences():
     document = _load(ROOT / "data_pipeline" / "candidate" / "processed" / "source_cross_references.json")
     mappings = {item["regulatory_mapping"] for item in document["cross_references"]}

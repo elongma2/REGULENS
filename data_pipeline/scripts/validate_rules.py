@@ -175,6 +175,8 @@ def build_spot_checks(
         ("parts-i-v-10", "Annex VII", "A29a", "nano zinc oxide conditions"),
         ("parts-i-v-11", "Third Schedule Part V", "A29a", "Singapore nano UV-filter conditions"),
         ("parts-i-v-12", "Annex VII", "A28", "section-specific Annex VII version"),
+        ("parts-i-v-13", "Third Schedule Part V", "10", "Octocrylene 9%/10% branches and footnote 7"),
+        ("parts-i-v-14", "Annex VII", "10", "ACD Octocrylene comparison branches"),
     ]
     for check_id, section, reference, focus in expanded_samples:
         record = _lookup(raw_records, section, reference)

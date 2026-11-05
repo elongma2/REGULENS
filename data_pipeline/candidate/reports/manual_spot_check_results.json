@@ -3,8 +3,8 @@
   "completed_date": "2026-10-19",
   "method": "Rendered-page comparison against the immutable source PDFs and normalized candidate JSON.",
   "summary": {
-    "total": 15,
-    "passed": 15,
+    "total": 17,
+    "passed": 17,
     "failed": 0,
     "pending": 0
   },
@@ -80,6 +80,18 @@
       "result": "PASS",
       "evidence_checked": "ACD Annex VII rendered pages 280 and 281 compared with acd-vii-a28.",
       "notes": "Menthyl anthranilate at 5% and Annex VII section version 2025-2 dated 12 December 2025 match."
+    },
+    {
+      "check_id": "parts-i-v-13",
+      "result": "PASS",
+      "evidence_checked": "Singapore Third Schedule Part V rendered pages 189 and 195 compared with sg-third-schedule-v-10-case-a and sg-third-schedule-v-10-case-b.",
+      "notes": "Octocrylene is limited to 9% in propellant spray products and 10% in other products. Footnote 7 requires benzophenone impurity and/or degradation product to be kept at trace level. Both branches and the linked footnote match the source."
+    },
+    {
+      "check_id": "parts-i-v-14",
+      "result": "PASS",
+      "evidence_checked": "ACD Annex VII rendered pages 280 and 282 compared with acd-vii-10-case-a and acd-vii-10-case-b.",
+      "notes": "The ACD Octocrylene comparison entry preserves the 9% propellant-spray and 10% other-product branches independently."
     },
     {
       "check_id": "parts-i-v-regulation-6-3",

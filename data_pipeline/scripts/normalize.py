@@ -212,7 +212,9 @@ def _active(record: dict[str, Any]) -> bool:
     return bool(name) and not RANGE_RE.fullmatch(record["reference_number"]) and not inactive_wording
 
 
-def _case_maps(record: dict[str, Any]) -> tuple[list[str] | None, dict[str, dict[str, str]]]:
+def _case_maps(
+    record: dict[str, Any], *, limitations_are_product_context: bool = False
+) -> tuple[list[str] | None, dict[str, dict[str, str]]]:
     fields = {
         "product_context": record.get("original_field_of_use_text"),
         "concentration_text": record.get("original_concentration_text"),
@@ -228,6 +230,12 @@ def _case_maps(record: dict[str, Any]) -> tuple[list[str] | None, dict[str, dict
         return None, {}
     if any(list(value) != labels for value in labelled[1:]):
         return None, {}
+    if limitations_are_product_context and not maps["product_context"] and maps["concentration_text"] and maps["other_conditions"]:
+        # Positive lists commonly put the use branch in the limitations column
+        # rather than a dedicated product-context column. When both columns use
+        # the same explicit (a)/(b) labels, the mapping is source-defined.
+        maps["product_context"] = maps["other_conditions"]
+        maps["other_conditions"] = {}
     if not maps["product_context"] or not maps["concentration_text"]:
         return None, {}
     return labels, {name: value or {} for name, value in maps.items()}
@@ -247,6 +255,8 @@ def _applicability_requirements(text: str | None) -> list[dict[str, Any]]:
         ("powder_form", "powder", True),
         ("child_use", "children", True),
         ("sun_protection_purpose", "sunscreen", True),
+        ("inhalation_exposure", "exposure of the end-user’s lungs by inhalation", False),
+        ("inhalation_exposure", "exposure of the end user’s lungs by inhalation", False),
     )
     for fact, marker, expected in patterns:
         if marker in folded:
@@ -426,7 +436,21 @@ def normalize_rule_source(
             base_reasons.append("nonstandard_extraction_fragment")
         if record.get("jurisdiction_notes"):
             base_reasons.append("jurisdiction_specific_source_wording")
-        labels, maps = _case_maps(record) if restriction_type in {"restricted", "permitted"} and active else (None, {})
+        labels, maps = (
+            _case_maps(
+                record,
+                # These paired branches were verified directly against the
+                # accepted Octocrylene source rows. Other positive-list rows
+                # remain conservative until their branch mappings receive the
+                # same source review.
+                limitations_are_product_context=(
+                    section in {"Annex VII", "Third Schedule Part V"}
+                    and record.get("reference_number") == "10"
+                ),
+            )
+            if restriction_type in {"restricted", "permitted"} and active
+            else (None, {})
+        )
         case_fields = (
             "original_field_of_use_text",
             "original_concentration_text",
@@ -465,6 +489,13 @@ def normalize_rule_source(
                 raw_value = record.get(raw_key)
                 if case_label is None:
                     return raw_value
+                if (
+                    restriction_type == "permitted"
+                    and normalized_key == "other_conditions"
+                    and maps.get("product_context")
+                    and not maps.get("other_conditions")
+                ):
+                    return None
                 return maps[normalized_key].get(case_label) or raw_value
 
             product_context = case_value("original_field_of_use_text", "product_context")
@@ -512,6 +543,28 @@ def normalize_rule_source(
             if reasons and case_status == "normalized":
                 case_status = "manual_review_required"
             rule_id = base_rule_id if case_label is None else f"{base_rule_id}-case-{case_label}"
+            applicability_requirements = _applicability_requirements(
+                "\n".join(filter(None, (product_context, other_conditions)))
+            )
+            if (
+                section in {"Annex VII", "Third Schedule Part V"}
+                and record.get("reference_number") == "10"
+                and case_label == "b"
+            ):
+                applicability_requirements.append({
+                    "fact": "spray_or_aerosol",
+                    "expected": False,
+                    "source_text": product_context or "Other products",
+                    "role": "case_selector",
+                })
+            if (
+                section in {"Annex VII", "Third Schedule Part V"}
+                and record.get("reference_number") == "10"
+                and case_label == "a"
+            ):
+                for requirement in applicability_requirements:
+                    if requirement["fact"] == "spray_or_aerosol":
+                        requirement["role"] = "case_selector"
             rules.append(
                 NormalizedRule(
                     rule_id=rule_id,
@@ -548,9 +601,7 @@ def normalize_rule_source(
                     concentration_text=concentration_text,
                     other_conditions=other_conditions,
                     required_warning=warning,
-                    applicability_requirements=_applicability_requirements(
-                        "\n".join(filter(None, (product_context, other_conditions)))
-                    ),
+                    applicability_requirements=applicability_requirements,
                     combined_limit_requirements=combined_limit_requirements,
                     warning_requirements=warning_requirements,
                     footnotes=footnotes,
@@ -601,6 +652,15 @@ def build_product_context(appendix: dict[str, Any], source: dict[str, Any]) -> d
             "Product form, application area, rinse-off status, and user population remain source text unless explicitly named by a category.",
         ],
     }
+
+
+def _dump_rule(rule: NormalizedRule) -> dict[str, Any]:
+    """Keep ordinary applicability records backward-compatible in JSON."""
+    payload = rule.model_dump()
+    for requirement in payload.get("applicability_requirements", []):
+        if requirement.get("role") == "condition":
+            requirement.pop("role", None)
+    return payload
 
 
 def normalize_all() -> dict[str, Path]:
@@ -658,7 +718,7 @@ def normalize_all() -> dict[str, Path]:
         {
             "dataset_version": DATASET_VERSION,
             "source_footnotes": source_footnotes,
-            "rules": [item.model_dump() for item in rules],
+            "rules": [_dump_rule(item) for item in rules],
         },
     )
     write_json(outputs["singapore_provisions"], provisions)
@@ -724,7 +784,7 @@ def normalize_candidate_all() -> dict[str, Path]:
     write_json(outputs["rules"], {
         "dataset_version": CANDIDATE_DATASET_VERSION,
         "source_footnotes": source_footnotes,
-        "rules": [item.model_dump() for item in rules],
+        "rules": [_dump_rule(item) for item in rules],
     })
     write_json(outputs["singapore_provisions"], provisions)
     return outputs

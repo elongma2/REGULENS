@@ -68,6 +68,8 @@ def _spot_checks(rules: list[dict[str, Any]]) -> list[dict[str, Any]]:
         ("Annex VII", "A29a", "nano zinc oxide conditions"),
         ("Third Schedule Part V", "A29a", "Singapore nano UV-filter conditions"),
         ("Annex VII", "A28", "section-specific Annex VII version"),
+        ("Third Schedule Part V", "10", "Octocrylene 9%/10% branches and footnote 7"),
+        ("Annex VII", "10", "ACD Octocrylene comparison branches"),
     )
     by_key: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for rule in rules:

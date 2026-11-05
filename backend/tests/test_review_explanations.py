@@ -13,6 +13,7 @@ from backend.app.main import create_app
 from backend.app.models.formulation import FormulationRequest
 from backend.app.services.formulation import screen_formulation
 from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
+from backend.app.services.ingredient_linkage import load_accepted_ingredient_linkages
 from backend.app.services.loader import load_accepted_store
 from backend.app.services.review_explanations import ReviewExplanationService
 
@@ -57,6 +58,7 @@ def test_model_explanation_is_batched_grounded_and_cached():
     fake = FakeResponses(valid_output())
     service = ReviewExplanationService("test-key", client_factory=lambda **_: SimpleNamespace(responses=fake))
     deterministic = review_response()
+    deterministic.ingredient_results[0].review_issues = []
     original_finding = deterministic.ingredient_results[0].primary_finding
     first = service.enrich(deterministic)
     second = service.enrich(deterministic)
@@ -120,7 +122,7 @@ def test_name_and_cas_conflict_has_specific_plain_fallback_and_grounded_facts():
         load_accepted_store(ROOT),
         FormulationRequest.model_validate({"ingredients": [{
             "name": "Aminophylline",
-            "cas_number": "128-37-0",
+            "cas_number": "58-55-9",
         }]}),
         ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
     )
@@ -128,10 +130,28 @@ def test_name_and_cas_conflict_has_specific_plain_fallback_and_grounded_facts():
     explanation = result.review_explanation
     assert result.review_required is True
     assert explanation.title == "Name and CAS do not match"
-    assert explanation.summary == "The ingredient name and CAS number do not point to the same ingredient."
+    assert explanation.summary == "The submitted name and CAS number match different source-backed ingredient identities."
     assert explanation.what_to_check == "Confirm the correct ingredient name and CAS number."
-    assert explanation.submitted_fact == "Name: Aminophylline · CAS: 128-37-0"
+    assert explanation.submitted_fact == "Name: Aminophylline · CAS: 58-55-9"
     assert explanation.regulatory_fact == "Source CAS for Aminophylline: 317-34-0"
+
+
+def test_recognised_cas_with_unlinked_catalogue_name_is_not_called_a_conflict():
+    deterministic = screen_formulation(
+        load_accepted_store(ROOT),
+        FormulationRequest.model_validate({"ingredients": [{
+            "name": "PHENOXYETHANOL",
+            "cas_number": "122-99-6",
+            "regulated_functions": ["preservative"],
+            "concentration": {"value": 0.5, "unit": "percent", "basis": None, "preparation_stage": "finished_product"},
+        }]}),
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+    )
+    result = ReviewExplanationService(None).enrich(deterministic).ingredient_results[0]
+    assert result.identity.identity_outcome.value == "cas_recognised_name_unverified"
+    assert result.rule_evaluations
+    assert result.review_explanation.title == "Ingredient name needs confirmation"
+    assert "do not match" not in result.review_explanation.summary
 
 
 def test_model_jargon_is_rejected_and_plain_fallback_is_kept():
@@ -169,6 +189,75 @@ def test_non_review_results_do_not_call_explanation_model():
     assert fake.calls == []
     assert enriched.ingredient_results[0].review_explanation is None
     assert enriched.review_explanation_metadata.status == "not_needed"
+
+
+def test_structured_combined_limit_explanation_names_missing_constituent_and_limits():
+    deterministic = screen_formulation(
+        load_accepted_store(ROOT),
+        FormulationRequest.model_validate({
+            "product_applicability": {"inhalation_exposure": False},
+            "ingredients": [{
+                "name": "Zinc oxide",
+                "regulated_functions": ["uv_filter"],
+                "concentration": {
+                    "concentration_type": "approximate",
+                    "value": 2,
+                    "unit": "percent",
+                    "basis": None,
+                    "preparation_stage": "finished_product",
+                    "original_text": "approximately 2%",
+                },
+            }],
+        }),
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+        linkage_store=load_accepted_ingredient_linkages(ROOT),
+    )
+    enriched = ReviewExplanationService(None).enrich(deterministic)
+    explanation = enriched.ingredient_results[0].review_explanation
+    combined = next(item for item in explanation.items if item.issue_code == "combined_limit_information_missing")
+    assert "Zinc oxide (nano)" in combined.what_happened
+    assert "approximately 2%" in combined.why_it_matters
+    assert "25 percent" in combined.why_it_matters
+    assert "combined concentration" in combined.what_to_check
+    assert explanation.reviewer_actions == list(dict.fromkeys(explanation.reviewer_actions))
+    assert explanation.primary_source_references
+
+
+def test_octocrylene_branches_share_one_product_type_action_and_show_both_limits():
+    deterministic = screen_formulation(
+        load_accepted_store(ROOT),
+        FormulationRequest.model_validate({
+            "ingredients": [{
+                "name": "Octocrylene",
+                "cas_number": "6197-30-4",
+                "regulated_functions": ["uv_filter"],
+                "concentration": {
+                    "concentration_type": "range",
+                    "lower_bound": 8,
+                    "upper_bound": 12,
+                    "lower_inclusive": True,
+                    "upper_inclusive": True,
+                    "unit": "percent",
+                    "basis": None,
+                    "preparation_stage": "finished_product",
+                    "original_text": "8–12%",
+                },
+            }],
+        }),
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+        linkage_store=load_accepted_ingredient_linkages(ROOT),
+    )
+    result = ReviewExplanationService(None).enrich(deterministic).ingredient_results[0]
+    explanation = result.review_explanation
+
+    product_type_actions = [
+        action for action in explanation.reviewer_actions
+        if "spray or aerosol" in action.casefold()
+    ]
+    assert len(product_type_actions) == 1
+    assert "9%" in explanation.regulatory_fact
+    assert "10%" in explanation.regulatory_fact
+    assert len(explanation.reviewer_actions) == len({action.casefold().rstrip(".") for action in explanation.reviewer_actions})
 
 
 def test_screening_route_returns_inline_fallback_without_changing_result():

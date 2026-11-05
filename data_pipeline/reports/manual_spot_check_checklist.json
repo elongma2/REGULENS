@@ -1,6 +1,6 @@
 {
   "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
-  "check_count": 35,
+  "check_count": 37,
   "checks": [
     {
       "check_id": "spot-01",
@@ -406,6 +406,32 @@
       "source_text": "A28 | Menthyl anthranilate | 5 % |  |",
       "missing": false,
       "verification_focus": "section-specific Annex VII version"
+    },
+    {
+      "check_id": "parts-i-v-13",
+      "source_document": "singapore_regulations_2025_12_01",
+      "regulatory_section": "Third Schedule Part V",
+      "reference_number": "10",
+      "source_pages": [
+        189
+      ],
+      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-10",
+      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7 | (a) 9% | (a) Propellant\nspray products | \n |  | (b) 10% | (b) Other products |",
+      "missing": false,
+      "verification_focus": "Octocrylene 9%/10% branches and footnote 7"
+    },
+    {
+      "check_id": "parts-i-v-14",
+      "source_document": "acd_annexes_2026_1",
+      "regulatory_section": "Annex VII",
+      "reference_number": "10",
+      "source_pages": [
+        284
+      ],
+      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-10",
+      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4 | a) 9 %\nb) 10 % | a) Propellant spray products\nb) Other products |",
+      "missing": false,
+      "verification_focus": "ACD Octocrylene comparison branches"
     },
     {
       "check_id": "parts-i-v-regulation-6-3",

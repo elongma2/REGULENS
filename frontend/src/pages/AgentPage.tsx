@@ -53,6 +53,7 @@ const applicabilityFields: Array<{ key: keyof ProductApplicabilityFacts; label: 
   { key: "mucous_membrane_contact", label: "Mucous-membrane contact" },
   { key: "brief_skin_contact", label: "Only brief skin contact" },
   { key: "spray_or_aerosol", label: "Spray or aerosol" },
+  { key: "inhalation_exposure", label: "May expose the lungs by inhalation" },
   { key: "powder_form", label: "Powder form" },
   { key: "adult_use", label: "Intended for adults" },
   { key: "child_use", label: "Intended for children" },

@@ -100,6 +100,61 @@ def test_screening_report_is_a_downloadable_traceable_pdf(client):
     assert "not a product approval" in text
 
 
+def test_screening_report_supports_pdf_range_bound_and_unknown_concentrations(client):
+    response = client.post(
+        "/screen-formulation/report",
+        json={
+            "formulation_id": "FORM-PDF-RANGES",
+            "formulation_name": "PDF range report",
+            "ingredients": [
+                {
+                    "name": "Glycerin",
+                    "concentration": {
+                        "concentration_type": "range",
+                        "lower_bound": 0.5,
+                        "upper_bound": 2.0,
+                        "lower_inclusive": True,
+                        "upper_inclusive": True,
+                        "unit": "percent",
+                        "basis": None,
+                        "preparation_stage": None,
+                    },
+                },
+                {
+                    "name": "Panthenol",
+                    "concentration": {
+                        "concentration_type": "upper_bound",
+                        "upper_bound": 1.0,
+                        "upper_inclusive": False,
+                        "unit": "percent",
+                        "basis": None,
+                        "preparation_stage": None,
+                    },
+                },
+                {
+                    "name": "Aqua",
+                    "concentration": {
+                        "concentration_type": "unknown",
+                        "unit": None,
+                        "basis": None,
+                        "preparation_stage": None,
+                    },
+                },
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.content.startswith(b"%PDF-")
+
+    from pypdf import PdfReader
+
+    text = "\n".join(page.extract_text() or "" for page in PdfReader(io.BytesIO(response.content)).pages)
+    assert "0.5 to 2 %" in text
+    assert "less than 1 %" in text
+    assert "Not disclosed" in text
+
+
 def test_health_reports_runtime_availability_without_secrets(client):
     response = client.get("/health")
 
@@ -108,6 +163,7 @@ def test_health_reports_runtime_availability_without_secrets(client):
         "status": "ok",
         "regulatory_baseline": "available",
         "identity_catalogue": "available",
+        "identity_linkage": "available",
         "formulation_agent": "not_configured",
         "agent_model": "gpt-5.6-sol",
         "explanation_model": "gpt-5.6-luna",
@@ -139,8 +195,10 @@ def test_screening_options_are_source_backed_and_unambiguous(client, store):
     assert payload["jurisdiction"] == "Singapore"
     assert payload["dataset_version"] == store.dataset_version
     assert payload["accepted_baseline_sha256"] == store.baseline_manifest_hash
-    assert len(payload["product_contexts"]) == 106
-    assert len(set(payload["product_contexts"])) == 106
+    assert len(payload["product_contexts"]) == 107
+    assert "Propellant\nspray products" in payload["product_contexts"]
+    assert "Other products" in payload["product_contexts"]
+    assert len(set(payload["product_contexts"])) == 107
     assert payload["concentration_units"] == ["percent", "mg/kg", "ppm"]
     assert payload["concentration_bases"] == [
         None,
@@ -582,14 +640,22 @@ def test_niacinamide_is_catalogue_resolved_with_bounded_no_listing_result(client
     assert result["rule_evaluations"] == []
 
 
-def test_formulation_response_marks_historical_linkage_layer_inactive(client):
+def test_formulation_response_exposes_active_parts_i_v_linkage_layer(client):
     payload = client.post(
         "/screen-formulation", json={"ingredients": [{"name": "Niacinamide"}]}
     ).json()
     linkage = payload["dataset"]["identity_linkage"]
-    assert linkage["available"] is False
-    assert linkage["dataset_version"] is None
-    assert linkage["screened_scope"] == []
+    assert linkage["available"] is True
+    assert linkage["dataset_version"] == (
+        "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+    )
+    assert linkage["screened_scope"] == [
+        "Third Schedule Part I",
+        "Third Schedule Part II",
+        "Third Schedule Part III",
+        "Third Schedule Part IV",
+        "Third Schedule Part V",
+    ]
 
 
 def test_regulatory_identity_precedes_catalogue(client):

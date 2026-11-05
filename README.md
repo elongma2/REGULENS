@@ -48,6 +48,7 @@ Run validation and tests from the repository root:
 
 ```powershell
 uv run python -m data_pipeline.scripts.validate_rules
+uv run python -m data_pipeline.scripts.validate_accepted_data
 uv run pytest
 ```
 

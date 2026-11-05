@@ -103,6 +103,8 @@ def build_rule_evidence(store: RegulatoryStore, rule: dict[str, Any]) -> RuleEvi
         applicability_requirements=rule.get("applicability_requirements", []),
         combined_limit_requirements=rule.get("combined_limit_requirements", []),
         warning_requirements=rule.get("warning_requirements", []),
+        footnotes=rule.get("footnotes", []),
+        supporting_source_texts=rule.get("supporting_source_texts", []),
         source_bundle_version=rule.get("source_bundle_version"),
         source_section_version=rule.get("source_section_version"),
     )

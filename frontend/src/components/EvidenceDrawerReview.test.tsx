@@ -86,6 +86,34 @@ describe("review guidance", () => {
     expect(screen.getByText("Source CAS for Aminophylline: 317-34-0")).toBeInTheDocument();
   });
 
+  it("shows the bounded identity outcome and keeps lookup evidence technical", async () => {
+    const user = userEvent.setup();
+    const result = reviewResult("deterministic_fallback");
+    result.review_types = ["identity_review"];
+    result.identity.identity_outcome = "cas_recognised_name_unverified";
+    result.screening_disposition = "evaluated_with_identity_review";
+    result.identity.reviewer_action = "Confirm that the submitted name belongs to the CAS-matched ingredient.";
+    result.identity.applicable_regulatory_record_ids = ["sg-third-schedule-iv-29"];
+    result.identity.identifier_evidence = [{
+      identifier_type: "cas",
+      submitted_value: "122-99-6",
+      outcome: "matched",
+      matched_singapore_substance_ids: ["substance-sg-third-schedule-iv-29"],
+      matched_acd_substance_ids: ["substance-acd-vi-29"],
+      matched_catalogue_ingredient_id: null,
+    }];
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+    expect(screen.getByText("Cas recognised name unverified")).toBeInTheDocument();
+    expect(screen.getByText("Evaluated with identity review")).toBeInTheDocument();
+    const technicalSummary = screen.getByText("Technical provenance");
+    const technicalDetails = technicalSummary.closest("details");
+    expect(technicalDetails).not.toHaveAttribute("open");
+    await user.click(technicalSummary);
+    expect(technicalDetails).toHaveAttribute("open");
+    expect(screen.getByText("Matched · 122-99-6")).toBeInTheDocument();
+    expect(screen.getByText("sg-third-schedule-iv-29")).toBeInTheDocument();
+  });
+
   it("uses accessible detail tabs and exposes ad hoc review guidance", async () => {
     const user = userEvent.setup();
     render(<EvidenceDrawer result={reviewResult()} sources={[]} reviewDataState="not_applicable" onClose={vi.fn()} />);
@@ -118,5 +146,63 @@ describe("review guidance", () => {
     await user.click(screen.getByRole("button", { name: "Next result" }));
     expect(onNext).toHaveBeenCalledOnce();
     expect(onPrevious).not.toHaveBeenCalled();
+  });
+
+  it("renders one deduplicated reviewer checklist and can widen the drawer", async () => {
+    const user = userEvent.setup();
+    const result = reviewResult("deterministic_fallback");
+    result.review_explanation = {
+      title: "Additional formulation checks needed",
+      summary: "The concentration branch was identified, but several source conditions still need confirmation.",
+      what_to_check: "Confirm whether the product may result in inhalation exposure.",
+      submitted_fact: "Approximately 2%",
+      regulatory_fact: "Maximum 25%",
+      source: "deterministic_fallback",
+      reviewer_actions: [
+        "Confirm whether Zinc Oxide (nano) is present and verify the combined concentration.",
+        "Confirm whether the product may result in inhalation exposure.",
+        "Confirm whether the product may result in inhalation exposure.",
+        "Review the Singapore and ACD source difference.",
+        "Check the nano-specific source conditions.",
+      ],
+      items: [
+        { issue_code: "combined_limit_information_missing", what_happened: "The combined limit is incomplete.", why_it_matters: "The source limit applies to both forms.", what_to_check: "Confirm whether Zinc Oxide (nano) is present and verify the combined concentration.", source_references: ["Third Schedule Part V Ref 30"] },
+        { issue_code: "applicability_fact_missing", what_happened: "Inhalation exposure is unknown.", why_it_matters: "The source restricts inhalation exposure.", what_to_check: "Confirm whether the product may result in inhalation exposure.", source_references: ["Third Schedule Part V Ref 30"] },
+      ],
+    };
+
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+
+    expect(screen.getAllByText("What to check")).toHaveLength(1);
+    expect(screen.getAllByText("Confirm whether the product may result in inhalation exposure.")).toHaveLength(1);
+    expect(screen.getByText("Show all checks (4)")).toBeInTheDocument();
+    expect(screen.getByText("Why this needs review (2)").closest("details")).not.toHaveAttribute("open");
+
+    const drawer = screen.getByRole("dialog", { name: "Regulatory evidence" });
+    await user.click(screen.getByRole("button", { name: "Widen evidence drawer" }));
+    expect(drawer).toHaveClass("is-wide");
+    expect(screen.getByRole("button", { name: "Restore drawer width" })).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("groups product branches from one regulatory reference without losing either limit", () => {
+    const result = reviewResult("deterministic_fallback");
+    const spray = evidence("II", "10", "Octocrylene");
+    spray.regulatory_section = "Third Schedule Part V";
+    spray.product_context = "Propellant spray products";
+    spray.concentration = { value: 9, unit: "percent", comparator: "less_than_or_equal", basis: null, preparation_stage: "finished_product" };
+    const other = { ...spray, product_context: "Other products", concentration: { ...spray.concentration, value: 10 } };
+    result.rule_evaluations = [
+      { rule_id: `${spray.rule_id}-spray`, evaluation_status: "withheld_professional_review", finding: "professional_review_required", reasons: [], submitted_concentration: null, evidence: spray },
+      { rule_id: `${spray.rule_id}-other`, evaluation_status: "withheld_professional_review", finding: "professional_review_required", reasons: [], submitted_concentration: null, evidence: other },
+    ];
+
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+
+    expect(screen.getByText("2 conditions")).toBeInTheDocument();
+    expect(screen.getByText("Propellant spray products")).toBeInTheDocument();
+    expect(screen.getByText("Other products")).toBeInTheDocument();
+    expect(screen.getByText("9%")).toBeInTheDocument();
+    expect(screen.getByText("10%")).toBeInTheDocument();
+    expect(screen.getAllByText(/Reference 10/)).toHaveLength(1);
   });
 });

@@ -1,13 +1,148 @@
 {
-  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__sg-2025-12-01",
+  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1",
   "identity_dataset_version": "eu-glossary-2025-1175",
   "identity_dataset_hash": "e146c81b5978c373ac1f20c677ba20c5221e02b7f128b4b095ff711075331094",
-  "singapore_regulatory_baseline": "sg-2025-12-01",
-  "singapore_regulatory_baseline_hash": "8dc52418c1360074a52221966cd3e74e1dcd108233d8ad8045797a6c34e25017",
+  "singapore_regulatory_baseline": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "singapore_regulatory_baseline_hash": "a3de95512af1397940d089de60b9639c8cb3448987656c35a2b4572793660ed0",
   "screened_scope": [
     "Third Schedule Part I",
-    "Third Schedule Part II"
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V"
   ],
-  "candidate_count": 0,
-  "records": []
+  "candidate_count": 1,
+  "records": [
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-06401",
+      "catalogue_canonical_name": "CI 42090",
+      "eu_source_entries": [
+        6401
+      ],
+      "eu_source_pages": [
+        209
+      ],
+      "eu_raw_record_ids": [
+        "raw-eu-2025-1175-entry-06401"
+      ],
+      "candidate_generation_method": "exact_normalized_name_equality",
+      "singapore_candidates": [],
+      "proposed_singapore_targets": [
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-ii-190",
+          "rule_id": "sg-third-schedule-ii-190",
+          "substance_id": "substance-sg-third-schedule-ii-190",
+          "part": "Third Schedule Part II",
+          "reference": "190",
+          "source_substance_name": "Benzenemethanaminium, N-ethyl-N-[4-[[4-\n[ethyl-[(3-sulfo-phenyl)-methyl]-amino]-phenyl]\n[2-sulfophenyl)methylene]-2,5-cyclohexadien-1-\nylidene]-3-sulfo, inner salts, disodium salt and its\nammonium and aluminium salts 8\nAcid Blue No. 9\nAcid Blue No. 9 Ammonium salt\nAcid Blue No. 9 Aluminium lake",
+          "source_document": "singapore_regulations_2025_12_01",
+          "source_hash": "8e9a255e7ba67331db20b6c8ae2572a9edc2b0171b410b111804ddbca4b12ff5",
+          "source_pages": [
+            114
+          ],
+          "source_text": "190 | Benzenemethanaminium, N-ethyl-N-[4-[[4-\n[ethyl-[(3-sulfo-phenyl)-methyl]-amino]-phenyl]\n[2-sulfophenyl)methylene]-2,5-cyclohexadien-1-\nylidene]-3-sulfo, inner salts, disodium salt and its\nammonium and aluminium salts 8\nAcid Blue No. 9\nAcid Blue No. 9 Ammonium salt\nAcid Blue No. 9 Aluminium lake | Hair dye substance in non‑oxidative hair dye products | 0.5% | Use for dyeing eyelashes or\neyebrows is not permitted | Do not use to dye eyelashes or\neyebrows\nWear suitable gloves"
+        },
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iii-42090",
+          "rule_id": "sg-third-schedule-iii-42090",
+          "substance_id": "substance-sg-third-schedule-iii-42090",
+          "part": "Third Schedule Part III",
+          "reference": "42090",
+          "source_substance_name": "42090",
+          "source_document": "singapore_regulations_2025_12_01",
+          "source_hash": "8e9a255e7ba67331db20b6c8ae2572a9edc2b0171b410b111804ddbca4b12ff5",
+          "source_pages": [
+            169,
+            173
+          ],
+          "source_text": "42090 | Blue | Allowed in all cosmetic products"
+        }
+      ],
+      "supporting_acd_records": [
+        {
+          "raw_record_id": "raw-acd_annexes_2026_1-annex-iii-part-1-190",
+          "regulatory_section": "Annex III Part 1",
+          "reference_number": "190",
+          "source_pages": [
+            142
+          ],
+          "source_text": "190 | Benzenemethanaminium, N-ethyl-N-[4-\n[[4-[ethyl-[(3-sulfophenyl)-methyl]-\namino]-phenyl](2-\nsulfophenyl)methylene]-2,5-\ncyclohexadien-1-ylidene]-3-sulfo, inner\nsalts, disodium salt and its ammonium\nand aluminium salts (CI 42090)\nAcid Blue 9\nCAS No 3844-45-9\nAcid Blue 9 Ammonium salt\nCAS No 2650-18-2\nAcid Blue 9 Aluminium lake\nCAS No 68921-42-6 | Hair dye substance in non-\noxidative hair dye products\nUse for dyeing eyelashes\nand eyebrows is not\npermitted. | 0.5% | The free base and salts of\nthis hair colouring\ningredient, unless\nprohibited under Annex II,\nare permitted for use.\nThe direction for use “wear\nsuitable gloves” must be\nincluded in label or leaflet\ntext. | Do not use to dye eyelashes or\neyebrows",
+          "source_document": "acd_annexes_2026_1"
+        },
+        {
+          "raw_record_id": "raw-acd_annexes_2026_1-annex-iv-part-1-42090",
+          "regulatory_section": "Annex IV Part 1",
+          "reference_number": "42090",
+          "source_pages": [
+            261
+          ],
+          "source_text": "42090 | Blue | X |  |  |  |",
+          "source_document": "acd_annexes_2026_1"
+        }
+      ],
+      "supported_names": [
+        "CI 42090",
+        "Acid Blue 9",
+        "Brilliant Blue FCF"
+      ],
+      "supported_cas_numbers": [
+        "2650-18-2",
+        "3844-45-9",
+        "68921-42-6"
+      ],
+      "supported_ci_numbers": [
+        "42090"
+      ],
+      "identity_group": {
+        "group_id": "ci-42090-acid-blue-9-forms",
+        "display_name": "CI 42090 / Acid Blue 9 related forms",
+        "relationship_type": "related_distinct_forms"
+      },
+      "forms": [
+        {
+          "form_id": "ci-42090-disodium",
+          "display_name": "Acid Blue 9 disodium salt",
+          "cas_numbers": [
+            "3844-45-9"
+          ],
+          "relationship_type": "distinct_salt_form"
+        },
+        {
+          "form_id": "ci-42090-ammonium",
+          "display_name": "Acid Blue 9 ammonium salt",
+          "cas_numbers": [
+            "2650-18-2"
+          ],
+          "relationship_type": "distinct_salt_form"
+        },
+        {
+          "form_id": "ci-42090-aluminium-lake",
+          "display_name": "Acid Blue 9 aluminium lake",
+          "cas_numbers": [
+            "68921-42-6"
+          ],
+          "relationship_type": "distinct_lake_form"
+        }
+      ],
+      "target_relationships": [
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-ii-190",
+          "applies_to": [
+            "ci-42090-disodium",
+            "ci-42090-ammonium",
+            "ci-42090-aluminium-lake"
+          ],
+          "relationship_type": "source_explicit_forms"
+        },
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iii-42090",
+          "applies_to_group": "ci-42090-acid-blue-9-forms",
+          "relationship_type": "ci_group_listing_pending_form_scope_review"
+        }
+      ],
+      "proposed_review_basis": "Verify CI 42090 and CAS 3844-45-9 identify the same colourant represented independently in restricted-substance and colourant records.",
+      "reason_for_review": "No deterministic Singapore candidate identified.",
+      "current_status": "unresolved"
+    }
+  ]
 }

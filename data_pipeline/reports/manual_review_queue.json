@@ -1,9 +1,9 @@
 {
   "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
   "summary": {
-    "normalized_rule_items": 1425,
+    "normalized_rule_items": 1423,
     "cross_reference_items": 1352,
-    "total": 2777
+    "total": 2775
   },
   "items": [
     {
@@ -18586,22 +18586,6 @@
     },
     {
       "item_type": "normalized_rule",
-      "item_id": "acd-vii-10",
-      "reference_number": "10",
-      "regulatory_section": "Annex VII",
-      "source_pages": [
-        280,
-        284
-      ],
-      "review_reasons": [
-        "ambiguous_multi_case_concentration_not_normalized",
-        "concentration_contains_multiple_or_ambiguous_values",
-        "multi_case_mapping_not_unambiguous"
-      ],
-      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-10"
-    },
-    {
-      "item_type": "normalized_rule",
       "item_id": "acd-vii-12",
       "reference_number": "12",
       "regulatory_section": "Annex VII",
@@ -19128,22 +19112,6 @@
         "concentration_contains_multiple_or_ambiguous_values"
       ],
       "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-59"
-    },
-    {
-      "item_type": "normalized_rule",
-      "item_id": "sg-third-schedule-v-10",
-      "reference_number": "10",
-      "regulatory_section": "Third Schedule Part V",
-      "source_pages": [
-        188,
-        189
-      ],
-      "review_reasons": [
-        "ambiguous_multi_case_concentration_not_normalized",
-        "concentration_contains_multiple_or_ambiguous_values",
-        "multi_case_mapping_not_unambiguous"
-      ],
-      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-10"
     },
     {
       "item_type": "normalized_rule",
@@ -40174,10 +40142,12 @@
         "source_wording_or_regulatory_field_differs"
       ],
       "acd_rule_ids": [
-        "acd-vii-10"
+        "acd-vii-10-case-a",
+        "acd-vii-10-case-b"
       ],
       "singapore_rule_ids": [
-        "sg-third-schedule-v-10"
+        "sg-third-schedule-v-10-case-a",
+        "sg-third-schedule-v-10-case-b"
       ]
     },
     {

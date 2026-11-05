@@ -15,9 +15,15 @@ from backend.app.services.ingredient_catalog import IngredientCatalog
 from backend.app.services.loader import RegulatoryStore
 
 
-LINKAGE_DATASET_VERSION = "eu-sg-linkage__eu-glossary-2025-1175__sg-2025-12-01"
-SINGAPORE_BASELINE = "sg-2025-12-01"
-SCREENED_SCOPE = ("Third Schedule Part I", "Third Schedule Part II")
+LINKAGE_DATASET_VERSION = "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+SINGAPORE_BASELINE = "acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+SCREENED_SCOPE = (
+    "Third Schedule Part I",
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
+)
 
 
 class AcceptedIngredientLinkageError(RuntimeError):
@@ -75,8 +81,8 @@ def load_accepted_ingredient_linkages(root: Path | None = None) -> IngredientLin
         raise AcceptedIngredientLinkageError("Accepted ingredient linkage manifest is missing")
     manifest_hash = _sha256(manifest_path)
     manifest = _load(manifest_path)
-    if manifest.get("dataset_version") != LINKAGE_DATASET_VERSION:
-        raise AcceptedIngredientLinkageError("Accepted linkage dataset version mismatch")
+    if not isinstance(manifest.get("dataset_version"), str) or not manifest["dataset_version"].strip():
+        raise AcceptedIngredientLinkageError("Accepted linkage dataset version is missing")
     hashes = manifest.get("generated_output_hashes")
     if not isinstance(hashes, dict) or not hashes:
         raise AcceptedIngredientLinkageError("Accepted linkage manifest contains no output hashes")
@@ -177,6 +183,8 @@ def assess_linkage(
             "reference": rule["reference_number"],
             "source_substance_name": rule["substance_name"],
             "source_document": rule["source_document"],
+            "source_pages": rule["source_pages"],
+            "source_text": rule["source_text"],
         }
         substance = regulatory_store.substances_by_id.get(rule.get("substance_id"))
         expected["source_hash"] = substance.get("source_hash") if substance else None
@@ -202,6 +210,13 @@ def assess_linkage(
         singapore_targets=targets,
         review=record["review"],
         inapplicability_reasons=stale,
+        supported_names=record.get("supported_names", []),
+        supported_cas_numbers=record.get("supported_cas_numbers", []),
+        supported_ci_numbers=record.get("supported_ci_numbers", []),
+        supporting_acd_records=record.get("supporting_acd_records", []),
+        identity_group=record.get("identity_group"),
+        forms=record.get("forms", []),
+        target_relationships=record.get("target_relationships", []),
     )
     if stale:
         return LinkageAssessment(

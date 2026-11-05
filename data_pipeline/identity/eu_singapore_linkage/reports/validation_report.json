@@ -1,12 +1,12 @@
 {
-  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__sg-2025-12-01",
+  "dataset_version": "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1",
   "status": "PASS",
   "errors": [],
   "counts": {
-    "accepted_records": 0,
-    "linked": 0,
+    "accepted_records": 2,
+    "linked": 2,
     "verified_not_represented": 0,
     "unresolved": 0
   },
-  "review_input_sha256": "fabd9bdf49a838974c4534bb52478405e0f80aa9ecaa3f278d18754f9abd8eb0"
+  "review_input_sha256": "edd429c0cd7328db613ce05b6957086c78fd6dd8cea0c09cab21c682682a2add"
 }

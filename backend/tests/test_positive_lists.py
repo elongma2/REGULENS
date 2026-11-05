@@ -124,7 +124,8 @@ def test_unknown_function_never_creates_positive_list_prohibition(store):
     synthetic, _ = positive_store(store, RegulatedFunction.PRESERVATIVE)
     result = screen_ingredient(synthetic, IngredientInput(name="Tosylchloramide sodium", concentration=concentration(0.1)))
     assert result.primary_finding != Finding.REGULATED_FUNCTION_NOT_PERMITTED
-    assert RegulatedFunction.PRESERVATIVE in result.incomplete_positive_list_checks
+    assert result.incomplete_positive_list_checks == []
+    assert result.function_evaluations == []
 
 
 def test_multiple_functions_and_categories_are_all_retained(store):
@@ -158,6 +159,37 @@ def test_incompatible_concentration_semantics_and_combined_limits_require_review
     ))
     assert incompatible.primary_finding == Finding.PROFESSIONAL_REVIEW
     assert combined.primary_finding == Finding.PROFESSIONAL_REVIEW
+    issue = next(item for item in combined.review_issues if item.code == "combined_limit_information_missing")
+    assert issue.related_constituent_references == ["12", "12a"]
+
+
+@pytest.mark.parametrize(
+    ("total", "expected_finding"),
+    [(0.5, Finding.PERMITTED_USE_WITHIN_CONDITIONS), (0.9, Finding.PERMITTED_USE_CONDITION_NOT_MET)],
+)
+def test_complete_compatible_combined_limit_is_evaluated(store, total, expected_finding):
+    combined_store, _ = positive_store(store, RegulatedFunction.PRESERVATIVE, combined_limit_requirements=[{
+        "group_key": "parabens",
+        "maximum": {"value": 0.8, "unit": "percent", "comparator": "less_than_or_equal", "basis": None, "preparation_stage": "finished_product", "source_text": "0.8%"},
+        "constituent_references": ["12", "12a"],
+        "source_text": "Combined maximum 0.8%",
+    }])
+    result = screen_ingredient(
+        combined_store,
+        IngredientInput(
+            name="Tosylchloramide sodium",
+            concentration=concentration(0.1),
+            regulated_functions=[RegulatedFunction.PRESERVATIVE],
+        ),
+        combined_contexts={"parabens": {
+            "status": "complete", "total": total, "missing_references": [],
+            "constituent_references": ["12", "12a"],
+        }},
+    )
+    assert expected_finding in result.confirmed_findings
+    assert next(
+        item for item in result.condition_evaluations if item.condition_type == "combined_concentration"
+    ).status == ("satisfied" if total <= 0.8 else "not_satisfied")
 
 
 def test_numeric_limit_does_not_hide_unstructured_nano_conditions(store):

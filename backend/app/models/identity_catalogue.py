@@ -61,9 +61,12 @@ class SingaporeIdentityLinkageRecord(StrictModel):
         if self.status == SingaporeLinkageStatus.NOT_APPLICABLE:
             raise ValueError("Catalogue linkage records cannot use not_applicable")
         if self.status == SingaporeLinkageStatus.VERIFIED_NOT_REPRESENTED:
-            required = {"Third Schedule Part I", "Third Schedule Part II"}
+            required = {
+                "Third Schedule Part I", "Third Schedule Part II", "Third Schedule Part III",
+                "Third Schedule Part IV", "Third Schedule Part V",
+            }
             if set(self.screened_scope) != required:
                 raise ValueError(
-                    "verified_not_represented must be bound to Third Schedule Parts I and II"
+                    "verified_not_represented must be bound to Third Schedule Parts I-V"
                 )
         return self

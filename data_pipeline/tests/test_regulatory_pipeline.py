@@ -209,10 +209,10 @@ def test_generated_validation_passes_and_has_all_spot_checks() -> None:
     results = load(REPORT_ROOT / "manual_spot_check_results.json")
     assert report["validation_status"] == "passed"
     assert not report["errors"]
-    assert checklist["check_count"] == 35
-    assert len(checklist["checks"]) == 35
-    assert report["counts"]["completed_spot_checks"] == 35
-    assert results["summary"] == {"total": 35, "passed": 35, "failed": 0, "pending": 0}
+    assert checklist["check_count"] == 37
+    assert len(checklist["checks"]) == 37
+    assert report["counts"]["completed_spot_checks"] == 37
+    assert results["summary"] == {"total": 37, "passed": 37, "failed": 0, "pending": 0}
     assert {item["check_id"] for item in results["results"]} == {
         item["check_id"] for item in checklist["checks"]
     }

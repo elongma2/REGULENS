@@ -59,9 +59,56 @@ class IdentityStatus(StrEnum):
     REVIEW_REQUIRED = "review_required"
 
 
+class IdentityOutcome(StrEnum):
+    VERIFIED = "identity_verified"
+    NAME_RECOGNISED_CAS_UNVERIFIED = "name_recognised_cas_unverified"
+    CAS_RECOGNISED_NAME_UNVERIFIED = "cas_recognised_name_unverified"
+    SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS = "same_identity_multiple_regulatory_records"
+    GENUINE_NAME_CAS_CONFLICT = "genuine_name_cas_conflict"
+    MULTIPLE_POSSIBLE_IDENTITIES = "multiple_possible_identities"
+    RELATED_DISTINCT_FORMS = "related_distinct_forms"
+    FORM_RELATIONSHIP_UNRESOLVED = "form_relationship_unresolved"
+    UNRESOLVED = "identity_unresolved"
+
+
+class ScreeningDisposition(StrEnum):
+    FULLY_EVALUATED = "fully_evaluated"
+    EVALUATED_WITH_IDENTITY_REVIEW = "evaluated_with_identity_review"
+    PARTIALLY_EVALUATED = "partially_evaluated"
+    NOT_EVALUATED_IDENTITY_UNRESOLVED = "not_evaluated_identity_unresolved"
+
+
+class IdentifierLookupEvidence(StrictModel):
+    identifier_type: Literal["name", "cas", "ci", "catalogue"]
+    submitted_value: str | None = None
+    outcome: Literal["matched", "unmatched", "malformed", "not_supplied"]
+    matched_singapore_substance_ids: list[str] = Field(default_factory=list)
+    matched_acd_substance_ids: list[str] = Field(default_factory=list)
+    matched_catalogue_ingredient_id: str | None = None
+
+
 class ReviewType(StrEnum):
     IDENTITY = "identity_review"
     RULE = "rule_review"
+
+
+class ReviewIssueSeverity(StrEnum):
+    INFORMATION_MISSING = "information_missing"
+    PROFESSIONAL_REVIEW = "professional_review"
+    CONDITION_NOT_MET = "condition_not_met"
+
+
+class ReviewIssue(StrictModel):
+    code: str
+    severity: ReviewIssueSeverity
+    scope: Literal["identity", "rule", "condition", "function", "source_comparison", "screening"]
+    message: str
+    reviewer_action: str
+    rule_id: str | None = None
+    source_reference: str | None = None
+    missing_facts: list[str] = Field(default_factory=list)
+    related_rule_ids: list[str] = Field(default_factory=list)
+    related_constituent_references: list[str] = Field(default_factory=list)
 
 
 class IdentitySourceType(StrEnum):
@@ -168,6 +215,8 @@ class LinkageTarget(StrictModel):
     source_substance_name: str
     source_document: str
     source_hash: str
+    source_pages: list[int] = Field(default_factory=list)
+    source_text: str | None = None
 
 
 class LinkageReview(StrictModel):
@@ -190,10 +239,18 @@ class LinkageEvidence(StrictModel):
     singapore_targets: list[LinkageTarget] = Field(default_factory=list)
     review: LinkageReview
     inapplicability_reasons: list[str] = Field(default_factory=list)
+    supported_names: list[str] = Field(default_factory=list)
+    supported_cas_numbers: list[str] = Field(default_factory=list)
+    supported_ci_numbers: list[str] = Field(default_factory=list)
+    supporting_acd_records: list[dict[str, Any]] = Field(default_factory=list)
+    identity_group: dict[str, Any] | None = None
+    forms: list[dict[str, Any]] = Field(default_factory=list)
+    target_relationships: list[dict[str, Any]] = Field(default_factory=list)
 
 
 class IdentityResolution(StrictModel):
     status: IdentityStatus
+    identity_outcome: IdentityOutcome = IdentityOutcome.UNRESOLVED
     match_methods: list[str] = Field(default_factory=list)
     singapore_candidates: list[IdentityCandidate] = Field(default_factory=list)
     acd_candidates: list[IdentityCandidate] = Field(default_factory=list)
@@ -204,6 +261,9 @@ class IdentityResolution(StrictModel):
     singapore_linkage_status: SingaporeLinkageStatus = SingaporeLinkageStatus.NOT_APPLICABLE
     catalogue_identity: CatalogueIdentity | None = None
     linkage_evidence: LinkageEvidence | None = None
+    identifier_evidence: list[IdentifierLookupEvidence] = Field(default_factory=list)
+    applicable_regulatory_record_ids: list[str] = Field(default_factory=list)
+    reviewer_action: str | None = None
     reasons: list[str] = Field(default_factory=list)
 
 
@@ -238,6 +298,8 @@ class RuleEvidence(StrictModel):
     applicability_requirements: list[dict[str, Any]] = Field(default_factory=list)
     combined_limit_requirements: list[dict[str, Any]] = Field(default_factory=list)
     warning_requirements: list[dict[str, Any]] = Field(default_factory=list)
+    footnotes: list[dict[str, Any]] = Field(default_factory=list)
+    supporting_source_texts: list[dict[str, Any]] = Field(default_factory=list)
     source_bundle_version: str | None = None
     source_section_version: str | None = None
 
@@ -283,6 +345,17 @@ class ReviewExplanation(StrictModel):
     submitted_fact: str | None = Field(default=None, max_length=200)
     regulatory_fact: str | None = Field(default=None, max_length=300)
     source: Literal["model", "deterministic_fallback"]
+    items: list["ReviewExplanationItem"] = Field(default_factory=list)
+    reviewer_actions: list[str] = Field(default_factory=list)
+    primary_source_references: list[str] = Field(default_factory=list)
+
+
+class ReviewExplanationItem(StrictModel):
+    issue_code: str
+    what_happened: str
+    why_it_matters: str
+    what_to_check: str
+    source_references: list[str] = Field(default_factory=list)
 
 
 class ScreeningResult(StrictModel):
@@ -291,11 +364,13 @@ class ScreeningResult(StrictModel):
     submitted_ingredient: IngredientInput
     submitted_product_context: str | None
     identity: IdentityResolution
+    screening_disposition: ScreeningDisposition = ScreeningDisposition.FULLY_EVALUATED
     primary_finding: Finding
     confirmed_findings: list[Finding] = Field(default_factory=list)
     review_required: bool
     review_types: list[ReviewType] = Field(default_factory=list)
     review_reasons: list[str] = Field(default_factory=list)
+    review_issues: list[ReviewIssue] = Field(default_factory=list)
     review_explanation: ReviewExplanation | None = None
     rule_evaluations: list[RuleEvaluation] = Field(default_factory=list)
     inactive_evidence: list[RuleEvidence] = Field(default_factory=list)

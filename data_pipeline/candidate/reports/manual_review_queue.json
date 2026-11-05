@@ -1,6 +1,6 @@
 {
   "dataset_version": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
-  "count": 1386,
+  "count": 1384,
   "rules": [
     {
       "rule_id": "acd-ii-a1140",
@@ -37408,6 +37408,11 @@
           "fact": "powder_form",
           "expected": true,
           "source_text": "a) face products in loose\npowder form\nb) hair aerosol spray\nproducts\nc) other products\n(a) (b)\nOnly in the pigmentary\nform\nc)\nNot to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation’;"
+        },
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "a) face products in loose\npowder form\nb) hair aerosol spray\nproducts\nc) other products\n(a) (b)\nOnly in the pigmentary\nform\nc)\nNot to be used in\napplications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation’;"
         }
       ],
       "combined_limit_requirements": [],
@@ -68709,6 +68714,11 @@
           "fact": "powder_form",
           "expected": true,
           "source_text": "(a) Face products in loose powder form\n(b) Hair aerosol spray products\n(c) Other products\nOnly in the pigmentary form\nOnly in the pigmentary form\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation"
+        },
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "(a) Face products in loose powder form\n(b) Hair aerosol spray products\n(c) Other products\nOnly in the pigmentary form\nOnly in the pigmentary form\nNot to be used in applications\nthat may lead to exposure of\nthe end-user’s lungs by\ninhalation"
         }
       ],
       "combined_limit_requirements": [],
@@ -77781,7 +77791,13 @@
       "concentration_text": "Purity >97% with the following impurity profile:\nAsh content ≤ 0.15%, total Sulphur ≤ 0.65%,\ntotal PAH ≤ 500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb, total As ≤\n3 ppm, total Pb ≤ 10 ppm, total Hg ≤ 1 ppm\n10% max. concentration in the\nfinished product\nNot to be used in applications that may lead to\nexposure of the end-user’s lungs by inhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• Purity >97% with the following\nimpurity profile: Ash content ≤ 0.15%,\ntotal Sulphur ≤ 0.65%, total PAH ≤\n500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm, total Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n• Primary particle size ≥ 20 nm\nOther limitations and\nrequirements",
       "other_conditions": "Purity >97% with the following impurity profile:\nAsh content ≤ 0.15%, total Sulphur ≤ 0.65%,\ntotal PAH ≤ 500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb, total As ≤\n3 ppm, total Pb ≤ 10 ppm, total Hg ≤ 1 ppm\n10% max. concentration in the\nfinished product\nNot to be used in applications that may lead to\nexposure of the end-user’s lungs by inhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• Purity >97% with the following\nimpurity profile: Ash content ≤ 0.15%,\ntotal Sulphur ≤ 0.65%, total PAH ≤\n500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm, total Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n• Primary particle size ≥ 20 nm\nOther limitations and\nrequirements",
       "required_warning": null,
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "allowed in all cosmetic products\nPurity >97% with the following impurity profile:\nAsh content ≤ 0.15%, total Sulphur ≤ 0.65%,\ntotal PAH ≤ 500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb, total As ≤\n3 ppm, total Pb ≤ 10 ppm, total Hg ≤ 1 ppm\n10% max. concentration in the\nfinished product\nNot to be used in applications that may lead to\nexposure of the end-user’s lungs by inhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n• Purity >97% with the following\nimpurity profile: Ash content ≤ 0.15%,\ntotal Sulphur ≤ 0.65%, total PAH ≤\n500 ppb, and benzo(a)pyrene ≤ 5\nppb, dibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm, total Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n• Primary particle size ≥ 20 nm\nOther limitations and\nrequirements"
+        }
+      ],
       "combined_limit_requirements": [],
       "warning_requirements": [],
       "footnotes": [],
@@ -79191,6 +79207,11 @@
         {
           "fact": "child_use",
           "expected": true,
+          "source_text": "Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos"
+        },
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
           "source_text": "Salicylic acid:\nNot to be used in\nproducts for children\nunder three years of age.\nNot to be used in oral\nproducts. Not to be used\nin applications that may\nlead to exposure of the\nend-user’s lungs by\ninhalation.\nSalicylic acid salts:\nNot to be used in\npreparations for children\nunder three years of age,\nexcept for shampoos"
         }
       ],
@@ -80950,7 +80971,13 @@
       "concentration_text": "25 % (2)\nMaximum\nAuthorised\nconcentration\nc",
       "other_conditions": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOther limitations and\nrequirements\nd",
       "required_warning": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOther limitations and\nrequirements\nd"
+        }
+      ],
       "combined_limit_requirements": [
         {
           "group_key": "zinc-oxide-and-zinc-oxide-nano",
@@ -81280,85 +81307,6 @@
       "normalization_status": "manual_review_required",
       "review_reasons": [
         "nonstandard_extraction_fragment"
-      ]
-    },
-    {
-      "rule_id": "acd-vii-10",
-      "parent_rule_id": null,
-      "case_label": null,
-      "source_document": "acd_annexes_2026_1",
-      "source_version": "2026-1, 22 June 2026",
-      "source_bundle_version": "2026-1, 22 June 2026",
-      "source_section_version": "2025-2, 12 December 2025",
-      "source_hash": "ffad59f6c01a92c82042c54203ee14969425c2a82bd04c2f4012ff82513e69f1",
-      "effective_date": null,
-      "source_snapshot_generated_at": null,
-      "regulatory_section": "Annex VII",
-      "reference_number": "10",
-      "substance_id": "substance-acd-vii-10",
-      "substance_name": "2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4",
-      "cas_numbers": [
-        "6197-30-4"
-      ],
-      "restriction_type": "permitted",
-      "regulatory_category": "uv_filter",
-      "list_semantics": "positive_list",
-      "permitted_function": "uv_filter",
-      "regulatory_identifiers": {
-        "cas": [
-          "6197-30-4"
-        ],
-        "reference": [
-          "10"
-        ],
-        "ci": [],
-        "qualifications": []
-      },
-      "product_context": null,
-      "concentration": null,
-      "concentration_text": "a) 9 %\nb) 10 %",
-      "other_conditions": "a) Propellant spray products\nb) Other products",
-      "required_warning": "",
-      "applicability_requirements": [
-        {
-          "fact": "spray_or_aerosol",
-          "expected": true,
-          "source_text": "a) Propellant spray products\nb) Other products"
-        }
-      ],
-      "combined_limit_requirements": [],
-      "warning_requirements": [
-        {
-          "warning_text": "Do not stay too long in the sun, even while using a sunscreen product",
-          "trigger_text": "Applies to a primary sunscreen product.",
-          "applicability": "professional_review"
-        }
-      ],
-      "footnotes": [],
-      "supporting_source_texts": [
-        {
-          "source_page": 280,
-          "relationship": "schedule or annex preamble",
-          "source_text": "Annex VII - List of UV filters which cosmetic products may contain\nANNEX VII\nLIST OF UV FILTERS WHICH COSMETIC PRODUCTS MAY CONTAIN\nFor the purpose of this Directive, UV filters are substances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful effects of these rays.\nThese UV filters may be added to other cosmetic products within the limits and under the conditions laid down in this Annex.\nOther UV filters used in cosmetic products solely for the purpose of protecting the product against UV rays are not included in this\nlist.\nWarning which must be printed on the label ‘Do not stay too long in the sun, even while using a sunscreen product’ (for\nprimary sunscreen products)\nVersion No.: 2025-2, 12th December 2025"
-        }
-      ],
-      "jurisdiction_notes": [],
-      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester\n(Octocrylene)(6)\nCAS No. 6197-30-4 | a) 9 %\nb) 10 % | a) Propellant spray products\nb) Other products |",
-      "source_pages": [
-        280,
-        284
-      ],
-      "source_url": "https://file.go.gov.sg/annexes-of-the-asean-cosmetic-directive.pdf",
-      "document_revision": "2026-1, 22 June 2026",
-      "retrieval_date": "2026-09-14",
-      "raw_record_id": "raw-acd_annexes_2026_1-annex-vii-10",
-      "raw_file": "data_pipeline/candidate/raw/annex_vii_raw.json",
-      "active": true,
-      "normalization_status": "manual_review_required",
-      "review_reasons": [
-        "ambiguous_multi_case_concentration_not_normalized",
-        "concentration_contains_multiple_or_ambiguous_values",
-        "multi_case_mapping_not_unambiguous"
       ]
     },
     {
@@ -81763,7 +81711,13 @@
       "concentration_text": "25 % (4)\nMaximum\nAuthorised\nconcentration\nc",
       "other_conditions": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation.\nOther limitations and\nrequirements\nd",
       "required_warning": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "Not to be used in applications that may lead\nto exposure of the end-user’s lungs by\ninhalation.\nOnly nanomaterials having the following\ncharacteristics are allowed:\n- Purity ≥ 99%\n- Rutile form, or rutile with up to\n5% anatase, with crystalline\nstructure and physical\nappearance as clusters of\nspherical, needle, or lanceolate\nshapes,\n- Median particle size based on\nnumber size distribution ≥ 30 nm,\n- Aspect ratio from 1 to 4.5 and\nvolume specific surface area ≤\n460 m2/cm3,\n- Coating materials can be used\nthat have been demonstrated to\nbe safe and not to affect the\nnanoparticle properties related to\nthe behaviour and/or effects,\n- Photocatalytic activity ≤ 10%\ncompared with corresponding\nnon-coated or non-doped\nreference,\n- Nanoparticles are photostable in\nthe final formulation.\nOther limitations and\nrequirements\nd"
+        }
+      ],
       "combined_limit_requirements": [
         {
           "group_key": "titanium-dioxide-and-titanium-dioxide-nano",
@@ -81873,7 +81827,13 @@
       "concentration_text": "3 %\nMaximum\nAuthorised\nconcentration\nc",
       "other_conditions": "-- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’\nOther limitations and\nrequirements\nd",
       "required_warning": "Conditions of use and\nwarnings which must be\nprinted on the label\ne",
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "-- Not to be used in applications\nthat may lead to exposure of the\nend-user’s lungs by inhalation\n— Do not use with nitrosating\nagents – Maximum nitrosamine\ncontent: 50 μg/kg\n— Keep in nitrite-free containers’\nOther limitations and\nrequirements\nd"
+        }
+      ],
       "combined_limit_requirements": [],
       "warning_requirements": [
         {
@@ -82818,7 +82778,13 @@
       "concentration_text": "Allowed in all cosmetic products\nPurity> 97%, with the following impurity\nprofile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic hydrocarbon\n≤ 500 ppb and benzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm.\nAllowed in all cosmetic products\n10% maximum concentration in finished\nproduct\nNot to be used in applications that may\nlead to exposure of the end user’s lungs\nby inhalation\nField of application and other\nlimitations and requirements\nOnly nanomaterials having the following\ncharacteristics are allowed:\n(a) Purity> 97%, with the following\nimpurity profile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic\nhydrocarbon ≤ 500 ppb and\nbenzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n(b) Primary particle size ≥ 20 nm",
       "other_conditions": "Allowed in all cosmetic products\nPurity> 97%, with the following impurity\nprofile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic hydrocarbon\n≤ 500 ppb and benzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm.\nAllowed in all cosmetic products\n10% maximum concentration in finished\nproduct\nNot to be used in applications that may\nlead to exposure of the end user’s lungs\nby inhalation\nField of application and other\nlimitations and requirements\nOnly nanomaterials having the following\ncharacteristics are allowed:\n(a) Purity> 97%, with the following\nimpurity profile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic\nhydrocarbon ≤ 500 ppb and\nbenzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n(b) Primary particle size ≥ 20 nm",
       "required_warning": null,
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "Allowed in all cosmetic products\nPurity> 97%, with the following impurity\nprofile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic hydrocarbon\n≤ 500 ppb and benzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm.\nAllowed in all cosmetic products\n10% maximum concentration in finished\nproduct\nNot to be used in applications that may\nlead to exposure of the end user’s lungs\nby inhalation\nField of application and other\nlimitations and requirements\nOnly nanomaterials having the following\ncharacteristics are allowed:\n(a) Purity> 97%, with the following\nimpurity profile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic\nhydrocarbon ≤ 500 ppb and\nbenzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n(b) Primary particle size ≥ 20 nm\nAllowed in all cosmetic products\nPurity> 97%, with the following impurity\nprofile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic hydrocarbon\n≤ 500 ppb and benzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm.\nAllowed in all cosmetic products\n10% maximum concentration in finished\nproduct\nNot to be used in applications that may\nlead to exposure of the end user’s lungs\nby inhalation\nField of application and other\nlimitations and requirements\nOnly nanomaterials having the following\ncharacteristics are allowed:\n(a) Purity> 97%, with the following\nimpurity profile:\nAsh content ≤ 0.15%,\ntotal sulphur ≤ 0.65%,\ntotal polycyclic aromatic\nhydrocarbon ≤ 500 ppb and\nbenzo(a)pyrene ≤ 5 ppb,\ndibenz(a,h)anthracene ≤ 5 ppb,\ntotal As ≤ 3 ppm,\ntotal Pb ≤ 10 ppm,\ntotal Hg ≤ 1 ppm\n(b) Primary particle size ≥ 20 nm"
+        }
+      ],
       "combined_limit_requirements": [],
       "warning_requirements": [],
       "footnotes": [],
@@ -83021,6 +82987,11 @@
         {
           "fact": "brief_skin_contact",
           "expected": true,
+          "source_text": "Allowed in all cosmetic products\nNot to be used in applications that may\nlead to exposure of the end-user’s lungs\nby inhalation\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nField of application and other\nlimitations and requirements\nAllowed only in cosmetic products that\nare not intended to come into contact with\nthe mucous membranes\nAllowed in all cosmetic products except\nthose intended to be applied in the\nvicinity of eyes, in particular eye make-\nup and eye-make-up remover\nAllowed in all cosmetic products\nNot to be used in applications that may\nlead to exposure of the end-user’s lungs\nby inhalation\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nField of application and other\nlimitations and requirements\nAllowed only in cosmetic products that\nare not intended to come into contact with\nthe mucous membranes\nAllowed in all cosmetic products except\nthose intended to be applied in the\nvicinity of eyes, in particular eye make-\nup and eye-make-up remover"
+        },
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
           "source_text": "Allowed in all cosmetic products\nNot to be used in applications that may\nlead to exposure of the end-user’s lungs\nby inhalation\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nField of application and other\nlimitations and requirements\nAllowed only in cosmetic products that\nare not intended to come into contact with\nthe mucous membranes\nAllowed in all cosmetic products except\nthose intended to be applied in the\nvicinity of eyes, in particular eye make-\nup and eye-make-up remover\nAllowed in all cosmetic products\nNot to be used in applications that may\nlead to exposure of the end-user’s lungs\nby inhalation\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed in all cosmetic products\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nAllowed only in cosmetic products that\nare intended to come into contact only\nbriefly with the skin\nField of application and other\nlimitations and requirements\nAllowed only in cosmetic products that\nare not intended to come into contact with\nthe mucous membranes\nAllowed in all cosmetic products except\nthose intended to be applied in the\nvicinity of eyes, in particular eye make-\nup and eye-make-up remover"
         },
         {
@@ -83835,81 +83806,6 @@
       ]
     },
     {
-      "rule_id": "sg-third-schedule-v-10",
-      "parent_rule_id": null,
-      "case_label": null,
-      "source_document": "singapore_regulations_2025_12_01",
-      "source_version": "informal consolidation - version in force from 1 December 2025",
-      "source_bundle_version": "informal consolidation - version in force from 1 December 2025",
-      "source_section_version": "informal consolidation - version in force from 1 December 2025",
-      "source_hash": "8e9a255e7ba67331db20b6c8ae2572a9edc2b0171b410b111804ddbca4b12ff5",
-      "effective_date": "2025-12-01",
-      "source_snapshot_generated_at": "2025-12-01T17:34:45+08:00",
-      "regulatory_section": "Third Schedule Part V",
-      "reference_number": "10",
-      "substance_id": "substance-sg-third-schedule-v-10",
-      "substance_name": "2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7",
-      "cas_numbers": [],
-      "restriction_type": "permitted",
-      "regulatory_category": "uv_filter",
-      "list_semantics": "positive_list",
-      "permitted_function": "uv_filter",
-      "regulatory_identifiers": {
-        "cas": [],
-        "reference": [
-          "10"
-        ],
-        "ci": [],
-        "qualifications": []
-      },
-      "product_context": null,
-      "concentration": null,
-      "concentration_text": "(a) 9%\n(b) 10%",
-      "other_conditions": "(a) Propellant\nspray products\n(b) Other products",
-      "required_warning": "",
-      "applicability_requirements": [
-        {
-          "fact": "spray_or_aerosol",
-          "expected": true,
-          "source_text": "(a) Propellant\nspray products\n(b) Other products"
-        }
-      ],
-      "combined_limit_requirements": [],
-      "warning_requirements": [
-        {
-          "warning_text": "Do not stay too long in the sun, even while using a sunscreen product",
-          "trigger_text": "Applies to a primary sunscreen product.",
-          "applicability": "professional_review"
-        }
-      ],
-      "footnotes": [],
-      "supporting_source_texts": [
-        {
-          "source_page": 188,
-          "relationship": "schedule or annex preamble",
-          "source_text": "S 683/2007 188\nTHIRD SCHEDULE — continued\nPART V\nLIST OF UV FILTERS WHICH COSMETIC\nPRODUCTS MAY CONTAIN\n1. For the purpose of the ASEAN Cosmetic Directive, UV filters are\nsubstances which, contained in cosmetic sunscreen products, are specifically\nintended to filter certain UV rays in order to protect the skin from certain harmful\neffects of these rays.\n2. These UV filters may be added to other cosmetic products within the limits\nand under the conditions laid down in this Part.\n3. Other UV filters used in cosmetic products solely for the purpose of\nprotecting the product against UV rays are not included in this list.\n4. The following warning must be printed on the label of every cosmetic\nsunscreen product that is primarily for the purpose of sun protection:\n“Do not stay too long in the sun, even while using a sunscreen product.”.\nLIST OF PERMITTED UV FILTERS WHICH\nCOSMETIC PRODUCTS MAY CONTAIN\nFirst Second Third Fourth Fifth\ncolumn column column column column\nRef No. Substance Maximum Other limitations and Warnings and\nauthorised requirements precautions for\nconcentration use to be shown\non label of\nproduct\n2 N,N,N-Trimethyl-4-(2-oxoborn-3-ylidene 6% . .\nmethyl) anilinium methyl sulphate\n3 Homosalate 10%\n4 Oxybenzone 6% Contains\noxybenzone1\n6 2-Phenylbenzimidazole-5-sulphonic acid 8% (expressed as\nand its potassium, sodium and acid)\ntriethanolamine salts\n7 3,3’-(1,4-Phenylenedimethylene) bis(7,7- 10% (expressed as\ndimethyl-2-oxo-bicyclo-[2,2,1]hept-1-yl acid)\nmethanesulfonic acid) and its salts\n8 1-(4-Tert-butylphenyl)-3-(4- 5%\nmethoxyphenyl)propane-1,3-dione\n9 α-(2-Oxoborn-3-ylidene) toluene-4- 6% (expressed as\nsulphonic acid and its salts acid)\nInformal Consolidation – version in force from 1/12/2025"
-        }
-      ],
-      "jurisdiction_notes": [],
-      "source_text": "10 | 2-Cyano-3,3-diphenyl acrylic acid, 2-\nethylhexyl ester (Octocrylene)7 | (a) 9% | (a) Propellant\nspray products | \n |  | (b) 10% | (b) Other products |",
-      "source_pages": [
-        188,
-        189
-      ],
-      "source_url": "https://sso.agc.gov.sg/SL/HPA2007-S683-2007?DocDate=20251128&ViewType=Pdf&_=20251201212702",
-      "document_revision": "informal consolidation - version in force from 1 December 2025",
-      "retrieval_date": "2026-09-15",
-      "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-v-10",
-      "raw_file": "data_pipeline/candidate/raw/singapore_third_schedule_part_v_raw.json",
-      "active": true,
-      "normalization_status": "manual_review_required",
-      "review_reasons": [
-        "ambiguous_multi_case_concentration_not_normalized",
-        "concentration_contains_multiple_or_ambiguous_values",
-        "multi_case_mapping_not_unambiguous"
-      ]
-    },
-    {
       "rule_id": "sg-third-schedule-v-31",
       "parent_rule_id": null,
       "case_label": null,
@@ -83950,7 +83846,13 @@
       "concentration_text": "3%",
       "other_conditions": "Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers.",
       "required_warning": "",
-      "applicability_requirements": [],
+      "applicability_requirements": [
+        {
+          "fact": "inhalation_exposure",
+          "expected": false,
+          "source_text": "Not to be used in\napplications that may\nlead to exposure of the\nend‑user’s lungs by\ninhalation.\nDo not use with\nnitrosating agents.\nMaximum nitrosamine\ncontent: 50 μg/kg.\nKeep in nitrite-free\ncontainers."
+        }
+      ],
       "combined_limit_requirements": [],
       "warning_requirements": [
         {

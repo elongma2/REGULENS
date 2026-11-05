@@ -1,3 +1,74 @@
 {
-  "catalogue_ingredient_ids": []
+  "records": [
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-20709",
+      "supported_names": ["PHENOXYETHANOL", "2-Phenoxyethanol"],
+      "supported_cas_numbers": ["122-99-6"],
+      "supported_ci_numbers": [],
+      "proposed_singapore_raw_record_ids": ["raw-singapore_regulations_2025_12_01-third-schedule-part-iv-29"],
+      "supporting_acd_raw_record_ids": ["raw-acd_annexes_2026_1-annex-vi-29"],
+      "review_basis": "Verify the accepted glossary name and CAS-bearing ACD Annex VI entry refer to Singapore Part IV reference 29."
+    },
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-17797",
+      "supported_names": ["OCTOCRYLENE", "2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester"],
+      "supported_cas_numbers": ["6197-30-4"],
+      "supported_ci_numbers": [],
+      "proposed_singapore_raw_record_ids": ["raw-singapore_regulations_2025_12_01-third-schedule-part-v-10"],
+      "supporting_acd_raw_record_ids": ["raw-acd_annexes_2026_1-annex-vii-10"],
+      "review_basis": "Verify the source-stated Octocrylene alias and CAS-bearing ACD Annex VII entry refer to Singapore Part V reference 10."
+    },
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-06401",
+      "supported_names": ["CI 42090", "Acid Blue 9", "Brilliant Blue FCF"],
+      "supported_cas_numbers": ["2650-18-2", "3844-45-9", "68921-42-6"],
+      "supported_ci_numbers": ["42090"],
+      "identity_group": {
+        "group_id": "ci-42090-acid-blue-9-forms",
+        "display_name": "CI 42090 / Acid Blue 9 related forms",
+        "relationship_type": "related_distinct_forms"
+      },
+      "forms": [
+        {
+          "form_id": "ci-42090-disodium",
+          "display_name": "Acid Blue 9 disodium salt",
+          "cas_numbers": ["3844-45-9"],
+          "relationship_type": "distinct_salt_form"
+        },
+        {
+          "form_id": "ci-42090-ammonium",
+          "display_name": "Acid Blue 9 ammonium salt",
+          "cas_numbers": ["2650-18-2"],
+          "relationship_type": "distinct_salt_form"
+        },
+        {
+          "form_id": "ci-42090-aluminium-lake",
+          "display_name": "Acid Blue 9 aluminium lake",
+          "cas_numbers": ["68921-42-6"],
+          "relationship_type": "distinct_lake_form"
+        }
+      ],
+      "target_relationships": [
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-ii-190",
+          "applies_to": ["ci-42090-disodium", "ci-42090-ammonium", "ci-42090-aluminium-lake"],
+          "relationship_type": "source_explicit_forms"
+        },
+        {
+          "raw_record_id": "raw-singapore_regulations_2025_12_01-third-schedule-part-iii-42090",
+          "applies_to_group": "ci-42090-acid-blue-9-forms",
+          "relationship_type": "ci_group_listing_pending_form_scope_review"
+        }
+      ],
+      "proposed_singapore_raw_record_ids": [
+        "raw-singapore_regulations_2025_12_01-third-schedule-part-ii-190",
+        "raw-singapore_regulations_2025_12_01-third-schedule-part-iii-42090"
+      ],
+      "supporting_acd_raw_record_ids": [
+        "raw-acd_annexes_2026_1-annex-iii-part-1-190",
+        "raw-acd_annexes_2026_1-annex-iv-part-1-42090"
+      ],
+      "review_basis": "Verify CI 42090 and CAS 3844-45-9 identify the same colourant represented independently in restricted-substance and colourant records."
+    }
+  ]
 }

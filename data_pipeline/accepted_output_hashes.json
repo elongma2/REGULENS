@@ -12,13 +12,13 @@
     "data_pipeline/raw/singapore_third_schedule_part_i_raw.json": "b9356459021228563e434673162592ef73b72ff5d5cefce610efc8d91e3fd0a6",
     "data_pipeline/raw/singapore_third_schedule_part_ii_raw.json": "8d43280ffc595e00da64f033b4152c3f0ff24497b9ccff5d786350b39b79c7cd",
     "data_pipeline/raw/singapore_third_schedule_part_iii_raw.json": "df68f62b50b1de624f2c24141b3714c5dfcf5ec36c1d2d4d3f64dd5d73cb187a",
-    "data_pipeline/raw/singapore_third_schedule_part_iv_raw.json": "7f8de94ceb7d5c105cbbd48bc68b413f706a78c8a797308d52910dcfc1d7d42b",
-    "data_pipeline/raw/singapore_third_schedule_part_v_raw.json": "a37c45d8168aefb998a785306d37e51c1b1edbf7c0c73ecf7a1260782241058e",
+    "data_pipeline/raw/singapore_third_schedule_part_iv_raw.json": "e3db9c6405620485ec75224e2a9fcd46b8a74f6a73d0fabff6ecf0dedbc6d7f8",
+    "data_pipeline/raw/singapore_third_schedule_part_v_raw.json": "9cd5564ef1cdc5e73a0b27bbaf26b3b12881f6e722509364e390c00be4ed102d",
     "data_pipeline/raw/source_manifest.json": "e382c07be38831f06c7c22439f59052f281a4de538fdfdcd224e36159694a0bf",
     "data_pipeline/processed/product_context.json": "00e80caf43adac049a4a74e8ea569d8ab1af0ee683172ecb857141d9e86b4218",
-    "data_pipeline/processed/rules.json": "bbb5a90670af1e1d7e45eb7af862252381b8565c917b96a666c30f8098b46a78",
+    "data_pipeline/processed/rules.json": "59a5266a68b744f24fbed50f5e26f0562fc7274525f609146c00df184a51e4e4",
     "data_pipeline/processed/singapore_provisions.json": "ad4457eb3281f472b47a03ecb3077f97799b1814d1e4627999fdb032f8ef96a1",
-    "data_pipeline/processed/source_cross_references.json": "26dbbac8e3babf4c3635b3822b3b5bf438a585ef74bfa02b1030de2050613b8e",
+    "data_pipeline/processed/source_cross_references.json": "d1aaf15a062661262aa2188464f371d0d8dd67fd8a08423ad77b3b32fc771e83",
     "data_pipeline/processed/substances.json": "8e1c37bf33969030f7b4e0aded12b3399f3be049715499a15489c223bb7aa47d"
   }
 }

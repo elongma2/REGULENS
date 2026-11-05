@@ -256,7 +256,9 @@
           "is_continuation": true
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "1"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -491,7 +493,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "4"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -1043,7 +1047,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "5"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -1648,7 +1654,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "6"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -1856,7 +1864,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "7"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -2040,7 +2050,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "8"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -2086,7 +2098,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "10"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -2573,7 +2587,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "11"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },
@@ -2759,7 +2775,9 @@
           "is_continuation": false
         }
       ],
-      "footnote_references": [],
+      "footnote_references": [
+        "15"
+      ],
       "jurisdiction_notes": [],
       "extraction_flags": []
     },

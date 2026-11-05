@@ -9,9 +9,13 @@ from backend.app.models.screening import (
     Finding,
     FunctionEvaluation,
     IdentityStatus,
+    IdentityResolution,
+    ScreeningDisposition,
     IngredientInput,
     RegulatedFunction,
     ReviewType,
+    ReviewIssue,
+    ReviewIssueSeverity,
     RuleEvaluation,
     ScreeningResult,
     WarningApplicability,
@@ -21,6 +25,7 @@ from backend.app.services.evidence import build_rule_evidence
 from backend.app.services.loader import REGULATORY_SEARCH_SCOPE, RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 from backend.app.services.ingredient_catalog import IngredientCatalog
+from backend.app.services.evaluation_issues import build_review_issues, disposition_is_incomplete
 
 
 def _same(value: str | None, expected: str | None) -> bool:
@@ -128,6 +133,7 @@ def _evaluate_positive_rule(
     rule: dict,
     ingredient: IngredientInput,
     product_facts: dict[str, bool | None],
+    combined_contexts: dict[str, dict] | None = None,
 ) -> tuple[RuleEvaluation, list[ConditionEvaluation], list[WarningRequirement], Finding | None, list[str], list[str]]:
     evidence = build_rule_evidence(store, rule)
     conditions: list[ConditionEvaluation] = []
@@ -155,21 +161,117 @@ def _evaluate_positive_rule(
             missing_reasons,
         )
 
-    if rule.get("combined_limit_requirements"):
-        reason = f"{rule['rule_id']}: combined concentration limit requires formulation-level constituent evaluation"
+    # Some source rows contain mutually exclusive, labelled product branches.
+    # A branch selector decides which legal case applies; failing that selector
+    # does not mean the product violates the condition in the other branch.
+    for requirement in rule.get("applicability_requirements", []):
+        if requirement.get("role", "condition") != "case_selector":
+            continue
+        fact = requirement["fact"]
+        actual = product_facts.get(fact)
+        if actual is None:
+            reason = f"{rule['rule_id']}: Product fact '{fact}' is required to select the applicable source case"
+            missing_reasons.append(reason)
+            conditions.append(ConditionEvaluation(
+                rule_id=rule["rule_id"],
+                condition_type=fact,
+                status=ConditionStatus.INFORMATION_MISSING,
+                source_text=requirement["source_text"],
+                reason=reason,
+            ))
+            return (
+                RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_information_missing", reasons=[reason], evidence=evidence),
+                conditions,
+                _warning_results(rule, WarningApplicability.UNDETERMINED),
+                None,
+                review_reasons,
+                missing_reasons,
+            )
+        if actual != requirement["expected"]:
+            conditions.append(ConditionEvaluation(
+                rule_id=rule["rule_id"],
+                condition_type=fact,
+                status=ConditionStatus.NOT_APPLICABLE,
+                source_text=requirement["source_text"],
+                reason="A different source case applies to the submitted product.",
+            ))
+            return (
+                RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="not_applicable_to_submitted_context", evidence=evidence),
+                conditions,
+                _warning_results(rule, WarningApplicability.NOT_APPLICABLE),
+                None,
+                review_reasons,
+                missing_reasons,
+            )
+        conditions.append(ConditionEvaluation(
+            rule_id=rule["rule_id"],
+            condition_type=fact,
+            status=ConditionStatus.SATISFIED,
+            source_text=requirement["source_text"],
+        ))
+
+    unresolved_combined = False
+    combined_failed = False
+    for requirement in rule.get("combined_limit_requirements", []):
+        context = (combined_contexts or {}).get(requirement["group_key"])
+        if not context or context.get("status") != "complete":
+            missing_refs = (context or {}).get("missing_references", requirement.get("constituent_references", []))
+            missing_labels: list[str] = []
+            for reference in missing_refs:
+                source_rule = next((
+                    candidate for candidate in store.rules_by_id.values()
+                    if candidate.get("regulatory_section") == rule.get("regulatory_section")
+                    and candidate.get("reference_number") == reference
+                ), None)
+                label = source_rule.get("substance_name") if source_rule else None
+                missing_labels.append(f"{label} ({reference})" if label else reference)
+            reason = (
+                f"{rule['rule_id']}: combined concentration limit requires confirmation of "
+                f"constituents {', '.join(missing_labels) or ', '.join(requirement.get('constituent_references', []))}"
+            )
+            review_reasons.append(reason)
+            conditions.append(ConditionEvaluation(
+                rule_id=rule["rule_id"],
+                condition_type="combined_concentration",
+                status=ConditionStatus.PROFESSIONAL_REVIEW,
+                source_text=requirement["source_text"],
+                reason=reason,
+            ))
+            unresolved_combined = True
+            continue
+        maximum = requirement["maximum"]
+        total = context["total"]
+        comparator = maximum["comparator"]
+        within = total <= maximum["value"] if comparator == "less_than_or_equal" else total < maximum["value"]
+        conditions.append(ConditionEvaluation(
+            rule_id=rule["rule_id"],
+            condition_type="combined_concentration",
+            status=ConditionStatus.SATISFIED if within else ConditionStatus.NOT_SATISFIED,
+            source_text=requirement["source_text"],
+            reason=f"Combined submitted concentration: {total:g} {maximum['unit']}",
+        ))
+        combined_failed = combined_failed or not within
+
+    impurity_footnotes = [
+        item for item in rule.get("footnotes", [])
+        if any(marker in conservative_text(item.get("source_text") or "") for marker in ("impurity", "degradation product", "trace level"))
+    ]
+    if impurity_footnotes:
+        reason = f"{rule['rule_id']}: impurity or degradation-product trace-level requirement requires confirmation"
         review_reasons.append(reason)
-        return (
-            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_professional_review", reasons=[reason], evidence=evidence),
-            conditions,
-            _warning_results(rule, WarningApplicability.UNDETERMINED),
-            None,
-            review_reasons,
-            missing_reasons,
-        )
+        conditions.extend(ConditionEvaluation(
+            rule_id=rule["rule_id"],
+            condition_type="impurity_or_degradation_product",
+            status=ConditionStatus.PROFESSIONAL_REVIEW,
+            source_text=item["source_text"],
+            reason=reason,
+        ) for item in impurity_footnotes)
 
     failed = False
     missing = False
     for requirement in rule.get("applicability_requirements", []):
+        if requirement.get("role", "condition") == "case_selector":
+            continue
         fact = requirement["fact"]
         actual = product_facts.get(fact)
         if actual is None:
@@ -195,6 +297,16 @@ def _evaluate_positive_rule(
         finding = Finding.PERMITTED_USE_CONDITION_NOT_MET
         return (
             RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="deterministic_condition_not_met", finding=finding, evidence=evidence),
+            conditions,
+            _warning_results(rule, WarningApplicability.NOT_APPLICABLE),
+            finding,
+            review_reasons,
+            missing_reasons,
+        )
+    if combined_failed:
+        finding = Finding.PERMITTED_USE_CONDITION_NOT_MET
+        return (
+            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="deterministic_condition_not_met", finding=finding, reasons=review_reasons, evidence=evidence),
             conditions,
             _warning_results(rule, WarningApplicability.NOT_APPLICABLE),
             finding,
@@ -301,8 +413,9 @@ def _evaluate_positive_rule(
             )
         within = relation == "within"
         finding = Finding.PERMITTED_USE_WITHIN_CONDITIONS if within else Finding.PERMITTED_USE_CONDITION_NOT_MET
+        evaluation_status = "withheld_professional_review" if review_reasons or unresolved_combined else "deterministic"
         return (
-            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="deterministic", finding=finding, submitted_concentration=submitted, evidence=evidence),
+            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status=evaluation_status, finding=finding, reasons=review_reasons, submitted_concentration=submitted, evidence=evidence),
             conditions,
             _warning_results(rule, WarningApplicability.APPLICABLE if within else WarningApplicability.NOT_APPLICABLE),
             finding,
@@ -312,7 +425,7 @@ def _evaluate_positive_rule(
 
     finding = Finding.PERMITTED_USE_WITHIN_CONDITIONS
     return (
-        RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="deterministic", finding=finding, evidence=evidence),
+        RuleEvaluation(rule_id=rule["rule_id"], evaluation_status="withheld_professional_review" if review_reasons else "deterministic", finding=finding, reasons=review_reasons, evidence=evidence),
         conditions,
         _warning_results(rule, WarningApplicability.APPLICABLE),
         finding,
@@ -327,17 +440,22 @@ def screen_ingredient(
     product_context: str | None = None,
     product_applicability: dict[str, bool | None] | None = None,
     ingredient_catalog: IngredientCatalog | None = None,
+    linkage_store=None,
     catalogue_error: str | None = None,
+    identity_resolution: IdentityResolution | None = None,
+    combined_contexts: dict[str, dict] | None = None,
 ) -> ScreeningResult:
     product_applicability = product_applicability or {}
-    identity = resolve_ingredient(
+    identity = identity_resolution or resolve_ingredient(
         store,
         ingredient.name,
         ingredient.cas_number,
         ingredient_catalog=ingredient_catalog,
+        linkage_store=linkage_store,
         catalogue_error=catalogue_error,
     )
     if identity.status == IdentityStatus.UNRESOLVED:
+        issues = build_review_issues(identity, [], identity.reasons)
         return ScreeningResult(
             dataset_version=store.dataset_version,
             accepted_baseline_sha256=store.baseline_manifest_hash,
@@ -345,11 +463,14 @@ def screen_ingredient(
             submitted_product_context=product_context,
             identity=identity,
             primary_finding=Finding.IDENTITY_UNRESOLVED,
+            screening_disposition=ScreeningDisposition.NOT_EVALUATED_IDENTITY_UNRESOLVED,
             review_required=True,
             review_types=[ReviewType.IDENTITY],
             review_reasons=identity.reasons,
+            review_issues=issues,
         )
-    if identity.status != IdentityStatus.RESOLVED:
+    if identity.status != IdentityStatus.RESOLVED and not identity.resolved_singapore_substance_ids:
+        issues = build_review_issues(identity, [], identity.reasons)
         return ScreeningResult(
             dataset_version=store.dataset_version,
             accepted_baseline_sha256=store.baseline_manifest_hash,
@@ -357,9 +478,11 @@ def screen_ingredient(
             submitted_product_context=product_context,
             identity=identity,
             primary_finding=Finding.PROFESSIONAL_REVIEW,
+            screening_disposition=ScreeningDisposition.NOT_EVALUATED_IDENTITY_UNRESOLVED,
             review_required=True,
             review_types=[ReviewType.IDENTITY],
             review_reasons=identity.reasons,
+            review_issues=issues,
         )
 
     substance_ids = identity.resolved_singapore_substance_ids
@@ -651,22 +774,11 @@ def screen_ingredient(
         if rule.get("permitted_function")
         and rule["regulatory_section"].startswith("Third Schedule")
     }
+    # Positive-list applicability is function-triggered. Merely finding an
+    # identity on a permitted list does not prove that it is intentionally
+    # used for that regulated function. Undeclared functions are therefore a
+    # neutral scope disclosure, not missing regulatory information.
     declared_functions = list(dict.fromkeys(ingredient.regulated_functions))
-    if not declared_functions:
-        inferred_material = sorted(
-            {RegulatedFunction(rule["permitted_function"]) for rule in positive_rules.values()},
-            key=lambda value: value.value,
-        )
-        for function in inferred_material:
-            incomplete_functions.append(function)
-            reason = f"{function.value} function is not confirmed, so the applicable positive-list check is incomplete"
-            missing_reasons.append(reason)
-            function_evaluations.append(FunctionEvaluation(
-                regulated_function=function,
-                singapore_part=FUNCTION_PARTS[function],
-                status=ConditionStatus.INFORMATION_MISSING,
-                reasons=[reason],
-            ))
 
     for function in declared_functions:
         part = FUNCTION_PARTS[function]
@@ -707,7 +819,7 @@ def screen_ingredient(
         function_missing: list[str] = []
         for rule in sorted(matching, key=lambda item: item["rule_id"]):
             evaluation, conditions, warnings, finding, rule_review, rule_missing = _evaluate_positive_rule(
-                store, rule, ingredient, product_applicability
+                store, rule, ingredient, product_applicability, combined_contexts
             )
             evaluations.append(evaluation)
             condition_evaluations.extend(conditions)
@@ -719,7 +831,10 @@ def screen_ingredient(
             if finding:
                 confirmed.append(finding)
                 function_findings.append(finding)
-            if _material_source_difference(store, rule):
+            if (
+                evaluation.evaluation_status != "not_applicable_to_submitted_context"
+                and _material_source_difference(store, rule)
+            ):
                 reason = f"{rule['rule_id']}: material Singapore-ACD source difference requires professional review"
                 review_reasons.append(reason)
                 function_review.append(reason)
@@ -745,6 +860,7 @@ def screen_ingredient(
         ))
 
     confirmed = list(dict.fromkeys(confirmed))
+    identity_review_reasons = identity.reasons if identity.status != IdentityStatus.RESOLVED else []
     if Finding.PROHIBITED in confirmed:
         primary = Finding.PROHIBITED
     elif Finding.REGULATED_FUNCTION_NOT_PERMITTED in confirmed:
@@ -753,7 +869,7 @@ def screen_ingredient(
         primary = Finding.PERMITTED_USE_CONDITION_NOT_MET
     elif Finding.RESTRICTION_EXCEEDED in confirmed:
         primary = Finding.RESTRICTION_EXCEEDED
-    elif review_reasons:
+    elif review_reasons or identity_review_reasons:
         primary = Finding.PROFESSIONAL_REVIEW
     elif missing_reasons:
         primary = Finding.INFORMATION_MISSING
@@ -764,6 +880,32 @@ def screen_ingredient(
     else:
         primary = Finding.NO_ISSUE
 
+    review_issues = build_review_issues(
+        identity,
+        evaluations,
+        _dedupe(review_reasons),
+        _dedupe(missing_reasons),
+    )
+    for function_evaluation in function_evaluations:
+        if function_evaluation.finding == Finding.REGULATED_FUNCTION_NOT_PERMITTED:
+            review_issues.append(ReviewIssue(
+                code="regulated_function_not_listed",
+                severity=ReviewIssueSeverity.CONDITION_NOT_MET,
+                scope="function",
+                message=(
+                    f"The ingredient was explicitly submitted for use as {function_evaluation.regulated_function.value.replace('_', ' ')}, "
+                    f"but no matching entry was found in {function_evaluation.singapore_part}."
+                ),
+                reviewer_action="Confirm the intended function and ingredient identity against the applicable Singapore positive list.",
+                source_reference=function_evaluation.singapore_part,
+            ))
+    if disposition_is_incomplete(evaluations) or missing_reasons or review_reasons:
+        disposition = ScreeningDisposition.PARTIALLY_EVALUATED
+    elif identity_review_reasons:
+        disposition = ScreeningDisposition.EVALUATED_WITH_IDENTITY_REVIEW
+    else:
+        disposition = ScreeningDisposition.FULLY_EVALUATED
+
     return ScreeningResult(
         dataset_version=store.dataset_version,
         accepted_baseline_sha256=store.baseline_manifest_hash,
@@ -772,9 +914,14 @@ def screen_ingredient(
         identity=identity,
         primary_finding=primary,
         confirmed_findings=confirmed,
-        review_required=bool(review_reasons),
-        review_types=([ReviewType.RULE] if review_reasons else []),
-        review_reasons=_dedupe(review_reasons),
+        screening_disposition=disposition,
+        review_required=bool(review_reasons or identity_review_reasons),
+        review_types=(
+            ([ReviewType.IDENTITY] if identity_review_reasons else [])
+            + ([ReviewType.RULE] if review_reasons else [])
+        ),
+        review_reasons=_dedupe(identity_review_reasons + review_reasons),
+        review_issues=review_issues,
         rule_evaluations=evaluations,
         inactive_evidence=inactive_evidence,
         searched_singapore_parts=[section for section in store.regulatory_search_scope if section.startswith("Third Schedule")],

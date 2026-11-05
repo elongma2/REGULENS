@@ -332,6 +332,11 @@ def _extract_parenthesized_footnotes(page_texts: dict[int, str]) -> list[dict[st
     notes: list[dict[str, Any]] = []
     for page_number, text in page_texts.items():
         source_text = text.split("FOURTH SCHEDULE", 1)[0]
+        # A schedule's final footnote page may continue directly into a later
+        # deleted Part.  That heading and its amendment history are not part of
+        # the preceding footnote wording.
+        if next_part := re.search(r"(?m)^Part (?:VI|VII|VIII)\s*$", source_text):
+            source_text = source_text[:next_part.start()]
         matches = list(re.finditer(
             r"(?m)^(?:"
             r"\((?P<parenthesized>\d{1,2}(?:\.\d+)?)\)\s+|"
@@ -353,7 +358,10 @@ def _extract_parenthesized_footnotes(page_texts: dict[int, str]) -> list[dict[st
     return notes
 
 
-def _attach_inline_footnote_references(records: list[dict[str, Any]]) -> None:
+def _attach_inline_footnote_references(
+    records: list[dict[str, Any]],
+    known_footnotes: list[dict[str, Any]] | None = None,
+) -> None:
     """Attach visibly printed footnote markers to their extracted records."""
     for record in records:
         references = set(record.get("footnote_references", []))
@@ -369,6 +377,15 @@ def _attach_inline_footnote_references(records: list[dict[str, Any]]) -> None:
         concentration = (record.get("original_concentration_text") or "").strip()
         if match := re.search(r"%\s*(\d{1,2})$", concentration):
             references.add(match.group(1))
+        # The Singapore consolidation prints some markers as an unparenthesised
+        # superscript at the end of the substance name (for example
+        # ``Octocrylene)7``). Accept a trailing digit only when that exact
+        # marker is present in the section's extracted footnote block.
+        allowed = {str(item["footnote_number"]) for item in (known_footnotes or [])}
+        substance = (record.get("original_substance_name") or "").strip()
+        if match := re.search(r"(?<=[A-Za-z)])(\d{1,2})$", substance):
+            if match.group(1) in allowed:
+                references.add(match.group(1))
         record["footnote_references"] = sorted(references)
 
 
@@ -653,7 +670,10 @@ def _source_section(
     footnote_pages: list[int],
     section_version: str | None = None,
 ) -> dict[str, Any]:
-    _attach_inline_footnote_references(records)
+    footnotes = _extract_parenthesized_footnotes(
+        {page: page_texts.get(page, "") for page in footnote_pages}
+    )
+    _attach_inline_footnote_references(records, footnotes)
     return {
         "dataset_version": CANDIDATE_DATASET_VERSION,
         "source_document": (
@@ -667,9 +687,7 @@ def _source_section(
             {"source_page": page, "source_text": page_texts.get(page, "")}
             for page in preamble_pages
         ],
-        "footnotes": _extract_parenthesized_footnotes(
-            {page: page_texts.get(page, "") for page in footnote_pages}
-        ),
+        "footnotes": footnotes,
         "page_diagnostics": diagnostics,
     }
 
@@ -771,7 +789,13 @@ def extract_singapore_part_iii() -> dict[str, Any]:
     )
 
 
-def _extract_singapore_positive_part(section: str, pages: range, preamble_page: int) -> dict[str, Any]:
+def _extract_singapore_positive_part(
+    section: str,
+    pages: range,
+    preamble_page: int,
+    *,
+    footnote_pages: list[int] | None = None,
+) -> dict[str, Any]:
     records, diagnostics, page_texts = _extract_table_records(
         pdf_path=SINGAPORE_FULL_PDF,
         source_document="singapore_regulations_2025_12_01",
@@ -791,7 +815,7 @@ def _extract_singapore_positive_part(section: str, pages: range, preamble_page: 
         diagnostics=diagnostics,
         page_texts=page_texts,
         preamble_pages=[preamble_page],
-        footnote_pages=[pages.stop - 1],
+        footnote_pages=footnote_pages or [pages.stop - 1],
     )
 
 
@@ -800,7 +824,11 @@ def extract_singapore_part_iv() -> dict[str, Any]:
 
 
 def extract_singapore_part_v() -> dict[str, Any]:
-    return _extract_singapore_positive_part("Third Schedule Part V", range(188, 196), 188)
+    # Part V footnotes 1-3 are printed on page 194, while 4-7 continue on
+    # page 195. Both pages are part of the same source footnote block.
+    return _extract_singapore_positive_part(
+        "Third Schedule Part V", range(188, 196), 188, footnote_pages=[194, 195]
+    )
 
 
 def extract_candidate_all() -> dict[str, Path]:

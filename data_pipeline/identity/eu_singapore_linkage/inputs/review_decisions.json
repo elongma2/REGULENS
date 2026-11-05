@@ -1,11 +1,67 @@
 {
   "identity_dataset_version": "eu-glossary-2025-1175",
   "identity_dataset_hash": "e146c81b5978c373ac1f20c677ba20c5221e02b7f128b4b095ff711075331094",
-  "singapore_regulatory_baseline": "sg-2025-12-01",
-  "singapore_regulatory_baseline_hash": "7ddf5dd7f050710a788012982359107befd246995bf87c3a4cc4b2828a8c61ca",
+  "singapore_regulatory_baseline": "acd-2026-1__sg-2025-12-01__parts-i-v-r1",
+  "singapore_regulatory_baseline_hash": "a3de95512af1397940d089de60b9639c8cb3448987656c35a2b4572793660ed0",
   "screened_scope": [
     "Third Schedule Part I",
-    "Third Schedule Part II"
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V"
   ],
-  "decisions": []
+  "decisions": [
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-20709",
+      "catalogue_canonical_name": "PHENOXYETHANOL",
+      "status": "linked",
+      "singapore_raw_record_ids": [
+        "raw-singapore_regulations_2025_12_01-third-schedule-part-iv-29"
+      ],
+      "supporting_acd_raw_record_ids": [
+        "raw-acd_annexes_2026_1-annex-vi-29"
+      ],
+      "supported_names": [
+        "PHENOXYETHANOL",
+        "2-Phenoxyethanol"
+      ],
+      "supported_cas_numbers": [
+        "122-99-6"
+      ],
+      "supported_ci_numbers": [],
+      "review": {
+        "reviewed": true,
+        "reviewed_at": "2026-11-05",
+        "reviewer": "Joshua",
+        "review_basis": "The accepted EU glossary entry 20709, CAS-bearing ACD Annex VI reference 29, and Singapore Part IV reference 29 describe the same 2-Phenoxyethanol identity.",
+        "notes": "Approved from direct official-source review. Regulatory conditions remain independent from this identity linkage."
+      }
+    },
+    {
+      "catalogue_ingredient_id": "eu-2025-1175-entry-17797",
+      "catalogue_canonical_name": "OCTOCRYLENE",
+      "status": "linked",
+      "singapore_raw_record_ids": [
+        "raw-singapore_regulations_2025_12_01-third-schedule-part-v-10"
+      ],
+      "supporting_acd_raw_record_ids": [
+        "raw-acd_annexes_2026_1-annex-vii-10"
+      ],
+      "supported_names": [
+        "OCTOCRYLENE",
+        "2-Cyano-3,3-diphenyl acrylic acid, 2-ethylhexyl ester"
+      ],
+      "supported_cas_numbers": [
+        "6197-30-4"
+      ],
+      "supported_ci_numbers": [],
+      "review": {
+        "reviewed": true,
+        "reviewed_at": "2026-11-05",
+        "reviewer": "Joshua",
+        "review_basis": "The accepted EU glossary entry 17797, CAS-bearing ACD Annex VII reference 10, and Singapore Part V reference 10 describe Octocrylene.",
+        "notes": "Approved from direct official-source review. The 9% propellant-spray limit, 10% other-product limit, and Singapore footnote 7 benzophenone trace-level requirement remain independent regulatory conditions and are not merged into the identity decision."
+      }
+    }
+  ]
 }

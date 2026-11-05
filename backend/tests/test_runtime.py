@@ -186,12 +186,13 @@ def test_aminophylline_is_deterministically_prohibited(store):
 
 @pytest.mark.parametrize(
     ("value", "expected"),
-    [(0.2, Finding.WITHIN_LIMIT), (0.2001, Finding.RESTRICTION_EXCEEDED)],
+    [(0.1, Finding.WITHIN_LIMIT), (0.2, Finding.WITHIN_LIMIT), (0.2001, Finding.RESTRICTION_EXCEEDED)],
 )
 def test_tosylchloramide_limit(store, value, expected):
     ingredient = IngredientInput(name="Tosylchloramide sodium", concentration=concentration(value))
     result = screen_ingredient(store, ingredient)
     assert result.primary_finding == expected
+    assert "regulated_function_not_listed" not in {item.code for item in result.review_issues}
 
 
 def test_no_product_context_required_when_no_matched_rule_needs_it(store):

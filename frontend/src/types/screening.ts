@@ -59,6 +59,7 @@ export interface ProductApplicabilityFacts {
   sun_protection_purpose?: boolean | null;
   product_protection_purpose?: boolean | null;
   solely_hair_colouring?: boolean | null;
+  inhalation_exposure?: boolean | null;
 }
 
 export interface FormulationRequest {
@@ -110,6 +111,7 @@ export interface IdentityCandidate {
 
 export interface IdentityResolution {
   status: "resolved" | "unresolved" | "ambiguous" | "review_required";
+  identity_outcome?: "identity_verified" | "name_recognised_cas_unverified" | "cas_recognised_name_unverified" | "same_identity_multiple_regulatory_records" | "genuine_name_cas_conflict" | "multiple_possible_identities" | "identity_unresolved";
   match_methods: string[];
   singapore_candidates: IdentityCandidate[];
   acd_candidates: IdentityCandidate[];
@@ -120,6 +122,16 @@ export interface IdentityResolution {
   singapore_linkage_status: "not_applicable" | "linked" | "verified_not_represented" | "unresolved";
   catalogue_identity: CatalogueIdentity | null;
   linkage_evidence: LinkageEvidence | null;
+  identifier_evidence?: Array<{
+    identifier_type: "name" | "cas" | "ci" | "catalogue";
+    submitted_value: string | null;
+    outcome: "matched" | "unmatched" | "malformed" | "not_supplied";
+    matched_singapore_substance_ids: string[];
+    matched_acd_substance_ids: string[];
+    matched_catalogue_ingredient_id: string | null;
+  }>;
+  applicable_regulatory_record_ids?: string[];
+  reviewer_action?: string | null;
   reasons: string[];
 }
 
@@ -132,6 +144,8 @@ export interface LinkageTarget {
   source_substance_name: string;
   source_document: string;
   source_hash: string;
+  source_pages: number[];
+  source_text: string | null;
 }
 
 export interface LinkageEvidence {
@@ -152,6 +166,10 @@ export interface LinkageEvidence {
     notes: string;
   };
   inapplicability_reasons: string[];
+  supported_names?: string[];
+  supported_cas_numbers?: string[];
+  supported_ci_numbers?: string[];
+  supporting_acd_records?: Array<Record<string, unknown>>;
 }
 
 export interface CatalogueIdentity {
@@ -269,6 +287,8 @@ export interface RuleEvidence {
   applicability_requirements?: Array<Record<string, unknown>>;
   combined_limit_requirements?: Array<Record<string, unknown>>;
   warning_requirements?: Array<Record<string, unknown>>;
+  footnotes?: Array<{ footnote_number?: string; source_page?: number; source_text?: string }>;
+  supporting_source_texts?: Array<Record<string, unknown>>;
   source_bundle_version?: string | null;
   source_section_version?: string | null;
 }
@@ -314,6 +334,30 @@ export interface ReviewExplanation {
   submitted_fact: string | null;
   regulatory_fact: string | null;
   source: "model" | "deterministic_fallback";
+  items?: ReviewExplanationItem[];
+  reviewer_actions?: string[];
+  primary_source_references?: string[];
+}
+
+export interface ReviewExplanationItem {
+  issue_code: string;
+  what_happened: string;
+  why_it_matters: string;
+  what_to_check: string;
+  source_references: string[];
+}
+
+export interface ReviewIssue {
+  code: string;
+  severity: "information_missing" | "professional_review" | "condition_not_met";
+  scope: "identity" | "rule" | "condition" | "function" | "source_comparison" | "screening";
+  message: string;
+  reviewer_action: string;
+  rule_id: string | null;
+  source_reference: string | null;
+  missing_facts: string[];
+  related_rule_ids: string[];
+  related_constituent_references: string[];
 }
 
 export interface OpenAIUsage {
@@ -334,11 +378,13 @@ export interface IngredientResult {
   submitted_ingredient: FormulationIngredient;
   submitted_product_context: string | null;
   identity: IdentityResolution;
+  screening_disposition?: "fully_evaluated" | "evaluated_with_identity_review" | "partially_evaluated" | "not_evaluated_identity_unresolved";
   primary_finding: Finding;
   confirmed_findings: Finding[];
   review_required: boolean;
   review_types: Array<"identity_review" | "rule_review">;
   review_reasons: string[];
+  review_issues?: ReviewIssue[];
   review_explanation: ReviewExplanation | null;
   rule_evaluations: RuleEvaluation[];
   inactive_evidence: RuleEvidence[];

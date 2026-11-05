@@ -12,9 +12,15 @@ from backend.app.services.ingredient_catalog import load_accepted_ingredient_cat
 from backend.app.services.loader import SINGAPORE_SECTIONS, load_accepted_store
 
 
-DATASET_VERSION = "eu-sg-linkage__eu-glossary-2025-1175__sg-2025-12-01"
-SINGAPORE_BASELINE = "sg-2025-12-01"
-SCREENED_SCOPE = ["Third Schedule Part I", "Third Schedule Part II"]
+DATASET_VERSION = "eu-sg-linkage__eu-glossary-2025-1175__acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+SINGAPORE_BASELINE = "acd-2026-1__sg-2025-12-01__parts-i-v-r1"
+SCREENED_SCOPE = [
+    "Third Schedule Part I",
+    "Third Schedule Part II",
+    "Third Schedule Part III",
+    "Third Schedule Part IV",
+    "Third Schedule Part V",
+]
 ROOT = Path(__file__).resolve().parents[4]
 LINKAGE_ROOT = ROOT / "data_pipeline" / "identity" / "eu_singapore_linkage"
 
@@ -73,6 +79,8 @@ def _target_from_rule(store, rule: dict[str, Any]) -> dict[str, Any]:
         "source_substance_name": rule["substance_name"],
         "source_document": rule["source_document"],
         "source_hash": substance["source_hash"],
+        "source_pages": rule["source_pages"],
+        "source_text": rule["source_text"],
     }
 
 
@@ -86,7 +94,7 @@ def _derive_targets(store, raw_record_ids: list[str]) -> list[dict[str, Any]]:
         scoped = [rule for rule in rules if rule["regulatory_section"] in SINGAPORE_SECTIONS]
         if not scoped:
             raise LinkageValidationError(
-                f"Singapore target {raw_record_id} is unknown or outside Third Schedule Parts I/II"
+                f"Singapore target {raw_record_id} is unknown or outside Third Schedule Parts I-V"
             )
         if any(not rule["active"] for rule in scoped):
             raise LinkageValidationError(f"Singapore target {raw_record_id} contains an inactive rule")
@@ -111,13 +119,36 @@ def _bindings(catalogue, store) -> dict[str, Any]:
 def build_review_queue(root: Path = ROOT) -> dict[str, Any]:
     catalogue = load_accepted_ingredient_catalog(root)
     store = load_accepted_store(root)
-    scope = _load(root / "data_pipeline" / "identity" / "eu_singapore_linkage" / "inputs" / "review_scope.json")
+    linkage_root = root / "data_pipeline" / "identity" / "eu_singapore_linkage"
+    scope = _load(linkage_root / "inputs" / "review_scope.json")
     by_id = _catalogue_by_id(catalogue)
-    requested = scope.get("catalogue_ingredient_ids")
-    if not isinstance(requested, list) or len(requested) != len(set(requested)):
+    requested = scope.get("records", [])
+    if not isinstance(requested, list):
+        raise LinkageValidationError("Review scope records must be a list")
+    requested_ids = [item.get("catalogue_ingredient_id") for item in requested]
+    if None in requested_ids or len(requested_ids) != len(set(requested_ids)):
         raise LinkageValidationError("Review scope must contain unique catalogue ingredient IDs")
+    accepted_ids: set[str] = set()
+    accepted_path = linkage_root / "accepted" / "linkages.json"
+    if accepted_path.exists():
+        accepted = _load(accepted_path)
+        if (
+            accepted.get("dataset_version") == DATASET_VERSION
+            and accepted.get("singapore_regulatory_baseline") == SINGAPORE_BASELINE
+        ):
+            accepted_ids = {
+                record["catalogue_ingredient_id"]
+                for record in accepted.get("records", [])
+                if isinstance(record, dict) and record.get("catalogue_ingredient_id")
+            }
+    requested = [
+        record
+        for record in requested
+        if record.get("catalogue_ingredient_id") not in accepted_ids
+    ]
     records = []
-    for ingredient_id in requested:
+    for requested_record in requested:
+        ingredient_id = requested_record["catalogue_ingredient_id"]
         ingredient = by_id.get(ingredient_id)
         if ingredient is None:
             raise LinkageValidationError(f"Review scope contains unknown catalogue ID {ingredient_id}")
@@ -135,6 +166,20 @@ def build_review_queue(root: Path = ROOT) -> dict[str, Any]:
             {item["rule_id"]: item for item in candidates}.values(),
             key=lambda item: (item["part"], item["reference"].casefold(), item["rule_id"]),
         )
+        proposed_targets = _derive_targets(store, requested_record.get("proposed_singapore_raw_record_ids", []))
+        supporting_acd_records = []
+        for raw_record_id in requested_record.get("supporting_acd_raw_record_ids", []):
+            raw = store.raw_by_id.get(raw_record_id)
+            if raw is None or not str(raw.get("section", "")).startswith("Annex"):
+                raise LinkageValidationError(f"Supporting ACD record {raw_record_id} is unavailable")
+            supporting_acd_records.append({
+                "raw_record_id": raw_record_id,
+                "regulatory_section": raw["section"],
+                "reference_number": raw["reference_number"],
+                "source_pages": raw["source_pages"],
+                "source_text": raw["source_text"],
+                "source_document": raw["source_document"],
+            })
         records.append(
             {
                 "catalogue_ingredient_id": ingredient_id,
@@ -144,6 +189,15 @@ def build_review_queue(root: Path = ROOT) -> dict[str, Any]:
                 "eu_raw_record_ids": ingredient["raw_record_ids"],
                 "candidate_generation_method": "exact_normalized_name_equality",
                 "singapore_candidates": candidates,
+                "proposed_singapore_targets": proposed_targets,
+                "supporting_acd_records": supporting_acd_records,
+                "supported_names": requested_record.get("supported_names", []),
+                "supported_cas_numbers": requested_record.get("supported_cas_numbers", []),
+                "supported_ci_numbers": requested_record.get("supported_ci_numbers", []),
+                "identity_group": requested_record.get("identity_group"),
+                "forms": requested_record.get("forms", []),
+                "target_relationships": requested_record.get("target_relationships", []),
+                "proposed_review_basis": requested_record.get("review_basis"),
                 "reason_for_review": (
                     "Exact normalized Singapore candidate identified; professional verification is required."
                     if candidates
@@ -166,7 +220,7 @@ def _review_queue_markdown(queue: dict[str, Any]) -> str:
         "",
         f"Dataset: `{queue['dataset_version']}`",
         f"Pending identities: **{queue['candidate_count']}**",
-        "Scope: Third Schedule Part I and Third Schedule Part II",
+        "Scope: Third Schedule Parts I-V",
         "",
         "Candidate entries are not accepted linkage decisions.",
         "",
@@ -190,6 +244,26 @@ def _review_queue_markdown(queue: dict[str, Any]) -> str:
                     f"  - {target['part']} · Ref {target['reference']} · {target['source_substance_name']}"
                 )
             lines.append("")
+        if item.get("proposed_singapore_targets"):
+            lines.append("Proposed Singapore targets:")
+            for target in item["proposed_singapore_targets"]:
+                lines.append(f"  - {target['part']} · Ref {target['reference']} · pages {', '.join(map(str, target['source_pages']))} · {target['source_substance_name']}")
+                lines.append("")
+                lines.append("    Source text:")
+                lines.append("")
+                lines.append(f"    > {target['source_text'].replace(chr(10), ' ')}")
+            lines.append("")
+        for source in item.get("supporting_acd_records", []):
+            lines.append(f"Supporting ACD source: {source['regulatory_section']} Ref {source['reference_number']} · pages {', '.join(map(str, source['source_pages']))}")
+            lines.append("")
+            lines.append(f"> {source['source_text'].replace(chr(10), ' ')}")
+            lines.append("")
+        lines.append(f"Proposed identity evidence: names `{', '.join(item.get('supported_names', []))}`; CAS `{', '.join(item.get('supported_cas_numbers', [])) or 'none'}`; CI `{', '.join(item.get('supported_ci_numbers', [])) or 'none'}`.")
+        lines.append("")
+        lines.append(f"Review check: {item.get('proposed_review_basis')}")
+        lines.append("")
+        lines.append("Decision: **PENDING HUMAN SIGN-OFF**")
+        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -238,6 +312,28 @@ def validate_review_input(review_input: dict[str, Any], root: Path = ROOT) -> di
         if status != "linked" and raw_ids:
             raise LinkageValidationError(f"{status} decisions cannot contain accepted Singapore targets")
         targets = _derive_targets(store, raw_ids)
+        supported_names = decision.get("supported_names", [])
+        supported_cas = decision.get("supported_cas_numbers", [])
+        supported_ci = decision.get("supported_ci_numbers", [])
+        if not all(isinstance(value, str) and value.strip() for values in (supported_names, supported_cas, supported_ci) for value in values):
+            raise LinkageValidationError("Supported identity values must be nonblank strings")
+        for cas in supported_cas:
+            from data_pipeline.scripts.normalize import cas_is_valid
+            if not cas_is_valid(cas):
+                raise LinkageValidationError(f"Invalid supported CAS {cas}")
+        supporting_acd_records = []
+        for raw_record_id in decision.get("supporting_acd_raw_record_ids", []):
+            raw = store.raw_by_id.get(raw_record_id)
+            if raw is None or not str(raw.get("section", "")).startswith("Annex"):
+                raise LinkageValidationError(f"Supporting ACD record {raw_record_id} is unavailable")
+            supporting_acd_records.append({
+                "raw_record_id": raw_record_id,
+                "regulatory_section": raw["section"],
+                "reference_number": raw["reference_number"],
+                "source_pages": raw["source_pages"],
+                "source_text": raw["source_text"],
+                "source_document": raw["source_document"],
+            })
         review = decision.get("review")
         if not isinstance(review, dict) or review.get("reviewed") is not True:
             raise LinkageValidationError("Every accepted decision must have review.reviewed=true")
@@ -256,6 +352,13 @@ def validate_review_input(review_input: dict[str, Any], root: Path = ROOT) -> di
                 **expected,
                 "status": status,
                 "singapore_targets": targets,
+                "supported_names": sorted(set(supported_names), key=str.casefold),
+                "supported_cas_numbers": sorted(set(supported_cas)),
+                "supported_ci_numbers": sorted(set(supported_ci), key=str.casefold),
+                "supporting_acd_records": supporting_acd_records,
+                "identity_group": decision.get("identity_group"),
+                "forms": decision.get("forms", []),
+                "target_relationships": decision.get("target_relationships", []),
                 "review": {
                     "reviewed": True,
                     "reviewed_at": reviewed_at,
@@ -314,9 +417,9 @@ def build_accepted(root: Path = ROOT) -> dict[str, Any]:
     (linkage_root / "reports" / "validation_summary.md").write_text(
         "# Linkage validation\n\n"
         "**PASS** — accepted decisions are structurally valid and bound to the accepted source baselines.\n\n"
-        f"Accepted records: **{accepted['counts']['accepted_records']}**  \n"
-        f"Linked: **{accepted['counts']['linked']}**  \n"
-        f"Verified not represented: **{accepted['counts']['verified_not_represented']}**  \n"
+        f"Accepted records: **{accepted['counts']['accepted_records']}**\n"
+        f"Linked: **{accepted['counts']['linked']}**\n"
+        f"Verified not represented: **{accepted['counts']['verified_not_represented']}**\n"
         f"Unresolved reviewed decisions: **{accepted['counts']['unresolved']}**\n",
         encoding="utf-8",
     )

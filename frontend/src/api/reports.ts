@@ -25,17 +25,28 @@ async function download(response: Response): Promise<void> {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
+  // Keep the blob URL alive until the browser has accepted the synthetic
+  // click. Immediate revocation is unreliable in some browsers.
+  globalThis.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+async function reportRequest(request: () => Promise<Response>): Promise<Response> {
+  try {
+    return await request();
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new Error("The PDF report server could not be reached. Please try again.", { cause: error });
+  }
 }
 
 export async function downloadAdHocScreeningReport(request: FormulationRequest): Promise<void> {
-  await download(await apiFetch("/screen-formulation/report", {
+  await download(await reportRequest(() => apiFetch("/screen-formulation/report", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(request),
-  }));
+  })));
 }
 
 export async function downloadSavedScreeningReport(screeningRunId: string): Promise<void> {
-  await download(await apiFetch(`/screenings/${encodeURIComponent(screeningRunId)}/report.pdf`));
+  await download(await reportRequest(() => apiFetch(`/screenings/${encodeURIComponent(screeningRunId)}/report.pdf`)));
 }

@@ -78,9 +78,11 @@ class ApplicabilityRequirement(StrictModel):
         "sun_protection_purpose",
         "product_protection_purpose",
         "solely_hair_colouring",
+        "inhalation_exposure",
     ]
     expected: bool
     source_text: str
+    role: Literal["condition", "case_selector"] = "condition"
 
 
 class CombinedLimitRequirement(StrictModel):

@@ -1,11 +1,11 @@
-import { ChevronLeft, ChevronRight, ExternalLink, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { FindingBadge } from "./FindingBadge";
 import { IdentitySourceEvidence } from "./IdentitySourceEvidence";
 import { ReviewerWorkspace } from "./ReviewerWorkspace";
 import { SourceEvidence } from "./SourceEvidence";
 import {
-  basisLabel, comparatorLabel, comparisonRows, displayIngredientName, formatRuleConcentration,
+  basisLabel, comparisonRows, displayIngredientName, formatRuleConcentration,
   matchMethodLabel, preparationStageLabel, readableCode, reviewReasonLabel,
 } from "../lib/presentation";
 import { formatConcentration, isSingaporeEvaluation, regulationLabel } from "../lib/screening";
@@ -36,6 +36,17 @@ function ConcentrationComparison({ evaluation }: { evaluation: RuleEvaluation })
     <div><span>Singapore maximum</span><strong>{formatRuleConcentration(comparison.limit)}</strong></div>
     <div className="comparison-total"><span>Difference</span><strong className={comparison.difference > 0 ? "text-red-700" : "text-emerald-700"}>{comparison.difference > 0 ? "+" : ""}{comparison.difference.toFixed(2)} {comparison.limit.unit === "percent" ? "percentage points" : comparison.limit.unit}</strong></div>
   </div>;
+}
+
+function uniqueText(values: Array<string | null | undefined>): string[] {
+  const seen = new Set<string>();
+  return values.flatMap((value) => {
+    const normalized = value?.trim().replace(/\s+/g, " ");
+    const key = normalized?.toLocaleLowerCase().replace(/\.$/, "");
+    if (!normalized || !key || seen.has(key)) return [];
+    seen.add(key);
+    return [normalized];
+  });
 }
 
 export function EvidenceDrawer({
@@ -77,6 +88,7 @@ export function EvidenceDrawer({
   onClose: () => void;
 }) {
   const [internalActiveTab, setInternalActiveTab] = useState<DrawerTab>("evidence");
+  const [isWide, setIsWide] = useState(false);
   const activeTab = controlledActiveTab ?? internalActiveTab;
   const setActiveTab = (tab: DrawerTab) => {
     setInternalActiveTab(tab);
@@ -109,6 +121,11 @@ export function EvidenceDrawer({
   };
 
   const singapore = result.rule_evaluations.filter(isSingaporeEvaluation);
+  const singaporeGroups = Array.from(singapore.reduce((groups, evaluation) => {
+    const key = `${evaluation.evidence.regulatory_section}:${evaluation.evidence.reference_number}`;
+    groups.set(key, [...(groups.get(key) ?? []), evaluation]);
+    return groups;
+  }, new Map<string, RuleEvaluation[]>()).values());
   const acdCandidates = result.identity.acd_candidates;
   const crossReferences = result.rule_evaluations.flatMap((evaluation) => evaluation.evidence.cross_references)
     .filter((reference, index, all) => all.findIndex((item) => item.cross_reference_id === reference.cross_reference_id) === index);
@@ -119,10 +136,23 @@ export function EvidenceDrawer({
     ...counterparts.flatMap((counterpart) => counterpart.cas_numbers.map((cas) => ({ cas, section: counterpart.regulatory_section }))),
   ].filter((value, index, all) => all.findIndex((item) => item.cas === value.cas && item.section === value.section) === index);
   const explanation = result.review_explanation;
+  const leadingIssue = result.review_issues?.[0];
+  const explanationItems = explanation?.items ?? [];
+  const reviewerActions = uniqueText(
+    explanation?.reviewer_actions?.length
+      ? explanation.reviewer_actions
+      : [...explanationItems.map((item) => item.what_to_check), explanation?.what_to_check, leadingIssue?.reviewer_action],
+  );
+  const visibleReviewerActions = reviewerActions.slice(0, 3);
+  const additionalReviewerActions = reviewerActions.slice(3);
   const regulatoryFactLabel = result.review_types.includes("identity_review") ? "Source" : "Rule";
   const declaredFunctions = result.submitted_ingredient.regulated_functions ?? [];
   const functionEvaluations = result.function_evaluations ?? [];
-  const conditionEvaluations = result.condition_evaluations ?? [];
+  const conditionEvaluations = (result.condition_evaluations ?? []).filter((condition, index, all) =>
+    all.findIndex((candidate) => candidate.condition_type === condition.condition_type
+      && candidate.status === condition.status
+      && candidate.source_text === condition.source_text
+      && candidate.reason === condition.reason) === index);
   const warningRequirements = result.warning_requirements ?? [];
   const incompleteFunctions = result.incomplete_positive_list_checks ?? [];
   const reviewerStatus = reviewDataState === "available" && reviewItem
@@ -134,13 +164,14 @@ export function EvidenceDrawer({
 
   return <>
     <button className="drawer-backdrop" onClick={onClose} aria-label="Close evidence" />
-    <aside className="evidence-drawer" role="dialog" aria-modal="true" aria-label="Regulatory evidence">
+    <aside className={`evidence-drawer${isWide ? " is-wide" : ""}`} role="dialog" aria-modal="true" aria-label="Regulatory evidence">
       <header className="evidence-drawer-header">
         <div className="evidence-drawer-topline">
           <div><span>Row {result.submitted_row_number}</span><h2>{displayIngredientName(result)}</h2></div>
           <div className="evidence-drawer-controls">
             <button className="icon-button" type="button" disabled={!hasPrevious} onClick={onPrevious} aria-label="Previous result"><ChevronLeft size={17} /></button>
             <button className="icon-button" type="button" disabled={!hasNext} onClick={onNext} aria-label="Next result"><ChevronRight size={17} /></button>
+            <button className="icon-button drawer-width-toggle" type="button" aria-pressed={isWide} onClick={() => setIsWide((current) => !current)} aria-label={isWide ? "Restore drawer width" : "Widen evidence drawer"}>{isWide ? <Minimize2 size={16} /> : <Maximize2 size={16} />}</button>
             <button className="icon-button" type="button" onClick={onClose} aria-label="Close evidence drawer"><X size={18} /></button>
           </div>
         </div>
@@ -156,18 +187,21 @@ export function EvidenceDrawer({
           <h3 className="drawer-title">Screening result</h3>
           <div className="metadata-grid mt-3">
             <span>Identity resolution</span><strong>{readableCode(result.identity.status)}</strong>
+            <span>Identity outcome</span><strong>{result.identity.identity_outcome ? readableCode(result.identity.identity_outcome) : readableCode(result.identity.status)}</strong>
+            <span>Screening coverage</span><strong>{result.screening_disposition ? readableCode(result.screening_disposition) : "Historical result"}</strong>
             <span>Match method</span><strong>{result.identity.match_methods.map(matchMethodLabel).join(", ") || "—"}</strong>
             <span>Confirmed findings</span><strong>{result.confirmed_findings.map(readableCode).join(", ") || "—"}</strong>
             <span>Professional review</span><strong>{result.review_required ? "Required" : "Not required by this result"}</strong>
           </div>
-          {result.review_required && <div className="review-panel mt-4">
-            <h4>{explanation?.title ?? "This result needs checking"}</h4>
-            <p>{explanation?.summary ?? "Regulens could not confirm one part of this result."}</p>
-            {explanation?.what_to_check && <div className="review-check"><span>What to check</span><p>{explanation.what_to_check}</p></div>}
+          {(result.review_required || leadingIssue) && <div className="review-panel mt-4">
+            <h4>{explanation?.title ?? (leadingIssue ? readableCode(leadingIssue.code) : "This result needs checking")}</h4>
+            <p>{explanation?.summary ?? leadingIssue?.message ?? "Regulens could not confirm one part of this result."}</p>
+            {reviewerActions.length > 0 && <div className="review-check"><span>What to check</span><ol className="review-action-list">{visibleReviewerActions.map((action) => <li key={action}>{action}</li>)}</ol>{additionalReviewerActions.length > 0 && <details className="review-check-more"><summary>Show all checks ({reviewerActions.length})</summary><ol start={4}>{additionalReviewerActions.map((action) => <li key={action}>{action}</li>)}</ol></details>}</div>}
             {(explanation?.submitted_fact || explanation?.regulatory_fact) && <div className="review-facts">
               {explanation.submitted_fact && <div><span>Submitted</span><strong>{explanation.submitted_fact}</strong></div>}
               {explanation.regulatory_fact && <div><span>{regulatoryFactLabel}</span><strong>{explanation.regulatory_fact}</strong></div>}
             </div>}
+            {explanationItems.length > 1 && <details className="review-issue-details"><summary>Why this needs review ({explanationItems.length})</summary><div>{explanationItems.map((item, index) => <article key={`${item.issue_code}-${item.source_references.join("-")}-${index}`}><strong>{item.what_happened}</strong><p>{item.why_it_matters}</p>{item.source_references.length > 0 && <small>{item.source_references.join(" · ")}</small>}</article>)}</div></details>}
           </div>}
         </section>
 
@@ -187,25 +221,26 @@ export function EvidenceDrawer({
 
         <section>
           <h3 className="drawer-title">Applicable Singapore rules</h3>
-          {singapore.length === 0 ? <p className="drawer-empty">No Singapore rule evaluated.</p> : singapore.map((evaluation) => <article className="evidence-card" key={evaluation.rule_id}>
-            <div className="evidence-card-heading"><div><strong>{evaluation.evidence.regulatory_section}</strong><span>Reference {evaluation.evidence.reference_number}{regulationLabel(evaluation) ? ` · ${regulationLabel(evaluation)}` : ""}</span></div><span className="quiet-badge">{readableCode(evaluation.evaluation_status)}</span></div>
-            <div className="metadata-grid mt-4">
-              <span>Source substance</span><strong className="whitespace-pre-wrap">{evaluation.evidence.substance_name}</strong>
-              <span>Category</span><strong>{evaluation.evidence.regulatory_category ? readableCode(evaluation.evidence.regulatory_category) : "—"}</strong>
-              <span>Regulated function</span><strong>{evaluation.evidence.permitted_function ? readableCode(evaluation.evidence.permitted_function) : "—"}</strong>
-              <span>Applicable context</span><strong>{evaluation.evidence.product_context ?? "—"}</strong>
-              <span>Limit</span><strong>{formatRuleConcentration(evaluation.evidence.concentration)}</strong>
-              {evaluation.evidence.concentration && <><span>Comparator</span><strong>{comparatorLabel(evaluation.evidence.concentration.comparator)}</strong><span>Basis</span><strong>{basisLabel(evaluation.evidence.concentration.basis)}</strong><span>Stage</span><strong>{preparationStageLabel(evaluation.evidence.concentration.preparation_stage)}</strong></>}
-            </div>
-            <ConcentrationComparison evaluation={evaluation} />
-            {evaluation.evidence.other_conditions && <p className="evidence-condition"><strong>Other requirements:</strong> {evaluation.evidence.other_conditions}</p>}
-            {evaluation.evidence.required_warning && <p className="evidence-condition"><strong>Required warning:</strong> {evaluation.evidence.required_warning}</p>}
-            <div className="source-wording-label">Original source wording</div><blockquote className="source-quote">{evaluation.evidence.source_text}</blockquote>
-          </article>)}
+          {singaporeGroups.length === 0 ? <p className="drawer-empty">No Singapore rule evaluated.</p> : singaporeGroups.map((evaluations) => {
+            const primary = evaluations[0];
+            const conditions = uniqueText(evaluations.map((evaluation) => evaluation.evidence.other_conditions));
+            const warnings = uniqueText(evaluations.map((evaluation) => evaluation.evidence.required_warning));
+            const sourceWordings = uniqueText(evaluations.map((evaluation) => evaluation.evidence.source_text));
+            const footnotes = evaluations.flatMap((evaluation) => evaluation.evidence.footnotes ?? []).filter((footnote, index, all) => all.findIndex((candidate) => candidate.footnote_number === footnote.footnote_number && candidate.source_text === footnote.source_text) === index);
+            return <article className="evidence-card" key={`${primary.evidence.regulatory_section}-${primary.evidence.reference_number}`}>
+              <div className="evidence-card-heading"><div><strong>{primary.evidence.regulatory_section}</strong><span>Reference {primary.evidence.reference_number}{regulationLabel(primary) ? ` · ${regulationLabel(primary)}` : ""}</span></div><span className="quiet-badge">{evaluations.length > 1 ? `${evaluations.length} conditions` : readableCode(primary.evaluation_status)}</span></div>
+              <div className="metadata-grid mt-4"><span>Source substance</span><strong className="whitespace-pre-wrap">{primary.evidence.substance_name}</strong><span>Category</span><strong>{primary.evidence.regulatory_category ? readableCode(primary.evidence.regulatory_category) : "—"}</strong><span>Regulated function</span><strong>{primary.evidence.permitted_function ? readableCode(primary.evidence.permitted_function) : "—"}</strong></div>
+              <div className="rule-branch-list">{evaluations.map((evaluation) => <div key={evaluation.rule_id}><span>{evaluation.evidence.product_context ?? "General condition"}</span><strong>{formatRuleConcentration(evaluation.evidence.concentration)}</strong><small>{readableCode(evaluation.evaluation_status)}</small><ConcentrationComparison evaluation={evaluation} /></div>)}</div>
+              {conditions.map((condition) => <p className="evidence-condition" key={condition}><strong>Other requirement:</strong> {condition}</p>)}
+              {warnings.map((warning) => <p className="evidence-condition" key={warning}><strong>Required warning:</strong> {warning}</p>)}
+              {footnotes.length > 0 && <div className="evidence-condition"><strong>Linked footnotes:</strong>{footnotes.map((footnote, index) => <p key={`${footnote.footnote_number ?? "note"}-${index}`}>{footnote.footnote_number ? `${footnote.footnote_number}. ` : ""}{footnote.source_text}</p>)}</div>}
+              <details className="rule-source-wording"><summary>Original source wording</summary>{sourceWordings.map((wording) => <blockquote className="source-quote" key={wording}>{wording}</blockquote>)}</details>
+            </article>;
+          })}
           {conditionEvaluations.length > 0 && <div className="condition-list"><h4>Use-condition checks</h4>{conditionEvaluations.map((condition, index) => <div className="evidence-card" key={`${condition.rule_id}-${condition.condition_type}-${index}`}><div className="evidence-card-heading"><strong>{readableCode(condition.condition_type)}</strong><span className="quiet-badge">{readableCode(condition.status)}</span></div><p>{condition.source_text}</p>{condition.reason && <small>{readableCode(condition.reason)}</small>}</div>)}</div>}
         </section>
 
-        {singapore.length > 0 && <section><h3 className="drawer-title">Accepted source evidence</h3>{singapore.map((evaluation) => <SourceEvidence key={evaluation.rule_id} evaluation={evaluation} source={sources.find((source) => source.source_document === evaluation.evidence.source_document)} />)}</section>}
+        {singaporeGroups.length > 0 && <section><h3 className="drawer-title">Accepted source evidence</h3>{singaporeGroups.map((evaluations) => { const evaluation = evaluations[0]; return <SourceEvidence key={`${evaluation.evidence.regulatory_section}-${evaluation.evidence.reference_number}`} evaluation={evaluation} source={sources.find((source) => source.source_document === evaluation.evidence.source_document)} />; })}</section>}
 
         <section>
           <h3 className="drawer-title">Warnings and bounded scope</h3>
@@ -229,7 +264,7 @@ export function EvidenceDrawer({
           {result.identity.catalogue_identity && <section><h3 className="drawer-title">Ingredient identity catalogue</h3><div className="metadata-grid"><span>Recognised name</span><strong>{result.identity.catalogue_identity.canonical_name}</strong><span>Identity source</span><strong>{result.identity.catalogue_identity.source_name}</strong><span>EU entry</span><strong>{result.identity.catalogue_identity.source_entries.join(", ")}</strong><span>Source page</span><strong>{result.identity.catalogue_identity.source_pages.join(", ")}</strong></div><p className="catalogue-caveat">Catalogue recognition confirms the ingredient name only. It does not establish Singapore permission, safety, or regulatory status.</p><IdentitySourceEvidence identity={result.identity.catalogue_identity} /></section>}
         </div></details>}
 
-        {result.review_required && <details className="acd-details"><summary>Technical provenance</summary><div className="metadata-grid drawer-details-body"><span>Review types</span><strong>{result.review_types.join(", ")}</strong><span>Review reasons</span><strong>{result.review_reasons.join(", ")}</strong><span>Explanation source</span><strong>{explanation?.source ?? "unavailable"}</strong><span>Explanation model</span><strong>{explanation?.source === "model" ? (explanationMetadata?.actual_model ?? explanationMetadata?.configured_model ?? "—") : "Deterministic fallback"}</strong></div><p className="technical-note">Review guidance explains the existing deterministic result. Regulatory evidence and rule evaluation remain the source of truth.</p></details>}
+        {result.review_required && <details className="acd-details"><summary>Technical provenance</summary><div className="metadata-grid drawer-details-body"><span>Review types</span><strong>{result.review_types.join(", ")}</strong><span>Review reasons</span><strong>{result.review_reasons.join(", ")}</strong><span>Structured issue codes</span><strong>{result.review_issues?.map((item) => item.code).join(", ") || "Historical result"}</strong><span>Reviewer action</span><strong>{result.identity.reviewer_action ?? "—"}</strong><span>Applicable records</span><strong>{result.identity.applicable_regulatory_record_ids?.join(", ") || "—"}</strong>{result.identity.identifier_evidence?.map((item) => <span className="contents" key={`${item.identifier_type}-${item.submitted_value ?? "none"}`}><span>{readableCode(item.identifier_type)} lookup</span><strong>{readableCode(item.outcome)}{item.submitted_value ? ` · ${item.submitted_value}` : ""}</strong></span>)}<span>Explanation source</span><strong>{explanation?.source ?? "unavailable"}</strong><span>Explanation model</span><strong>{explanation?.source === "model" ? (explanationMetadata?.actual_model ?? explanationMetadata?.configured_model ?? "—") : "Deterministic fallback"}</strong></div><p className="technical-note">Review guidance explains the existing deterministic result. Regulatory evidence and rule evaluation remain the source of truth.</p></details>}
       </div>
 
       <div id="drawer-panel-review" className="evidence-drawer-body review-drawer-panel" role="tabpanel" aria-labelledby="drawer-tab-review" hidden={activeTab !== "review"}>

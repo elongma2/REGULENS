@@ -13,7 +13,7 @@ from pydantic import Field, ValidationError
 
 from backend.app.models.formulation import FormulationScreeningResponse, ReviewExplanationMetadata
 from backend.app.models.openai import OpenAIUsage
-from backend.app.models.screening import ReviewExplanation, ReviewType, StrictModel
+from backend.app.models.screening import ReviewExplanation, ReviewExplanationItem, ReviewType, StrictModel
 
 
 LOGGER = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ PROHIBITED_JARGON = re.compile(
 NUMBER_TOKEN = re.compile(r"\d+(?:\.\d+)?")
 
 EXPLANATION_INSTRUCTIONS = """You rewrite an existing deterministic cosmetic screening review result in plain English.
-You do not perform regulatory analysis and you do not change the result, finding, or review requirement. Use only facts supplied for each item. Do not infer missing facts, values, thresholds, identities, rules, or applicability.
+You do not perform regulatory analysis and you do not change the result, finding, review requirement, identity_outcome, identifier evidence, or reviewer action. Use only facts supplied for each item. Do not infer missing facts, values, thresholds, identities, rules, or applicability.
 
 Write for a cosmetic compliance user who is not a software engineer. Use short sentences, simple words, and direct phrasing. The summary must say what Regulens already knows and what is still unknown. what_to_check must give one concrete action, normally beginning with "Check" or "Confirm". For example, say "This rule has an exception" rather than "conditional wording needs review", and say "The name and CAS do not match" rather than "identifier evidence needs review".
 
@@ -117,6 +117,7 @@ def _submitted_fact(result) -> str | None:
 def _regulatory_fact(result) -> str | None:
     if ReviewType.IDENTITY in result.review_types:
         return _source_identity_fact(result)
+    facts: list[str] = []
     for evaluation in result.rule_evaluations:
         concentration = evaluation.evidence.concentration
         if concentration and isinstance(concentration.get("value"), (int, float)):
@@ -127,14 +128,34 @@ def _regulatory_fact(result) -> str | None:
             comparator = concentration.get("comparator")
             if comparator == "less_than_or_equal":
                 prefix = "Maximum"
+            context = evaluation.evidence.product_context
             fact = f"{prefix} {value}"
-            return f"{fact} · {stage}" if stage else fact
+            if context:
+                fact = f"{fact} ({context})"
+            elif stage:
+                fact = f"{fact} · {stage}"
+            if fact not in facts:
+                facts.append(fact)
         if evaluation.evidence.product_context:
-            return f"Rule context: {evaluation.evidence.product_context}"
-    return None
+            fact = f"Rule context: {evaluation.evidence.product_context}"
+            if fact not in facts and not concentration:
+                facts.append(fact)
+    return "; ".join(facts)[:300] or None
 
 
-def fallback_explanation(result) -> ReviewExplanation:
+def _unique(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    output: list[str] = []
+    for value in values:
+        key = " ".join(value.casefold().split()).rstrip(".")
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        output.append(value)
+    return output
+
+
+def _legacy_fallback_explanation(result) -> ReviewExplanation:
     reasons = " ".join(result.review_reasons).casefold()
     submitted = _submitted_fact(result)
     regulatory = _regulatory_fact(result)
@@ -158,15 +179,39 @@ def fallback_explanation(result) -> ReviewExplanation:
             source="deterministic_fallback",
         )
     if ReviewType.IDENTITY in result.review_types:
-        if (
-            "resolve_to_different" in reasons
-            or "only_one_supplied_identifier" in reasons
-            or "do_not_establish_a_unique" in reasons
-        ):
+        outcome = result.identity.identity_outcome.value
+        if outcome == "genuine_name_cas_conflict":
             return ReviewExplanation(
                 title="Name and CAS do not match",
-                summary="The ingredient name and CAS number do not point to the same ingredient.",
+                summary="The submitted name and CAS number match different source-backed ingredient identities.",
                 what_to_check="Confirm the correct ingredient name and CAS number.",
+                submitted_fact=submitted,
+                regulatory_fact=regulatory,
+                source="deterministic_fallback",
+            )
+        if outcome == "name_recognised_cas_unverified":
+            return ReviewExplanation(
+                title="CAS association is not verified",
+                summary="Regulens recognises the submitted ingredient name, but the accepted sources do not independently link the submitted CAS to that name.",
+                what_to_check="Check the CAS against the supplier specification if the CAS is needed for this review.",
+                submitted_fact=submitted,
+                regulatory_fact=regulatory,
+                source="deterministic_fallback",
+            )
+        if outcome == "cas_recognised_name_unverified":
+            return ReviewExplanation(
+                title="Ingredient name needs confirmation",
+                summary="The submitted CAS matches a source-backed ingredient, but the accepted identity sources do not yet confirm the submitted name relationship.",
+                what_to_check="Confirm that the submitted name belongs to the CAS-matched ingredient.",
+                submitted_fact=submitted,
+                regulatory_fact=regulatory,
+                source="deterministic_fallback",
+            )
+        if outcome == "multiple_possible_identities":
+            return ReviewExplanation(
+                title="Several identities are possible",
+                summary="The submitted identifiers match more than one source-backed ingredient identity.",
+                what_to_check="Confirm the exact ingredient identity using the supplier specification.",
                 submitted_fact=submitted,
                 regulatory_fact=regulatory,
                 source="deterministic_fallback",
@@ -243,6 +288,69 @@ def fallback_explanation(result) -> ReviewExplanation:
     )
 
 
+def fallback_explanation(result) -> ReviewExplanation:
+    legacy = _legacy_fallback_explanation(result)
+    issues = result.review_issues or []
+    if not issues:
+        return legacy
+    evaluations = {item.rule_id: item for item in result.rule_evaluations}
+    items: list[ReviewExplanationItem] = []
+    for issue in issues:
+        evaluation = evaluations.get(issue.rule_id) if issue.rule_id else None
+        facts: list[str] = []
+        if evaluation and evaluation.submitted_concentration:
+            submitted = evaluation.submitted_concentration
+            submitted_text = submitted.original_text or (
+                f"{submitted.value:g} {submitted.unit}" if submitted.value is not None else None
+            )
+            if submitted_text:
+                facts.append(f"Submitted concentration: {submitted_text}.")
+        if evaluation and evaluation.evidence.concentration:
+            limit = evaluation.evidence.concentration
+            if limit.get("value") is not None and limit.get("unit"):
+                facts.append(f"Recorded source limit: {limit['value']:g} {limit['unit']}.")
+        if issue.source_reference:
+            facts.append(f"Source: {issue.source_reference}.")
+        items.append(ReviewExplanationItem(
+            issue_code=issue.code,
+            what_happened=issue.message,
+            why_it_matters=" ".join(facts) or "This check remains incomplete within the current screening scope.",
+            what_to_check=issue.reviewer_action,
+            source_references=[issue.source_reference] if issue.source_reference else [],
+        ))
+    actions = _unique([issue.reviewer_action for issue in issues])
+    source_references = _unique([issue.source_reference for issue in issues if issue.source_reference])
+    first = issues[0]
+    titles = {
+        "combined_limit_information_missing": "Combined concentration needs confirmation",
+        "impurity_trace_requirement": "Trace impurity needs confirmation",
+        "identity_related_forms": "Chemical form needs confirmation",
+        "regulated_function_not_listed": "Declared regulated use is not listed",
+        "source_difference_material": "Singapore and ACD sources differ",
+        "preparation_stage_mismatch": "Concentration stage needs confirmation",
+        "concentration_unit_mismatch": "Concentration unit needs confirmation",
+        "concentration_basis_mismatch": "Concentration basis needs confirmation",
+        "rule_exception_unresolved": "Rule exception needs confirmation",
+        "screening_incomplete": "Screening is incomplete",
+    }
+    adverse_findings = {
+        "prohibited_substance_identified",
+        "restriction_exceeded",
+        "permitted_use_condition_not_met",
+        "regulated_function_not_permitted",
+    }
+    title = legacy.title if result.primary_finding.value in adverse_findings else titles.get(first.code, legacy.title)
+    summary = legacy.summary if result.primary_finding.value in adverse_findings else first.message
+    return legacy.model_copy(update={
+        "title": title,
+        "summary": summary,
+        "what_to_check": actions[0] if actions else first.reviewer_action,
+        "items": items,
+        "reviewer_actions": actions,
+        "primary_source_references": source_references,
+    })
+
+
 class ReviewExplanationService:
     def __init__(
         self,
@@ -281,8 +389,12 @@ class ReviewExplanationService:
             )
             return enriched
 
-        eligible = review_results[:MAX_MODEL_EXPLANATIONS]
-        truncated = review_results[MAX_MODEL_EXPLANATIONS:]
+        # Standard outcomes use source-backed deterministic templates. The
+        # optional model is retained only for historical/unknown results that
+        # do not yet carry structured review issues.
+        model_candidates = [result for result in review_results if not result.review_issues]
+        eligible = model_candidates[:MAX_MODEL_EXPLANATIONS]
+        truncated = model_candidates[MAX_MODEL_EXPLANATIONS:]
         payloads = [self._payload(result) for result in eligible]
         cached: dict[str, ReviewExplanation] = {}
         missing: list[tuple[Any, dict[str, Any], str]] = []
@@ -349,6 +461,11 @@ class ReviewExplanationService:
             "primary_finding": result.primary_finding,
             "review_types": result.review_types,
             "review_reasons": result.review_reasons,
+            "review_issues": [item.model_dump(mode="json") for item in result.review_issues],
+            "identity_outcome": result.identity.identity_outcome,
+            "identifier_evidence": [item.model_dump(mode="json") for item in result.identity.identifier_evidence],
+            "applicable_regulatory_record_ids": result.identity.applicable_regulatory_record_ids,
+            "reviewer_action": result.identity.reviewer_action,
             "submitted": {
                 "ingredient": result.submitted_ingredient.model_dump(mode="json"),
                 "product_context": result.submitted_product_context,

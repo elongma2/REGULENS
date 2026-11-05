@@ -68,13 +68,44 @@ def screening_report_filename(response: FormulationScreeningResponse) -> str:
 
 
 def _concentration(result) -> str:
-    value = result.submitted_ingredient.concentration
-    if value is None:
+    concentration = result.submitted_ingredient.concentration
+    if concentration is None:
         return "Not supplied"
-    unit = "%" if value.unit == "percent" else value.unit
-    basis = f" as {value.basis}" if value.basis else ""
-    stage = value.preparation_stage.replace("_", " ")
-    return f"{value.value:g} {unit}{basis} ({stage})"
+
+    # PDF/SDS inputs commonly contain intervals, bounds, approximate values,
+    # or undisclosed amounts. These are valid screening inputs and do not
+    # necessarily have the single numeric ``value`` or preparation stage that
+    # older spreadsheet-only reports assumed.
+    unit = "%" if concentration.unit == "percent" else (str(concentration.unit) if concentration.unit else "")
+    unit_suffix = f" {unit}" if unit else ""
+    concentration_type = concentration.concentration_type.value
+
+    if concentration.original_text:
+        amount = concentration.original_text
+    elif concentration_type == "range":
+        amount = f"{concentration.lower_bound:g} to {concentration.upper_bound:g}{unit_suffix}"
+    elif concentration_type == "upper_bound":
+        operator = "at most" if concentration.upper_inclusive else "less than"
+        amount = f"{operator} {concentration.upper_bound:g}{unit_suffix}"
+    elif concentration_type == "lower_bound":
+        operator = "at least" if concentration.lower_inclusive else "more than"
+        amount = f"{operator} {concentration.lower_bound:g}{unit_suffix}"
+    elif concentration_type == "approximate":
+        amount = f"approximately {concentration.value:g}{unit_suffix}"
+    elif concentration_type == "unknown":
+        amount = "Not disclosed"
+    elif concentration.value is not None:
+        amount = f"{concentration.value:g}{unit_suffix}"
+    else:
+        amount = "Not supplied"
+
+    basis = f" as {concentration.basis}" if concentration.basis else ""
+    stage = (
+        f" ({concentration.preparation_stage.replace('_', ' ')})"
+        if concentration.preparation_stage
+        else ""
+    )
+    return f"{amount}{basis}{stage}"
 
 
 def _finding_colour(finding: str):

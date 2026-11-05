@@ -517,6 +517,8 @@ def screen_persistent_formulation(
         deterministic = screen_formulation(
             store, formulation,
             ingredient_catalog=request.app.state.ingredient_catalog,
+            linkage_store=getattr(request.app.state, "ingredient_linkage", None),
+            linkage_error=getattr(request.app.state, "identity_linkage_error", None),
             catalogue_error=request.app.state.identity_catalogue_error,
         )
     except UnsupportedProductContextError as error:

@@ -52,6 +52,7 @@ from backend.app.models.openai import OpenAIUsage
 from backend.app.services.agent_csv import ParsedCSV
 from backend.app.services.concentration import ParsedConcentrationText, parse_concentration_text
 from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, IngredientCatalog
+from backend.app.services.ingredient_linkage import IngredientLinkageStore
 from backend.app.services.loader import RegulatoryStore
 from backend.app.services.parsing import validate_formulation_request
 from backend.app.services.regulatory_search import search_acd_rules, search_singapore_rules
@@ -548,9 +549,11 @@ class FormulationAgentService:
         model: str | None = None,
         sleep: Callable[[float], None] = time.sleep,
         retry_backoff_seconds: tuple[float, ...] = RETRY_BACKOFF_SECONDS,
+        linkage_store: IngredientLinkageStore | None = None,
     ):
         self.store = store
         self.catalogue = catalogue
+        self.linkage_store = linkage_store
         self.model = model or "gpt-5.6-sol"
         self.model_runner = model_runner or OpenAIFormulationInterpreter()
         self.sleep = sleep
@@ -1086,6 +1089,7 @@ class FormulationAgentService:
                     interpreted_name,
                     cas_value,
                     ingredient_catalog=self.catalogue,
+                    linkage_store=self.linkage_store,
                 )
                 resolved_ids = resolution.resolved_singapore_substance_ids or (
                     [resolution.resolved_singapore_substance_id]
