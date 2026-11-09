@@ -36,6 +36,7 @@ ISSUE_TEMPLATES: dict[str, tuple[str, str]] = {
     "nano_condition_unresolved": ("The rule contains particle-form or nano-specific requirements that remain unevaluated.", "Confirm the material form and every nano-specific source condition."),
     "warning_requirement_unverified": ("The source contains a warning requirement whose applicability has not been established.", "Check whether the warning condition applies; formulation screening does not confirm the label."),
     "regulated_function_not_listed": ("The ingredient was explicitly submitted for a regulated function but no matching entry was found in that Singapore positive list.", "Confirm the intended function and the ingredient identity against the applicable Singapore list."),
+    "regulated_function_missing": ("The ingredient matches a Singapore positive-list entry, but its intended function was not confirmed.", "Confirm whether the ingredient is intended to act as the regulated function stated in the source."),
     "regulated_function_dataset_incomplete": ("The applicable positive-list check is unavailable in the active dataset.", "Review the intended function against the current official source."),
     "source_difference_material": ("The Singapore and ACD source records contain a material difference.", "Review both source records and apply the current Singapore requirement."),
     "rule_normalization_withheld": ("The source rule could not be represented as a reliable deterministic check.", "Review the original source wording and all listed conditions."),
@@ -52,8 +53,9 @@ ISSUE_PRIORITY = {
     "screening_incomplete": 20,
     "concentration_missing": 30,
     "product_context_missing": 31,
-    "applicability_fact_missing": 32,
-    "concentration_range_inconclusive": 33,
+    "regulated_function_missing": 32,
+    "applicability_fact_missing": 33,
+    "concentration_range_inconclusive": 34,
     "concentration_semantics_incompatible": 34,
     "preparation_stage_mismatch": 35,
     "concentration_unit_mismatch": 36,
@@ -69,6 +71,8 @@ ISSUE_PRIORITY = {
 
 def _code(reason: str) -> str:
     value = reason.casefold()
+    if "intended ingredient function is required" in value:
+        return "regulated_function_missing"
     if "combined concentration" in value or "combined use" in value:
         return "combined_limit_information_missing"
     if "impurity" in value or "degradation product" in value or "trace level" in value:
@@ -177,6 +181,15 @@ def build_review_issues(
                 readable = fact.replace("_", " ")
                 message = f"The applicable rule needs confirmation of {readable}."
                 action = f"Confirm the product's {readable} for the condition stated in the source."
+        if code == "regulated_function_missing":
+            missing_facts = ["intended_ingredient_function"]
+            if evaluation and evaluation.evidence.permitted_function:
+                function = evaluation.evidence.permitted_function.value.replace("_", " ")
+                message = (
+                    f"The ingredient matches a Singapore {function} positive-list entry, "
+                    f"but {function} use was not confirmed."
+                )
+                action = f"Confirm whether this ingredient is intended to act as a {function}."
         issues.append(ReviewIssue(
             code=code,
             severity=severity,

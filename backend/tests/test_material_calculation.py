@@ -26,6 +26,8 @@ from backend.app.services.material_calculation import (
 )
 from backend.app.services.formulation_assembly import prepare_assembly
 from backend.app.services.formulation import screen_formulation
+from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
+from backend.app.services.ingredient_linkage import load_accepted_ingredient_linkages
 from backend.app.services.loader import load_accepted_store
 
 
@@ -860,7 +862,6 @@ def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> 
                 quantity_scope="supplier_material",
             ),
             verified_identity_group="catalogue:phenoxyethanol",
-            regulated_functions=["preservative"],
         )],
         disclosure_status=DisclosureStatus.COMPLETE,
         confirmation_status=ConfirmationStatus.CONFIRMED,
@@ -884,7 +885,6 @@ def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> 
                     quantity_scope="supplier_material",
                 ),
                 verified_identity_group="catalogue:phenoxyethanol",
-                regulated_functions=["preservative"],
             ),
             MaterialConstituent(
                 constituent_id="nova:glycerin",
@@ -930,7 +930,12 @@ def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> 
     assert "ClariPreserve P70" not in canonical
     assert "NovaBlend H45" not in canonical
 
-    screened = screen_formulation(load_accepted_store(ROOT), prepared.formulation)
+    screened = screen_formulation(
+        load_accepted_store(ROOT),
+        prepared.formulation,
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+        linkage_store=load_accepted_ingredient_linkages(ROOT),
+    )
     screened_inputs = {
         item.submitted_ingredient.name: item.submitted_ingredient.concentration
         for item in screened.ingredient_results
@@ -941,6 +946,19 @@ def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> 
     assert screened_inputs["GLYCERIN"].model_dump(mode="json") == canonical[
         "GLYCERIN"
     ].model_dump(mode="json")
+    phenoxyethanol_result = next(
+        item for item in screened.ingredient_results
+        if item.submitted_ingredient.name == "PHENOXYETHANOL"
+    )
+    candidate = next(
+        item for item in phenoxyethanol_result.rule_evaluations
+        if item.rule_id == "sg-third-schedule-iv-29"
+    )
+    assert candidate.evaluation_status == "withheld_intended_function_missing"
+    assert any(
+        "does not meet the candidate rule's evaluated conditions" in reason
+        for reason in candidate.reasons
+    )
 
 
 @pytest.mark.parametrize(

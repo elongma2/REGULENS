@@ -120,12 +120,41 @@ def test_confirmed_function_absent_from_complete_list_is_bounded_issue(store):
     assert result.primary_finding == Finding.REGULATED_FUNCTION_NOT_PERMITTED
 
 
-def test_unknown_function_never_creates_positive_list_prohibition(store):
-    synthetic, _ = positive_store(store, RegulatedFunction.PRESERVATIVE)
+def test_unknown_function_discovers_candidate_without_assuming_preservative_use(store):
+    synthetic, rule = positive_store(store, RegulatedFunction.PRESERVATIVE)
     result = screen_ingredient(synthetic, IngredientInput(name="Tosylchloramide sodium", concentration=concentration(0.1)))
     assert result.primary_finding != Finding.REGULATED_FUNCTION_NOT_PERMITTED
+    assert result.primary_finding == Finding.INFORMATION_MISSING
     assert result.incomplete_positive_list_checks == []
-    assert result.function_evaluations == []
+    assert result.confirmed_findings == [Finding.WITHIN_LIMIT]
+    assert result.function_evaluations[0].status == "information_missing"
+    assert result.function_evaluations[0].regulated_function == RegulatedFunction.PRESERVATIVE
+    candidate = next(item for item in result.rule_evaluations if item.rule_id == rule["rule_id"])
+    assert candidate.evaluation_status == "withheld_intended_function_missing"
+    assert candidate.finding is None
+    assert any(item.code == "regulated_function_missing" for item in result.review_issues)
+
+
+def test_unknown_function_preserves_established_positive_list_exception(store):
+    synthetic, rule = positive_store(
+        store,
+        RegulatedFunction.PRESERVATIVE,
+        applicability_requirements=[{
+            "fact": "rinse_off",
+            "expected": True,
+            "role": "case_selector",
+            "source_text": "Rinse-off products only",
+        }],
+    )
+    result = screen_ingredient(
+        synthetic,
+        IngredientInput(name="Tosylchloramide sodium", concentration=concentration(0.1)),
+        product_applicability={"rinse_off": False},
+    )
+    candidate = next(item for item in result.rule_evaluations if item.rule_id == rule["rule_id"])
+    assert candidate.evaluation_status == "not_applicable_to_submitted_context"
+    assert result.function_evaluations[0].status == "not_applicable"
+    assert not any(item.code == "regulated_function_missing" for item in result.review_issues)
 
 
 def test_multiple_functions_and_categories_are_all_retained(store):

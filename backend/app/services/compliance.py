@@ -774,13 +774,21 @@ def screen_ingredient(
         if rule.get("permitted_function")
         and rule["regulatory_section"].startswith("Third Schedule")
     }
-    # Positive-list applicability is function-triggered. Merely finding an
-    # identity on a permitted list does not prove that it is intentionally
-    # used for that regulated function. Undeclared functions are therefore a
-    # neutral scope disclosure, not missing regulatory information.
+    # Candidate discovery and legal applicability are deliberately separate.
+    # Identity on a positive list does not prove intended function, but an
+    # undeclared function must not make the candidate rule disappear either.
     declared_functions = list(dict.fromkeys(ingredient.regulated_functions))
+    discovered_functions = sorted(
+        {
+            RegulatedFunction(rule["permitted_function"])
+            for rule in positive_rules.values()
+            if rule.get("permitted_function")
+        },
+        key=lambda item: item.value,
+    )
+    functions_to_check = list(dict.fromkeys([*declared_functions, *discovered_functions]))
 
-    for function in declared_functions:
+    for function in functions_to_check:
         part = FUNCTION_PARTS[function]
         if function.value not in store.positive_list_functions:
             reason = f"{part} is not included in the active accepted dataset"
@@ -814,6 +822,67 @@ def screen_ingredient(
                 reasons=[reason],
             ))
             continue
+
+        if function not in declared_functions:
+            candidate_missing: list[str] = []
+            candidate_review: list[str] = []
+            potentially_applicable = False
+            for rule in sorted(matching, key=lambda item: item["rule_id"]):
+                evaluation, conditions, warnings, conditional_finding, rule_review, rule_missing = _evaluate_positive_rule(
+                    store, rule, ingredient, product_applicability, combined_contexts
+                )
+                condition_evaluations.extend(conditions)
+                # Until intended use is confirmed, source warnings are
+                # candidates rather than established label requirements.
+                warning_requirements.extend(
+                    warning.model_copy(update={"applicability": WarningApplicability.UNDETERMINED})
+                    for warning in warnings
+                )
+                if evaluation.evaluation_status in {
+                    "not_applicable_inactive",
+                    "not_applicable_to_submitted_context",
+                }:
+                    evaluations.append(evaluation)
+                    continue
+
+                potentially_applicable = True
+                assessment = {
+                    Finding.PERMITTED_USE_WITHIN_CONDITIONS: "the submitted concentration meets the candidate rule's evaluated conditions",
+                    Finding.PERMITTED_USE_CONDITION_NOT_MET: "the submitted concentration does not meet the candidate rule's evaluated conditions",
+                }.get(conditional_finding)
+                reason = (
+                    f"{rule['rule_id']}: intended ingredient function is required to determine whether "
+                    f"{part} applies"
+                )
+                if assessment:
+                    reason += f"; if used as {function.value.replace('_', ' ')}, {assessment}"
+                candidate_missing.append(reason)
+                candidate_review.extend(rule_review)
+                candidate_missing.extend(rule_missing)
+                evaluations.append(evaluation.model_copy(update={
+                    "evaluation_status": "withheld_intended_function_missing",
+                    "finding": None,
+                    "reasons": _dedupe([reason, *evaluation.reasons]),
+                }))
+                if _material_source_difference(store, rule):
+                    difference = f"{rule['rule_id']}: material Singapore-ACD source difference requires professional review"
+                    candidate_review.append(difference)
+
+            review_reasons.extend(candidate_review)
+            missing_reasons.extend(candidate_missing)
+            function_evaluations.append(FunctionEvaluation(
+                regulated_function=function,
+                singapore_part=part,
+                status=(
+                    ConditionStatus.INFORMATION_MISSING
+                    if potentially_applicable
+                    else ConditionStatus.NOT_APPLICABLE
+                ),
+                rule_ids=[rule["rule_id"] for rule in matching],
+                reasons=_dedupe(candidate_review + candidate_missing),
+            ))
+            continue
+
         function_findings: list[Finding] = []
         function_review: list[str] = []
         function_missing: list[str] = []

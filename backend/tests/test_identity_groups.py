@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from backend.app.models.screening import ConcentrationInput, IngredientInput, RegulatedFunction
+from backend.app.models.screening import ConcentrationInput, Finding, IngredientInput, RegulatedFunction
 from backend.app.services.compliance import screen_ingredient
 from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
 from backend.app.services.ingredient_linkage import (
@@ -123,6 +123,42 @@ def test_confirmed_groups_reach_preservative_uv_and_colourant_evaluation():
         result = screen_ingredient(store, ingredient, ingredient_catalog=catalogue, linkage_store=linkages)
         assert rule_ids <= {item.rule_id for item in result.rule_evaluations}
         assert result.screening_disposition.value == "partially_evaluated"
+
+
+def test_phenoxyethanol_without_function_discovers_and_assesses_preservative_rule():
+    result = screen_ingredient(
+        load_accepted_store(),
+        IngredientInput(
+            name="PHENOXYETHANOL",
+            cas_number="122-99-6",
+            concentration=ConcentrationInput(
+                concentration_type="range",
+                lower_bound=1.05,
+                upper_bound=1.15,
+                lower_inclusive=True,
+                upper_inclusive=True,
+                unit="percent",
+                basis=None,
+                preparation_stage="finished_product",
+            ),
+        ),
+        ingredient_catalog=load_accepted_ingredient_catalog(),
+        linkage_store=load_accepted_ingredient_linkages(),
+    )
+
+    candidate = next(
+        item for item in result.rule_evaluations
+        if item.rule_id == "sg-third-schedule-iv-29"
+    )
+    assert result.primary_finding != Finding.NO_ISSUE
+    assert candidate.evaluation_status == "withheld_intended_function_missing"
+    assert any(
+        "does not meet the candidate rule's evaluated conditions" in reason
+        for reason in candidate.reasons
+    )
+    assert result.function_evaluations[0].regulated_function == RegulatedFunction.PRESERVATIVE
+    assert result.function_evaluations[0].status == "information_missing"
+    assert any(item.code == "regulated_function_missing" for item in result.review_issues)
 
 
 def test_exact_catalogue_names_with_unmapped_cas_remain_resolved_without_false_conflict():
