@@ -38,7 +38,7 @@ from backend.app.services.loader import RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 
 
-ASSEMBLY_DERIVATION_VERSION = "assembly-v5"
+ASSEMBLY_DERIVATION_VERSION = "assembly-v6"
 
 
 _DOCUMENT_SUFFIX_RE = re.compile(

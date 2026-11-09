@@ -31,7 +31,7 @@ const preparation = {
   assembly_revision: 1,
   state: {
     direct_ingredients: [], source_document_ids: ["doc-1"],
-    source_document_snapshots: { "doc-1": "assembly-v5|key|revision:1|governing:true|roles:supplier_composition" },
+    source_document_snapshots: { "doc-1": "assembly-v6|key|revision:1|governing:true|roles:supplier_composition" },
     formulation_row_ownership: [{
       row_id: "trade-row", owner_type: "supplier_material",
       material_id: "material-1", candidate_material_ids: ["material-1"],
@@ -226,13 +226,31 @@ describe("TradeMaterialAssemblyPanel", () => {
       state: {
         ...preparation.state,
         source_document_snapshots: {
-          "doc-1": "assembly-v5|key-v2|revision:2|governing:true|roles:supplier_composition",
+          "doc-1": "assembly-v6|key-v2|revision:2|governing:true|roles:supplier_composition",
         },
       },
     };
     api.refreshFormulationAssembly.mockResolvedValue(refreshed);
 
     render(<TradeMaterialAssemblyPanel versionId="version-1" documents={[reprocessed as never]} />);
+
+    await waitFor(() => expect(api.refreshFormulationAssembly).toHaveBeenCalledWith("version-1"));
+    expect(await screen.findByRole("heading", { name: "OPTASENSE" })).toBeInTheDocument();
+  });
+
+  it("refreshes a saved assembly created before the verified-identity regrouping fix", async () => {
+    const legacy = {
+      ...preparation,
+      state: {
+        ...preparation.state,
+        source_document_snapshots: {
+          "doc-1": "assembly-v5|key|revision:1|governing:true|roles:supplier_composition",
+        },
+      },
+    };
+    api.getOrInitializeFormulationAssembly.mockResolvedValue(legacy);
+
+    render(<TradeMaterialAssemblyPanel versionId="version-1" documents={[document as never]} />);
 
     await waitFor(() => expect(api.refreshFormulationAssembly).toHaveBeenCalledWith("version-1"));
     expect(await screen.findByRole("heading", { name: "OPTASENSE" })).toBeInTheDocument();

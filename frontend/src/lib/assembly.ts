@@ -45,6 +45,35 @@ type SourceDocumentMetadata = {
 };
 
 const normalized = (value: string | null | undefined) => value?.trim().toLocaleLowerCase() ?? "";
+const close = (left: number | null | undefined, right: number | null | undefined) =>
+  left != null && right != null && Math.abs(left - right) < 1e-9;
+
+function quantityMatchesResult(aggregate: AssemblyAggregate, result: IngredientResult): boolean {
+  const quantity = aggregate.aggregate_quantity;
+  const concentration = result.submitted_ingredient.concentration;
+  if (!quantity || !concentration) return false;
+  if (quantity.unit && concentration.unit && quantity.unit !== concentration.unit) return false;
+  const concentrationType = concentration.concentration_type ?? "exact";
+  if (["exact", "approximate"].includes(quantity.kind ?? "") && ["exact", "approximate"].includes(concentrationType)) {
+    return close(quantity.value, concentration.value);
+  }
+  if (quantity.kind === "range" && concentrationType === "range") {
+    return close(quantity.lower, concentration.lower_bound) && close(quantity.upper, concentration.upper_bound);
+  }
+  if (quantity.kind === "upper_bound" && concentrationType === "upper_bound") {
+    return close(quantity.upper, concentration.upper_bound);
+  }
+  if (quantity.kind === "lower_bound" && concentrationType === "lower_bound") {
+    return close(quantity.lower, concentration.lower_bound);
+  }
+  return quantity.kind === "unknown" && concentrationType === "unknown";
+}
+
+function chooseAggregate(candidates: AssemblyAggregate[], result: IngredientResult): AssemblyAggregate | null {
+  if (candidates.length === 1) return candidates[0];
+  const quantityMatches = candidates.filter((aggregate) => quantityMatchesResult(aggregate, result));
+  return quantityMatches.length === 1 ? quantityMatches[0] : null;
+}
 
 export function formatAssemblyQuantity(quantity?: AssemblyQuantity | null): string {
   if (!quantity) return "—";
@@ -69,9 +98,10 @@ export function findAssemblyAggregate(
     result.identity.catalogue_identity?.canonical_name,
     ...result.identity.singapore_candidates.map((candidate) => candidate.original_substance_name),
   ].map(normalized).filter(Boolean));
-  return aggregates.find((aggregate) => submittedCas && aggregate.cas_number === submittedCas)
-    ?? aggregates.find((aggregate) => names.has(normalized(aggregate.display_name)))
-    ?? null;
+  const casMatches = aggregates.filter((aggregate) => submittedCas && aggregate.cas_number === submittedCas);
+  if (casMatches.length) return chooseAggregate(casMatches, result);
+  const nameMatches = aggregates.filter((aggregate) => names.has(normalized(aggregate.display_name)));
+  return chooseAggregate(nameMatches, result);
 }
 
 function materialFor(
