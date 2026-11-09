@@ -38,7 +38,7 @@ from backend.app.services.loader import RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 
 
-ASSEMBLY_DERIVATION_VERSION = "assembly-v4"
+ASSEMBLY_DERIVATION_VERSION = "assembly-v5"
 
 
 _DOCUMENT_SUFFIX_RE = re.compile(
@@ -104,12 +104,44 @@ def _identity_group(
         return None
     if resolution.status not in {IdentityStatus.RESOLVED, IdentityStatus.REVIEW_REQUIRED}:
         return None
-    if resolution.catalogue_identity is not None:
-        return f"catalogue:{resolution.catalogue_identity.ingredient_id}"
     ids = resolution.resolved_singapore_substance_ids or (
         [resolution.resolved_singapore_substance_id]
         if resolution.resolved_singapore_substance_id else []
     )
+    if resolution.catalogue_identity is not None:
+        return f"catalogue:{resolution.catalogue_identity.ingredient_id}"
+    # A Singapore source name can be an accepted exact alias of a catalogue
+    # identity without itself being a catalogue name (for example,
+    # ``2-Phenoxyethanol`` and INCI ``PHENOXYETHANOL``). Reuse the accepted
+    # linkage's catalogue key only when the submitted name/CAS and the exact
+    # resolved Singapore target both agree. This unifies verified identities
+    # without introducing name-similarity matching or merging distinct forms.
+    if linkages is not None and ids:
+        normalized_name = " ".join(name.strip().casefold().split())
+        accepted_matches = []
+        for catalogue_id, record in linkages.records_by_catalogue_id.items():
+            if record.get("status") != "linked":
+                continue
+            supported_names = {
+                " ".join(str(value).strip().casefold().split())
+                for value in record.get("supported_names") or []
+            }
+            supported_cas = {
+                str(value).strip() for value in record.get("supported_cas_numbers") or []
+            }
+            target_ids = {
+                str(target.get("substance_id"))
+                for target in record.get("singapore_targets") or []
+                if target.get("substance_id")
+            }
+            submitted_identifier_matches = (
+                normalized_name in supported_names
+                or bool(cas_number and cas_number.strip() in supported_cas)
+            )
+            if submitted_identifier_matches and set(ids) == target_ids:
+                accepted_matches.append(catalogue_id)
+        if len(accepted_matches) == 1:
+            return f"catalogue:{accepted_matches[0]}"
     return f"singapore:{','.join(sorted(ids))}" if ids else None
 
 
@@ -399,6 +431,7 @@ def derive_assembly_state(
 ) -> FormulationAssemblyState:
     source_document_ids: list[str] = []
     source_document_snapshots: dict[str, str] = {}
+    source_document_metadata: dict[str, dict[str, str | None]] = {}
     material_candidates: dict[str, list[tuple[str, SupplierMaterial, bool, set[DocumentRole]]]] = {}
     direct_ingredients: list[DirectIngredient] = []
 
@@ -409,6 +442,12 @@ def derive_assembly_state(
         extraction = DocumentExtraction.model_validate(extraction_payload)
         document_id = str(document["id"])
         source_document_ids.append(document_id)
+        source_document_metadata[document_id] = {
+            "original_filename": str(document.get("original_filename") or "") or None,
+            "supplier_name": str(document.get("supplier_name") or "") or None,
+            "trade_name": str(document.get("trade_name") or "") or None,
+            "product_code": str(document.get("product_code") or "") or None,
+        }
         extraction_key = str(
             document.get("attached_extraction_key")
             or document.get("processing_key")
@@ -594,6 +633,7 @@ def derive_assembly_state(
         formulation_row_ownership=row_ownership,
         source_document_ids=sorted(set(source_document_ids + [f"primary:{version_id}"])),
         source_document_snapshots=source_document_snapshots,
+        source_document_metadata=source_document_metadata,
         formulation_name=formulation_name,
     )
 
@@ -643,5 +683,6 @@ def prepare_trade_name_assembly(
         product_applicability=state.product_applicability,
         source_filename=source_filename,
         source_document_ids=state.source_document_ids,
+        source_document_metadata=state.source_document_metadata,
     )
     return normalized_state, prepared

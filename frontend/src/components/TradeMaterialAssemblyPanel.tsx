@@ -10,7 +10,7 @@ import type {
 } from "../types/cases";
 import type { RegulatedFunction } from "../types/screening";
 
-const ASSEMBLY_DERIVATION_VERSION = "assembly-v4";
+const ASSEMBLY_DERIVATION_VERSION = "assembly-v5";
 
 function quantityLabel(quantity: CompositionQuantity | null): string {
   if (!quantity) return "Not stated";

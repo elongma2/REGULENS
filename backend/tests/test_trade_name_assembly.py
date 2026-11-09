@@ -39,7 +39,12 @@ from backend.app.services.trade_name_assembly import (
     matched_trade_material_row_ids,
     prepare_trade_name_assembly,
 )
-from backend.app.models.screening import IdentityOutcome, IdentityStatus
+from backend.app.models.screening import IdentityOutcome, IdentityStatus, RegulatedFunction
+from backend.app.services.formulation import screen_formulation
+from backend.app.services.formulation_assembly import prepare_assembly
+from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
+from backend.app.services.ingredient_linkage import load_accepted_ingredient_linkages
+from backend.app.services.loader import load_accepted_store
 
 
 def _quantity(kind: str, **values) -> CompositionQuantity:
@@ -157,6 +162,92 @@ def test_name_recognised_with_unmapped_cas_can_retain_safe_name_identity(monkeyp
     )
 
     assert _identity_group(object(), None, None, "GLYCERIN", "111-11-1") == "catalogue:glycerin"
+
+
+def test_test_a_combines_verified_source_alias_and_inci_before_screening() -> None:
+    store = load_accepted_store()
+    catalogue = load_accepted_ingredient_catalog()
+    linkages = load_accepted_ingredient_linkages()
+    direct_identity = _identity_group(
+        store, catalogue, linkages, "2-Phenoxyethanol", None,
+    )
+    supplier_identity = _identity_group(
+        store, catalogue, linkages, "PHENOXYETHANOL", "122-99-6",
+    )
+
+    assert direct_identity == supplier_identity
+    assert direct_identity is not None
+
+    direct = DirectIngredient(
+        ingredient_id="formula:phenoxyethanol",
+        source_document_id="primary:test-a",
+        verified_identity_group=direct_identity,
+        ingredient=FormulationIngredientRequest(
+            name="2-Phenoxyethanol",
+            regulated_functions=[RegulatedFunction.PRESERVATIVE],
+            concentration=FormulationConcentration(
+                concentration_type="exact",
+                value=1,
+                unit="percent",
+                basis=None,
+                preparation_stage="finished_product",
+            ),
+        ),
+    )
+    supplier = SupplierMaterial(
+        material_id="aegismix-p80",
+        trade_name="AegisMix P80",
+        supplier_name="Example Supplier",
+        finished_product_usage=_quantity(
+            "exact", value=0.75, unit="percent",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+        attached_document_ids=["aegismix-p80.pdf"],
+        governing_document_id="aegismix-p80.pdf",
+        constituents=[MaterialConstituent(
+            constituent_id="aegismix:phenoxyethanol",
+            submitted_name="PHENOXYETHANOL",
+            cas_number="122-99-6",
+            composition_quantity=_quantity(
+                "range", lower=36, upper=48, unit="percent",
+                quantity_scope="supplier_material",
+            ),
+            verified_identity_group=supplier_identity,
+        )],
+        disclosure_status=DisclosureStatus.COMPLETE,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+
+    prepared = prepare_assembly(
+        assembly_revision=1,
+        direct_ingredients=[direct],
+        materials=[supplier],
+        source_filename="test-a.xlsx",
+        source_document_ids=["primary:test-a", "aegismix-p80.pdf"],
+    )
+
+    assert prepared.formulation is not None
+    assert len(prepared.formulation.ingredients) == 1
+    combined = prepared.formulation.ingredients[0]
+    assert combined.name == "2-Phenoxyethanol"
+    assert combined.concentration is not None
+    assert combined.concentration.lower_bound == pytest.approx(1.27)
+    assert combined.concentration.upper_bound == pytest.approx(1.36)
+
+    screened = screen_formulation(
+        store,
+        prepared.formulation,
+        ingredient_catalog=catalogue,
+        linkage_store=linkages,
+    )
+    assert len(screened.ingredient_results) == 1
+    result = screened.ingredient_results[0]
+    screened_concentration = result.submitted_ingredient.concentration
+    assert screened_concentration is not None
+    assert screened_concentration.lower_bound == pytest.approx(1.27)
+    assert screened_concentration.upper_bound == pytest.approx(1.36)
+    assert result.primary_finding.value == "permitted_use_condition_not_met"
+    assert len(prepared.result.included_ingredients[0].contributions) == 2
 
 
 def _extraction() -> DocumentExtraction:

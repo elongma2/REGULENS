@@ -214,6 +214,7 @@ def prepare_assembly(
     product_applicability: ProductApplicabilityFacts | None = None,
     source_filename: str | None = None,
     source_document_ids: list[str] | None = None,
+    source_document_metadata: dict[str, dict[str, str | None]] | None = None,
 ) -> PreparedAssembly:
     issues: list[AssemblyIssue] = []
     contributions: list[CalculatedContribution] = []
@@ -385,6 +386,19 @@ def prepare_assembly(
         calculation_snapshot={
             "algorithm_version": "trade-material-calculation-v1",
             "assembly_revision": assembly_revision,
+            "source_documents": {
+                **(source_document_metadata or {}),
+                **({
+                    document_id: {
+                        "original_filename": source_filename,
+                        "supplier_name": None,
+                        "trade_name": None,
+                        "product_code": None,
+                    }
+                    for document_id in (source_document_ids or [])
+                    if document_id.startswith("primary:")
+                }),
+            },
             "materials": [material.model_dump(mode="json") for material in normalized_materials],
             "contributions": [item.model_dump(mode="json") for item in contributions],
             "aggregates": [item.model_dump(mode="json") for item in aggregates],

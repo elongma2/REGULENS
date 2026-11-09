@@ -1133,6 +1133,7 @@ def _merge_assembly_state(
             discovered.source_document_ids
         )),
         "source_document_snapshots": discovered.source_document_snapshots,
+        "source_document_metadata": discovered.source_document_metadata,
     })
 
 

@@ -137,4 +137,24 @@ describe("ScreeningResultsPanel", () => {
     expect(screen.queryByText("(6%) x (10%) / 100")).not.toBeInTheDocument();
     expect(screen.getByText("Evaluated finished-product concentration")).toBeInTheDocument();
   });
+
+  it("shows one subtle source note for a direct and supplier aggregate", () => {
+    const response = structuredClone(testResponse);
+    response.ingredient_results = [baseResult(7, "2-Phenoxyethanol")];
+    response.formulation.assembly_calculation_snapshot = {
+      aggregates: [{
+        display_name: "2-Phenoxyethanol",
+        aggregate_quantity: { kind: "range", lower: 1.27, upper: 1.36, unit: "percent" },
+        contributions: [
+          { contribution_id: "direct", source_type: "direct_ingredient", governing_document_id: "primary:test-a" },
+          { contribution_id: "supplier", source_type: "material_constituent", source_material_id: "aegismix", governing_document_id: "aegismix.pdf" },
+        ],
+      }],
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getAllByText("2-Phenoxyethanol")).toHaveLength(1);
+    expect(screen.getByText("Combined from 2 sources · Formulation + 1 supplier")).toBeInTheDocument();
+  });
 });

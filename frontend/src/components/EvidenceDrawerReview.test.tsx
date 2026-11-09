@@ -78,6 +78,10 @@ describe("review guidance", () => {
       result={result}
       sources={[]}
       assemblyCalculationSnapshot={{
+        source_documents: {
+          "supplier-document-1": { original_filename: "AegisMix-P80.pdf", supplier_name: "Aegis Labs", trade_name: "AegisMix P80" },
+        },
+        materials: [{ material_id: "OPTASENSE", trade_name: "AegisMix P80", supplier_name: "Aegis Labs" }],
         aggregates: [{
           display_name: "GLYCERIN",
           cas_number: "56-81-5",
@@ -85,6 +89,7 @@ describe("review guidance", () => {
           contributions: [{
             contribution_id: "contribution-1",
             source_material_id: "OPTASENSE",
+            governing_document_id: "supplier-document-1",
             composition_quantity: { kind: "exact", value: 50, unit: "percent" },
             material_usage: { kind: "exact", value: 2, unit: "percent" },
             finished_product_quantity: { kind: "exact", value: 1, unit: "percent" },
@@ -95,9 +100,10 @@ describe("review guidance", () => {
       }}
       onClose={vi.fn()}
     />);
-    await user.click(screen.getByText("Calculated contribution from trade materials"));
-    expect(screen.getByText("Trade material OPTASENSE")).toBeInTheDocument();
+    await user.click(screen.getByText("Contribution breakdown"));
+    expect(screen.getByText("AegisMix P80 · Aegis Labs")).toBeInTheDocument();
     expect(screen.getByText("2% × 50% = 1%")).toBeInTheDocument();
+    expect(screen.getByText("AegisMix-P80.pdf")).toBeInTheDocument();
     expect(screen.getByText("Page 2: Glycerin 50%")).toBeInTheDocument();
   });
 

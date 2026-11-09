@@ -13,6 +13,12 @@ import {
   isSingaporeEvaluation, regulationLabel,
 } from "../lib/screening";
 import { reviewStatusPresentation, type WriteState } from "../lib/reviewPresentation";
+import {
+  contributionDocumentReference,
+  contributionSourceName,
+  findAssemblyAggregate,
+  formatAssemblyQuantity,
+} from "../lib/assembly";
 import type { InputProvenance } from "../types/agent";
 import type { FollowUp, ReviewDataState, ReviewerNote, ReviewItem, ReviewStatus } from "../types/review";
 import type { IngredientResult, RuleEvaluation, ScreeningResponse, SourceSnapshot } from "../types/screening";
@@ -50,72 +56,6 @@ function uniqueText(values: Array<string | null | undefined>): string[] {
     seen.add(key);
     return [normalized];
   });
-}
-
-type AssemblyQuantity = {
-  kind?: string;
-  value?: number | null;
-  lower?: number | null;
-  upper?: number | null;
-  unit?: string | null;
-  raw_text?: string | null;
-};
-
-type AssemblyContribution = {
-  contribution_id?: string;
-  source_material_id?: string | null;
-  display_name?: string;
-  cas_number?: string | null;
-  composition_quantity?: AssemblyQuantity | null;
-  material_usage?: AssemblyQuantity | null;
-  finished_product_quantity?: AssemblyQuantity | null;
-  calculation_formula?: string;
-  source_evidence?: Array<{ page?: number | null; source_snippet?: string | null }>;
-};
-
-type AssemblyAggregate = {
-  display_name?: string;
-  cas_number?: string | null;
-  aggregate_quantity?: AssemblyQuantity;
-  contributions?: AssemblyContribution[];
-};
-
-function formatAssemblyQuantity(quantity?: AssemblyQuantity | null): string {
-  if (!quantity) return "—";
-  const unit = quantity.unit === "percent" ? "%" : quantity.unit ? ` ${quantity.unit}` : "";
-  if (quantity.raw_text && quantity.kind === "unknown") return quantity.raw_text;
-  if (quantity.kind === "range" && quantity.lower != null && quantity.upper != null) return `${quantity.lower}–${quantity.upper}${unit}`;
-  if (quantity.kind === "upper_bound" && quantity.upper != null) return `<${quantity.upper}${unit}`;
-  if (quantity.kind === "lower_bound" && quantity.lower != null) return `>${quantity.lower}${unit}`;
-  if (quantity.value != null) return `${quantity.kind === "approximate" ? "≈" : ""}${quantity.value}${unit}`;
-  return quantity.raw_text || "Unavailable";
-}
-
-function findAssemblyAggregate(
-  snapshot: Record<string, unknown> | null | undefined,
-  result: IngredientResult,
-): AssemblyAggregate | null {
-  const aggregates = Array.isArray(snapshot?.aggregates) ? snapshot.aggregates as AssemblyAggregate[] : [];
-  const submittedCas = result.submitted_ingredient.cas_number?.trim();
-  const submittedName = result.submitted_ingredient.name.trim().toLocaleLowerCase();
-  const displayName = displayIngredientName(result).trim().toLocaleLowerCase();
-  return aggregates.find((aggregate) => submittedCas && aggregate.cas_number === submittedCas)
-    ?? aggregates.find((aggregate) => {
-      const name = aggregate.display_name?.trim().toLocaleLowerCase();
-      return Boolean(name && (name === submittedName || name === displayName));
-    })
-    ?? null;
-}
-
-function assemblyMaterialName(
-  snapshot: Record<string, unknown> | null | undefined,
-  materialId: string | null | undefined,
-): string | null {
-  if (!materialId || !Array.isArray(snapshot?.materials)) return null;
-  const material = (snapshot.materials as Array<Record<string, unknown>>).find(
-    (item) => item.material_id === materialId,
-  );
-  return typeof material?.trade_name === "string" ? material.trade_name : null;
 }
 
 export function EvidenceDrawer({
@@ -305,13 +245,21 @@ export function EvidenceDrawer({
             {result.submitted_ingredient.concentration && <><span>Preparation stage</span><strong>{preparationStageLabel(result.submitted_ingredient.concentration.preparation_stage)}</strong><span>Basis</span><strong>{basisLabel(result.submitted_ingredient.concentration.basis)}</strong></>}
           </div>
           {sourceIdentifiers.length > 0 && <div className="source-identifier"><span>Source-backed identifier</span>{sourceIdentifiers.map((identifier) => <div key={`${identifier.cas}-${identifier.section}`}>CAS {identifier.cas} · {identifier.section.replace("Part 1", "").trim()}</div>)}</div>}
-          {assemblyAggregate && <details className="acd-details"><summary>Calculated contribution from trade materials</summary><div className="drawer-details-body">
+          {assemblyAggregate && <details className="acd-details"><summary>Contribution breakdown</summary><div className="drawer-details-body">
             <div className="metadata-grid"><span>Finished-product amount</span><strong>{formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)}</strong><span>Contributions</span><strong>{assemblyAggregate.contributions?.length ?? 0}</strong></div>
-            {(assemblyAggregate.contributions ?? []).map((contribution, index) => <article className="evidence-card" key={contribution.contribution_id ?? `${contribution.source_material_id}-${index}`}>
-              <div className="evidence-card-heading"><strong>{contribution.source_material_id ? `Trade material ${assemblyMaterialName(assemblyCalculationSnapshot, contribution.source_material_id) ?? contribution.source_material_id}` : "Direct addition"}</strong><span className="quiet-badge">{formatAssemblyQuantity(contribution.finished_product_quantity)}</span></div>
-              <div className="metadata-grid mt-3"><span>Inside raw material</span><strong>{formatAssemblyQuantity(contribution.composition_quantity)}</strong><span>Material used</span><strong>{formatAssemblyQuantity(contribution.material_usage)}</strong><span>Calculation</span><strong>{contribution.calculation_formula || "Direct finished-product value"}</strong></div>
-              {(contribution.source_evidence ?? []).map((evidence, evidenceIndex) => evidence.source_snippet ? <p className="technical-note" key={`${evidence.page ?? "page"}-${evidenceIndex}`}>{evidence.page ? `Page ${evidence.page}: ` : ""}{evidence.source_snippet}</p> : null)}
-            </article>)}
+            {(assemblyAggregate.contributions ?? []).map((contribution, index) => {
+              const documentReference = contributionDocumentReference(assemblyCalculationSnapshot, contribution);
+              const isSupplierContribution = Boolean(contribution.source_material_id);
+              return <article className="evidence-card" key={contribution.contribution_id ?? `${contribution.source_material_id}-${index}`}>
+                <div className="evidence-card-heading"><strong>{contributionSourceName(assemblyCalculationSnapshot, contribution)}</strong><span className="quiet-badge">{formatAssemblyQuantity(contribution.finished_product_quantity)}</span></div>
+                <div className="metadata-grid mt-3">
+                  {isSupplierContribution ? <><span>Inside supplier material</span><strong>{formatAssemblyQuantity(contribution.composition_quantity)}</strong><span>Material used</span><strong>{formatAssemblyQuantity(contribution.material_usage)}</strong></> : null}
+                  <span>Calculation</span><strong>{contribution.calculation_formula || "Direct finished-product value"}</strong>
+                  <span>Source document</span><strong>{documentReference ?? "Source unavailable"}</strong>
+                </div>
+                {(contribution.source_evidence ?? []).map((evidence, evidenceIndex) => evidence.source_snippet ? <p className="technical-note" key={`${evidence.page ?? "page"}-${evidenceIndex}`}>{evidence.page ? `Page ${evidence.page}: ` : ""}{evidence.source_snippet}</p> : null)}
+              </article>;
+            })}
           </div></details>}
         </section>
 

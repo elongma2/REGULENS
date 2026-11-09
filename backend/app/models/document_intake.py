@@ -390,6 +390,7 @@ class FormulationAssemblyState(StrictModel):
     formulation_row_ownership: list[FormulationRowOwnership] = Field(default_factory=list)
     source_document_ids: list[str] = Field(default_factory=list)
     source_document_snapshots: dict[str, str] = Field(default_factory=dict)
+    source_document_metadata: dict[str, dict[str, str | None]] = Field(default_factory=dict)
     formulation_name: str | None = None
     product_context: str | None = None
     product_applicability: ProductApplicabilityFacts = Field(default_factory=ProductApplicabilityFacts)

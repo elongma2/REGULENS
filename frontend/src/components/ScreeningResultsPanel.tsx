@@ -158,7 +158,7 @@ export function ScreeningResultsPanel({
       </div>
 
       {filtered.length > 0 ? (
-        <ResultsTable results={filtered} reviewItems={reviewItems} showReviewStatus={reviewAvailable} selectedRow={selectedRow} onSelect={onSelect} />
+        <ResultsTable results={filtered} reviewItems={reviewItems} showReviewStatus={reviewAvailable} selectedRow={selectedRow} onSelect={onSelect} assemblyCalculationSnapshot={response.formulation.assembly_calculation_snapshot} />
       ) : (
         <div className="results-empty-state">
           <strong>No results match these filters.</strong>

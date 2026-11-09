@@ -157,6 +157,12 @@ export interface FormulationAssemblyState {
   }>;
   source_document_ids: string[];
   source_document_snapshots: Record<string, string>;
+  source_document_metadata?: Record<string, {
+    original_filename: string | null;
+    supplier_name: string | null;
+    trade_name: string | null;
+    product_code: string | null;
+  }>;
   formulation_name: string | null;
   product_context: string | null;
   product_applicability: Record<string, boolean | null>;

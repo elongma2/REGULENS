@@ -3,6 +3,7 @@ import { FindingBadge } from "./FindingBadge";
 import { formatConcentration, ingredientScreeningDisposition } from "../lib/screening";
 import { displayIngredientName } from "../lib/presentation";
 import { reviewStatusPresentation } from "../lib/reviewPresentation";
+import { combinedSourceNote } from "../lib/assembly";
 import type { IngredientResult } from "../types/screening";
 import type { ReviewItem } from "../types/review";
 
@@ -12,12 +13,14 @@ export function ResultsTable({
   onSelect,
   reviewItems = [],
   showReviewStatus = false,
+  assemblyCalculationSnapshot,
 }: {
   results: IngredientResult[];
   selectedRow: number | null;
   onSelect: (row: number) => void;
   reviewItems?: ReviewItem[];
   showReviewStatus?: boolean;
+  assemblyCalculationSnapshot?: Record<string, unknown> | null;
 }) {
   const reviewByRow = new Map(reviewItems.map((item) => [item.submitted_row_number, item]));
   return (
@@ -37,6 +40,7 @@ export function ResultsTable({
             {results.map((result) => {
               const selected = selectedRow === result.submitted_row_number;
               const reviewItem = reviewByRow.get(result.submitted_row_number);
+              const sourceNote = combinedSourceNote(assemblyCalculationSnapshot, result);
               return (
                 <tr
                   key={result.submitted_row_number}
@@ -54,7 +58,7 @@ export function ResultsTable({
                 >
                   <td className="px-4 py-3.5">
                     <div className="font-medium text-slate-900">{displayIngredientName(result)}</div>
-                    <div className="mt-0.5 text-xs text-slate-400">Row {result.submitted_row_number}</div>
+                    {sourceNote ? <div className="result-source-note">{sourceNote}</div> : <div className="mt-0.5 text-xs text-slate-400">Row {result.submitted_row_number}</div>}
                   </td>
                   <td className="px-4 py-3.5 text-slate-700">{formatConcentration(result.submitted_ingredient.concentration)}</td>
                   <td className="px-4 py-3.5"><FindingBadge finding={result.primary_finding} screeningDisposition={ingredientScreeningDisposition(result)} /></td>

@@ -31,6 +31,18 @@ def test_report_discloses_partial_trade_material_coverage() -> None:
             "calculated_from_trade_materials": True,
         },
         "assembly_calculation_snapshot": {
+            "source_documents": {
+                "supplier-document-1": {
+                    "original_filename": "Supplier Blend SDS.pdf",
+                    "supplier_name": "Example Supplier",
+                    "trade_name": "Supplier Blend",
+                },
+            },
+            "materials": [{
+                "material_id": "material-1",
+                "trade_name": "Supplier Blend",
+                "supplier_name": "Example Supplier",
+            }],
             "aggregates": [{
                 "display_name": "Tosylchloramide sodium",
                 "aggregate_quantity": {"kind": "exact", "value": 0.1, "unit": "percent"},
@@ -67,5 +79,6 @@ def test_report_discloses_partial_trade_material_coverage() -> None:
     assert "material usage missing" in text
     assert "Calculated ingredient contributions" in text
     assert "2% × 5% = 0.1%" in text
-    assert "material-1 · supplier-document-1 · page 2" in text
+    normalized_text = " ".join(text.split())
+    assert "Supplier Blend · Example Supplier · Supplier Blend SDS.pdf · page 2" in normalized_text
 

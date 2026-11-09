@@ -251,6 +251,17 @@ def _assembly_scope_section(response: FormulationScreeningResponse, styles) -> l
     snapshot = response.formulation.assembly_calculation_snapshot or {}
     aggregates = snapshot.get("aggregates") if isinstance(snapshot, dict) else None
     if isinstance(aggregates, list) and aggregates:
+        materials_by_id = {
+            str(item.get("material_id")): item
+            for item in snapshot.get("materials", [])
+            if isinstance(item, dict) and item.get("material_id")
+        }
+        source_documents = (
+            snapshot.get("source_documents")
+            if isinstance(snapshot.get("source_documents"), dict)
+            else {}
+        )
+
         def quantity_text(quantity: object) -> str:
             if not isinstance(quantity, dict):
                 return "—"
@@ -291,10 +302,19 @@ def _assembly_scope_section(response: FormulationScreeningResponse, styles) -> l
                     for evidence in item.get("source_evidence") or []
                     if isinstance(evidence, dict) and evidence.get("page") is not None
                 })
-                material = item.get("source_material_id") or "Direct addition"
                 document = item.get("governing_document_id") or "source unavailable"
+                metadata = source_documents.get(document, {})
+                metadata = metadata if isinstance(metadata, dict) else {}
+                if item.get("source_material_id"):
+                    material = materials_by_id.get(str(item["source_material_id"]), {})
+                    trade_name = material.get("trade_name") or metadata.get("trade_name") or item["source_material_id"]
+                    supplier_name = material.get("supplier_name") or metadata.get("supplier_name")
+                    source_name = f"{trade_name} · {supplier_name}" if supplier_name else str(trade_name)
+                else:
+                    source_name = "Formulation"
+                filename = metadata.get("original_filename") or document
                 source_labels.append(
-                    f"{material} · {document}"
+                    f"{source_name} · {filename}"
                     + (f" · page {', '.join(pages)}" if pages else "")
                 )
             contribution_rows.append([
