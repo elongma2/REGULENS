@@ -217,6 +217,30 @@ def test_existing_hash_attaches_without_upload_or_processing(monkeypatch: pytest
     assert gateway.state["persisted"] == []
 
 
+def test_standalone_supplier_upload_is_saved_and_processed_without_formulation_attachment() -> None:
+    gateway = _gateway()
+    parsed = ParsedCSV(
+        filename="trade-name.csv",
+        delimiter=",",
+        rows=(("Trade name", "Supplier Blend X"), ("INCI", "Composition"), ("Glycerin", "40%")),
+    )
+
+    document, reused = SupplierDocumentService(gateway).upload_to_library(
+        user_id=USER_ID,
+        organisation_id=ORG_ID,
+        filename="trade-name.csv",
+        content=b"standalone supplier composition",
+        content_type="text/csv",
+        preparsed=parsed,
+    )
+
+    assert reused is False
+    assert document["processing_status"] in {"ready", "needs_confirmation"}
+    assert gateway.state["uploaded"]
+    assert gateway.state["persisted"]
+    assert gateway.state["attached"] == []
+
+
 def test_saved_extraction_compatibility_checks_schema_and_processor_configuration() -> None:
     deterministic = {
         "extraction_schema_version": "trade-document-v2",

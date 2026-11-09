@@ -79,7 +79,15 @@ def parse_formulation_upload(filename: str, content: bytes) -> ParsedCSV:
             workbook = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)
             if not workbook.worksheets:
                 raise CSVUploadError("agent_csv_empty", "The uploaded workbook contains no worksheets")
-            rows = [tuple(_cell_text(value) for value in row) for row in workbook.worksheets[0].iter_rows(values_only=True)]
+            if len(workbook.worksheets) == 1:
+                rows = [tuple(_cell_text(value) for value in row) for row in workbook.worksheets[0].iter_rows(values_only=True)]
+            else:
+                rows = []
+                for worksheet in workbook.worksheets:
+                    sheet_rows = [tuple(_cell_text(value) for value in row) for row in worksheet.iter_rows(values_only=True)]
+                    if any(any(cell.strip() for cell in row) for row in sheet_rows):
+                        rows.append((f"Worksheet: {worksheet.title}",))
+                        rows.extend(sheet_rows)
         except CSVUploadError:
             raise
         except (BadZipFile, InvalidFileException, KeyError, OSError, ValueError) as error:
@@ -90,8 +98,17 @@ def parse_formulation_upload(filename: str, content: bytes) -> ParsedCSV:
             workbook = xlrd.open_workbook(file_contents=content, on_demand=True)
             if workbook.nsheets == 0:
                 raise CSVUploadError("agent_csv_empty", "The uploaded workbook contains no worksheets")
-            sheet = workbook.sheet_by_index(0)
-            rows = [tuple(_cell_text(value) for value in sheet.row_values(index)) for index in range(sheet.nrows)]
+            if workbook.nsheets == 1:
+                sheet = workbook.sheet_by_index(0)
+                rows = [tuple(_cell_text(value) for value in sheet.row_values(index)) for index in range(sheet.nrows)]
+            else:
+                rows = []
+                for sheet_index in range(workbook.nsheets):
+                    sheet = workbook.sheet_by_index(sheet_index)
+                    sheet_rows = [tuple(_cell_text(value) for value in sheet.row_values(index)) for index in range(sheet.nrows)]
+                    if any(any(cell.strip() for cell in row) for row in sheet_rows):
+                        rows.append((f"Worksheet: {sheet.name}",))
+                        rows.extend(sheet_rows)
         except CSVUploadError:
             raise
         except (XLRDError, IndexError, OSError, ValueError) as error:

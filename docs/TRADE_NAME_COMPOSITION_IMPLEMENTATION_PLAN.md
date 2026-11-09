@@ -64,7 +64,7 @@ The current upload parser is `backend/app/services/agent_csv.py`.
 
 - `parse_formulation_upload()` accepts CSV, TSV, TXT, XLSX, XLS, JSON and PDF.
 - The per-file limit is 2 MiB, with 500 rows, 50 columns and 50 PDF pages.
-- XLSX and XLS use the first worksheet.
+- XLSX and XLS expose every non-empty worksheet to interpretation and retain worksheet labels in source rows.
 - PDFs use `pypdf.PdfReader` and turn every non-empty extracted text line into a one-column `ParsedCSV` row.
 - PDF rows retain `row_pages` and `row_snippets`.
 - There is no OCR fallback.

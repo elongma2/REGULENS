@@ -179,6 +179,28 @@ def test_formulation_parser_accepts_xlsx_and_json_grids():
     assert json_grid.rows[1] == ("GLYCERIN", "4%")
 
 
+def test_formulation_parser_reads_formulation_from_later_worksheet():
+    workbook = openpyxl.Workbook()
+    cover = workbook.active
+    cover.title = "Instructions"
+    cover.append(["Supplier notes only"])
+    formula = workbook.create_sheet("Finished Formula")
+    formula.append(["INCI", "Concentration"])
+    formula.append(["NIACINAMIDE", "5%"])
+    output = io.BytesIO()
+    workbook.save(output)
+
+    parsed = parse_csv_upload("multi-sheet.xlsx", output.getvalue())
+
+    assert parsed.rows == (
+        ("Worksheet: Instructions",),
+        ("Supplier notes only",),
+        ("Worksheet: Finished Formula",),
+        ("INCI", "Concentration"),
+        ("NIACINAMIDE", "5%"),
+    )
+
+
 @pytest.mark.parametrize(
     ("filename", "content"),
     [("broken.xlsx", b"not an xlsx"), ("broken.xls", b"not an xls"), ("broken.pdf", b"not a pdf")],

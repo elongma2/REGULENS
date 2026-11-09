@@ -98,10 +98,12 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
   versionId: string;
   onDocumentsChanged?: (documents: FormulationDocument[]) => void;
   compact?: boolean;
+  allowUploads?: boolean;
 }>(function SupplierDocumentsPanel({
   versionId,
   onDocumentsChanged,
   compact = false,
+  allowUploads = true,
 }, ref) {
   const uploadInput = useRef<HTMLInputElement>(null);
   const autoStarted = useRef(new Set<string>());
@@ -528,7 +530,7 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
         <h2 id="supplier-documents-title">Supplier files</h2>
         <p>Upload composition statements or SDS files that explain the trade names used in this formulation.</p>
       </div>
-      <label className={`secondary-button supplier-upload-button ${busyKey ? "is-disabled" : ""}`}>
+      {allowUploads ? <label className={`secondary-button supplier-upload-button ${busyKey ? "is-disabled" : ""}`}>
         {busyKey === "upload" ? <LoaderCircle className="spin" size={16} /> : <Upload size={16} />}
         Upload documents
         <input
@@ -539,10 +541,10 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
           disabled={Boolean(busyKey)}
           onChange={(event) => void upload(event.target.files)}
         />
-      </label>
+      </label> : null}
     </div>
 
-    <details className="supplier-library-disclosure">
+    {allowUploads ? <details className="supplier-library-disclosure">
       <summary><Library size={16} aria-hidden="true" /> Reuse a saved supplier file</summary>
       <p className="supplier-library-explainer">Regulens keeps the private original file and the ingredients extracted from it in your workspace. Reusing it avoids another upload. Each formulation keeps its own saved copy of the extracted information, so older screening results do not change.</p>
       <div className="supplier-library-row">
@@ -579,7 +581,7 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
         {managingLibrary ? "Close saved documents" : "View saved documents"}
       </button>
       </div>
-    </details>
+    </details> : null}
 
     {managingLibrary ? <section className="supplier-library-manager" aria-labelledby="saved-supplier-documents-title">
       <div className="supplier-library-manager-heading">

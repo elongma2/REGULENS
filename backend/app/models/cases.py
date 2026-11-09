@@ -183,6 +183,11 @@ class FormulationDocumentBatchView(StrictModel):
     failures: list[FormulationDocumentUploadFailure] = Field(default_factory=list)
 
 
+class SupplierDocumentBatchView(StrictModel):
+    documents: list[SupplierDocumentView] = Field(default_factory=list)
+    failures: list[FormulationDocumentUploadFailure] = Field(default_factory=list)
+
+
 class AttachSupplierDocumentRequest(StrictModel):
     supplier_document_id: UUID
 

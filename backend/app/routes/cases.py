@@ -39,6 +39,7 @@ from backend.app.models.cases import (
     ScreeningRunView,
     SignedFileView,
     SupplierDocumentDetailView,
+    SupplierDocumentBatchView,
     SupplierDocumentUpdate,
     SupplierDocumentView,
 )
@@ -578,6 +579,60 @@ def list_supplier_documents(
     return [_supplier_document(SupplierDocumentView, row) for row in rows]
 
 
+@router.post(
+    "/cases/{case_id}/supplier-documents",
+    response_model=SupplierDocumentBatchView,
+    status_code=201,
+)
+async def upload_case_supplier_documents(
+    case_id: UUID,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+    files: Annotated[list[UploadFile], File(description="Standalone SDS/MSDS or supplier composition documents")],
+) -> SupplierDocumentBatchView:
+    if not files or len(files) > 10:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "document_batch_invalid", "message": "Upload between 1 and 10 supplier documents."},
+        )
+    try:
+        case = gateway.get_case(user.id, case_id)
+    except ResourceNotFoundError as error:
+        raise _not_found(error) from error
+
+    service = SupplierDocumentService(gateway)
+    documents: list[SupplierDocumentView] = []
+    failures: list[FormulationDocumentUploadFailure] = []
+    for file in files:
+        content = await file.read(MAX_FILE_BYTES + 1)
+        try:
+            document, _ = service.upload_to_library(
+                user_id=user.id,
+                organisation_id=UUID(str(case["organisation_id"])),
+                filename=file.filename or "supplier-document.pdf",
+                content=content,
+                content_type=file.content_type,
+                process_immediately=True,
+            )
+            documents.append(_supplier_document(SupplierDocumentView, document))
+        except CSVUploadError as error:
+            failures.append(FormulationDocumentUploadFailure(
+                filename=file.filename or "supplier-document.pdf",
+                code=error.code,
+                message=str(error),
+                recoverable=error.code == "agent_pdf_text_unavailable",
+            ))
+        except Exception:
+            LOGGER.exception("Standalone supplier document %s could not be retained", file.filename)
+            failures.append(FormulationDocumentUploadFailure(
+                filename=file.filename or "supplier-document.pdf",
+                code="document_upload_failed",
+                message="The private supplier source could not be stored. Other documents in this batch were preserved.",
+                recoverable=True,
+            ))
+    return SupplierDocumentBatchView(documents=documents, failures=failures)
+
+
 @router.get("/supplier-documents/{document_id}", response_model=SupplierDocumentDetailView)
 def get_supplier_document(
     document_id: UUID,
@@ -657,6 +712,35 @@ def delete_supplier_document(
         raise HTTPException(
             status_code=422,
             detail={"code": "supplier_document_update_invalid", "message": str(error)},
+        ) from error
+
+
+@router.post("/supplier-documents/{document_id}/retry", response_model=SupplierDocumentView)
+def retry_supplier_document(
+    document_id: UUID,
+    request: Request,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+) -> SupplierDocumentView:
+    try:
+        document = SupplierDocumentService(gateway).retry_processing(
+            user_id=user.id,
+            document_id=document_id,
+            vision_extractor=getattr(request.app.state, "document_vision_extractor", None),
+            text_extractor=getattr(request.app.state, "document_text_extractor", None),
+        )
+        return _supplier_document(SupplierDocumentView, document)
+    except ResourceNotFoundError as error:
+        raise _not_found(error) from error
+    except SupplierDocumentProcessingError as error:
+        raise HTTPException(
+            status_code=503 if error.recoverable else 422,
+            detail={"code": error.code, "message": str(error), "recoverable": error.recoverable},
+        ) from error
+    except ValueError as error:
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "supplier_document_retry_invalid", "message": str(error)},
         ) from error
 
 

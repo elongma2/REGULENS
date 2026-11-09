@@ -1,7 +1,7 @@
 import { ApiError } from "./screening";
 import { apiFetch } from "./http";
 import type { AgentPreparedFormulation, AgentRowAddition, AgentRowUpdate, AgentSession } from "../types/agent";
-import type { AssemblyPreparation, CaseView, CurrentUser, DocumentRole, FormulationAssemblyState, FormulationDocument, FormulationDocumentBatch, FormulationVersion, ScreeningRun, SupplierDocument, SupplierDocumentDetail } from "../types/cases";
+import type { AssemblyPreparation, CaseView, CurrentUser, DocumentRole, FormulationAssemblyState, FormulationDocument, FormulationDocumentBatch, FormulationVersion, ScreeningRun, SupplierDocument, SupplierDocumentBatch, SupplierDocumentDetail } from "../types/cases";
 
 async function parse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => ({}));
@@ -34,6 +34,11 @@ export async function uploadCaseFormulationDocuments(caseId: string, files: File
   files.forEach((file) => body.append("files", file));
   return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
 }
+export async function uploadCaseSupplierDocuments(caseId: string, files: File[]): Promise<SupplierDocumentBatch> {
+  const body = new FormData();
+  files.forEach((file) => body.append("files", file));
+  return parse<SupplierDocumentBatch>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/supplier-documents`, { method: "POST", body }));
+}
 export const getFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}`);
 export async function deleteFormulationVersion(id: string): Promise<void> { await json<unknown>(`/formulations/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify({ confirmation: "DELETE" }) }); }
 export const retryFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}/interpret`, { method: "POST" });
@@ -57,6 +62,7 @@ export function listSupplierDocuments(options: { search?: string; availableOnly?
 
 export const getSupplierDocument = (id: string) => json<SupplierDocumentDetail>(`/supplier-documents/${encodeURIComponent(id)}`);
 export const getSupplierDocumentFile = (id: string) => json<{ url: string; expires_in: number }>(`/supplier-documents/${encodeURIComponent(id)}/file`);
+export const retrySupplierDocument = (id: string) => json<SupplierDocument>(`/supplier-documents/${encodeURIComponent(id)}/retry`, { method: "POST" });
 
 export function updateSupplierDocument(id: string, revision: number, changes: { supplier_name?: string | null; trade_name?: string | null; product_code?: string | null; document_revision_label?: string | null; supersedes_supplier_document_id?: string | null; confirmed_roles?: DocumentRole[]; library_status?: "available" | "needs_confirmation" | "archived" }) {
   return json<SupplierDocument>(`/supplier-documents/${encodeURIComponent(id)}`, {

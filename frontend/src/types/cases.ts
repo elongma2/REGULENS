@@ -89,6 +89,11 @@ export interface FormulationDocumentBatch {
   }>;
 }
 
+export interface SupplierDocumentBatch {
+  documents: SupplierDocument[];
+  failures: FormulationDocumentBatch["failures"];
+}
+
 export type CompositionQuantityKind = "exact" | "range" | "upper_bound" | "lower_bound" | "approximate" | "coded_range" | "remainder_to_total" | "unknown";
 export interface CompositionQuantity {
   kind: CompositionQuantityKind;

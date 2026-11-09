@@ -140,6 +140,36 @@ class SupplierDocumentService:
         preparsed_error: CSVUploadError | None = None,
         process_immediately: bool = True,
     ) -> tuple[dict[str, Any], bool]:
+        version = self.gateway.get_version(user_id, version_id)
+        case = self.gateway.get_case(user_id, version["case_id"])
+        document, reused = self.upload_to_library(
+            user_id=user_id,
+            organisation_id=UUID(str(case["organisation_id"])),
+            filename=filename,
+            content=content,
+            content_type=content_type,
+            preparsed=preparsed,
+            preparsed_error=preparsed_error,
+            process_immediately=process_immediately,
+        )
+        return self.gateway.attach_supplier_document(
+            user_id,
+            version_id,
+            UUID(str(document["id"])),
+        ), reused
+
+    def upload_to_library(
+        self,
+        *,
+        user_id: UUID,
+        organisation_id: UUID,
+        filename: str,
+        content: bytes,
+        content_type: str | None,
+        preparsed: ParsedCSV | None = None,
+        preparsed_error: CSVUploadError | None = None,
+        process_immediately: bool = True,
+    ) -> tuple[dict[str, Any], bool]:
         safe_name = Path(filename or "supplier-document.pdf").name
         if not content:
             raise CSVUploadError("agent_csv_empty", "The uploaded file is empty")
@@ -156,9 +186,6 @@ class SupplierDocumentService:
                 "agent_csv_type_unsupported",
                 "Supported formulation and supplier files: .csv, .tsv, .txt, .xlsx, .xls, .json, and .pdf",
             )
-        version = self.gateway.get_version(user_id, version_id)
-        case = self.gateway.get_case(user_id, version["case_id"])
-        organisation_id = UUID(str(case["organisation_id"]))
         digest = hashlib.sha256(content).hexdigest()
 
         existing = self.gateway.find_supplier_document_by_hash(
@@ -167,11 +194,7 @@ class SupplierDocumentService:
             digest,
         )
         if existing is not None:
-            return self.gateway.attach_supplier_document(
-                user_id,
-                version_id,
-                UUID(str(existing["id"])),
-            ), True
+            return existing, True
 
         if not process_immediately:
             document_id = uuid4()
@@ -197,11 +220,7 @@ class SupplierDocumentService:
                 raise
             if reused_after_race:
                 self.gateway.remove_file(storage_path)
-            return self.gateway.attach_supplier_document(
-                user_id,
-                version_id,
-                UUID(str(document["id"])),
-            ), reused_after_race
+            return document, reused_after_race
 
         parse_error = preparsed_error
         parsed = preparsed
@@ -241,11 +260,7 @@ class SupplierDocumentService:
 
         if reused_after_race:
             self.gateway.remove_file(storage_path)
-            return self.gateway.attach_supplier_document(
-                user_id,
-                version_id,
-                UUID(str(document["id"])),
-            ), True
+            return document, True
 
         if parse_error is not None:
             document = self.gateway.persist_supplier_document_processing(
@@ -309,11 +324,7 @@ class SupplierDocumentService:
                 },
             )
 
-        return self.gateway.attach_supplier_document(
-            user_id,
-            version_id,
-            UUID(str(document["id"])),
-        ), False
+        return document, False
 
     def confirm_library_metadata(
         self,

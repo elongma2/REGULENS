@@ -6,7 +6,7 @@ import regulensLogoMark from "../assets/regulens-logo-mark.png";
 
 const items = [
   { label: "Cases", icon: FolderKanban, to: "/cases" },
-  { label: "New Screen", icon: FlaskConical, to: "/screen" },
+  { label: "New Screen", icon: FlaskConical, to: "/cases/new" },
   { label: "Sources", icon: FileText, to: "/sources" },
 ];
 
