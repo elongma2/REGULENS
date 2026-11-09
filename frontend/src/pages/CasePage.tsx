@@ -1,7 +1,7 @@
 import { AlertCircle, ArrowRight, CheckCircle2, Clipboard, ExternalLink, FileStack, FileUp, LoaderCircle, MoreHorizontal, Paperclip, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { attachSupplierDocument, deleteCase, deleteFormulationVersion, getCase, getSupplierDocumentFile, interpretFormulationDocument, listSupplierDocuments, retrySupplierDocument, updateSupplierDocument, uploadCaseFormulation, uploadCaseSupplierDocuments, uploadFormulationDocuments } from "../api/cases";
+import { attachSupplierDocument, deleteCase, deleteFormulationVersion, getCase, getSupplierDocumentFile, interpretFormulationDocument, listFormulationDocuments, listSupplierDocuments, retrySupplierDocument, updateSupplierDocument, uploadCaseDocumentSelection, uploadCaseSupplierDocuments, uploadFormulationDocuments } from "../api/cases";
 import { CaseDeleteDialog } from "../components/CaseDeleteDialog";
 import { TypedDeleteDialog } from "../components/TypedDeleteDialog";
 import { addReviewerNote, getCaseActivity, getReviewOverview } from "../api/review";
@@ -63,8 +63,11 @@ export function CasePage() {
   const [record, setRecord] = useState<CaseView | null>(null);
   const [recordLoading, setRecordLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [productUploading, setProductUploading] = useState(false);
-  const [supplierUploading, setSupplierUploading] = useState(false);
+  const [pendingProductFile, setPendingProductFile] = useState<File | null>(null);
+  const [pendingSupplierFiles, setPendingSupplierFiles] = useState<File[]>([]);
+  const [pendingSavedDocumentIds, setPendingSavedDocumentIds] = useState<string[]>([]);
+  const [processingDocuments, setProcessingDocuments] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<string | null>(null);
   const [supplierDocuments, setSupplierDocuments] = useState<SupplierDocument[]>([]);
   const [supplierDocumentsLoading, setSupplierDocumentsLoading] = useState(true);
   const [selectedSavedDocument, setSelectedSavedDocument] = useState("");
@@ -129,80 +132,111 @@ export function CasePage() {
     return () => { active = false; };
   }, [caseId, loadActivity, loadOverview]);
 
-  const uploadProductFormulation = async (selected?: FileList | null) => {
+  const selectProductFormulation = (selected?: FileList | null) => {
     const file = selected?.[0];
-    if (!file || productUploading) return;
-    setProductUploading(true);
-    setError(null);
-    setUploadNotice(null);
-    try {
-      const version = await uploadCaseFormulation(caseId, file);
-      navigate(`/cases/${caseId}/formulations/${version.id}?tab=formulation`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The formulation could not be uploaded. Choose the file again to retry.");
-    } finally {
-      setProductUploading(false);
-      if (productInput.current) productInput.current.value = "";
-    }
+    if (!file || processingDocuments) return;
+    setPendingProductFile(file);
+    setError(null); setUploadNotice(null);
+    if (productInput.current) productInput.current.value = "";
   };
 
-  const uploadSupplierSources = async (selected?: FileList | null) => {
+  const addSupplierSources = (selected?: FileList | null) => {
+    if (processingDocuments) return;
     const files = Array.from(selected ?? []);
-    if (!files.length || supplierUploading) return;
-    setSupplierUploading(true);
-    setError(null);
-    setUploadNotice(null);
+    if (!files.length) return;
+    setPendingSupplierFiles((current) => {
+      const keys = new Set(current.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+      return [...current, ...files.filter((file) => !keys.has(`${file.name}:${file.size}:${file.lastModified}`))];
+    });
+    setError(null); setUploadNotice(null);
+    if (supplierInput.current) supplierInput.current.value = "";
+  };
+
+  const queueSavedSupplierDocument = () => {
+    if (!selectedSavedDocument || processingDocuments) return;
+    setPendingSavedDocumentIds((current) => current.includes(selectedSavedDocument) ? current : [...current, selectedSavedDocument]);
+    setSelectedSavedDocument("");
+    setError(null); setUploadNotice(null);
+  };
+
+  const interpretAttachedDocuments = async (documents: Array<{ id: string; original_filename: string }>) => {
+    const queue = [...documents];
+    const failures: string[] = [];
+    const processNext = async (): Promise<void> => {
+      const document = queue.shift();
+      if (!document) return;
+      try {
+        setUploadProgress(`Processing ${document.original_filename}…`);
+        await interpretFormulationDocument(document.id);
+      } catch (caught) {
+        failures.push(`${document.original_filename}: ${caught instanceof Error ? caught.message : "processing failed"}`);
+      }
+      await processNext();
+    };
+    await Promise.all([processNext(), processNext()]);
+    return failures;
+  };
+
+  const processSelectedDocuments = async () => {
+    const current = record ? currentVersion(record) : null;
+    if (processingDocuments || (!pendingProductFile && !pendingSupplierFiles.length && !pendingSavedDocumentIds.length)) return;
+    if (!pendingProductFile && !current && !pendingSupplierFiles.length) {
+      setError("Add a product formulation or a new supplier document before continuing.");
+      return;
+    }
+    setProcessingDocuments(true); setError(null); setUploadNotice(null); setUploadProgress("Uploading selected documents…");
     try {
-      const current = record ? currentVersion(record) : null;
-      if (current) {
-        const batch = await uploadFormulationDocuments(current.id, files);
-        const queue = [...batch.documents];
-        const processingFailures: string[] = [];
-        const processNext = async (): Promise<void> => {
-          const document = queue.shift();
-          if (!document) return;
-          try {
-            await interpretFormulationDocument(document.id);
-          } catch (caught) {
-            processingFailures.push(`${document.original_filename}: ${caught instanceof Error ? caught.message : "processing failed"}`);
-          }
-          await processNext();
-        };
-        await Promise.all([processNext(), processNext()]);
-        const failures = [...batch.failures.map((failure) => `${failure.filename}: ${failure.message}`), ...processingFailures];
-        if (failures.length) setError(failures.join(" "));
-        setUploadNotice(`${batch.documents.length} supplier document${batch.documents.length === 1 ? "" : "s"} attached to the current formulation.`);
-      } else {
-        const batch = await uploadCaseSupplierDocuments(caseId, files);
-        setSupplierDocuments((current) => [
+      let targetVersionId = current?.id ?? null;
+      let createdNewVersion = false;
+      const failures: string[] = [];
+      if (pendingProductFile) {
+        const version = await uploadCaseDocumentSelection(caseId, pendingProductFile, pendingSupplierFiles);
+        targetVersionId = version.id;
+        createdNewVersion = true;
+        if (pendingSupplierFiles.length) {
+          setUploadProgress("Processing supplier documents…");
+          const attached = await listFormulationDocuments(version.id);
+          failures.push(...await interpretAttachedDocuments(attached.filter((document) => (
+            document.processing_status === "uploaded"
+          ))));
+        }
+      } else if (targetVersionId && pendingSupplierFiles.length) {
+        const batch = await uploadFormulationDocuments(targetVersionId, pendingSupplierFiles);
+        failures.push(...batch.failures.map((failure) => `${failure.filename}: ${failure.message}`));
+        failures.push(...await interpretAttachedDocuments(batch.documents));
+      } else if (!targetVersionId && pendingSupplierFiles.length) {
+        const batch = await uploadCaseSupplierDocuments(caseId, pendingSupplierFiles);
+        setSupplierDocuments((saved) => [
           ...batch.documents,
-          ...current.filter((item) => !batch.documents.some((uploaded) => uploaded.id === item.id)),
+          ...saved.filter((item) => !batch.documents.some((uploaded) => uploaded.id === item.id)),
         ]);
-        const failures = batch.failures.map((failure) => `${failure.filename}: ${failure.message}`);
-        if (failures.length) setError(failures.join(" "));
-        setUploadNotice(`${batch.documents.length} supplier document${batch.documents.length === 1 ? "" : "s"} saved for standalone review. Add a product formulation before finished-product screening.`);
+        failures.push(...batch.failures.map((failure) => `${failure.filename}: ${failure.message}`));
+      }
+
+      if (targetVersionId) {
+        setUploadProgress("Attaching saved supplier documents…");
+        for (const documentId of pendingSavedDocumentIds) {
+          try {
+            await attachSupplierDocument(targetVersionId, documentId);
+          } catch (caught) {
+            const document = supplierDocuments.find((item) => item.id === documentId);
+            failures.push(`${document?.original_filename || "Saved supplier document"}: ${caught instanceof Error ? caught.message : "attachment failed"}`);
+          }
+        }
+      }
+
+      setPendingProductFile(null); setPendingSupplierFiles([]); setPendingSavedDocumentIds([]);
+      if (failures.length) setError(failures.join(" "));
+      if (targetVersionId) {
+        setUploadNotice(`${createdNewVersion ? "Formulation and supporting documents" : "Supplier documents"} processed. Review the updated formulation before screening.`);
+        navigate(`/cases/${caseId}/formulations/${targetVersionId}?tab=formulation`);
+      } else {
+        setUploadNotice("Supplier documents saved for standalone review. Add a product formulation when finished-product screening is needed.");
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The supplier documents could not be uploaded.");
+      setError(caught instanceof Error ? caught.message : "The selected documents could not be processed. Your selection is retained so you can retry.");
     } finally {
-      setSupplierUploading(false);
-      if (supplierInput.current) supplierInput.current.value = "";
-    }
-  };
-
-  const reuseSupplierDocument = async () => {
-    const current = record ? currentVersion(record) : null;
-    if (!current || !selectedSavedDocument || supplierUploading) return;
-    setSupplierUploading(true); setError(null); setUploadNotice(null);
-    try {
-      await attachSupplierDocument(current.id, selectedSavedDocument);
-      const document = supplierDocuments.find((item) => item.id === selectedSavedDocument);
-      setSelectedSavedDocument("");
-      setUploadNotice(`${document?.trade_name || document?.original_filename || "Saved supplier document"} attached to the current formulation.`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The saved supplier document could not be attached.");
-    } finally {
-      setSupplierUploading(false);
+      setProcessingDocuments(false); setUploadProgress(null);
     }
   };
 
@@ -358,17 +392,24 @@ export function CasePage() {
           <div className="case-upload-grid">
             <article id="case-upload-formulation" className="case-upload-card">
               <FileUp size={21} aria-hidden="true" />
-              <div><h3>Product Formulation</h3><p>Upload one Excel, CSV or selectable-text PDF containing the finished formulation or ingredient list. All workbook sheets are read.</p></div>
-              <button className="primary-button" type="button" onClick={() => productInput.current?.click()} disabled={productUploading || supplierUploading} aria-busy={productUploading}>{productUploading ? <><LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> Uploading and interpreting…</> : latestVersion ? "Upload new formulation version" : "Upload formulation"}</button>
-              <input ref={productInput} className="sr-only" type="file" accept=".csv,.xlsx,.xls,.pdf" aria-label="Choose product formulation" onChange={(event) => void uploadProductFormulation(event.target.files)} />
+              <div><h3>Product Formulation</h3><p>Select one Excel, CSV or selectable-text PDF containing the finished formulation or ingredient list. All workbook sheets are read.</p></div>
+              <button className="primary-button" type="button" onClick={() => productInput.current?.click()} disabled={processingDocuments}>{pendingProductFile ? "Replace formulation" : latestVersion ? "Select new formulation version" : "Select formulation"}</button>
+              <input ref={productInput} className="sr-only" type="file" accept=".csv,.xlsx,.xls,.pdf" aria-label="Choose product formulation" onChange={(event) => selectProductFormulation(event.target.files)} />
+              {pendingProductFile ? <div className="case-pending-files" aria-label="Selected product formulation"><span><CheckCircle2 size={14} /> <strong>{pendingProductFile.name}</strong><small>Selected formulation</small></span><button className="text-button" type="button" disabled={processingDocuments} onClick={() => setPendingProductFile(null)}>Remove</button></div> : null}
             </article>
             <article className="case-upload-card">
               <FileStack size={21} aria-hidden="true" />
-              <div><h3>Supplier Documents <span>Optional</span></h3><p>Upload multiple SDS/MSDS or supplier composition PDFs. Without a product formulation, Regulens saves them for standalone trade-name review and clearly limits screening.</p></div>
-              <button className="secondary-button" type="button" onClick={() => supplierInput.current?.click()} disabled={supplierUploading || productUploading} aria-busy={supplierUploading}>{supplierUploading ? <><LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> Processing supplier files…</> : "Upload supplier documents"}</button>
-              <input ref={supplierInput} className="sr-only" type="file" multiple accept=".pdf,.csv,.tsv,.txt,.xlsx,.xls,.json" aria-label="Choose supplier documents" onChange={(event) => void uploadSupplierSources(event.target.files)} />
-              {latestVersion ? <div className="case-saved-supplier-picker"><label htmlFor="saved-supplier-document-case">Reuse saved supplier document</label><div><select id="saved-supplier-document-case" value={selectedSavedDocument} disabled={supplierUploading || supplierDocumentsLoading} onChange={(event) => setSelectedSavedDocument(event.target.value)}><option value="">{supplierDocumentsLoading ? "Loading saved documents…" : "Choose saved SDS or composition"}</option>{supplierDocuments.filter((item) => item.library_status === "available").map((item) => <option key={item.id} value={item.id}>{[item.trade_name, item.product_code, item.supplier_name, item.original_filename].filter((value, index, all) => Boolean(value) && all.indexOf(value) === index).join(" · ")}</option>)}</select><button className="secondary-button" type="button" disabled={!selectedSavedDocument || supplierUploading} onClick={() => void reuseSupplierDocument()}><Paperclip size={14} /> Attach</button></div></div> : null}
+              <div><h3>Supplier Documents <span>Optional</span></h3><p>Add multiple SDS/MSDS or supplier composition PDFs. You can keep adding files before processing, in either order.</p></div>
+              <button className="secondary-button" type="button" onClick={() => supplierInput.current?.click()} disabled={processingDocuments}>Add supplier documents</button>
+              <input ref={supplierInput} className="sr-only" type="file" multiple accept=".pdf,.csv,.tsv,.txt,.xlsx,.xls,.json" aria-label="Choose supplier documents" onChange={(event) => addSupplierSources(event.target.files)} />
+              {pendingSupplierFiles.length ? <ul className="case-pending-file-list" aria-label="Selected supplier documents">{pendingSupplierFiles.map((file) => <li key={`${file.name}:${file.size}:${file.lastModified}`}><span><CheckCircle2 size={14} /><strong>{file.name}</strong></span><button className="text-button" type="button" disabled={processingDocuments} onClick={() => setPendingSupplierFiles((current) => current.filter((candidate) => candidate !== file))}>Remove</button></li>)}</ul> : null}
+              <div className="case-saved-supplier-picker"><label htmlFor="saved-supplier-document-case">Reuse saved supplier document</label><div><select id="saved-supplier-document-case" value={selectedSavedDocument} disabled={processingDocuments || supplierDocumentsLoading} onChange={(event) => setSelectedSavedDocument(event.target.value)}><option value="">{supplierDocumentsLoading ? "Loading saved documents…" : "Choose saved SDS or composition"}</option>{supplierDocuments.filter((item) => item.library_status === "available" && !pendingSavedDocumentIds.includes(item.id)).map((item) => <option key={item.id} value={item.id}>{[item.trade_name, item.product_code, item.supplier_name, item.original_filename].filter((value, index, all) => Boolean(value) && all.indexOf(value) === index).join(" · ")}</option>)}</select><button className="secondary-button" type="button" disabled={!selectedSavedDocument || processingDocuments} onClick={queueSavedSupplierDocument}><Paperclip size={14} /> Add</button></div></div>
+              {pendingSavedDocumentIds.length ? <ul className="case-pending-file-list" aria-label="Selected saved supplier documents">{pendingSavedDocumentIds.map((documentId) => { const document = supplierDocuments.find((item) => item.id === documentId); return <li key={documentId}><span><Paperclip size={14} /><strong>{document?.trade_name || document?.original_filename || "Saved supplier document"}</strong></span><button className="text-button" type="button" disabled={processingDocuments} onClick={() => setPendingSavedDocumentIds((current) => current.filter((id) => id !== documentId))}>Remove</button></li>; })}</ul> : null}
             </article>
+          </div>
+          <div className="case-upload-continue">
+            <div><strong>{pendingProductFile || pendingSupplierFiles.length || pendingSavedDocumentIds.length ? "Documents ready to process" : "Select files in either section"}</strong><p>{uploadProgress || "Nothing uploads until you continue. Supplier documents are optional."}</p></div>
+            <button className="primary-button" type="button" disabled={processingDocuments || (!pendingProductFile && !pendingSupplierFiles.length && !pendingSavedDocumentIds.length)} aria-busy={processingDocuments} onClick={() => void processSelectedDocuments()}>{processingDocuments ? <><LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> {uploadProgress || "Processing documents…"}</> : "Continue / Process documents"}<ArrowRight size={15} /></button>
           </div>
           {!latestVersion && supplierDocuments.length > 0 ? (
             <div className="standalone-supplier-review">

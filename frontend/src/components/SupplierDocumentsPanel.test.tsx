@@ -104,10 +104,44 @@ describe("SupplierDocumentsPanel", () => {
       new File(["composition"], "composition.pdf", { type: "application/pdf" }),
       new File(["sds"], "sds.pdf", { type: "application/pdf" }),
     ];
-    await user.upload(screen.getByLabelText("Upload documents"), files);
+    await user.upload(screen.getByLabelText("Add documents"), files);
 
     await waitFor(() => expect(api.uploadFormulationDocuments).toHaveBeenCalledWith("version-1", files));
     expect(await screen.findByText("OPTASENSE Composition.pdf")).toBeInTheDocument();
+  });
+
+  it("adds documents through Manage files after initial processing", async () => {
+    const user = userEvent.setup();
+    const existing = { ...attachment, confirmed_roles: ["supplier_composition"], governing_for_material: true };
+    const added = { ...attachment, id: "attachment-2", original_filename: "later-supplier.pdf" };
+    api.listFormulationDocuments.mockResolvedValueOnce([existing]).mockResolvedValueOnce([existing, added]);
+    api.uploadFormulationDocuments.mockResolvedValue({ documents: [added], failures: [] });
+    render(<SupplierDocumentsPanel compact versionId="version-1" />);
+
+    await user.click(await screen.findByRole("button", { name: "Manage files" }));
+    const file = new File(["later"], "later-supplier.pdf", { type: "application/pdf" });
+    await user.upload(screen.getByLabelText("Add documents"), file);
+
+    await waitFor(() => expect(api.uploadFormulationDocuments).toHaveBeenCalledWith("version-1", [file]));
+    expect(await screen.findByText("later-supplier.pdf")).toBeInTheDocument();
+  });
+
+  it("keeps the file picker available while an unrelated saved-document action is busy", async () => {
+    const user = userEvent.setup();
+    let finishMetadata!: (value: typeof savedDocument) => void;
+    api.listSupplierDocuments.mockImplementation((options: { includeArchived?: boolean }) => (
+      Promise.resolve(options?.includeArchived ? [savedDocument] : [])
+    ));
+    api.updateSupplierDocument.mockImplementation(() => new Promise((resolve) => { finishMetadata = resolve; }));
+    render(<SupplierDocumentsPanel versionId="version-1" />);
+    await screen.findByText("No supporting documents attached");
+
+    await user.click(screen.getByRole("button", { name: "View saved documents" }));
+    await user.click(await screen.findByText("Edit saved details"));
+    await user.click(screen.getByRole("button", { name: "Save details" }));
+
+    expect(screen.getByLabelText("Add documents")).toBeEnabled();
+    finishMetadata({ ...savedDocument, revision: 1 });
   });
 
   it("keeps successful uploads visible when another document in the batch fails", async () => {
@@ -125,7 +159,7 @@ describe("SupplierDocumentsPanel", () => {
     render(<SupplierDocumentsPanel versionId="version-1" />);
     await screen.findByText("No supporting documents attached");
 
-    await user.upload(screen.getByLabelText("Upload documents"), [
+    await user.upload(screen.getByLabelText("Add documents"), [
       new File(["composition"], "composition.pdf", { type: "application/pdf" }),
       new File([], "empty.pdf", { type: "application/pdf" }),
     ]);

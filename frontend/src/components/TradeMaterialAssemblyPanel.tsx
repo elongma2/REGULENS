@@ -148,7 +148,7 @@ function ConstituentEditorRow({
         }
       }}
     />{quantityInvalid ? <small className="field-error">Use an exact %, range, bound, approximate value, max, or qsp.</small> : null}</td>
-    <td><fieldset className="constituent-function-options"><legend>Special use</legend>
+    <td><details><summary className="constituent-function-summary">Optional intended use</summary><fieldset className="constituent-function-options"><legend className="sr-only">Intended regulated use</legend>
       {(Object.keys(regulatedFunctionLabels) as RegulatedFunction[]).map((regulatedFunction) => <label key={regulatedFunction}>
         <input
           type="checkbox"
@@ -162,7 +162,7 @@ function ConstituentEditorRow({
         />
         {regulatedFunctionLabels[regulatedFunction]}
       </label>)}
-    </fieldset></td>
+    </fieldset></details></td>
     <td>{item.verified_identity_group ? "Matched" : "Check name"}</td>
     <td><button
       className="icon-button"

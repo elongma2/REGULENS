@@ -186,8 +186,13 @@ def _view_from_row(row: dict[str, Any]) -> FormulationVersionView:
         agent_session["questions"] = [
             question
             for question in agent_session.get("questions", [])
-            if question.get("question_type") != "document_completeness"
+            if question.get("question_type") not in {"document_completeness", "ingredient_function"}
         ]
+        for row in agent_session.get("interpreted_rows", []):
+            row["unresolved_fields"] = [
+                uncertainty for uncertainty in row.get("unresolved_fields", [])
+                if uncertainty.get("uncertainty_code") != "ingredient_function"
+            ]
         agent_session["document_completeness_confirmed"] = True
         payload["agent_session"] = agent_session
     return FormulationVersionView.model_validate(payload)
@@ -292,8 +297,13 @@ def _hydrate(
     view = AgentSessionView.model_validate(row["agent_session"])
     view.questions = [
         question for question in view.questions
-        if question.question_type != "document_completeness"
+        if question.question_type not in {"document_completeness", "ingredient_function"}
     ]
+    for interpreted_row in view.interpreted_rows:
+        interpreted_row.unresolved_fields = [
+            uncertainty for uncertainty in interpreted_row.unresolved_fields
+            if uncertainty.uncertainty_code != "ingredient_function"
+        ]
     view.document_completeness_confirmed = True
     view.revision = row["revision"]
     _agent_service(request).restore(_parsed(row["raw_extraction"]), view)

@@ -325,6 +325,36 @@ def test_qs_and_missing_unit_create_targeted_questions(store, catalogue):
     assert nonnumeric.prompt == '"QS" cannot be converted safely to a numeric concentration.'
 
 
+def test_positive_list_membership_does_not_create_a_function_confirmation(store, catalogue):
+    def phenoxy_runner(parsed, accepted_store, accepted_catalogue, model):
+        return interpretation([{
+            "source_row": 2,
+            "source_name": "PHENOXYETHANOL",
+            "interpreted_name": "PHENOXYETHANOL",
+            "identity_status": "exact_match",
+            "source_cas": None,
+            "source_concentration": "1.1%",
+            "concentration_value": 1.1,
+            "concentration_unit": "percent",
+            "issues": [],
+        }])
+
+    service = FormulationAgentService(store, catalogue, model_runner=phenoxy_runner)
+    session = service.create(parse_csv_upload(
+        "phenoxy.csv",
+        b"INCI,Concentration\nPHENOXYETHANOL,1.1%\n",
+    ))
+
+    assert not any(question.question_type == "ingredient_function" for question in session.questions)
+    assert not any(
+        uncertainty.uncertainty_code == "ingredient_function"
+        for uncertainty in session.interpreted_rows[0].unresolved_fields
+    )
+    assert {question.question_type for question in session.questions} == {
+        "product_context", "preparation_stage",
+    }
+
+
 def test_direct_unit_edit_resolves_only_that_row_question(store, catalogue):
     def runner(parsed, accepted_store, accepted_catalogue, model):
         return interpretation([

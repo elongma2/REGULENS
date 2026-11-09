@@ -34,6 +34,12 @@ export async function uploadCaseFormulationDocuments(caseId: string, files: File
   files.forEach((file) => body.append("files", file));
   return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
 }
+export async function uploadCaseDocumentSelection(caseId: string, formulation: File, supplierFiles: File[]): Promise<FormulationVersion> {
+  const body = new FormData();
+  body.append("file", formulation);
+  supplierFiles.forEach((file) => body.append("files", file));
+  return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
+}
 export async function uploadCaseSupplierDocuments(caseId: string, files: File[]): Promise<SupplierDocumentBatch> {
   const body = new FormData();
   files.forEach((file) => body.append("files", file));

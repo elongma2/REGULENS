@@ -120,6 +120,7 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
   const [metadataDrafts, setMetadataDrafts] = useState<Record<string, SupplierMetadataDraft>>({});
   const [managerLoading, setManagerLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -371,8 +372,8 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
   };
 
   const upload = async (files: FileList | null) => {
-    if (!files?.length || busyKey) return;
-    setBusyKey("upload"); setError(null);
+    if (!files?.length || uploading) return;
+    setUploading(true); setError(null); setNotice(null);
     try {
       const batch = await uploadFormulationDocuments(versionId, Array.from(files));
       setDocuments((current) => [...current, ...batch.documents.filter((item) => !current.some((existing) => existing.id === item.id))]);
@@ -385,7 +386,7 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
       setError(caught instanceof Error ? caught.message : "The supporting document could not be uploaded.");
     } finally {
       if (uploadInput.current) uploadInput.current.value = "";
-      setBusyKey(null);
+      setUploading(false);
     }
   };
 
@@ -530,15 +531,15 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
         <h2 id="supplier-documents-title">Supplier files</h2>
         <p>Upload composition statements or SDS files that explain the trade names used in this formulation.</p>
       </div>
-      {allowUploads ? <label className={`secondary-button supplier-upload-button ${busyKey ? "is-disabled" : ""}`}>
-        {busyKey === "upload" ? <LoaderCircle className="spin" size={16} /> : <Upload size={16} />}
-        Upload documents
+      {allowUploads ? <label className={`secondary-button supplier-upload-button ${uploading ? "is-disabled" : ""}`}>
+        {uploading ? <LoaderCircle className="spin" size={16} /> : <Upload size={16} />}
+        {uploading ? "Uploading documents…" : "Add documents"}
         <input
           ref={uploadInput}
           type="file"
           multiple
           accept=".pdf,.csv,.tsv,.txt,.xlsx,.xls,.json"
-          disabled={Boolean(busyKey)}
+          disabled={uploading}
           onChange={(event) => void upload(event.target.files)}
         />
       </label> : null}

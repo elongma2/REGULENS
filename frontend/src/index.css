@@ -516,6 +516,17 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .case-upload-card h3 span { margin-left: 4px; color: #83918c; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; }
 .case-upload-card p { margin-top: 5px; color: #6c7d76; font-size: 11px; line-height: 1.55; }
 .case-upload-card > button { grid-column: 2; justify-self: start; }
+.case-pending-files, .case-pending-file-list { grid-column: 2; min-width: 0; margin: 0; padding: 0; }
+.case-pending-files, .case-pending-file-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #d9e6df; border-radius: 8px; background: #f5faf7; padding: 8px 10px; }
+.case-pending-files span, .case-pending-file-list span { display: flex; min-width: 0; align-items: center; gap: 7px; color: #31594d; font-size: 11px; }
+.case-pending-files span strong, .case-pending-file-list span strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.case-pending-files span small { color: #72837d; white-space: nowrap; }
+.case-pending-file-list { display: grid; gap: 6px; list-style: none; }
+.case-pending-files .text-button, .case-pending-file-list .text-button { flex: none; font-size: 11px; }
+.case-upload-continue { display: flex; align-items: center; justify-content: space-between; gap: 18px; border-top: 1px solid #e8ece9; padding: 14px 18px; background: #f7faf8; }
+.case-upload-continue strong { color: #28473e; font-size: 12px; }
+.case-upload-continue p { margin: 3px 0 0; color: #6c7d76; font-size: 11px; }
+.case-upload-continue .primary-button { flex: none; }
 .case-saved-supplier-picker { grid-column: 2; display: grid; gap: 5px; border-top: 1px solid #e7ece9; padding-top: 12px; }
 .case-saved-supplier-picker > label { color: #52665f; font-size: 10px; font-weight: 650; }
 .case-saved-supplier-picker > div { display: flex; min-width: 0; gap: 6px; }
@@ -996,6 +1007,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .case-current-formulation > a { align-self: flex-start; }
   .case-upload-grid { grid-template-columns: 1fr; }
   .case-upload-card + .case-upload-card { border-top: 1px solid #e8ece9; border-left: 0; }
+  .case-upload-continue { align-items: stretch; flex-direction: column; }
+  .case-upload-continue .primary-button { width: 100%; }
   .case-saved-supplier-picker > div { align-items: stretch; flex-direction: column; }
   .standalone-supplier-review li { align-items: flex-start; flex-direction: column; }
   .standalone-supplier-actions { justify-content: flex-start; }

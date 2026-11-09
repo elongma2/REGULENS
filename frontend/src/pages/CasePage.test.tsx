@@ -6,8 +6,9 @@ import { CasePage } from "./CasePage";
 
 const api = vi.hoisted(() => ({
   getCase: vi.fn(), deleteCase: vi.fn(), deleteFormulationVersion: vi.fn(),
-  uploadCaseFormulation: vi.fn(), uploadCaseSupplierDocuments: vi.fn(),
+  uploadCaseDocumentSelection: vi.fn(), uploadCaseSupplierDocuments: vi.fn(),
   uploadFormulationDocuments: vi.fn(), interpretFormulationDocument: vi.fn(),
+  listFormulationDocuments: vi.fn(),
   listSupplierDocuments: vi.fn(), attachSupplierDocument: vi.fn(), getSupplierDocumentFile: vi.fn(),
   retrySupplierDocument: vi.fn(), updateSupplierDocument: vi.fn(),
 }));
@@ -36,10 +37,11 @@ describe("case detail", () => {
     api.getCase.mockReset().mockResolvedValue(savedCase);
     api.deleteCase.mockReset().mockResolvedValue(undefined);
     api.deleteFormulationVersion.mockReset().mockResolvedValue(undefined);
-    api.uploadCaseFormulation.mockReset().mockResolvedValue({ id: "version-3" });
+    api.uploadCaseDocumentSelection.mockReset().mockResolvedValue({ id: "version-3" });
     api.uploadCaseSupplierDocuments.mockReset().mockResolvedValue({ documents: [], failures: [] });
     api.uploadFormulationDocuments.mockReset().mockResolvedValue({ documents: [], failures: [] });
     api.interpretFormulationDocument.mockReset().mockResolvedValue({});
+    api.listFormulationDocuments.mockReset().mockResolvedValue([]);
     api.listSupplierDocuments.mockReset().mockResolvedValue([]);
     api.attachSupplierDocument.mockReset().mockResolvedValue({});
     api.getSupplierDocumentFile.mockReset().mockResolvedValue({ url: "https://example.test/source", expires_in: 60 });
@@ -124,16 +126,59 @@ describe("case detail", () => {
     expect(reviewApi.getReviewOverview).toHaveBeenCalledTimes(1);
   });
 
-  it("separates product and supplier uploads so the selected section guides classification", async () => {
+  it("keeps both sections open when formulation is selected before supplier documents", async () => {
+    api.listFormulationDocuments.mockResolvedValueOnce([{
+      id: "attachment-new", original_filename: "supplier.pdf", processing_status: "uploaded",
+    }]);
     const user = userEvent.setup();
     render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Formulation workspace</div>} /></Routes></MemoryRouter>);
     const formulation = new File(["Ingredient,Concentration\nOPTASENSE,2%"], "formula.csv", { type: "text/csv" });
+    const supplier = new File(["supplier"], "supplier.pdf", { type: "application/pdf" });
 
     expect(await screen.findByRole("heading", { name: "Product Formulation" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /Supplier Documents/ })).toBeInTheDocument();
     await user.upload(screen.getByLabelText("Choose product formulation"), formulation);
+    expect(screen.getByText("formula.csv")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add supplier documents" })).toBeEnabled();
+    expect(api.uploadCaseDocumentSelection).not.toHaveBeenCalled();
 
-    await waitFor(() => expect(api.uploadCaseFormulation).toHaveBeenCalledWith("case-1", formulation));
+    await user.upload(screen.getByLabelText("Choose supplier documents"), supplier);
+    expect(screen.getByText("supplier.pdf")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadCaseDocumentSelection).toHaveBeenCalledWith("case-1", formulation, [supplier]));
+    expect(api.interpretFormulationDocument).toHaveBeenCalledWith("attachment-new");
+    expect(await screen.findByText("Formulation workspace")).toBeInTheDocument();
+  });
+
+  it("allows supplier documents to be selected before the formulation", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Formulation workspace</div>} /></Routes></MemoryRouter>);
+    const supplier = new File(["supplier"], "supplier-first.pdf", { type: "application/pdf" });
+    const formulation = new File(["ingredient,concentration"], "formula-later.csv", { type: "text/csv" });
+
+    await user.upload(await screen.findByLabelText("Choose supplier documents"), supplier);
+    expect(screen.getByRole("button", { name: /Select new formulation version/ })).toBeEnabled();
+    await user.upload(screen.getByLabelText("Choose product formulation"), formulation);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadCaseDocumentSelection).toHaveBeenCalledWith("case-1", formulation, [supplier]));
+  });
+
+  it("processes multiple selected supplier PDFs together", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Formulation workspace</div>} /></Routes></MemoryRouter>);
+    const formulation = new File(["ingredient,concentration"], "formula.csv", { type: "text/csv" });
+    const suppliers = [
+      new File(["one"], "one.pdf", { type: "application/pdf" }),
+      new File(["two"], "two.pdf", { type: "application/pdf" }),
+      new File(["three"], "three.pdf", { type: "application/pdf" }),
+    ];
+    await user.upload(await screen.findByLabelText("Choose product formulation"), formulation);
+    await user.upload(screen.getByLabelText("Choose supplier documents"), suppliers);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadCaseDocumentSelection).toHaveBeenCalledWith("case-1", formulation, suppliers));
   });
 
   it("uploads supplier documents directly to the current formulation and processes them", async () => {
@@ -144,10 +189,25 @@ describe("case detail", () => {
     const sds = new File(["sds"], "supplier-sds.pdf", { type: "application/pdf", lastModified: 1 });
 
     await user.upload(await screen.findByLabelText("Choose supplier documents"), sds);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
 
     await waitFor(() => expect(api.uploadFormulationDocuments).toHaveBeenCalledWith("version-2", [sds]));
     expect(api.interpretFormulationDocument).toHaveBeenCalledWith("attachment-1");
-    expect(await screen.findByRole("status")).toHaveTextContent("attached to the current formulation");
+  });
+
+  it("adds supplier documents to a screened formulation without replacing its history", async () => {
+    api.getCase.mockResolvedValueOnce({ ...savedCase, formulations: [savedCase.formulations[1]] });
+    api.uploadFormulationDocuments.mockResolvedValueOnce({ documents: [], failures: [] });
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Updated formulation review</div>} /></Routes></MemoryRouter>);
+    const supplier = new File(["revision"], "new-supplier.pdf", { type: "application/pdf" });
+
+    await user.upload(await screen.findByLabelText("Choose supplier documents"), supplier);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadFormulationDocuments).toHaveBeenCalledWith("version-1", [supplier]));
+    expect(api.deleteFormulationVersion).not.toHaveBeenCalled();
+    expect(await screen.findByText("Updated formulation review")).toBeInTheDocument();
   });
 
   it("retains supplier-only documents for review when no formulation exists", async () => {
@@ -163,11 +223,48 @@ describe("case detail", () => {
     const datasheet = new File(["composition"], "trade-name.pdf", { type: "application/pdf" });
 
     await user.upload(await screen.findByLabelText("Choose supplier documents"), datasheet);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
 
     await waitFor(() => expect(api.uploadCaseSupplierDocuments).toHaveBeenCalledWith("case-1", [datasheet]));
     expect(await screen.findByText("Supplier-only review")).toBeInTheDocument();
     expect(screen.getByText("TradeName X")).toBeInTheDocument();
     expect(screen.getByText(/no finished-product screening/i)).toBeInTheDocument();
+  });
+
+  it("supports a simple formulation with no supplier documents", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Simple formulation review</div>} /></Routes></MemoryRouter>);
+    const formulation = new File(["ingredient,concentration\nAQUA,90%"], "simple.csv", { type: "text/csv" });
+
+    await user.upload(await screen.findByLabelText("Choose product formulation"), formulation);
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadCaseDocumentSelection).toHaveBeenCalledWith("case-1", formulation, []));
+    expect(await screen.findByText("Simple formulation review")).toBeInTheDocument();
+  });
+
+  it("allows replacement, removal, and retry after a failed upload", async () => {
+    api.uploadCaseDocumentSelection.mockRejectedValueOnce(new Error("Temporary upload failure")).mockResolvedValueOnce({ id: "version-3" });
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Recovered review</div>} /></Routes></MemoryRouter>);
+    const first = new File(["first"], "first.csv", { type: "text/csv" });
+    const replacement = new File(["replacement"], "replacement.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const removeMe = new File(["supplier"], "remove-me.pdf", { type: "application/pdf" });
+
+    await user.upload(await screen.findByLabelText("Choose product formulation"), first);
+    await user.upload(screen.getByLabelText("Choose product formulation"), replacement);
+    expect(screen.queryByText("first.csv")).not.toBeInTheDocument();
+    await user.upload(screen.getByLabelText("Choose supplier documents"), removeMe);
+    await user.click(within(screen.getByLabelText("Selected supplier documents")).getByRole("button", { name: "Remove" }));
+    expect(screen.queryByText("remove-me.pdf")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Temporary upload failure");
+    expect(screen.getByText("replacement.xlsx")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Continue \/ Process documents/ }));
+
+    await waitFor(() => expect(api.uploadCaseDocumentSelection).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText("Recovered review")).toBeInTheDocument();
   });
 
   it("lets a reviewer confirm the role of a standalone supplier document", async () => {
