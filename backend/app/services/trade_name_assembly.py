@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 import hashlib
+import re
 from typing import Any
 
 from backend.app.models.agent import AgentSessionView
@@ -35,7 +36,46 @@ from backend.app.services.loader import RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 
 
-ASSEMBLY_DERIVATION_VERSION = "assembly-v2"
+ASSEMBLY_DERIVATION_VERSION = "assembly-v3"
+
+
+_DOCUMENT_SUFFIX_RE = re.compile(
+    r"(?:\s+(?:supplier\s+)?composition(?:\s+statement)?|\s+(?:sds|msds))"
+    r"(?:\s+(?:rev(?:ision)?|version)\s*[a-z0-9._-]+)?$",
+    re.I,
+)
+
+
+def _commercial_aliases(value: str | None) -> set[str]:
+    """Return conservative exact aliases for a commercial material label.
+
+    Supplier files often use a filename such as
+    ``01_ClariPreserve_P70_Supplier_Composition.pdf`` while the finished
+    formulation contains ``ClariPreserve P70``.  These are the same explicit
+    commercial label, not a fuzzy chemical-name match.  Normalisation is kept
+    deliberately narrow so similar trade names are never merged implicitly.
+    """
+    if not value or not value.strip():
+        return set()
+    text = value.strip()
+    text = re.sub(r"\.(?:pdf|xlsx?|csv)$", "", text, flags=re.I)
+    text = re.sub(r"[_]+", " ", text)
+    text = re.sub(r"^\s*\d+[\s._-]+", "", text)
+    base = " ".join(text.casefold().split())
+    cleaned = _DOCUMENT_SUFFIX_RE.sub("", base).strip(" ._-")
+
+    def compact(candidate: str) -> str:
+        return " ".join(re.findall(r"[a-z0-9]+", candidate.casefold()))
+
+    return {alias for alias in {compact(base), compact(cleaned)} if alias}
+
+
+def _material_aliases(material: SupplierMaterial) -> set[str]:
+    return {
+        alias
+        for value in (material.trade_name, material.product_code)
+        for alias in _commercial_aliases(value)
+    }
 
 
 def _identity_group(
@@ -202,19 +242,21 @@ def _material_usage_from_agent_row(row: Any) -> CompositionQuantity | None:
 
 def _agent_material_usage_by_name(
     agent_state: dict[str, Any] | None,
-) -> dict[str, list[CompositionQuantity]]:
+) -> dict[str, dict[str, CompositionQuantity]]:
     if not agent_state:
         return {}
     try:
         session = AgentSessionView.model_validate(agent_state)
     except ValueError:
         return {}
-    output: dict[str, list[CompositionQuantity]] = {}
+    output: dict[str, dict[str, CompositionQuantity]] = {}
     for row in session.interpreted_rows:
-        name = " ".join(str(row.name.value or "").casefold().split())
         usage = _material_usage_from_agent_row(row)
-        if name and usage is not None:
-            output.setdefault(name, []).append(usage)
+        if usage is None:
+            continue
+        for value in (row.name.value, row.name.source_value):
+            for alias in _commercial_aliases(str(value or "")):
+                output.setdefault(alias, {})[row.row_id] = usage
     return output
 
 
@@ -239,17 +281,12 @@ def matched_trade_material_row_ids(
         )
     except ValueError:
         return set()
-    parent_names = {
-        " ".join(value.casefold().split())
-        for material in materials
-        for value in (material.trade_name, material.product_code)
-        if value and value.strip()
-    }
+    parent_names = {alias for material in materials for alias in _material_aliases(material)}
     return {
         row.row_id
         for row in session.interpreted_rows
         if any(
-            " ".join(str(value or "").casefold().split()) in parent_names
+            bool(_commercial_aliases(str(value or "")) & parent_names)
             for value in (row.name.value, row.name.source_value)
         )
     }
@@ -273,7 +310,10 @@ def _direct_rows_from_agent(
     output: list[DirectIngredient] = []
     for row in session.interpreted_rows:
         name = str(row.name.value or "").strip()
-        if not name or " ".join(name.casefold().split()) in excluded_parent_names:
+        row_aliases = _commercial_aliases(name) | _commercial_aliases(
+            str(row.name.source_value or "")
+        )
+        if not name or row_aliases & excluded_parent_names:
             continue
         cas_number = str(row.cas_number.value).strip() if row.cas_number and row.cas_number.value else None
         ingredient = FormulationIngredientRequest(
@@ -365,6 +405,11 @@ def derive_assembly_state(
         )
         if inferred_supplier_role and recommended_role is not None:
             confirmed_roles = {recommended_role}
+        is_supplier_document = bool(
+            confirmed_roles & {DocumentRole.SUPPLIER_COMPOSITION, DocumentRole.SDS_MSDS}
+            or extraction.supplier_materials
+            and recommended_role in {DocumentRole.SUPPLIER_COMPOSITION, DocumentRole.SDS_MSDS}
+        )
         for material in extraction.supplier_materials:
             resolved_rows = [
                 _resolve_constituent(
@@ -398,8 +443,9 @@ def derive_assembly_state(
                 ),
             })
             normalized_supplier = " ".join((normalized.supplier_name or "").casefold().split())
-            normalized_trade = " ".join(normalized.trade_name.casefold().split())
-            normalized_code = " ".join((normalized.product_code or "").casefold().split())
+            normalized_trade = sorted(_commercial_aliases(normalized.trade_name))[0]
+            normalized_codes = sorted(_commercial_aliases(normalized.product_code))
+            normalized_code = normalized_codes[0] if normalized_codes else ""
             material_key = (
                 f"code:{normalized_code}"
                 if normalized_code else f"supplier:{normalized_supplier}|trade:{normalized_trade}"
@@ -407,20 +453,21 @@ def derive_assembly_state(
             material_candidates.setdefault(material_key, []).append(
                 (document_id, normalized, governing, confirmed_roles)
             )
-            parent_names.update({
-                " ".join(value.casefold().split())
-                for value in (normalized.trade_name, normalized.product_code)
-                if value
-            })
-        direct_ingredients.extend(
-            _resolved_direct(
-                row,
-                store=store,
-                catalogue=catalogue,
-                linkages=linkages,
+            parent_names.update(_material_aliases(normalized))
+        # A supplier composition describes constituents inside a commercial
+        # parent material. Its rows must never also be treated as direct
+        # finished-product additions, even when an older extraction snapshot
+        # retained both representations.
+        if not is_supplier_document:
+            direct_ingredients.extend(
+                _resolved_direct(
+                    row,
+                    store=store,
+                    catalogue=catalogue,
+                    linkages=linkages,
+                )
+                for row in extraction.direct_ingredients
             )
-            for row in extraction.direct_ingredients
-        )
 
     agent_usage = _agent_material_usage_by_name(agent_state)
     materials: list[SupplierMaterial] = []
@@ -450,13 +497,11 @@ def derive_assembly_state(
             if DocumentRole.SDS_MSDS in selected_roles
             else selected_material.disclosure_status
         )
-        usage_candidates: list[CompositionQuantity] = []
-        for candidate_name in (selected_material.trade_name, selected_material.product_code):
-            normalized_name = " ".join((candidate_name or "").casefold().split())
-            if normalized_name:
-                usage_candidates.extend(agent_usage.get(normalized_name, []))
+        usage_candidates: dict[str, CompositionQuantity] = {}
+        for alias in _material_aliases(selected_material):
+            usage_candidates.update(agent_usage.get(alias, {}))
         finished_product_usage = (
-            usage_candidates[0] if len(usage_candidates) == 1 else None
+            next(iter(usage_candidates.values())) if len(usage_candidates) == 1 else None
         )
         materials.append(selected_material.model_copy(update={
             "material_id": stable_id,

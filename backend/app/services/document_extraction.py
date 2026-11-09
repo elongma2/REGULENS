@@ -595,9 +595,19 @@ def extract_document(
                 source_evidence=[evidence],
                 verified_identity_group=identity_resolver(name, cas) if identity_resolver else None,
             ))
+        fallback_trade_name = re.sub(r"\.(?:pdf|xlsx?|csv)$", "", parsed.filename, flags=re.I)
+        fallback_trade_name = re.sub(r"[_]+", " ", fallback_trade_name)
+        fallback_trade_name = re.sub(r"^\s*\d+[\s._-]+", "", fallback_trade_name)
+        fallback_trade_name = re.sub(
+            r"\s+(?:supplier\s+)?composition(?:\s+statement)?"
+            r"(?:\s+(?:rev(?:ision)?|version)\s*[a-z0-9._-]+)?$",
+            "",
+            fallback_trade_name,
+            flags=re.I,
+        ).strip()
         material = SupplierMaterial(
             material_id=f"{document_id}:material:1",
-            trade_name=classification.trade_name or parsed.filename,
+            trade_name=classification.trade_name or fallback_trade_name or parsed.filename,
             supplier_name=classification.supplier_name,
             product_code=classification.product_code,
             attached_document_ids=[document_id],

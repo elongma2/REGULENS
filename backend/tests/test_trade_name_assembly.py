@@ -18,6 +18,7 @@ from backend.app.models.document_intake import (
     CompositionQuantity,
     ConfirmationStatus,
     DisclosureStatus,
+    DirectIngredient,
     DocumentClassification,
     DocumentExtraction,
     DocumentRole,
@@ -25,6 +26,10 @@ from backend.app.models.document_intake import (
     FormulationAssemblyState,
     MaterialConstituent,
     SupplierMaterial,
+)
+from backend.app.models.formulation import (
+    FormulationConcentration,
+    FormulationIngredientRequest,
 )
 from backend.app.services.trade_name_assembly import (
     _identity_group,
@@ -473,3 +478,166 @@ def test_finished_formulation_trade_name_usage_populates_parent_material(monkeyp
     assert material.finished_product_usage.value == 2
     assert material.finished_product_usage.quantity_scope == "finished_product"
     assert all(row.ingredient.name != "OPTASENSE" for row in state.direct_ingredients)
+
+
+def test_filename_material_alias_owns_parent_row_and_legacy_direct_rows_are_ignored(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        "backend.app.services.trade_name_assembly._identity_group",
+        lambda _store, _catalogue, _linkages, name, _cas: (
+            f"catalogue:{name.casefold().replace(' ', '-')}"
+        ),
+    )
+    agent_state = {
+        "session_id": "version-1",
+        "revision": 1,
+        "state": "interpreted",
+        "filename": "formula.xlsx",
+        "interpreted_rows": [
+            {
+                "row_id": "material-row",
+                "source_row": 2,
+                "source_cells": ["ClariPreserve P70", "1%"],
+                "name": {
+                    "value": "ClariPreserve P70",
+                    "source_value": "ClariPreserve P70",
+                    "source_row": 2,
+                    "interpretation_method": "exact_source",
+                },
+                "concentration": {
+                    "concentration_type": {
+                        "value": "exact", "source_value": "1%", "source_row": 2,
+                        "interpretation_method": "exact_source",
+                    },
+                    "value": {
+                        "value": 1, "source_value": "1%", "source_row": 2,
+                        "interpretation_method": "parsed_source",
+                    },
+                    "original_text": "1%",
+                    "unit": {
+                        "value": "percent", "source_value": "%", "source_row": 2,
+                        "interpretation_method": "exact_source",
+                    },
+                    "basis": {
+                        "value": None, "source_value": None, "source_row": 2,
+                        "interpretation_method": "not_supplied",
+                    },
+                    "preparation_stage": {
+                        "value": "finished_product", "source_value": "finished product",
+                        "source_row": 2, "interpretation_method": "exact_source",
+                    },
+                },
+                "identity_status": "unresolved",
+            },
+            {
+                "row_id": "aqua-row",
+                "source_row": 3,
+                "source_cells": ["AQUA", "91%"],
+                "name": {
+                    "value": "AQUA", "source_value": "AQUA", "source_row": 3,
+                    "interpretation_method": "exact_name",
+                },
+                "concentration": {
+                    "concentration_type": {
+                        "value": "exact", "source_value": "91%", "source_row": 3,
+                        "interpretation_method": "exact_source",
+                    },
+                    "value": {
+                        "value": 91, "source_value": "91%", "source_row": 3,
+                        "interpretation_method": "parsed_source",
+                    },
+                    "original_text": "91%",
+                    "unit": {
+                        "value": "percent", "source_value": "%", "source_row": 3,
+                        "interpretation_method": "exact_source",
+                    },
+                    "basis": {
+                        "value": None, "source_value": None, "source_row": 3,
+                        "interpretation_method": "not_supplied",
+                    },
+                    "preparation_stage": {
+                        "value": "finished_product", "source_value": "finished product",
+                        "source_row": 3, "interpretation_method": "exact_source",
+                    },
+                },
+                "identity_status": "confirmed",
+            },
+        ],
+    }
+    extraction = DocumentExtraction(
+        document_id="supplier-doc",
+        classification=DocumentClassification(
+            proposed_roles=[DocumentRoleEvidence(
+                role=DocumentRole.SUPPLIER_COMPOSITION,
+                confidence="high",
+            )],
+            recommended_extraction_schema="supplier_composition",
+        ),
+        supplier_materials=[SupplierMaterial(
+            material_id="supplier-doc:material:1",
+            trade_name="01_ClariPreserve_P70_Supplier_Composition.pdf",
+            constituents=[MaterialConstituent(
+                constituent_id="phenoxyethanol",
+                submitted_name="PHENOXYETHANOL",
+                composition_quantity=_quantity(
+                    "exact", value=70, unit="percent",
+                    quantity_scope="supplier_material",
+                ),
+            )],
+        )],
+        # Some older extraction snapshots retained a direct representation as
+        # well as the supplier-material representation. It must not be counted.
+        direct_ingredients=[DirectIngredient(
+            ingredient_id="legacy-direct-phenoxyethanol",
+            ingredient=FormulationIngredientRequest(
+                name="PHENOXYETHANOL",
+                    concentration=FormulationConcentration(
+                        value=70,
+                        unit="percent",
+                        basis=None,
+                        preparation_stage="finished_product",
+                    ),
+            ),
+            source_document_id="supplier-doc",
+        )],
+        extraction_schema_version="trade-document-v1",
+    )
+
+    state = derive_assembly_state(
+        version_id="version-1",
+        formulation_name="Pilot",
+        agent_state=agent_state,
+        documents=[{
+            "id": "supplier-doc",
+            "confirmed_roles": ["supplier_composition"],
+            "governing_for_material": True,
+            "extraction_result": extraction.model_dump(mode="json"),
+        }],
+        store=object(),  # type: ignore[arg-type]
+        catalogue=None,
+        linkages=None,
+    )
+
+    assert state.materials[0].finished_product_usage is not None
+    assert state.materials[0].finished_product_usage.value == 1
+    assert [row.ingredient.name for row in state.direct_ingredients] == ["AQUA"]
+
+    _, prepared = prepare_trade_name_assembly(
+        assembly_revision=1,
+        state=state,
+        formulation_id="version-1",
+        source_filename="formula.xlsx",
+        store=object(),  # type: ignore[arg-type]
+        catalogue=None,
+        linkages=None,
+    )
+    aggregates = {
+        item.display_name: item.aggregate_quantity
+        for item in prepared.result.included_ingredients
+    }
+    assert aggregates["PHENOXYETHANOL"].value == pytest.approx(0.7)
+    assert aggregates["AQUA"].value == 91
+    assert "impossible_composition_total" not in {
+        issue.code for issue in prepared.result.issues
+    }

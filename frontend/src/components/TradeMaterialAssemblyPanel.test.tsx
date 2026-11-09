@@ -31,7 +31,7 @@ const preparation = {
   assembly_revision: 1,
   state: {
     direct_ingredients: [], source_document_ids: ["doc-1"],
-    source_document_snapshots: { "doc-1": "assembly-v2|key|revision:1|governing:true|roles:supplier_composition" },
+    source_document_snapshots: { "doc-1": "assembly-v3|key|revision:1|governing:true|roles:supplier_composition" },
     formulation_name: "Pilot",
     product_context: null, product_applicability: {},
     materials: [{
@@ -218,7 +218,7 @@ describe("TradeMaterialAssemblyPanel", () => {
       state: {
         ...preparation.state,
         source_document_snapshots: {
-          "doc-1": "assembly-v2|key-v2|revision:2|governing:true|roles:supplier_composition",
+          "doc-1": "assembly-v3|key-v2|revision:2|governing:true|roles:supplier_composition",
         },
       },
     };

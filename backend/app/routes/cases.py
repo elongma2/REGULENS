@@ -1008,7 +1008,12 @@ def _merge_assembly_state(
             and item.user_edits.get("added_by_reviewer") is True
         )
         return discovered_material.model_copy(update={
-            "finished_product_usage": previous.finished_product_usage,
+            # Prefer an explicit retained reviewer value, but do not let a
+            # stale empty snapshot erase usage now found in the formulation.
+            "finished_product_usage": (
+                previous.finished_product_usage
+                or discovered_material.finished_product_usage
+            ),
             "disclosure_status": previous.disclosure_status,
             "confirmation_status": previous.confirmation_status,
             "constituents": merged_constituents,

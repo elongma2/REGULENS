@@ -206,6 +206,30 @@ def test_refresh_drops_direct_rows_from_detached_documents() -> None:
     ]
 
 
+def test_refresh_uses_newly_discovered_formula_usage_when_saved_snapshot_was_empty() -> None:
+    existing = FormulationAssemblyState(materials=[SupplierMaterial(
+        material_id="material-1",
+        trade_name="ClariPreserve P70",
+        finished_product_usage=None,
+    )])
+    discovered = FormulationAssemblyState(materials=[SupplierMaterial(
+        material_id="material-1",
+        trade_name="ClariPreserve P70",
+        finished_product_usage=CompositionQuantity(
+            kind="exact",
+            value=1,
+            unit="percent",
+            quantity_scope="finished_product",
+            preparation_stage="finished_product",
+        ),
+    )])
+
+    merged = _merge_assembly_state(existing, discovered)
+
+    assert merged.materials[0].finished_product_usage is not None
+    assert merged.materials[0].finished_product_usage.value == 1
+
+
 def test_supplier_document_delete_requires_an_unreferenced_private_source() -> None:
     deleted: list[tuple[UUID, UUID]] = []
     document_id = UUID("33333333-3333-3333-3333-333333333333")

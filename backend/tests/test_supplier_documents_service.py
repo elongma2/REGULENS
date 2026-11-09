@@ -219,7 +219,7 @@ def test_existing_hash_attaches_without_upload_or_processing(monkeypatch: pytest
 
 def test_saved_extraction_compatibility_checks_schema_and_processor_configuration() -> None:
     deterministic = {
-        "extraction_schema_version": "trade-document-v1",
+        "extraction_schema_version": "trade-document-v2",
         "extraction_result": {"supplier_materials": [{}]},
         "model_configuration": "deterministic-trade-document-v1",
         "processing_diagnostics": {"model_calls": 0},
