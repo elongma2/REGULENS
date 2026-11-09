@@ -26,6 +26,8 @@ from backend.app.services.ingredient_linkage import (
 )
 from backend.app.services.source_rendering import IdentitySourceEvidenceRenderer, SourceEvidenceRenderer
 from backend.app.services.review_explanations import ReviewExplanationService
+from backend.app.services.document_vision import OpenAIDocumentVisionExtractor
+from backend.app.services.document_text import OpenAITextDocumentExtractor
 from backend.app.services.supabase_gateway import SupabaseGateway
 
 
@@ -108,6 +110,22 @@ def create_app(
             review_explanation_factory(settings)
             if review_explanation_factory is not None
             else ReviewExplanationService(settings.api_key, settings.explanation_model)
+        )
+        application.state.document_vision_extractor = (
+            OpenAIDocumentVisionExtractor(
+                settings.api_key,
+                settings.document_model,
+                timeout_seconds=settings.agent_timeout_seconds,
+            )
+            if settings.api_key else None
+        )
+        application.state.document_text_extractor = (
+            OpenAITextDocumentExtractor(
+                settings.api_key,
+                settings.document_model,
+                timeout_seconds=settings.agent_timeout_seconds,
+            )
+            if settings.api_key else None
         )
         if supabase_gateway_factory is not None:
             application.state.supabase_gateway = supabase_gateway_factory(settings)

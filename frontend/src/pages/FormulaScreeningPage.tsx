@@ -231,7 +231,7 @@ export function FormulaScreeningPage() {
 
         {response && <ScreeningResultsPanel response={response} selectedRow={selectedRow} onSelect={setSelectedRow} />}
       </main>
-      <EvidenceDrawer result={selectedResult} sources={response?.dataset.sources ?? []} explanationMetadata={response?.review_explanation_metadata ?? null} onClose={() => setSelectedRow(null)} />
+      <EvidenceDrawer result={selectedResult} sources={response?.dataset.sources ?? []} explanationMetadata={response?.review_explanation_metadata ?? null} assemblyCalculationSnapshot={response?.formulation.assembly_calculation_snapshot ?? null} onClose={() => setSelectedRow(null)} />
     </div>
   );
 }

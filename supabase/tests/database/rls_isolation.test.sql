@@ -1,5 +1,5 @@
 begin;
-select plan(30);
+select plan(44);
 
 insert into auth.users (
     instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -75,6 +75,55 @@ insert into storage.objects (bucket_id, name)
 select 'formulation-files', organisation_id::text || '/11111111-aaaa-4aaa-8aaa-111111111111/11111111-bbbb-4bbb-8bbb-111111111111/serum.csv'
 from public.organisation_members where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
+insert into public.supplier_documents (
+    id, organisation_id, original_filename, storage_path, mime_type, sha256,
+    processing_status, library_status, created_by
+)
+select
+    '55555555-aaaa-4aaa-8aaa-111111111111', organisation_id,
+    'supplier-sds.pdf', organisation_id::text || '/supplier-documents/55555555-aaaa-4aaa-8aaa-111111111111/supplier-sds.pdf',
+    'application/pdf', repeat('a', 64), 'ready', 'available', user_id
+from public.organisation_members
+where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+insert into public.supplier_documents (
+    id, organisation_id, original_filename, storage_path, mime_type, sha256,
+    processing_status, library_status, created_by
+)
+select
+    '55555555-aaaa-4aaa-8aaa-222222222222', organisation_id,
+    'supplier-sds-rev2.pdf', organisation_id::text || '/supplier-documents/55555555-aaaa-4aaa-8aaa-222222222222/supplier-sds-rev2.pdf',
+    'application/pdf', repeat('b', 64), 'ready', 'available', user_id
+from public.organisation_members
+where user_id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+
+insert into public.supplier_documents (
+    id, organisation_id, original_filename, storage_path, mime_type, sha256,
+    processing_status, library_status, created_by
+)
+select
+    '55555555-bbbb-4bbb-8bbb-222222222222', organisation_id,
+    'other-workspace-sds.pdf', organisation_id::text || '/supplier-documents/55555555-bbbb-4bbb-8bbb-222222222222/other-workspace-sds.pdf',
+    'application/pdf', repeat('c', 64), 'ready', 'available', user_id
+from public.organisation_members
+where user_id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+
+insert into public.formulation_documents (
+    id, formulation_version_id, supplier_document_id, original_filename,
+    mime_type, sha256, processing_status, created_by
+) values (
+    '55555555-bbbb-4bbb-8bbb-111111111111',
+    '11111111-bbbb-4bbb-8bbb-111111111111',
+    '55555555-aaaa-4aaa-8aaa-111111111111',
+    'supplier-sds.pdf', 'application/pdf', repeat('a', 64), 'ready',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+);
+
+insert into storage.objects (bucket_id, name)
+select 'formulation-files', storage_path
+from public.supplier_documents
+where id = '55555555-aaaa-4aaa-8aaa-111111111111';
+
 do $$
 begin
     perform public.create_formulation_version(
@@ -109,6 +158,52 @@ select is((select count(*) from public.review_items where id = '11111111-ffff-4f
 select is((select count(*) from public.reviewer_notes where id = '33333333-aaaa-4aaa-8aaa-111111111111'), 1::bigint, 'User A can select their reviewer note');
 select is((select count(*) from public.follow_up_actions where id = '33333333-bbbb-4bbb-8bbb-111111111111'), 1::bigint, 'User A can select their follow-up');
 select is((select count(*) from storage.objects where name like '%/serum.csv'), 1::bigint, 'User A can select their private file');
+select is((select count(*) from public.supplier_documents where id = '55555555-aaaa-4aaa-8aaa-111111111111'), 1::bigint, 'User A can select their saved supplier document');
+select is((select count(*) from public.formulation_documents where id = '55555555-bbbb-4bbb-8bbb-111111111111'), 1::bigint, 'User A can select their formulation document attachment');
+select is((select count(*) from storage.objects where name like '%/supplier-sds.pdf'), 1::bigint, 'User A can select their private supplier source');
+
+update public.supplier_documents
+set supersedes_supplier_document_id = '55555555-aaaa-4aaa-8aaa-111111111111'
+where id = '55555555-aaaa-4aaa-8aaa-222222222222';
+select is(
+    (select supersedes_supplier_document_id from public.supplier_documents where id = '55555555-aaaa-4aaa-8aaa-222222222222'),
+    '55555555-aaaa-4aaa-8aaa-111111111111'::uuid,
+    'User A can record an explicit same-workspace supplier revision'
+);
+select throws_ok(
+    $$update public.supplier_documents set supersedes_supplier_document_id = '55555555-aaaa-4aaa-8aaa-222222222222' where id = '55555555-aaaa-4aaa-8aaa-111111111111'$$,
+    '23514', null,
+    'supplier-document revision lineage rejects cycles'
+);
+select throws_ok(
+    $$update public.supplier_documents set supersedes_supplier_document_id = '55555555-bbbb-4bbb-8bbb-222222222222' where id = '55555555-aaaa-4aaa-8aaa-222222222222'$$,
+    '23514', null,
+    'supplier-document revision lineage rejects cross-workspace predecessors'
+);
+select throws_ok(
+    $$update public.supplier_documents set sha256 = repeat('d', 64) where id = '55555555-aaaa-4aaa-8aaa-111111111111'$$,
+    '23514', 'supplier_document_provenance_is_immutable',
+    'saved supplier-document storage identity cannot be rewritten through the browser role'
+);
+select throws_ok(
+    $$update public.formulation_documents set supplier_document_id = '55555555-aaaa-4aaa-8aaa-222222222222' where id = '55555555-bbbb-4bbb-8bbb-111111111111'$$,
+    '23514', 'formulation_document_provenance_is_immutable',
+    'a formulation attachment remains pinned to its exact saved supplier revision'
+);
+select throws_ok(
+    $$insert into public.formulation_documents (
+        id, formulation_version_id, supplier_document_id, original_filename,
+        mime_type, sha256, processing_status, created_by
+    ) values (
+        '66666666-bbbb-4bbb-8bbb-111111111111',
+        '11111111-bbbb-4bbb-8bbb-111111111111',
+        '55555555-bbbb-4bbb-8bbb-222222222222',
+        'cross-workspace.pdf', 'application/pdf', repeat('c', 64), 'ready',
+        'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'
+    )$$,
+    '23514', 'formulation_document_supplier_case_mismatch',
+    'a saved supplier document cannot be attached across organisation boundaries'
+);
 
 select throws_ok(
     $$update public.review_items set engine_finding = 'restriction_exceeded' where id = '11111111-ffff-4fff-8fff-111111111111'$$,
@@ -136,9 +231,16 @@ select is((select count(*) from public.review_items where id = '11111111-ffff-4f
 select is((select count(*) from public.reviewer_notes where id = '33333333-aaaa-4aaa-8aaa-111111111111'), 0::bigint, 'User B cannot select User A reviewer note');
 select is((select count(*) from public.follow_up_actions where id = '33333333-bbbb-4bbb-8bbb-111111111111'), 0::bigint, 'User B cannot select User A follow-up');
 select is((select count(*) from storage.objects where name like '%/serum.csv'), 0::bigint, 'User B cannot select User A private file');
+select is((select count(*) from public.supplier_documents where id = '55555555-aaaa-4aaa-8aaa-111111111111'), 0::bigint, 'User B cannot select User A saved supplier document');
+select is((select count(*) from public.formulation_documents where id = '55555555-bbbb-4bbb-8bbb-111111111111'), 0::bigint, 'User B cannot select User A formulation attachment');
+select is((select count(*) from storage.objects where name like '%/supplier-sds.pdf'), 0::bigint, 'User B cannot select User A private supplier source');
+delete from public.formulation_documents where id = '55555555-bbbb-4bbb-8bbb-111111111111';
+delete from public.supplier_documents where id = '55555555-aaaa-4aaa-8aaa-111111111111';
 delete from public.formulation_versions where id = '11111111-bbbb-4bbb-8bbb-111111111111';
 reset role;
 select is((select count(*) from public.formulation_versions where id = '11111111-bbbb-4bbb-8bbb-111111111111'), 1::bigint, 'User B cannot delete User A formulation');
+select is((select count(*) from public.formulation_documents where id = '55555555-bbbb-4bbb-8bbb-111111111111'), 1::bigint, 'User B cannot delete User A formulation attachment');
+select is((select count(*) from public.supplier_documents where id = '55555555-aaaa-4aaa-8aaa-111111111111'), 1::bigint, 'User B cannot delete User A saved supplier document');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', true);

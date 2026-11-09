@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findingPresentation, formatConcentration, isSingaporeEvaluation, requiresAttention, supportingSingaporeEvaluations } from "./screening";
+import { findingPresentation, formatConcentration, ingredientReviewIssues, ingredientScreeningDisposition, isSingaporeEvaluation, requiresAttention, supportingSingaporeEvaluations } from "./screening";
 import { baseResult, evidence } from "../test/fixtures";
 
 describe("Singapore table rule selection", () => {
@@ -85,15 +85,38 @@ describe("requiresAttention", () => {
   });
 });
 
+describe("legacy assembly-result presentation", () => {
+  it("keeps formulation coverage out of an otherwise complete ingredient result", () => {
+    const result = baseResult(1, "GLYCERIN");
+    result.screening_disposition = "partially_evaluated";
+    result.review_issues = [{
+      code: "assembly_incomplete",
+      severity: "information_missing",
+      scope: "screening",
+      message: "Another material is incomplete.",
+      reviewer_action: "Review the formulation.",
+      rule_id: null,
+      source_reference: null,
+      missing_facts: [],
+      related_rule_ids: [],
+      related_constituent_references: [],
+    }];
+
+    expect(ingredientScreeningDisposition(result)).toBe("fully_evaluated");
+    expect(ingredientReviewIssues(result)).toEqual([]);
+    expect(findingPresentation.no_issue_identified_within_scoped_rules.label).toBe("No applicable restriction identified");
+  });
+});
+
 describe("formatConcentration", () => {
   const semantics = { unit: "percent" as const, basis: null, preparation_stage: "finished_product" as const };
 
   it("preserves exact, ranged, bounded, approximate, and undisclosed quantities", () => {
-    expect(formatConcentration({ ...semantics, concentration_type: "exact", value: 1 })).toBe("1%");
-    expect(formatConcentration({ ...semantics, concentration_type: "range", value: null, lower_bound: 0.5, upper_bound: 2 })).toBe("0.5–2%");
-    expect(formatConcentration({ ...semantics, concentration_type: "upper_bound", value: null, upper_bound: 1, upper_inclusive: false })).toBe("<1%");
-    expect(formatConcentration({ ...semantics, concentration_type: "lower_bound", value: null, lower_bound: 0.1, lower_inclusive: true })).toBe("≥0.1%");
-    expect(formatConcentration({ ...semantics, concentration_type: "approximate", value: 1 })).toBe("Approximately 1%");
-    expect(formatConcentration({ ...semantics, concentration_type: "unknown", value: null, unit: null, preparation_stage: null })).toBe("Not disclosed");
+    expect(formatConcentration({ ...semantics, concentration_type: "exact", value: 0.6, original_text: "(6%) x (10%) / 100" })).toBe("0.60%");
+    expect(formatConcentration({ ...semantics, concentration_type: "range", value: null, lower_bound: 0.04, upper_bound: 0.2 })).toBe("0.04–0.20%");
+    expect(formatConcentration({ ...semantics, concentration_type: "upper_bound", value: null, upper_bound: 1, upper_inclusive: true })).toBe("≤1.00%");
+    expect(formatConcentration({ ...semantics, concentration_type: "lower_bound", value: null, lower_bound: 0.1, lower_inclusive: true })).toBe("≥0.10%");
+    expect(formatConcentration({ ...semantics, concentration_type: "approximate", value: 0.5 })).toBe("≈0.50%");
+    expect(formatConcentration({ ...semantics, concentration_type: "unknown", value: null, unit: null, preparation_stage: null })).toBe("Unknown");
   });
 });

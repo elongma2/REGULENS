@@ -33,6 +33,10 @@ class FormulationDeletionError(RuntimeError):
     pass
 
 
+class SupplierDocumentDeletionError(RuntimeError):
+    pass
+
+
 class AccountDeletionError(RuntimeError):
     pass
 
@@ -107,6 +111,24 @@ class SupabaseGateway:
         self._case_row(user_id, rows[0]["case_id"])
         return rows[0]
 
+    def _supplier_document_row(self, user_id: UUID, document_id: str | UUID) -> dict[str, Any]:
+        rows = self.client.table("supplier_documents").select("*").eq(
+            "id", str(document_id)
+        ).limit(1).execute().data or []
+        if not rows:
+            raise ResourceNotFoundError("Supplier document not found")
+        self.require_organisation_member(user_id, rows[0]["organisation_id"])
+        return rows[0]
+
+    def _formulation_document_row(self, user_id: UUID, document_id: str | UUID) -> dict[str, Any]:
+        rows = self.client.table("formulation_documents").select("*").eq(
+            "id", str(document_id)
+        ).limit(1).execute().data or []
+        if not rows:
+            raise ResourceNotFoundError("Formulation document not found")
+        self._version_row(user_id, rows[0]["formulation_version_id"])
+        return rows[0]
+
     def list_cases(self, user_id: UUID) -> list[dict[str, Any]]:
         organisation_ids = [item["organisation_id"] for item in self._memberships(user_id)]
         if not organisation_ids:
@@ -177,8 +199,21 @@ class SupabaseGateway:
 
     def delete_case(self, user_id: UUID, case_id: str | UUID) -> None:
         self._case_row(user_id, case_id)
-        versions = self.client.table("formulation_versions").select("source_storage_path").eq("case_id", str(case_id)).execute().data or []
-        paths = list(dict.fromkeys(item["source_storage_path"] for item in versions if item.get("source_storage_path")))
+        versions = self.client.table("formulation_versions").select("id,source_storage_path").eq("case_id", str(case_id)).execute().data or []
+        version_ids = [str(item["id"]) for item in versions]
+        attached_paths: list[str] = []
+        if version_ids:
+            attached = self.client.table("formulation_documents").select(
+                "storage_path,supplier_document_id"
+            ).in_("formulation_version_id", version_ids).execute().data or []
+            attached_paths = [
+                item["storage_path"] for item in attached
+                if item.get("storage_path") and not item.get("supplier_document_id")
+            ]
+        paths = list(dict.fromkeys([
+            *(item["source_storage_path"] for item in versions if item.get("source_storage_path")),
+            *attached_paths,
+        ]))
         if paths:
             try:
                 self.client.storage.from_(FORMULATION_BUCKET).remove(paths)
@@ -196,10 +231,19 @@ class SupabaseGateway:
 
     def delete_formulation(self, user_id: UUID, version_id: str | UUID) -> str:
         version = self._version_row(user_id, version_id)
-        storage_path = version.get("source_storage_path")
-        if storage_path:
+        attached = self.client.table("formulation_documents").select(
+            "storage_path,supplier_document_id"
+        ).eq("formulation_version_id", str(version_id)).execute().data or []
+        paths = list(dict.fromkeys([
+            *([version["source_storage_path"]] if version.get("source_storage_path") else []),
+            *(
+                item["storage_path"] for item in attached
+                if item.get("storage_path") and not item.get("supplier_document_id")
+            ),
+        ]))
+        if paths:
             try:
-                self.remove_file(storage_path)
+                self.client.storage.from_(FORMULATION_BUCKET).remove(paths)
             except Exception as error:
                 LOGGER.warning("Formulation %s storage cleanup failed; database deletion was not started", version_id, exc_info=True)
                 raise FormulationDeletionError(
@@ -244,12 +288,23 @@ class SupabaseGateway:
             ).execute().data or []
             case_ids = [str(item["id"]) for item in cases]
             if case_ids:
-                versions = self.client.table("formulation_versions").select("source_storage_path").in_(
+                versions = self.client.table("formulation_versions").select("id,source_storage_path").in_(
                     "case_id", case_ids
                 ).execute().data or []
-                paths = list(dict.fromkeys(
-                    item["source_storage_path"] for item in versions if item.get("source_storage_path")
-                ))
+                version_ids = [str(item["id"]) for item in versions]
+                attached = self.client.table("formulation_documents").select(
+                    "storage_path,supplier_document_id"
+                ).in_("formulation_version_id", version_ids).execute().data or [] if version_ids else []
+                paths.extend(item["source_storage_path"] for item in versions if item.get("source_storage_path"))
+                paths.extend(
+                    item["storage_path"] for item in attached
+                    if item.get("storage_path") and not item.get("supplier_document_id")
+                )
+            library_documents = self.client.table("supplier_documents").select("storage_path").in_(
+                "organisation_id", organisation_ids
+            ).execute().data or []
+            paths.extend(item["storage_path"] for item in library_documents if item.get("storage_path"))
+            paths = list(dict.fromkeys(paths))
         if paths:
             try:
                 self.client.storage.from_(FORMULATION_BUCKET).remove(paths)
@@ -286,6 +341,402 @@ class SupabaseGateway:
 
     def remove_file(self, path: str) -> None:
         self.client.storage.from_(FORMULATION_BUCKET).remove([path])
+
+    def list_supplier_documents(
+        self,
+        user_id: UUID,
+        *,
+        include_archived: bool = False,
+        available_only: bool = False,
+    ) -> list[dict[str, Any]]:
+        organisation_ids = [str(item["organisation_id"]) for item in self._memberships(user_id)]
+        if not organisation_ids:
+            return []
+        query = self.client.table("supplier_documents").select(
+            "id,organisation_id,original_filename,mime_type,sha256,page_count,"
+            "supplier_name,trade_name,product_code,document_revision_label,document_date,"
+            "supersedes_supplier_document_id,detected_roles,confirmed_roles,"
+            "extraction_schema_version,processing_status,library_status,"
+            "processing_diagnostics,error,processing_key,processing_attempt,revision,"
+            "last_used_at,created_at,updated_at"
+        ).in_("organisation_id", organisation_ids)
+        if not include_archived:
+            query = query.neq("library_status", "archived")
+        if available_only:
+            query = query.eq("library_status", "available")
+        return list(query.order("updated_at", desc=True).execute().data or [])
+
+    def create_supplier_document(
+        self,
+        user_id: UUID,
+        *,
+        document_id: UUID,
+        organisation_id: UUID,
+        filename: str,
+        storage_path: str,
+        mime_type: str,
+        sha256: str,
+        page_count: int | None = None,
+        processing_status: str = "uploaded",
+        library_status: str = "processing",
+    ) -> tuple[dict[str, Any], bool]:
+        self.require_organisation_member(user_id, organisation_id)
+        existing = self.client.table("supplier_documents").select("*").eq(
+            "organisation_id", str(organisation_id)
+        ).eq("sha256", sha256).limit(1).execute().data or []
+        if existing:
+            return existing[0], True
+        row = {
+            "id": str(document_id),
+            "organisation_id": str(organisation_id),
+            "original_filename": filename,
+            "storage_path": storage_path,
+            "mime_type": mime_type,
+            "sha256": sha256,
+            "page_count": page_count,
+            "processing_status": processing_status,
+            "library_status": library_status,
+            "created_by": str(user_id),
+        }
+        return (self.client.table("supplier_documents").insert(row).execute().data or [])[0], False
+
+    def find_supplier_document_by_hash(
+        self,
+        user_id: UUID,
+        organisation_id: UUID,
+        sha256: str,
+    ) -> dict[str, Any] | None:
+        self.require_organisation_member(user_id, organisation_id)
+        rows = self.client.table("supplier_documents").select("*").eq(
+            "organisation_id", str(organisation_id)
+        ).eq("sha256", sha256).limit(1).execute().data or []
+        return rows[0] if rows else None
+
+    def get_supplier_document(self, user_id: UUID, document_id: UUID) -> dict[str, Any]:
+        row = dict(self._supplier_document_row(user_id, document_id))
+        row.pop("storage_path", None)
+        row.pop("parsed_content", None)
+        row.pop("extraction_result", None)
+        row.pop("model_configuration", None)
+        row.pop("processor_run_id", None)
+        row.pop("processing_started_at", None)
+        row.pop("heartbeat_at", None)
+        row.pop("lease_expires_at", None)
+        row.pop("created_by", None)
+        return row
+
+    def get_supplier_document_detail(self, user_id: UUID, document_id: UUID) -> dict[str, Any]:
+        row = dict(self._supplier_document_row(user_id, document_id))
+        for key in (
+            "storage_path", "processor_run_id", "processing_started_at",
+            "heartbeat_at", "lease_expires_at", "created_by",
+        ):
+            row.pop(key, None)
+        return row
+
+    def download_supplier_document_source(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+    ) -> tuple[dict[str, Any], bytes]:
+        """Return a private library source only after explicit membership checks."""
+        row = dict(self._supplier_document_row(user_id, document_id))
+        content = self.client.storage.from_(FORMULATION_BUCKET).download(row["storage_path"])
+        if not isinstance(content, bytes):
+            content = bytes(content)
+        return row, content
+
+    def update_supplier_document(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        *,
+        expected_revision: int,
+        changes: dict[str, Any],
+    ) -> dict[str, Any]:
+        current = self._supplier_document_row(user_id, document_id)
+        if current["revision"] != expected_revision:
+            raise RevisionConflictError("The supplier document changed; reload before continuing")
+        supersedes = changes.get("supersedes_supplier_document_id")
+        if supersedes:
+            predecessor_id = UUID(str(supersedes))
+            if predecessor_id == document_id:
+                raise ValueError("A supplier document cannot supersede itself")
+            predecessor = self._supplier_document_row(user_id, predecessor_id)
+            if predecessor["organisation_id"] != current["organisation_id"]:
+                raise ValueError("Supplier-document revisions must belong to the same organisation")
+            # Follow the existing predecessor chain so a reviewer cannot create
+            # a cycle that would make exact historical revision order ambiguous.
+            visited = {document_id}
+            cursor = predecessor
+            while cursor.get("supersedes_supplier_document_id"):
+                cursor_id = UUID(str(cursor["supersedes_supplier_document_id"]))
+                if cursor_id in visited:
+                    raise ValueError("Supplier-document revision lineage cannot contain a cycle")
+                visited.add(cursor_id)
+                cursor = self._supplier_document_row(user_id, cursor_id)
+                if cursor["organisation_id"] != current["organisation_id"]:
+                    raise ValueError("Supplier-document revisions must belong to the same organisation")
+        updates = {**changes, "revision": expected_revision + 1}
+        rows = self.client.table("supplier_documents").update(updates).eq(
+            "id", str(document_id)
+        ).eq("revision", expected_revision).execute().data or []
+        if not rows:
+            raise RevisionConflictError("The supplier document changed; reload before continuing")
+        return self.get_supplier_document(user_id, document_id)
+
+    def delete_supplier_document(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+    ) -> None:
+        """Permanently remove an unreferenced private library document."""
+        current = self._supplier_document_row(user_id, document_id)
+        referenced = self.client.rpc(
+            "supplier_document_is_referenced",
+            {"p_supplier_document_id": str(document_id)},
+        ).execute().data
+        if bool(referenced):
+            raise SupplierDocumentDeletionError(
+                "This saved supplier document is still attached to a formulation. "
+                "Detach it everywhere or archive it instead."
+            )
+        storage_path = str(current["storage_path"])
+        try:
+            self.remove_file(storage_path)
+        except Exception as error:
+            raise SupplierDocumentDeletionError(
+                "The private source file could not be removed. Nothing else was deleted."
+            ) from error
+        rows = self.client.table("supplier_documents").delete().eq(
+            "id", str(document_id)
+        ).execute().data or []
+        if not rows:
+            raise SupplierDocumentDeletionError(
+                "The saved supplier-document record could not be removed."
+            )
+
+    def persist_supplier_document_processing(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        *,
+        expected_revision: int,
+        changes: dict[str, Any],
+    ) -> dict[str, Any]:
+        allowed = {
+            "supplier_name", "trade_name", "product_code", "document_revision_label",
+            "document_date", "detected_roles", "confirmed_roles", "parsed_content",
+            "extraction_result", "extraction_schema_version", "model_configuration",
+            "processing_status", "library_status", "processing_diagnostics", "error",
+            "processing_key", "processor_run_id", "processing_started_at", "heartbeat_at",
+            "lease_expires_at", "processing_attempt",
+        }
+        unexpected = set(changes) - allowed
+        if unexpected:
+            raise ValueError(f"Unsupported supplier-document fields: {sorted(unexpected)}")
+        return self.update_supplier_document(
+            user_id,
+            document_id,
+            expected_revision=expected_revision,
+            changes=changes,
+        )
+
+    def attach_supplier_document(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+        supplier_document_id: UUID,
+    ) -> dict[str, Any]:
+        version = self._version_row(user_id, version_id)
+        case = self._case_row(user_id, version["case_id"])
+        document = self._supplier_document_row(user_id, supplier_document_id)
+        if str(document["organisation_id"]) != str(case["organisation_id"]):
+            raise ResourceNotFoundError("Supplier document not found")
+        existing = self.client.table("formulation_documents").select("*").eq(
+            "formulation_version_id", str(version_id)
+        ).eq("supplier_document_id", str(supplier_document_id)).limit(1).execute().data or []
+        if existing:
+            self.client.table("supplier_documents").update({
+                "last_used_at": datetime.now(UTC).isoformat(),
+            }).eq("id", str(supplier_document_id)).execute()
+            return existing[0]
+        row = {
+            "formulation_version_id": str(version_id),
+            "supplier_document_id": str(supplier_document_id),
+            "original_filename": document["original_filename"],
+            "mime_type": document["mime_type"],
+            "sha256": document["sha256"],
+            "page_count": document.get("page_count"),
+            "processing_status": document["processing_status"],
+            "detected_roles": document.get("detected_roles") or [],
+            "confirmed_roles": document.get("confirmed_roles") or [],
+            "parsed_content": document.get("parsed_content"),
+            "extraction_result": document.get("extraction_result"),
+            "processing_diagnostics": document.get("processing_diagnostics"),
+            "error": document.get("error"),
+            "processing_key": document.get("processing_key"),
+            "document_revision_label": document.get("document_revision_label"),
+            "attached_extraction_key": document.get("processing_key") or document.get("sha256"),
+            "created_by": str(user_id),
+            "governing_for_material": bool(
+                set(document.get("confirmed_roles") or [])
+                & {"supplier_composition", "sds_msds"}
+            ),
+        }
+        attachment = (self.client.table("formulation_documents").insert(row).execute().data or [])[0]
+        self.client.table("supplier_documents").update({
+            "last_used_at": datetime.now(UTC).isoformat(),
+        }).eq("id", str(supplier_document_id)).execute()
+        return attachment
+
+    def list_formulation_documents(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+    ) -> list[dict[str, Any]]:
+        self._version_row(user_id, version_id)
+        return list(self.client.table("formulation_documents").select("*").eq(
+            "formulation_version_id", str(version_id)
+        ).order("created_at").execute().data or [])
+
+    def get_formulation_document(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+    ) -> dict[str, Any]:
+        row = dict(self._formulation_document_row(user_id, document_id))
+        for key in (
+            "storage_path", "processing_key", "processor_run_id",
+            "processing_started_at", "heartbeat_at", "lease_expires_at", "created_by",
+        ):
+            row.pop(key, None)
+        return row
+
+    def update_formulation_document(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        *,
+        expected_revision: int,
+        changes: dict[str, Any],
+    ) -> dict[str, Any]:
+        current = self._formulation_document_row(user_id, document_id)
+        if current["revision"] != expected_revision:
+            raise RevisionConflictError("The formulation document changed; reload before continuing")
+        allowed = {"confirmed_roles", "governing_for_material", "document_revision_label"}
+        unexpected = set(changes) - allowed
+        if unexpected:
+            raise ValueError(f"Unsupported formulation-document fields: {sorted(unexpected)}")
+        rows = self.client.table("formulation_documents").update({
+            **changes,
+            "revision": expected_revision + 1,
+        }).eq("id", str(document_id)).eq("revision", expected_revision).execute().data or []
+        if not rows:
+            raise RevisionConflictError("The formulation document changed; reload before continuing")
+        return self.get_formulation_document(user_id, document_id)
+
+    def refresh_formulation_document_from_supplier(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        *,
+        expected_revision: int,
+    ) -> dict[str, Any]:
+        """Explicitly replace one formulation-local snapshot with its saved source.
+
+        Other formulations keep their original extraction snapshot. This is
+        important for reproducibility when a saved SDS is reprocessed later.
+        """
+        current = self._formulation_document_row(user_id, document_id)
+        if current["revision"] != expected_revision:
+            raise RevisionConflictError(
+                "The formulation document changed; reload before continuing"
+            )
+        supplier_document_id = current.get("supplier_document_id")
+        if not supplier_document_id:
+            raise ValueError("This formulation document is not backed by a saved source")
+        supplier = self._supplier_document_row(
+            user_id,
+            UUID(str(supplier_document_id)),
+        )
+        updates = {
+            "page_count": supplier.get("page_count"),
+            "processing_status": supplier["processing_status"],
+            "detected_roles": supplier.get("detected_roles") or [],
+            "confirmed_roles": supplier.get("confirmed_roles") or [],
+            "parsed_content": supplier.get("parsed_content"),
+            "extraction_result": supplier.get("extraction_result"),
+            "processing_diagnostics": supplier.get("processing_diagnostics"),
+            "error": supplier.get("error"),
+            "processing_key": supplier.get("processing_key"),
+            "document_revision_label": supplier.get("document_revision_label"),
+            "attached_extraction_key": supplier.get("processing_key") or supplier.get("sha256"),
+            "governing_for_material": bool(
+                set(supplier.get("confirmed_roles") or [])
+                & {"supplier_composition", "sds_msds"}
+            ),
+            "revision": expected_revision + 1,
+        }
+        rows = self.client.table("formulation_documents").update(updates).eq(
+            "id", str(document_id)
+        ).eq("revision", expected_revision).execute().data or []
+        if not rows:
+            raise RevisionConflictError(
+                "The formulation document changed; reload before continuing"
+            )
+        return self.get_formulation_document(user_id, document_id)
+
+    def detach_formulation_document(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+        document_id: UUID,
+    ) -> None:
+        row = self._formulation_document_row(user_id, document_id)
+        if str(row["formulation_version_id"]) != str(version_id):
+            raise ResourceNotFoundError("Formulation document not found")
+        storage_path = row.get("storage_path") if not row.get("supplier_document_id") else None
+        if storage_path:
+            self.remove_file(storage_path)
+        self.client.table("formulation_documents").delete().eq("id", str(document_id)).execute()
+
+    def persist_assembly(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+        *,
+        expected_assembly_revision: int,
+        assembly_state: dict[str, Any],
+        calculation_snapshot: dict[str, Any],
+        canonical_formulation: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        current = self._version_row(user_id, version_id)
+        if current.get("assembly_revision", 0) != expected_assembly_revision:
+            raise RevisionConflictError("The formulation assembly changed; reload before continuing")
+        rows = self.client.table("formulation_versions").update({
+            "assembly_state": assembly_state,
+            "assembly_revision": expected_assembly_revision + 1,
+            "calculation_snapshot": calculation_snapshot,
+            "canonical_formulation": canonical_formulation,
+        }).eq("id", str(version_id)).eq(
+            "assembly_revision", expected_assembly_revision
+        ).execute().data or []
+        if not rows:
+            raise RevisionConflictError("The formulation assembly changed; reload before continuing")
+        return self.get_version(user_id, version_id)
+
+    def signed_supplier_document_url(
+        self,
+        user_id: UUID,
+        document_id: UUID,
+        expires_in: int = 60,
+    ) -> str:
+        row = self._supplier_document_row(user_id, document_id)
+        response = self.client.storage.from_(FORMULATION_BUCKET).create_signed_url(
+            row["storage_path"], expires_in
+        )
+        return response.get("signedURL") or response.get("signed_url")
 
     def create_version(
         self,

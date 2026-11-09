@@ -55,7 +55,9 @@ class _Client:
         self.rows = {
             "organisation_members": [{"organisation_id": "org-1", "user_id": "user-1", "role": "owner"}, *([{"organisation_id": "org-1", "user_id": "user-2", "role": "member"}] if shared else [])],
             "cases": [{"id": "case-1", "organisation_id": "org-1"}],
-            "formulation_versions": [{"case_id": "case-1", "source_storage_path": "org-1/case-1/version/file.csv"}],
+            "formulation_versions": [{"id": "version-1", "case_id": "case-1", "source_storage_path": "org-1/case-1/version/file.csv"}],
+            "formulation_documents": [],
+            "supplier_documents": [],
         }
         self.events = []; self.paths = []; self.storage_error = storage_error; self.auth_error = auth_error
         self.storage = _Storage(self); self.auth = _Auth(self)

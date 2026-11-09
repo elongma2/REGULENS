@@ -12,6 +12,7 @@ class _DeleteQuery:
         self.table = table
         self.operation = "select"
         self.filters: dict[str, str] = {}
+        self.in_filters: dict[str, set[str]] = {}
 
     def select(self, _columns: str):
         self.operation = "select"
@@ -29,12 +30,20 @@ class _DeleteQuery:
         self.filters[field] = value
         return self
 
+    def in_(self, field: str, values: list[str]):
+        self.in_filters[field] = {str(value) for value in values}
+        return self
+
     def limit(self, _count: int):
         return self
 
     def execute(self):
         self.client.events.append(f"database:{self.operation}:{self.table}")
-        rows = [row for row in self.client.rows[self.table] if all(str(row.get(key)) == value for key, value in self.filters.items())]
+        rows = [
+            row for row in self.client.rows[self.table]
+            if all(str(row.get(key)) == value for key, value in self.filters.items())
+            and all(str(row.get(key)) in values for key, values in self.in_filters.items())
+        ]
         if self.operation == "delete" and not self.client.keep_case_after_delete:
             self.client.rows[self.table] = [row for row in self.client.rows[self.table] if row not in rows]
         return SimpleNamespace(data=rows)
@@ -69,6 +78,8 @@ class _DeleteClient:
                 {"id": "version-2", "case_id": case_id, "source_storage_path": "org-1/case/version-2.xlsx"},
                 {"id": "version-copy", "case_id": case_id, "source_storage_path": "org-1/case/version-1.csv"},
             ],
+            "formulation_documents": [],
+            "supplier_documents": [],
         }
         self.events: list[str] = []
         self.removed_paths: list[str] = []

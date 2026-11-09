@@ -177,6 +177,7 @@ OPENAI_API_KEY=<server-side secret>
 OPENAI_AGENT_MODEL=gpt-5.6-sol
 OPENAI_AGENT_TIMEOUT_SECONDS=180
 OPENAI_EXPLANATION_MODEL=gpt-5.6-luna
+OPENAI_DOCUMENT_MODEL=gpt-5.6-luna
 FRONTEND_ORIGIN=https://<frontend-project-domain>
 ```
 
@@ -232,9 +233,10 @@ OPENAI_API_KEY=your-key
 OPENAI_AGENT_MODEL=gpt-5.6-sol
 OPENAI_AGENT_TIMEOUT_SECONDS=180
 OPENAI_EXPLANATION_MODEL=gpt-5.6-luna
+OPENAI_DOCUMENT_MODEL=gpt-5.6-luna
 ```
 
-`OPENAI_AGENT_MODEL` defaults to `gpt-5.6-sol`. The legacy `OPENAI_MODEL` remains an Agent-only fallback. `OPENAI_AGENT_TIMEOUT_SECONDS` defaults to 180 seconds and accepts 30–240 seconds; this gives larger structured Sol responses time to finish before the application starts a fresh attempt while remaining below the 300-second Vercel function ceiling. `OPENAI_EXPLANATION_MODEL` defaults independently to `gpt-5.6-luna`. If the key or Agent model is unavailable, the persisted parsed state is retained and the Agent page offers Retry; New Screen and established deterministic screening remain usable. Startup logs report only whether OpenAI and Supabase are configured, the request timeout, and the two selected model names; keys are never logged.
+`OPENAI_AGENT_MODEL` defaults to `gpt-5.6-sol`. The legacy `OPENAI_MODEL` remains an Agent-only fallback. `OPENAI_AGENT_TIMEOUT_SECONDS` defaults to 180 seconds and accepts 30–240 seconds; this gives larger structured Sol responses time to finish before the application starts a fresh attempt while remaining below the 300-second Vercel function ceiling. `OPENAI_EXPLANATION_MODEL` defaults independently to `gpt-5.6-luna`. `OPENAI_DOCUMENT_MODEL` controls the bounded, image-page fallback used only when a retained supplier PDF has no usable local text; it defaults to the explanation model so ordinary document extraction does not consume the higher-cost formulation Agent model. If the key or Agent model is unavailable, the persisted parsed state is retained and the Agent page offers Retry; New Screen and established deterministic screening remain usable. Startup logs report only whether OpenAI and Supabase are configured, the request timeout, and selected model names; keys are never logged.
 
 The authenticated compatibility Agent API is:
 
@@ -244,7 +246,27 @@ The authenticated compatibility Agent API is:
 - `POST /agent/formulations/{session_id}/prepare` — canonical request validation without screening;
 - `POST /agent/formulations/{session_id}/retry` — retry a recoverable interpretation failure.
 
-All formulation files are limited to 2 MiB, 500 logical rows, 50 columns, and 8,192 characters per cell. CSV, TSV, and TXT input supports UTF-8, UTF-8 with BOM, and BOM-identified UTF-16 text. XLSX and XLS currently read the first worksheet's displayed values. JSON must be an array of row arrays or an object with a `rows` array. Selectable-text PDFs are limited to 50 pages. The backend extracts embedded text locally with page numbers and bounded supporting snippets; it does not perform OCR. Scanned/image-only, blank, corrupted, oversized, or over-limit PDFs return an actionable input error rather than an empty formulation. Persistent case uploads store the original bytes in the private Supabase bucket and save the bounded extraction and full Agent state in Postgres. The in-process Agent object is only a request-local working cache reconstructed from those records. Local code preserves exact numbered cells or PDF lines; it does not assume the first row is a header or that a particular column name or order is required. The complete bounded extraction is sent only through the existing OpenAI Agent integration with response storage disabled; document text is explicitly treated as untrusted data, and accepted regulatory PDFs, regulatory databases, filesystem paths, and API keys are never included.
+All formulation files are limited to 2 MiB, 500 logical rows, 50 columns, and 8,192 characters per cell. CSV, TSV, and TXT input supports UTF-8, UTF-8 with BOM, and BOM-identified UTF-16 text. XLSX and XLS currently read the first worksheet's displayed values. JSON must be an array of row arrays or an object with a `rows` array. Selectable-text PDFs are limited to 50 pages. The backend extracts embedded text locally with page numbers and bounded supporting snippets. A scanned primary formulation still returns an actionable input error rather than an empty formulation. For a separately attached supplier SDS/composition PDF, the private source is retained and the reviewer may explicitly retry it with the bounded document-vision extractor (maximum eight pages, one strict structured model request, no regulatory decisions). Persistent case uploads store original bytes in the private Supabase bucket and save bounded extraction and workflow state in Postgres. The in-process Agent object is only a request-local working cache reconstructed from those records. Local code preserves exact numbered cells or PDF lines; it does not assume the first row is a header or that a particular column name or order is required. Document text is explicitly treated as untrusted data, response storage is disabled, and accepted regulatory PDFs, regulatory databases, filesystem paths, and API keys are never included.
+
+### Saved SDS/MSDS and trade-name materials
+
+An authenticated formulation version may attach multiple supplier compositions or SDS/MSDS files. After the reviewer confirms the document role, Regulens shows that it was saved for future formulations and retains the original file, exact hash/revision, extracted constituents, document-local concentration legends and source-page evidence in the organisation-private supplier-document library. A later formulation can search and attach the saved revision without uploading the file or repeating a compatible parser/model call. Raw-material usage remains formulation-specific. Reviewers can view the private library, archive obsolete revisions, restore them, explicitly link a changed file to its previous same-workspace revision, or permanently delete an unreferenced document; historical formulation references prevent destructive deletion. Database triggers keep storage identity, ownership and formulation-local attachment lineage immutable and reject cross-organisation supplier-document links even when an authenticated browser calls Supabase directly.
+
+Known structured layouts use deterministic extraction with zero model calls. When a selectable-text supplier document contains composition data in an unsupported layout and deterministic extraction finds no ingredient rows, Regulens may make one bounded strict-schema request using the configured low-cost document model. The original locally extracted text remains the raw source of record. Image-only PDFs use the separate bounded vision fallback. Neither fallback performs regulatory evaluation, arithmetic or identity guessing.
+
+Trade-name materials are assembled as parents with constituent rows. The reviewer can correct, add or remove constituents, confirm disclosure scope, select the exact governing supplier revision, and enter the material's finished-product usage. Deterministic code multiplies and aggregates compatible concentration intervals before handing a canonical `FormulationRequest` to the existing Singapore Parts I–V engine. Conflicting revisions, missing legends, incomplete disclosures, unresolved identities, missing usage and incompatible units remain structured assembly issues; they persist into screening scope and prevent unsupported full-evaluation wording.
+
+Relevant authenticated endpoints are:
+
+- `GET /supplier-documents` and `GET /supplier-documents/{id}` — search and inspect the organisation-private library;
+- `GET /supplier-documents/{id}/file` — obtain a short-lived authorised URL for the private source;
+- `PATCH /supplier-documents/{id}` — confirm reusable metadata/role or archive/restore a revision;
+- `DELETE /supplier-documents/{id}` — permanently remove an unreferenced saved document;
+- `GET|POST /formulations/{id}/documents` — list or upload supporting sources; a batch response preserves successful files and reports failures per file;
+- `POST /formulations/{id}/documents/attach` — attach an already saved revision;
+- `POST /formulation-documents/{id}/interpret` — idempotently process one retained upload; multi-document clients run at most two of these requests concurrently and can safely resume after refresh;
+- `POST /formulation-documents/{id}/retry` — reprocess the retained private source and refresh only that formulation snapshot;
+- `GET|PATCH /formulations/{id}/assembly` and `POST /formulations/{id}/assembly/refresh` — restore, edit and deterministically recalculate the assembly.
 
 Clarifications identify the affected source row, ingredient, field, and original value. The editable interpretation row and its clarification card share the same backend row state: text edits save on blur, selectors save immediately, and resolving either surface updates the other. Missing concentration units are handled per row. An unchanged unmatched identity is shown as unresolved instead of being presented as a recommendation; only an exact accepted catalogue candidate is labelled as a source-backed match.
 

@@ -1,7 +1,7 @@
 import { AlertCircle, ArrowRight, Clipboard, FileUp, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { deleteCase, deleteFormulationVersion, getCase, uploadCaseFormulation } from "../api/cases";
+import { deleteCase, deleteFormulationVersion, getCase, uploadCaseFormulation, uploadCaseFormulationDocuments } from "../api/cases";
 import { CaseDeleteDialog } from "../components/CaseDeleteDialog";
 import { TypedDeleteDialog } from "../components/TypedDeleteDialog";
 import { addReviewerNote, getCaseActivity, getReviewOverview } from "../api/review";
@@ -63,6 +63,7 @@ export function CasePage() {
   const [recordLoading, setRecordLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingSupplierFiles, setPendingSupplierFiles] = useState<File[]>([]);
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -118,18 +119,53 @@ export function CasePage() {
     return () => { active = false; };
   }, [caseId, loadActivity, loadOverview]);
 
-  const upload = async (file?: File) => {
-    if (!file) return;
+  const upload = async (selected?: FileList | null) => {
+    const newlySelected = Array.from(selected ?? []);
+    const files = [...pendingSupplierFiles, ...newlySelected].filter((file, index, all) =>
+      all.findIndex((candidate) => (
+        candidate.name === file.name
+        && candidate.size === file.size
+        && candidate.lastModified === file.lastModified
+      )) === index,
+    );
+    if (!files.length) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const version = await uploadCaseFormulationDocuments(caseId, files);
+      setPendingSupplierFiles([]);
+      navigate(`/cases/${caseId}/formulations/${version.id}?tab=formulation`);
+    } catch (caught) {
+      if (
+        typeof caught === "object"
+        && caught !== null
+        && "code" in caught
+        && caught.code === "supplier_document_without_formulation"
+      ) {
+        setPendingSupplierFiles(files);
+        setError(null);
+      } else {
+        setError(caught instanceof Error ? caught.message : "Upload failed. The case is still available; choose the file again to retry.");
+      }
+    } finally {
+      setUploading(false);
+      if (input.current) input.current.value = "";
+    }
+  };
+
+  const usePendingFileAsFormulation = async () => {
+    const [file] = pendingSupplierFiles;
+    if (!file || pendingSupplierFiles.length !== 1) return;
     setUploading(true);
     setError(null);
     try {
       const version = await uploadCaseFormulation(caseId, file);
+      setPendingSupplierFiles([]);
       navigate(`/cases/${caseId}/formulations/${version.id}?tab=formulation`);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Upload failed. The case is still available; choose the file again to retry.");
+      setError(caught instanceof Error ? caught.message : "The formulation could not be uploaded.");
     } finally {
       setUploading(false);
-      if (input.current) input.current.value = "";
     }
   };
 
@@ -228,11 +264,21 @@ export function CasePage() {
             {continueTarget ? <Link className="primary-button" to={continueTarget}>{action.label}<ArrowRight size={15} /></Link> : <button className="primary-button" type="button" onClick={() => input.current?.click()} disabled={uploading}><FileUp size={14} /> {uploading ? "Interpreting…" : action.label}</button>}
             {latestVersion && <button className="secondary-button" onClick={() => input.current?.click()} disabled={uploading}><Plus size={14} /> Upload New Version</button>}
             <details className="case-more-menu"><summary className="icon-button" aria-label="More case actions"><MoreHorizontal size={18} /></summary><div><button className="danger-menu-button" type="button" onClick={() => { setDeleteDialogOpen(true); setDeleteError(null); }} disabled={deleting}><Trash2 size={14} /> Delete case</button></div></details>
-            <input className="sr-only" ref={input} type="file" accept=".csv,.xlsx,.xls,.txt,.tsv,.json,.pdf" aria-label="Choose formulation file" onChange={(event) => void upload(event.target.files?.[0])} />
+            <input className="sr-only" ref={input} type="file" multiple accept=".csv,.xlsx,.xls,.txt,.tsv,.json,.pdf" aria-label="Choose formulation and supporting files" onChange={(event) => void upload(event.target.files)} />
           </div>
         </header>
 
         {error && <div className="page-error-row" role="alert"><AlertCircle size={16} /><span>{error}</span></div>}
+        {pendingSupplierFiles.length ? <section className="case-upload-role-prompt" aria-labelledby="supplier-source-heading">
+          <div><h2 id="supplier-source-heading">Supplier document recognised</h2>
+            <p>{pendingSupplierFiles.length === 1 ? pendingSupplierFiles[0].name : `${pendingSupplierFiles.length} supplier documents`} appears to be an SDS/MSDS or supplier composition. It describes what is inside a raw material, but it does not state the complete finished-product formula.</p>
+          </div>
+          <div className="case-upload-role-actions">
+            <button className="primary-button" type="button" onClick={() => input.current?.click()} disabled={uploading}><Plus size={14} /> Add finished formulation</button>
+            {pendingSupplierFiles.length === 1 ? <button className="secondary-button" type="button" onClick={() => void usePendingFileAsFormulation()} disabled={uploading}>This file is the formulation</button> : null}
+            <button className="text-button" type="button" onClick={() => setPendingSupplierFiles([])} disabled={uploading}>Cancel</button>
+          </div>
+        </section> : null}
 
         <section className="case-progress-summary" aria-label="Case progress">
           {overviewState === "loading" ? <span>Loading review progress…</span> : overviewState === "unavailable" || !overview ? <span>Review information is temporarily unavailable. Formulation versions remain accessible.</span> : (

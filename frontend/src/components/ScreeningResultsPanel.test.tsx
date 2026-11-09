@@ -71,4 +71,70 @@ describe("ScreeningResultsPanel", () => {
     await user.type(screen.getByPlaceholderText("Search ingredients"), "Tosylchloramide");
     await waitFor(() => expect(onVisibleRowsChange).toHaveBeenLastCalledWith([2]));
   });
+
+  it("shows the persisted partial-assembly boundary above calculated findings", () => {
+    const response = structuredClone(testResponse);
+    response.formulation.assembly_scope = {
+      completeness: "partial",
+      issue_codes: ["incomplete_supplier_disclosure", "material_usage_missing"],
+      action_required_codes: ["material_usage_missing"],
+      coverage_limitation_codes: ["incomplete_supplier_disclosure"],
+      unresolved_material_ids: ["material-1"],
+      incomplete_disclosure_material_ids: ["material-1"],
+      unresolved_association_ids: [],
+      source_document_ids: ["document-1"],
+      calculated_from_trade_materials: true,
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("Some inputs still need attention")).toBeInTheDocument();
+    expect(screen.getByText(/prevent a complete product conclusion/)).toBeInTheDocument();
+    expect(screen.getByText("View screening coverage")).toBeInTheDocument();
+    expect(screen.getByText(/How much of a raw material is used/)).toBeInTheDocument();
+    expect(screen.getByText(/supplier file may list only some ingredients/)).toBeInTheDocument();
+  });
+
+  it("presents partial supplier disclosure as coverage rather than a correction request", () => {
+    const response = structuredClone(testResponse);
+    response.formulation.assembly_scope = {
+      completeness: "partial",
+      issue_codes: ["incomplete_supplier_disclosure"],
+      action_required_codes: [],
+      coverage_limitation_codes: ["incomplete_supplier_disclosure"],
+      unresolved_material_ids: [],
+      incomplete_disclosure_material_ids: ["material-1"],
+      unresolved_association_ids: [],
+      source_document_ids: ["document-1"],
+      calculated_from_trade_materials: true,
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("Screening reflects the supplier information provided")).toBeInTheDocument();
+    expect(screen.getByText(/not a request to invent missing values/)).toBeInTheDocument();
+  });
+
+  it("shows the evaluated aggregate rather than its calculation formula", () => {
+    const response = structuredClone(testResponse);
+    response.ingredient_results = [baseResult(1, "CAPRYLIC/CAPRIC TRIGLYCERIDE")];
+    response.ingredient_results[0].submitted_ingredient.concentration = {
+      concentration_type: "exact",
+      value: 0.6,
+      lower_bound: null,
+      upper_bound: null,
+      lower_inclusive: null,
+      upper_inclusive: null,
+      unit: "percent",
+      basis: null,
+      preparation_stage: "finished_product",
+      original_text: "(6%) x (10%) / 100",
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("0.60%")).toBeInTheDocument();
+    expect(screen.queryByText("(6%) x (10%) / 100")).not.toBeInTheDocument();
+    expect(screen.getByText("Evaluated finished-product concentration")).toBeInTheDocument();
+  });
 });

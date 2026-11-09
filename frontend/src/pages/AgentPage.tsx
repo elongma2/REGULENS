@@ -1,5 +1,5 @@
 import { AlertTriangle, ArrowRight, Check, Download, FileUp, ListChecks, LoaderCircle, Plus, RotateCcw, Sparkles, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { answerAgentQuestions, prepareAgentFormulation, retryAgentSession, uploadAgentCSV } from "../api/agent";
 import { answerFormulationVersion, getFormulationVersion, listFormulationScreenings, prepareFormulationVersion, retryFormulationVersion, screenFormulationVersion } from "../api/cases";
@@ -85,7 +85,28 @@ function rowDrafts(session: AgentSession): Record<string, RowDraft> {
   }]));
 }
 
-export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: string } = {}) {
+function formatDraftQuantity(draft: RowDraft): string {
+  if (draft.concentrationType === "unknown") return "Not disclosed";
+  const unit = draft.unit === "percent" ? "%" : draft.unit ? ` ${draft.unit}` : "";
+  if (draft.concentrationType === "range") return `${draft.lowerBound || "—"}–${draft.upperBound || "—"}${unit}`;
+  if (draft.concentrationType === "upper_bound") return `${draft.upperInclusive ? "≤" : "<"}${draft.upperBound || "—"}${unit}`;
+  if (draft.concentrationType === "lower_bound") return `${draft.lowerInclusive ? "≥" : ">"}${draft.lowerBound || "—"}${unit}`;
+  return `${draft.concentrationType === "approximate" ? "≈ " : ""}${draft.value || "—"}${unit}`;
+}
+
+export function AgentPage({
+  caseId,
+  versionId,
+  compact = false,
+  beforeRunScreening,
+  handledMaterialNames = [],
+}: {
+  caseId?: string;
+  versionId?: string;
+  compact?: boolean;
+  beforeRunScreening?: () => Promise<void>;
+  handledMaterialNames?: string[];
+} = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInput = useRef<HTMLInputElement>(null);
   const findingsPanel = useRef<HTMLElement>(null);
@@ -110,6 +131,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   const [retrying, setRetrying] = useState(false);
   const [exportingReport, setExportingReport] = useState(false);
   const [highlightedRow, setHighlightedRow] = useState<string | null>(null);
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [highlightedQuestion, setHighlightedQuestion] = useState<string | null>(null);
   const [loadingPersisted, setLoadingPersisted] = useState(Boolean(versionId));
   const [screeningRuns, setScreeningRuns] = useState<ScreeningRun[]>([]);
@@ -130,6 +152,25 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   const [activityRefreshToken, setActivityRefreshToken] = useState(0);
   const [confirmationTracker, setConfirmationTracker] = useState<{ sessionId: string | null; total: number }>({ sessionId: null, total: 0 });
   const [newIngredient, setNewIngredient] = useState({ name: "", cas: "", value: "", unit: "percent" as ConcentrationUnit });
+  const handledMaterialNameSet = useMemo(() => new Set(
+    handledMaterialNames.map((value) => value.trim().toLocaleLowerCase()).filter(Boolean),
+  ), [handledMaterialNames]);
+  const handledMaterialRowIds = useMemo(() => new Set(
+    session?.interpreted_rows
+      .filter((row) => [row.name.value, row.name.source_value].some(
+        (value) => handledMaterialNameSet.has(String(value ?? "").trim().toLocaleLowerCase()),
+      ))
+      .map((row) => row.row_id) ?? [],
+  ), [handledMaterialNameSet, session]);
+  const directRows = useMemo(() => session?.interpreted_rows.filter(
+    (row) => !handledMaterialRowIds.has(row.row_id),
+  ) ?? [], [handledMaterialRowIds, session]);
+  const activeQuestions = useMemo(() => session?.questions.flatMap((question) => {
+    if (question.row_id && handledMaterialRowIds.has(question.row_id)) return [];
+    if (!question.affected_row_ids.length) return [question];
+    const affectedRowIds = question.affected_row_ids.filter((rowId) => !handledMaterialRowIds.has(rowId));
+    return affectedRowIds.length ? [{ ...question, affected_row_ids: affectedRowIds }] : [];
+  }) ?? [], [handledMaterialRowIds, session]);
 
   const writeState = (key: string): WriteState => reviewWriteStates[key] ?? idleWriteState;
   const setWriteState = (key: string, state: WriteState) => setReviewWriteStates((current) => ({ ...current, [key]: state }));
@@ -241,9 +282,9 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
       return;
     }
     setConfirmationTracker((current) => current.sessionId === session.session_id
-      ? { ...current, total: Math.max(current.total, session.questions.length) }
-      : { sessionId: session.session_id, total: session.questions.length });
-  }, [session]);
+      ? { ...current, total: compact ? activeQuestions.length : Math.max(current.total, activeQuestions.length) }
+      : { sessionId: session.session_id, total: activeQuestions.length });
+  }, [activeQuestions, compact, session]);
 
   const upload = async (file?: File) => {
     if (!file || busy) return;
@@ -273,7 +314,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   };
 
   const changeProductContext = async (value: string) => {
-    const contextQuestion = session?.questions.find((question) => question.question_type === "product_context") ?? null;
+    const contextQuestion = activeQuestions.find((question) => question.question_type === "product_context") ?? null;
     if (!contextQuestion) {
       setProductContext(value);
       return;
@@ -386,6 +427,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
   };
 
   const focusRow = (rowId: string, targetField?: AgentQuestion["target_field"]) => {
+    setEditingRowId(rowId);
     const element = document.getElementById(`agent-row-${rowId}`);
     element?.scrollIntoView({ behavior: "smooth", block: "center" });
     setHighlightedRow(rowId);
@@ -441,6 +483,46 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
       setError(caught instanceof ApiError ? caught.message : "Screening failed.");
     } finally { setBusy(false); }
   };
+
+  const runScreening = async () => {
+    if (!session || busy) return;
+    setBusy(true); setError(null);
+    try {
+      await beforeRunScreening?.();
+      const metadata = {
+        formulation_id: optional(formulationId), formulation_name: optional(formulationName), product_context: optional(productContext), product_applicability: productApplicability,
+      };
+      const nextPrepared = versionId
+        ? await prepareFormulationVersion(session, metadata)
+        : await prepareAgentFormulation(session, metadata);
+      setPrepared(nextPrepared); setSession(nextPrepared.session);
+      let next: ScreeningResponse;
+      let savedRunId: string | null = null;
+      if (versionId) {
+        const run = await screenFormulationVersion(versionId);
+        savedRunId = run.id;
+        setScreeningRuns((current) => [run, ...current]);
+        setActiveScreeningRunId(run.id);
+        next = run.result_snapshot;
+        void loadReviewWorkspace(run.id);
+      } else {
+        next = await screenFormulation(nextPrepared.formulation);
+        setReviewDataState("not_applicable");
+      }
+      setResponse(next);
+      setWorkspaceTab("findings");
+      const first = next.ingredient_results.find(requiresAttention) ?? next.ingredient_results[0];
+      setSelectedRow(first?.submitted_row_number ?? null);
+      if (versionId) updateWorkspaceParams({ tab: "results", run: savedRunId, row: first ? String(first.submitted_row_number) : null, drawer: "evidence", resume: null });
+    } catch (caught) {
+      setError(caught instanceof ApiError || caught instanceof Error ? caught.message : "Screening failed.");
+    } finally { setBusy(false); }
+  };
+
+  useEffect(() => {
+    if (compact || !session || editingRowId) return;
+    setEditingRowId(directRows[0]?.row_id ?? null);
+  }, [compact, session, editingRowId]);
 
   const exportReport = async () => {
     if (!response || exportingReport) return;
@@ -668,27 +750,27 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
       sourceMetadata: row.source_metadata,
     } : null;
   })() : null;
-  const contextQuestion = session?.questions.find((question) => question.question_type === "product_context") ?? null;
+  const contextQuestion = activeQuestions.find((question) => question.question_type === "product_context") ?? null;
   const productContextOptions = contextQuestion
     ? contextQuestion.options.flatMap((option) => typeof option.value === "string" ? [option.value] : [])
     : options?.product_contexts ?? [];
-  const clarificationQuestions = session?.questions.filter((question) => question.question_type !== "product_context") ?? [];
-  const stageQuestion = session?.questions.find((question) => question.question_type === "preparation_stage") ?? null;
-  const blockingItems = session?.questions.flatMap((question) => {
+  const clarificationQuestions = activeQuestions.filter((question) => question.question_type !== "product_context");
+  const stageQuestion = activeQuestions.find((question) => question.question_type === "preparation_stage") ?? null;
+  const blockingItems = activeQuestions.flatMap((question) => {
     if (question.row_id) {
-      const row = session.interpreted_rows.find((item) => item.row_id === question.row_id);
+      const row = session?.interpreted_rows.find((item) => item.row_id === question.row_id);
       return row ? [`Row ${row.source_row} · ${row.name.source_value ?? row.name.value} · ${question.title.toLocaleLowerCase()}`] : [];
     }
     if (question.affected_row_ids.length) return question.affected_row_ids.flatMap((rowId) => {
-      const row = session.interpreted_rows.find((item) => item.row_id === rowId);
+      const row = session?.interpreted_rows.find((item) => item.row_id === rowId);
       return row ? [`Row ${row.source_row} · ${row.name.source_value ?? row.name.value} · ${question.title.toLocaleLowerCase()}`] : [];
     });
     return [question.title];
-  }) ?? [];
-  const rowsNeedingConfirmation = new Set(session?.questions.flatMap((question) => question.row_id ? [question.row_id] : question.affected_row_ids) ?? []);
+  });
+  const rowsNeedingConfirmation = new Set(activeQuestions.flatMap((question) => question.row_id ? [question.row_id] : question.affected_row_ids));
   const interruptedPersistentInterpretation = Boolean(versionId && session?.state === "parsing" && !retrying);
   const workflowStep = response ? 3 : prepared ? 2 : session ? 1 : 0;
-  const remainingConfirmations = session?.questions.length ?? 0;
+  const remainingConfirmations = activeQuestions.length;
   const totalConfirmations = confirmationTracker.sessionId === session?.session_id
     ? Math.max(confirmationTracker.total, remainingConfirmations)
     : remainingConfirmations;
@@ -705,7 +787,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
         : prepared
           ? "Check the prepared input, then confirm screening"
           : blockingItems.length > 0
-            ? `${session?.questions.length ?? 0} confirmation${session?.questions.length === 1 ? "" : "s"} needed before screening`
+            ? `${activeQuestions.length} confirmation${activeQuestions.length === 1 ? "" : "s"} needed before screening`
             : session
               ? "Your input is ready to prepare"
               : "Start with your formulation file";
@@ -757,7 +839,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
     const clarificationId = searchParams.get("clarification");
     if (clarificationId && reviewWorkspace) {
       const target = reviewWorkspace.clarification_targets.find((item) => item.id === clarificationId);
-      const question = target ? session.questions.find((item) => item.question_id === target.question_key) : null;
+      const question = target ? activeQuestions.find((item) => item.question_id === target.question_key) : null;
       if (question) {
         setWorkspaceTab("formulation");
         window.setTimeout(() => focusQuestion(question.question_id), 0);
@@ -786,16 +868,16 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
         }
       }
     }
-  }, [activeScreeningRunId, caseId, response, reviewWorkspace, screeningRuns, searchParams, session, versionId]);
+  }, [activeQuestions, activeScreeningRunId, caseId, response, reviewWorkspace, screeningRuns, searchParams, session, versionId]);
 
   return (
     <div className={`workspace guided-workspace ${selectedResult ? "workspace-with-drawer" : ""}`}>
       <main className="guided-workspace-main">
         <header className={`guided-header ${response ? "is-screened" : ""}`}>
           <div>
-            {!response && <p className="eyebrow">Formulation agent</p>}
-            <h1 className="page-title">{response ? "Screening results" : prepared ? "Confirm your screening input" : "Review your formulation"}</h1>
-            {!response && <p className="guided-subtitle">Confirm the source values before running regulatory screening.{versionId && " · Saved formulation workspace"}</p>}
+            {!response && <p className="eyebrow">{compact ? "Formulation review" : "Formulation agent"}</p>}
+            <h1 className="page-title">{response ? "Screening results" : compact ? "Review the formulation" : prepared ? "Confirm your screening input" : "Review your formulation"}</h1>
+            {!response && <p className="guided-subtitle">{compact ? "Resolve only the items that need attention, then run screening." : "Confirm the source values before running regulatory screening."}{versionId && " · Saved formulation workspace"}</p>}
           </div>
           {response ? <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exportingReport}>
             {exportingReport ? <><LoaderCircle className="animate-spin" size={15} /> Preparing PDF…</> : <><Download size={15} /> Export PDF</>}
@@ -805,7 +887,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
         <div className={`guided-workflow-sticky ${response ? "is-screened" : ""}`}>
           <nav className="workflow-progress" aria-label="Formulation workflow">
             <ol>
-              {["Upload", "Confirm input", "Screen", "Review findings"].map((label, index) => (
+              {(compact ? ["Upload", "Review", "Screen", "Findings"] : ["Upload", "Confirm input", "Screen", "Review findings"]).map((label, index) => (
                 <li key={label} className={index === workflowStep ? "is-current" : index < workflowStep ? "is-complete" : ""} aria-current={index === workflowStep ? "step" : undefined}>
                   <span className="workflow-step-number">{index < workflowStep ? <Check size={13} aria-hidden="true" /> : index + 1}</span>
                   <span>{label}</span>
@@ -821,12 +903,12 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                 <div className="confirmation-meter-content">
                   <strong className="confirmation-count">{remainingConfirmations}</strong>
                   <div>
-                    <span className="confirmation-label">confirmation{remainingConfirmations === 1 ? "" : "s"} needed before screening</span>
-                    <small>{remainingConfirmations > 0 ? `${blockingItems.length} item${blockingItems.length === 1 ? "" : "s"} to modify` : "All required confirmations are complete"}</small>
+                    <span className="confirmation-label">{remainingConfirmations > 0 ? `confirmation${remainingConfirmations === 1 ? "" : "s"} needed before screening` : "Ready to screen"}</span>
+                    <small>{remainingConfirmations > 0 ? `${blockingItems.length} item${blockingItems.length === 1 ? "" : "s"} to modify` : compact ? "Regulens will calculate supplier ingredients and screen everything together." : "All required confirmations are complete"}</small>
                   </div>
                 </div>
               </div>
-              <button className="primary-button confirmation-action" type="button" onClick={prepare} disabled={busy || remainingConfirmations > 0}>{busy ? "Confirming…" : <>Confirm Formulation <ArrowRight size={15} aria-hidden="true" /></>}</button>
+              <button className="primary-button confirmation-action" type="button" onClick={compact ? runScreening : prepare} disabled={busy || remainingConfirmations > 0}>{busy ? (compact ? "Screening…" : "Confirming…") : <>{compact ? "Run screening" : "Confirm Formulation"} <ArrowRight size={15} aria-hidden="true" /></>}</button>
             </section>
           )}
         </div>
@@ -976,8 +1058,8 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                 </button>}
               </div>
               <div className="agent-stat-strip" aria-label="Formulation interpretation">
-                <span><strong>{session.interpreted_rows.length - rowsNeedingConfirmation.size}</strong> formulation rows interpreted</span>
-                <span><strong>{session.questions.length}</strong> input clarifications pending</span>
+                <span><strong>{directRows.length - rowsNeedingConfirmation.size}</strong> direct ingredients understood</span>
+                <span><strong>{activeQuestions.length}</strong> confirmation{activeQuestions.length === 1 ? "" : "s"} remaining</span>
               </div>
 
               {retrying && <div className="agent-failure"><LoaderCircle className="animate-spin" size={17} /><span>Regulens is identifying the formulation structure and ingredient fields.</span></div>}
@@ -1029,7 +1111,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
               </section>
             )}
 
-            {session.interpreted_rows.length > 0 && (
+            {directRows.length > 0 && (
               <section className="agent-details-panel">
                 <div>
                   <p className="eyebrow">Formulation details</p>
@@ -1060,7 +1142,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                 </div>
                 {contextQuestion && <div className="agent-inline-question"><div><strong>{contextQuestion.title}</strong><p>{contextQuestion.prompt}</p></div></div>}
 
-                {session.interpreted_rows.some((row) => (row.regulated_functions ?? []).length > 0) && (
+                {directRows.some((row) => (row.regulated_functions ?? []).length > 0) && (
                   <details className="mt-5 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
                     <summary className="cursor-pointer font-medium text-slate-800">Product-use facts for colourant, preservative, and UV-filter checks</summary>
                     <p className="mt-2 text-xs leading-5 text-slate-500">Choose only facts you know. Unknown facts remain incomplete and Regulens will not guess them.</p>
@@ -1076,16 +1158,35 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
               </section>
             )}
 
-            {session.interpreted_rows.length > 0 && (
-              <section className="editor-panel">
+            {directRows.length > 0 && (
+              <>
+              {compact ? <section className="compact-ingredient-panel" aria-labelledby="compact-ingredient-title">
+                <div className="compact-list-heading"><div><p className="eyebrow">Direct ingredients</p><h2 id="compact-ingredient-title">Other ingredients</h2></div><span>{directRows.length} total</span></div>
+                <ul>{directRows.map((row) => {
+                  const draft = drafts[row.row_id];
+                  if (!draft) return null;
+                  const issueCount = activeQuestions.filter((question) => question.row_id === row.row_id || question.affected_row_ids.includes(row.row_id)).length;
+                  return <li id={`agent-row-${row.row_id}`} className={highlightedRow === row.row_id ? "agent-target-highlight" : ""} key={row.row_id}>
+                    <div><strong>{draft.name || row.name.source_value || "Unnamed ingredient"}</strong><small>Source row {row.source_rows.join(", ")}</small></div>
+                    <span>{formatDraftQuantity(draft)}</span>
+                    <span className={issueCount ? "compact-status attention" : "compact-status"}>{issueCount ? `${issueCount} to review` : "Ready"}</span>
+                    <button className="text-button" type="button" onClick={() => setEditingRowId(row.row_id)}>Edit</button>
+                  </li>;
+                })}</ul>
+                <button className="text-button compact-add-ingredient" type="button" onClick={() => setEditingRowId("__new__")}><Plus size={14} /> Add missing ingredient</button>
+              </section> : null}
+              {editingRowId ? <div className={compact ? "workspace-drawer-backdrop" : ""} role={compact ? "presentation" : undefined} onMouseDown={(event) => { if (compact && event.target === event.currentTarget) setEditingRowId(null); }}><aside className={compact ? "workspace-drawer workspace-drawer-wide" : ""} role={compact ? "dialog" : undefined} aria-modal={compact ? "true" : undefined} aria-label={compact ? "Edit ingredient" : undefined}>
+                {compact ? <div className="workspace-drawer-heading"><div><p className="eyebrow">Ingredient details</p><h2>{editingRowId === "__new__" ? "Add ingredient" : drafts[editingRowId]?.name || "Edit ingredient"}</h2></div><button className="icon-button" type="button" aria-label="Close ingredient editor" onClick={() => setEditingRowId(null)}>×</button></div> : null}
+              {editingRowId !== "__new__" ? <section className="editor-panel">
                   <div className="section-heading-row"><div><p className="eyebrow">Ingredient interpretation</p><h2 className="section-title">Source values and screening fields</h2></div><span className="text-xs text-slate-500">Source value → structured value</span></div>
                 <div className="agent-table-scroll">
                   <table className="agent-table">
                     <thead><tr><th>Source</th><th>Interpreted ingredient</th><th>Concentration</th><th>Status</th></tr></thead>
-                    <tbody>{session.interpreted_rows.map((row) => {
+                    <tbody>{directRows.map((row) => {
+                      if (row.row_id !== editingRowId) return null;
                       const draft = drafts[row.row_id];
                       if (!draft) return null;
-                      const rowQuestions = session.questions.filter((question) => question.row_id === row.row_id || question.affected_row_ids.includes(row.row_id));
+                      const rowQuestions = activeQuestions.filter((question) => question.row_id === row.row_id || question.affected_row_ids.includes(row.row_id));
                       const requiredFieldsFilled = draft.name.trim().length > 0;
                       const rowStatus = rowQuestions.length ? "Clarification needed" : requiredFieldsFilled ? "Input ready" : "Input incomplete";
                       const nameEdited = fieldWasEdited(row.name.value, row.name.source_value, row.name.confirmed_by_user);
@@ -1104,16 +1205,16 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                         <td><div className="agent-concentration-grid">
                           <label><span>Reported quantity {valueEdited && <em className="edited-field-marker">Edited</em>}</span><select className="field-control" aria-label={`Row ${row.source_row} concentration type`} value={draft.concentrationType} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, concentrationType: event.target.value as ConcentrationType } }))}><option value="exact">Exact</option><option value="range">Range</option><option value="upper_bound">Upper bound</option><option value="lower_bound">Lower bound</option><option value="approximate">Approximate</option><option value="unknown">Not disclosed</option></select></label>
                           {["exact", "approximate"].includes(draft.concentrationType) && <label><span>Value</span><input data-agent-field="concentration" className="field-control" aria-label={`Row ${row.source_row} concentration`} value={draft.value} placeholder="—" onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, value: event.target.value } }))} onBlur={() => { if (draft.value.trim()) void saveRow(row.row_id, draft, "concentration"); }} /></label>}
-                          {["range", "lower_bound"].includes(draft.concentrationType) && <label><span>Lower bound</span><input className="field-control" aria-label={`Row ${row.source_row} lower bound`} value={draft.lowerBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerBound: event.target.value } }))} /></label>}
-                          {["range", "upper_bound"].includes(draft.concentrationType) && <label><span>Upper bound</span><input className="field-control" aria-label={`Row ${row.source_row} upper bound`} value={draft.upperBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperBound: event.target.value } }))} /></label>}
+                          {["range", "lower_bound"].includes(draft.concentrationType) && <label><span>Lower bound</span><input className="field-control" aria-label={`Row ${row.source_row} lower bound`} value={draft.lowerBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerBound: event.target.value } }))} onBlur={() => void saveRow(row.row_id, draft, "concentration")} /></label>}
+                          {["range", "upper_bound"].includes(draft.concentrationType) && <label><span>Upper bound</span><input className="field-control" aria-label={`Row ${row.source_row} upper bound`} value={draft.upperBound} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperBound: event.target.value } }))} onBlur={() => void saveRow(row.row_id, draft, "concentration")} /></label>}
                           {draft.concentrationType === "upper_bound" && <label><span>Boundary</span><select className="field-control" aria-label={`Row ${row.source_row} upper boundary`} value={draft.upperInclusive ? "inclusive" : "strict"} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperInclusive: event.target.value === "inclusive" } }))}><option value="strict">Less than (&lt;)</option><option value="inclusive">At most (≤)</option></select></label>}
                           {draft.concentrationType === "lower_bound" && <label><span>Boundary</span><select className="field-control" aria-label={`Row ${row.source_row} lower boundary`} value={draft.lowerInclusive ? "inclusive" : "strict"} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerInclusive: event.target.value === "inclusive" } }))}><option value="strict">Greater than (&gt;)</option><option value="inclusive">At least (≥)</option></select></label>}
                           {draft.concentrationType === "range" && <label className="col-span-full flex items-center gap-3 text-xs text-slate-600"><input type="checkbox" checked={draft.lowerInclusive} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, lowerInclusive: event.target.checked } }))} /> Include lower bound <input type="checkbox" checked={draft.upperInclusive} onChange={(event) => setDrafts((current) => ({ ...current, [row.row_id]: { ...draft, upperInclusive: event.target.checked } }))} /> Include upper bound</label>}
                           {draft.originalText && <p className="col-span-full text-xs text-slate-500">Submitted: {draft.originalText}</p>}
-                          <label><span>Unit {unitEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="concentration.unit" className="field-control" aria-label={`Row ${row.source_row} unit`} value={draft.unit} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, unit: event.target.value as ConcentrationUnit | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); }}><option value="">Choose unit</option><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select></label>
+                          <label><span>Unit {unitEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="concentration.unit" className="field-control" aria-label={`Row ${row.source_row} unit`} value={draft.unit} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, unit: event.target.value as ConcentrationUnit | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (compact) void saveRow(row.row_id, next, "concentration"); }}><option value="">Choose unit</option><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select></label>
                           <label><span>Basis {basisEdited && <em className="edited-field-marker">Edited</em>}</span><select className="field-control" aria-label={`Row ${row.source_row} basis`} value={draft.basis ?? ""} onChange={(event) => { const next = { ...draft, basis: optional(event.target.value) as ConcentrationBasis | null }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (next.value.trim()) void saveRow(row.row_id, next, "concentration"); }}><option value="">No specific basis</option>{options?.concentration_bases.filter((basis): basis is ConcentrationBasis => basis !== null).map((basis) => <option key={basis} value={basis}>{basis}</option>)}</select></label>
-                          <label><span>Preparation stage {stageEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="preparation_stage" className="field-control" aria-label={`Row ${row.source_row} stage`} value={draft.stage} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, stage: event.target.value as PreparationStage | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); }}><option value="">Choose stage</option><option value="finished_product">Finished product</option><option value="after_mixing">After mixing for use</option><option value="ready_for_use">Ready for use</option></select></label>
-                          <button className="secondary-button" type="button" disabled={busy} onClick={() => void saveRow(row.row_id, draft, "concentration")}>Save quantity</button>
+                          <label><span>Preparation stage {stageEdited && <em className="edited-field-marker">Edited</em>}</span><select data-agent-field="preparation_stage" className="field-control" aria-label={`Row ${row.source_row} stage`} value={draft.stage} disabled={draft.concentrationType === "unknown"} onChange={(event) => { const next = { ...draft, stage: event.target.value as PreparationStage | "" }; setDrafts((current) => ({ ...current, [row.row_id]: next })); if (compact) void saveRow(row.row_id, next, "concentration"); }}><option value="">Choose stage</option><option value="finished_product">Finished product</option><option value="after_mixing">After mixing for use</option><option value="ready_for_use">Ready for use</option></select></label>
+                          {!compact ? <button className="secondary-button" type="button" disabled={busy} onClick={() => void saveRow(row.row_id, draft, "concentration")}>Save quantity</button> : null}
                         </div></td>
                         <td>
                           <button className={`agent-row-status ${rowQuestions.length ? "warning" : rowStatus === "Input incomplete" ? "unresolved" : "ready"}`} type="button" title={rowStatus === "Input ready" ? "All required formulation input is complete" : undefined} onClick={() => rowQuestions[0] && focusQuestion(rowQuestions[0].question_id)}>{rowStatus}{rowQuestions.length ? ` · ${rowQuestions.length} issue${rowQuestions.length === 1 ? "" : "s"}` : ""}</button>
@@ -1123,15 +1224,17 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
                     })}</tbody>
                   </table>
                 </div>
-                <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              </section> : null}
+                {editingRowId === "__new__" ? <div className="compact-new-ingredient-form">
                   <strong className="text-sm text-slate-800">Add a missing ingredient</strong>
                   <p className="mt-1 text-xs text-slate-500">Use this when a partial PDF or SDS does not include every ingredient you know about.</p>
                   <div className="mt-3 grid gap-2 md:grid-cols-5"><input className="field-control" aria-label="New ingredient name" placeholder="Ingredient name" value={newIngredient.name} onChange={(event) => setNewIngredient((current) => ({ ...current, name: event.target.value }))} /><input className="field-control" aria-label="New ingredient CAS" placeholder="CAS (optional)" value={newIngredient.cas} onChange={(event) => setNewIngredient((current) => ({ ...current, cas: event.target.value }))} /><input className="field-control" aria-label="New ingredient concentration" placeholder="Exact value (optional)" value={newIngredient.value} onChange={(event) => setNewIngredient((current) => ({ ...current, value: event.target.value }))} /><select className="field-control" aria-label="New ingredient unit" value={newIngredient.unit} onChange={(event) => setNewIngredient((current) => ({ ...current, unit: event.target.value as ConcentrationUnit }))}><option value="percent">%</option><option value="ppm">ppm</option><option value="mg/kg">mg/kg</option></select><button className="secondary-button" type="button" disabled={busy || !newIngredient.name.trim()} onClick={() => void addIngredient()}><Plus size={14} /> Add ingredient</button></div>
-                </div>
-              </section>
+                </div> : null}
+              </aside></div> : null}
+              </>
             )}
 
-            {blockingItems.length > 0 && session.state !== "failed" && (
+            {!compact && blockingItems.length > 0 && session.state !== "failed" && (
               <section className="agent-blocking-summary" aria-live="polite">
                 <strong>{blockingItems.length} item{blockingItems.length === 1 ? "" : "s"} still need confirmation</strong>
                 <ul>{blockingItems.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}</ul>
@@ -1172,6 +1275,7 @@ export function AgentPage({ caseId, versionId }: { caseId?: string; versionId?: 
         )}
       </main>
       <EvidenceDrawer key={findingsStateKey} result={selectedResult} sources={response?.dataset.sources ?? []} inputProvenance={provenance} explanationMetadata={response?.review_explanation_metadata ?? null}
+        assemblyCalculationSnapshot={response?.formulation.assembly_calculation_snapshot ?? null}
         reviewDataState={reviewDataState} hasPrevious={hasPreviousResult} hasNext={hasNextResult}
         activeTab={drawerTab} onActiveTabChange={(tab) => { setDrawerTab(tab); updateWorkspaceParams({ drawer: tab }); }}
         onPrevious={() => hasPreviousResult && selectResultRow(visibleResultRows[selectedResultIndex - 1])}

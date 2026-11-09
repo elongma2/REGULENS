@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from pydantic import Field, field_validator, model_validator
 
@@ -121,6 +121,25 @@ class ProductApplicabilityFacts(StrictModel):
     inhalation_exposure: bool | None = None
 
 
+class FormulationAssemblyScope(StrictModel):
+    """Persistent disclosure boundary for a derived trade-material formulation.
+
+    This summary travels with the canonical request and immutable screening
+    snapshot. It prevents a calculated subset of disclosed constituents from
+    being mistaken for a completely evaluated finished formulation.
+    """
+
+    completeness: Literal["complete", "partial", "blocked"]
+    issue_codes: list[str] = Field(default_factory=list)
+    action_required_codes: list[str] = Field(default_factory=list)
+    coverage_limitation_codes: list[str] = Field(default_factory=list)
+    unresolved_material_ids: list[str] = Field(default_factory=list)
+    incomplete_disclosure_material_ids: list[str] = Field(default_factory=list)
+    unresolved_association_ids: list[str] = Field(default_factory=list)
+    source_document_ids: list[str] = Field(default_factory=list)
+    calculated_from_trade_materials: bool = True
+
+
 class FormulationRequest(StrictModel):
     formulation_id: str | None = None
     formulation_name: str | None = None
@@ -129,6 +148,8 @@ class FormulationRequest(StrictModel):
     source_document_type: SourceDocumentType = SourceDocumentType.FORMULATION
     document_completeness: DocumentCompleteness = DocumentCompleteness.FULL_FORMULATION
     source_filename: str | None = None
+    assembly_scope: FormulationAssemblyScope | None = None
+    assembly_calculation_snapshot: dict[str, Any] | None = None
     ingredients: list[FormulationIngredientRequest] = Field(min_length=1)
 
     @field_validator("formulation_id", "formulation_name", "product_context", "source_filename")
@@ -147,6 +168,8 @@ class FormulationMetadata(StrictModel):
     source_document_type: SourceDocumentType = SourceDocumentType.FORMULATION
     document_completeness: DocumentCompleteness = DocumentCompleteness.FULL_FORMULATION
     source_filename: str | None = None
+    assembly_scope: FormulationAssemblyScope | None = None
+    assembly_calculation_snapshot: dict[str, Any] | None = None
 
 
 class SourceSnapshot(StrictModel):

@@ -31,6 +31,103 @@ function reviewResult(source: "model" | "deterministic_fallback" = "model") {
 }
 
 describe("review guidance", () => {
+  it("does not repeat a legacy formulation-level assembly warning on an ingredient", () => {
+    const result = baseResult(1, "GLYCERIN");
+    result.screening_disposition = "partially_evaluated";
+    result.review_issues = [{
+      code: "assembly_incomplete",
+      severity: "information_missing",
+      scope: "screening",
+      message: "Assembly incomplete.",
+      reviewer_action: "Review another supplier material.",
+      rule_id: null,
+      source_reference: null,
+      missing_facts: [],
+      related_rule_ids: [],
+      related_constituent_references: [],
+    }];
+    result.review_explanation = {
+      title: "Assembly incomplete",
+      summary: "Another supplier material is incomplete.",
+      what_to_check: "Review another supplier material.",
+      submitted_fact: null,
+      regulatory_fact: null,
+      source: "deterministic_fallback",
+      items: [{
+        issue_code: "assembly_incomplete",
+        what_happened: "Assembly incomplete.",
+        why_it_matters: "Product coverage is limited.",
+        what_to_check: "Review another supplier material.",
+        source_references: [],
+      }],
+    };
+
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+
+    expect(screen.getByText("No applicable restriction identified")).toBeInTheDocument();
+    expect(screen.getByText("Fully evaluated")).toBeInTheDocument();
+    expect(screen.queryByText("Assembly incomplete")).not.toBeInTheDocument();
+    expect(screen.queryByText("Review another supplier material.")).not.toBeInTheDocument();
+  });
+
+  it("shows source-backed trade-material calculation provenance", async () => {
+    const user = userEvent.setup();
+    const result = baseResult(1, "GLYCERIN");
+    result.submitted_ingredient.cas_number = "56-81-5";
+    render(<EvidenceDrawer
+      result={result}
+      sources={[]}
+      assemblyCalculationSnapshot={{
+        aggregates: [{
+          display_name: "GLYCERIN",
+          cas_number: "56-81-5",
+          aggregate_quantity: { kind: "exact", value: 1, unit: "percent" },
+          contributions: [{
+            contribution_id: "contribution-1",
+            source_material_id: "OPTASENSE",
+            composition_quantity: { kind: "exact", value: 50, unit: "percent" },
+            material_usage: { kind: "exact", value: 2, unit: "percent" },
+            finished_product_quantity: { kind: "exact", value: 1, unit: "percent" },
+            calculation_formula: "2% × 50% = 1%",
+            source_evidence: [{ page: 2, source_snippet: "Glycerin 50%" }],
+          }],
+        }],
+      }}
+      onClose={vi.fn()}
+    />);
+    await user.click(screen.getByText("Calculated contribution from trade materials"));
+    expect(screen.getByText("Trade material OPTASENSE")).toBeInTheDocument();
+    expect(screen.getByText("2% × 50% = 1%")).toBeInTheDocument();
+    expect(screen.getByText("Page 2: Glycerin 50%")).toBeInTheDocument();
+  });
+
+  it("shows deterministic supplier calculation facts in the main review explanation", () => {
+    const result = reviewResult("deterministic_fallback");
+    result.review_explanation!.calculation_context = {
+      finished_product_concentration: "0.1%",
+      contributions: [{
+        trade_material: "Supplier Blend X",
+        supplier_concentration: "5%",
+        material_usage: "2%",
+        finished_product_contribution: "0.1%",
+        calculation_formula: "2% × 5% ÷ 100 = 0.1%",
+        source_pages: [3],
+      }],
+      regulatory_limits: ["Maximum 0.2% · Finished product"],
+      remaining_uncertainties: ["Confirm the concentration at the stage stated in the rule."],
+    };
+    render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
+
+    expect(screen.getByLabelText("Trade-material calculation used for screening")).toBeInTheDocument();
+    expect(screen.getByText("Calculated from supplier material")).toBeInTheDocument();
+    expect(screen.getByText("0.1% in finished product")).toBeInTheDocument();
+    expect(screen.getByText("Supplier Blend X")).toBeInTheDocument();
+    expect(screen.getByText("Supplier concentration")).toBeInTheDocument();
+    expect(screen.getByText("Final contribution")).toBeInTheDocument();
+    expect(screen.getByText("2% × 5% ÷ 100 = 0.1% · Source page 3")).toBeInTheDocument();
+    expect(screen.getByText("Maximum 0.2% · Finished product")).toBeInTheDocument();
+  });
+
   it("shows plain guidance and keeps machine codes collapsed", async () => {
     const user = userEvent.setup();
     render(<EvidenceDrawer

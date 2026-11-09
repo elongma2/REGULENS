@@ -62,6 +62,18 @@ export interface ProductApplicabilityFacts {
   inhalation_exposure?: boolean | null;
 }
 
+export interface FormulationAssemblyScope {
+  completeness: "complete" | "partial" | "blocked";
+  issue_codes: string[];
+  action_required_codes?: string[];
+  coverage_limitation_codes?: string[];
+  unresolved_material_ids: string[];
+  incomplete_disclosure_material_ids: string[];
+  unresolved_association_ids: string[];
+  source_document_ids: string[];
+  calculated_from_trade_materials: boolean;
+}
+
 export interface FormulationRequest {
   formulation_id: string | null;
   formulation_name: string | null;
@@ -70,6 +82,8 @@ export interface FormulationRequest {
   source_document_type?: SourceDocumentType;
   document_completeness?: DocumentCompleteness;
   source_filename?: string | null;
+  assembly_scope?: FormulationAssemblyScope | null;
+  assembly_calculation_snapshot?: Record<string, unknown> | null;
   ingredients: FormulationIngredient[];
 }
 
@@ -337,6 +351,23 @@ export interface ReviewExplanation {
   items?: ReviewExplanationItem[];
   reviewer_actions?: string[];
   primary_source_references?: string[];
+  calculation_context?: ReviewCalculationContext | null;
+}
+
+export interface ReviewCalculationContribution {
+  trade_material: string | null;
+  supplier_concentration: string;
+  material_usage: string;
+  finished_product_contribution: string;
+  calculation_formula: string;
+  source_pages: number[];
+}
+
+export interface ReviewCalculationContext {
+  finished_product_concentration: string;
+  contributions: ReviewCalculationContribution[];
+  regulatory_limits: string[];
+  remaining_uncertainties: string[];
 }
 
 export interface ReviewExplanationItem {
@@ -424,6 +455,8 @@ export interface ScreeningResponse {
     source_document_type?: SourceDocumentType;
     document_completeness?: DocumentCompleteness;
     source_filename?: string | null;
+    assembly_scope?: FormulationAssemblyScope | null;
+    assembly_calculation_snapshot?: Record<string, unknown> | null;
   };
   dataset: {
     dataset_version: string;

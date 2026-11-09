@@ -1,0 +1,87 @@
+{
+  "fixture_set": "regulens-synthetic-trade-name-pilot-v1",
+  "created_for": "controlled local pilot testing",
+  "documents": [
+    {
+      "filename": "01_LumiMatrix_3000_Composition_RevA.pdf",
+      "expected_role": "supplier_composition",
+      "trade_name": "LumiMatrix 3000",
+      "product_code": "LMX-3000",
+      "revision": "Rev A",
+      "constituents": 6,
+      "legend_entries": 8,
+      "disclosure": "complete"
+    },
+    {
+      "filename": "02_LumiMatrix_3000_Composition_RevB_CONFLICT.pdf",
+      "expected_role": "supplier_composition",
+      "trade_name": "LumiMatrix 3000",
+      "product_code": "LMX-3000",
+      "revision": "Rev B",
+      "constituents": 6,
+      "legend_entries": 8,
+      "disclosure": "complete",
+      "conflicts_with": "01_LumiMatrix_3000_Composition_RevA.pdf"
+    },
+    {
+      "filename": "03_SiliSmooth_2315_SDS_Rev4.pdf",
+      "expected_role": "sds_msds",
+      "trade_name": "SiliSmooth 2315",
+      "product_code": "SS-2315",
+      "constituents": 6,
+      "composition_page": 2,
+      "hazard_rows_expected": 0
+    },
+    {
+      "filename": "04_Preserva_PX_Composition.pdf",
+      "expected_role": "supplier_composition",
+      "trade_name": "Preserva PX",
+      "product_code": "PPX-90",
+      "constituents": 2,
+      "disclosure": "complete"
+    },
+    {
+      "filename": "05_UV_Protect_OCZ_Composition.pdf",
+      "expected_role": "supplier_composition",
+      "trade_name": "UV Protect OCZ",
+      "product_code": "UV-OCZ-70",
+      "constituents": 3,
+      "disclosure": "complete"
+    },
+    {
+      "filename": "06_Botanical_Glow_X_Partial_Composition.pdf",
+      "expected_role": "supplier_composition",
+      "trade_name": "Botanical Glow X",
+      "product_code": "BGX-42",
+      "disclosure": "partial",
+      "must_prevent_full_evaluation": true
+    },
+    {
+      "filename": "07_Radiant_Barrier_Serum_Finished_Formula.pdf",
+      "expected_role": "finished_product_formulation",
+      "formula_code": "RBS-TEST-001",
+      "rows": 11,
+      "trade_name_rows": 5,
+      "direct_inci_rows": 6
+    }
+  ],
+  "expected_aggregates_percent": {
+    "phenoxyethanol": {"kind": "exact", "value": 1.02},
+    "octocrylene": {"kind": "exact", "value": 10.0},
+    "zinc_oxide": {"kind": "exact", "value": 1.2},
+    "caprylic_capric_triglyceride": {"kind": "exact", "value": 0.6},
+    "glycerin_rev_a": {"kind": "range", "lower": 3.8, "upper": 4.6},
+    "glycerin_rev_b": {"kind": "range", "lower": 3.6, "upper": 4.0}
+  },
+  "required_invariants": [
+    "supplier_trade_names_are_not_screened_as_ingredients",
+    "exact_duplicate_files_do_not_double_count",
+    "conflicting_revisions_require_one_governing_revision",
+    "hazard_text_does_not_become_composition",
+    "partial_disclosure_prevents_full_evaluation",
+    "unknown_values_are_not_treated_as_zero",
+    "direct_and_supplier_contributions_aggregate_only_after_verified_identity",
+    "adverse_findings_survive_partial_assembly",
+    "source_document_and_page_are_preserved"
+  ]
+}

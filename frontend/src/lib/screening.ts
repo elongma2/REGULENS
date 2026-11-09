@@ -47,11 +47,28 @@ export const findingPresentation: Record<Finding, { label: string; tone: string;
     dot: "bg-slate-500",
   },
   no_issue_identified_within_scoped_rules: {
-    label: "No issue identified within scoped rules",
+    label: "No applicable restriction identified",
     tone: "text-emerald-700 bg-emerald-50 border-emerald-200",
     dot: "bg-emerald-600",
   },
 };
+
+export function ingredientReviewIssues(result: IngredientResult) {
+  return (result.review_issues ?? []).filter((issue) => issue.code !== "assembly_incomplete");
+}
+
+export function ingredientScreeningDisposition(result: IngredientResult) {
+  if (result.screening_disposition !== "partially_evaluated") return result.screening_disposition;
+  const hadLegacyAssemblyIssue = (result.review_issues ?? []).some(
+    (issue) => issue.code === "assembly_incomplete",
+  );
+  const hasWithheldRule = result.rule_evaluations.some((evaluation) =>
+    ["withheld", "withheld_professional_review"].includes(evaluation.evaluation_status),
+  );
+  return hadLegacyAssemblyIssue && ingredientReviewIssues(result).length === 0 && !hasWithheldRule
+    ? "fully_evaluated"
+    : result.screening_disposition;
+}
 
 export const adversePrimaryFindings = new Set<Finding>([
   "prohibited_substance_identified",
@@ -118,16 +135,20 @@ export function regulationLabel(evaluation: RuleEvaluation): string | null {
 }
 
 export function formatConcentration(value: IngredientResult["submitted_ingredient"]["concentration"]): string {
-  if (!value) return "—";
-  if (value.original_text) return value.original_text;
+  if (!value || value.concentration_type === "unknown") return "Unknown";
+  const formatNumber = (number: number | null | undefined): string => {
+    if (number == null || !Number.isFinite(number)) return "Unknown";
+    const [whole, fraction = ""] = number.toFixed(12).split(".");
+    const significant = fraction.replace(/0+$/, "").padEnd(2, "0");
+    return `${whole}.${significant}`;
+  };
   const unit = value.unit === "percent" ? "%" : value.unit ? ` ${value.unit}` : "";
   switch (value.concentration_type ?? "exact") {
-    case "range": return `${value.lower_bound}–${value.upper_bound}${unit}`;
-    case "upper_bound": return `${value.upper_inclusive ? "≤" : "<"}${value.upper_bound}${unit}`;
-    case "lower_bound": return `${value.lower_inclusive ? "≥" : ">"}${value.lower_bound}${unit}`;
-    case "approximate": return `Approximately ${value.value}${unit}`;
-    case "unknown": return "Not disclosed";
-    default: return `${value.value}${unit}`;
+    case "range": return `${formatNumber(value.lower_bound)}–${formatNumber(value.upper_bound)}${unit}`;
+    case "upper_bound": return `${value.upper_inclusive ? "≤" : "<"}${formatNumber(value.upper_bound)}${unit}`;
+    case "lower_bound": return `${value.lower_inclusive ? "≥" : ">"}${formatNumber(value.lower_bound)}${unit}`;
+    case "approximate": return `≈${formatNumber(value.value)}${unit}`;
+    default: return `${formatNumber(value.value)}${unit}`;
   }
 }
 

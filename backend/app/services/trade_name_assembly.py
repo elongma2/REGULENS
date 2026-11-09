@@ -1,0 +1,543 @@
+from __future__ import annotations
+
+from collections.abc import Iterable
+import hashlib
+from typing import Any
+
+from backend.app.models.agent import AgentSessionView
+from backend.app.models.document_intake import (
+    CompositionQuantity,
+    CompositionQuantityKind,
+    ConfirmationStatus,
+    DirectIngredient,
+    DisclosureStatus,
+    DocumentExtraction,
+    DocumentRole,
+    DocumentSourceEvidence,
+    FormulationAssemblyState,
+    MaterialConstituent,
+    PreparedAssembly,
+    SupplierMaterial,
+)
+from backend.app.models.formulation import (
+    ConcentrationBasis,
+    ConcentrationUnit,
+    FormulationConcentration,
+    FormulationIngredientRequest,
+    PreparationStage,
+)
+from backend.app.models.screening import ConcentrationType, IdentityOutcome, IdentityStatus
+from backend.app.services.composition_legends import resolve_coded_quantity
+from backend.app.services.formulation_assembly import prepare_assembly
+from backend.app.services.ingredient_catalog import IngredientCatalog
+from backend.app.services.ingredient_linkage import IngredientLinkageStore
+from backend.app.services.loader import RegulatoryStore
+from backend.app.services.resolver import resolve_ingredient
+
+
+ASSEMBLY_DERIVATION_VERSION = "assembly-v2"
+
+
+def _identity_group(
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+    name: str,
+    cas_number: str | None,
+) -> str | None:
+    resolution = resolve_ingredient(
+        store,
+        name,
+        cas_number,
+        ingredient_catalog=catalogue,
+        linkage_store=linkages,
+    )
+    safe_review_outcomes = {
+        IdentityOutcome.VERIFIED,
+        IdentityOutcome.NAME_RECOGNISED_CAS_UNVERIFIED,
+        IdentityOutcome.CAS_RECOGNISED_NAME_UNVERIFIED,
+        IdentityOutcome.SAME_IDENTITY_MULTIPLE_REGULATORY_RECORDS,
+    }
+    if resolution.status == IdentityStatus.REVIEW_REQUIRED and resolution.identity_outcome not in safe_review_outcomes:
+        return None
+    if resolution.status not in {IdentityStatus.RESOLVED, IdentityStatus.REVIEW_REQUIRED}:
+        return None
+    if resolution.catalogue_identity is not None:
+        return f"catalogue:{resolution.catalogue_identity.ingredient_id}"
+    ids = resolution.resolved_singapore_substance_ids or (
+        [resolution.resolved_singapore_substance_id]
+        if resolution.resolved_singapore_substance_id else []
+    )
+    return f"singapore:{','.join(sorted(ids))}" if ids else None
+
+
+def _resolve_constituent(
+    constituent: MaterialConstituent,
+    *,
+    document_id: str,
+    extraction: DocumentExtraction,
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+) -> MaterialConstituent:
+    quantity = constituent.composition_quantity
+    if quantity and quantity.kind == CompositionQuantityKind.CODED_RANGE:
+        legend = next(
+            (item for item in extraction.legends if item.document_id == document_id),
+            None,
+        )
+        resolved, _ = resolve_coded_quantity(
+            quantity,
+            legend,
+            document_id=document_id,
+            material_id=None,
+            constituent_id=constituent.constituent_id,
+        )
+        if resolved is not None:
+            quantity = resolved
+    return constituent.model_copy(update={
+        "composition_quantity": quantity,
+        "verified_identity_group": _identity_group(
+            store,
+            catalogue,
+            linkages,
+            constituent.submitted_name,
+            constituent.cas_number,
+        ),
+    })
+
+
+def _resolved_direct(
+    row: DirectIngredient,
+    *,
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+) -> DirectIngredient:
+    return row.model_copy(update={
+        "verified_identity_group": _identity_group(
+            store,
+            catalogue,
+            linkages,
+            row.ingredient.name,
+            row.ingredient.cas_number,
+        ),
+    })
+
+
+def _enum_value(enum_type, value: Any):
+    if value is None:
+        return None
+    try:
+        return enum_type(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _agent_concentration(payload: dict[str, Any] | None) -> FormulationConcentration | None:
+    if not payload:
+        return None
+
+    def field_value(field: str) -> Any:
+        candidate = payload.get(field)
+        return candidate.get("value") if isinstance(candidate, dict) else None
+
+    concentration_type = _enum_value(ConcentrationType, field_value("concentration_type"))
+    value = field_value("value")
+    lower = field_value("lower_bound")
+    upper = field_value("upper_bound")
+    original = payload.get("original_text")
+    if concentration_type is None:
+        if value is not None:
+            concentration_type = ConcentrationType.EXACT
+        elif lower is not None or upper is not None:
+            concentration_type = (
+                ConcentrationType.RANGE if lower is not None and upper is not None
+                else ConcentrationType.LOWER_BOUND if lower is not None
+                else ConcentrationType.UPPER_BOUND
+            )
+        elif original:
+            concentration_type = ConcentrationType.UNKNOWN
+        else:
+            return None
+    return FormulationConcentration(
+        concentration_type=concentration_type,
+        value=value,
+        lower_bound=lower,
+        upper_bound=upper,
+        lower_inclusive=payload.get("lower_inclusive"),
+        upper_inclusive=payload.get("upper_inclusive"),
+        original_text=original,
+        unit=_enum_value(ConcentrationUnit, field_value("unit")),
+        basis=_enum_value(ConcentrationBasis, field_value("basis")),
+        preparation_stage=_enum_value(PreparationStage, field_value("preparation_stage")),
+    )
+
+
+def _material_usage_from_agent_row(row: Any) -> CompositionQuantity | None:
+    concentration = _agent_concentration(
+        row.concentration.model_dump(mode="json") if row.concentration else None
+    )
+    if concentration is None:
+        return None
+    kind = CompositionQuantityKind(concentration.concentration_type.value)
+    return CompositionQuantity(
+        kind=kind,
+        value=concentration.value,
+        lower=concentration.lower_bound,
+        upper=concentration.upper_bound,
+        lower_inclusive=concentration.lower_inclusive,
+        upper_inclusive=concentration.upper_inclusive,
+        unit=concentration.unit.value if concentration.unit else None,
+        basis=concentration.basis.value if concentration.basis else None,
+        preparation_stage=(
+            concentration.preparation_stage.value
+            if concentration.preparation_stage else "finished_product"
+        ),
+        quantity_scope="finished_product",
+        raw_text=concentration.original_text,
+        approximate=concentration.concentration_type == ConcentrationType.APPROXIMATE,
+    )
+
+
+def _agent_material_usage_by_name(
+    agent_state: dict[str, Any] | None,
+) -> dict[str, list[CompositionQuantity]]:
+    if not agent_state:
+        return {}
+    try:
+        session = AgentSessionView.model_validate(agent_state)
+    except ValueError:
+        return {}
+    output: dict[str, list[CompositionQuantity]] = {}
+    for row in session.interpreted_rows:
+        name = " ".join(str(row.name.value or "").casefold().split())
+        usage = _material_usage_from_agent_row(row)
+        if name and usage is not None:
+            output.setdefault(name, []).append(usage)
+    return output
+
+
+def matched_trade_material_row_ids(
+    agent_state: dict[str, Any] | AgentSessionView | None,
+    materials: Iterable[SupplierMaterial],
+) -> set[str]:
+    """Return primary-formulation rows owned by the supplier-material workflow.
+
+    A trade name in the finished formula is a parent raw material, not a direct
+    cosmetic ingredient. Once a supplier document identifies that material,
+    its row must be expanded by the assembly layer and must not also be sent
+    through the ordinary ingredient-confirmation path.
+    """
+    if agent_state is None:
+        return set()
+    try:
+        session = (
+            agent_state
+            if isinstance(agent_state, AgentSessionView)
+            else AgentSessionView.model_validate(agent_state)
+        )
+    except ValueError:
+        return set()
+    parent_names = {
+        " ".join(value.casefold().split())
+        for material in materials
+        for value in (material.trade_name, material.product_code)
+        if value and value.strip()
+    }
+    return {
+        row.row_id
+        for row in session.interpreted_rows
+        if any(
+            " ".join(str(value or "").casefold().split()) in parent_names
+            for value in (row.name.value, row.name.source_value)
+        )
+    }
+
+
+def _direct_rows_from_agent(
+    version_id: str,
+    agent_state: dict[str, Any] | None,
+    *,
+    excluded_parent_names: set[str],
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+) -> list[DirectIngredient]:
+    if not agent_state:
+        return []
+    try:
+        session = AgentSessionView.model_validate(agent_state)
+    except ValueError:
+        return []
+    output: list[DirectIngredient] = []
+    for row in session.interpreted_rows:
+        name = str(row.name.value or "").strip()
+        if not name or " ".join(name.casefold().split()) in excluded_parent_names:
+            continue
+        cas_number = str(row.cas_number.value).strip() if row.cas_number and row.cas_number.value else None
+        ingredient = FormulationIngredientRequest(
+            name=name,
+            cas_number=cas_number,
+            concentration=_agent_concentration(
+                row.concentration.model_dump(mode="json") if row.concentration else None
+            ),
+            regulated_functions=row.regulated_functions,
+        )
+        evidence = [DocumentSourceEvidence(
+            document_id=f"primary:{version_id}",
+            page=(row.source_pages[0] if row.source_pages else None),
+            source_row=row.source_row,
+            source_snippet=(row.name.source_references[0].source_snippet
+                            if row.name.source_references else None),
+            raw_value=row.name.source_value,
+        )]
+        output.append(_resolved_direct(
+            DirectIngredient(
+                ingredient_id=f"agent:{row.row_id}",
+                ingredient=ingredient,
+                source_document_id=f"primary:{version_id}",
+                source_evidence=evidence,
+            ),
+            store=store,
+            catalogue=catalogue,
+            linkages=linkages,
+        ))
+    return output
+
+
+def derive_assembly_state(
+    *,
+    version_id: str,
+    formulation_name: str | None,
+    agent_state: dict[str, Any] | None,
+    documents: Iterable[dict[str, Any]],
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+) -> FormulationAssemblyState:
+    source_document_ids: list[str] = []
+    source_document_snapshots: dict[str, str] = {}
+    material_candidates: dict[str, list[tuple[str, SupplierMaterial, bool, set[DocumentRole]]]] = {}
+    direct_ingredients: list[DirectIngredient] = []
+    parent_names: set[str] = set()
+
+    for document in documents:
+        extraction_payload = document.get("extraction_result")
+        if not extraction_payload:
+            continue
+        extraction = DocumentExtraction.model_validate(extraction_payload)
+        document_id = str(document["id"])
+        source_document_ids.append(document_id)
+        extraction_key = str(
+            document.get("attached_extraction_key")
+            or document.get("processing_key")
+            or f"revision:{document.get('revision', 0)}"
+        )
+        role_key = ",".join(sorted(str(value) for value in document.get("confirmed_roles") or []))
+        source_document_snapshots[document_id] = (
+            f"{ASSEMBLY_DERIVATION_VERSION}|{extraction_key}|revision:{document.get('revision', 0)}|"
+            f"governing:{bool(document.get('governing_for_material'))}|roles:{role_key}"
+        )
+        confirmed_roles = {DocumentRole(item) for item in document.get("confirmed_roles") or []}
+        # Older retained supplier documents may have a detected high-confidence
+        # role but no confirmed role because role confirmation used to be a
+        # separate UI step.  Treat the source-backed extraction schema as the
+        # effective role so those documents calculate without being re-uploaded.
+        recommended_role = {
+            "supplier_composition": DocumentRole.SUPPLIER_COMPOSITION,
+            "sds_composition": DocumentRole.SDS_MSDS,
+        }.get(extraction.classification.recommended_extraction_schema)
+        recommended_evidence = next(
+            (
+                item for item in extraction.classification.proposed_roles
+                if item.role == recommended_role
+            ),
+            None,
+        )
+        inferred_supplier_role = bool(
+            not (confirmed_roles & {DocumentRole.SUPPLIER_COMPOSITION, DocumentRole.SDS_MSDS})
+            and
+            extraction.supplier_materials
+            and recommended_role
+            and recommended_evidence
+            and recommended_evidence.confidence in {"confirmed", "high"}
+        )
+        if inferred_supplier_role and recommended_role is not None:
+            confirmed_roles = {recommended_role}
+        for material in extraction.supplier_materials:
+            resolved_rows = [
+                _resolve_constituent(
+                    constituent,
+                    document_id=document_id,
+                    extraction=extraction,
+                    store=store,
+                    catalogue=catalogue,
+                    linkages=linkages,
+                )
+                for constituent in material.constituents
+            ]
+            # Automatic role recognition means "this is a supplier file"; it
+            # does not mean every revision of the same material is current.
+            # Only an explicit choice governs a multi-revision group. A lone
+            # recognised supplier file is selected automatically below.
+            governing = bool(document.get("governing_for_material"))
+            disclosure = (
+                DisclosureStatus.PARTIAL
+                if DocumentRole.SDS_MSDS in confirmed_roles
+                else material.disclosure_status
+            )
+            normalized = material.model_copy(update={
+                "attached_document_ids": [document_id],
+                "governing_document_id": document_id if governing else None,
+                "constituents": resolved_rows,
+                "disclosure_status": disclosure,
+                "confirmation_status": (
+                    ConfirmationStatus.CONFIRMED if governing
+                    else ConfirmationStatus.NEEDS_CONFIRMATION
+                ),
+            })
+            normalized_supplier = " ".join((normalized.supplier_name or "").casefold().split())
+            normalized_trade = " ".join(normalized.trade_name.casefold().split())
+            normalized_code = " ".join((normalized.product_code or "").casefold().split())
+            material_key = (
+                f"code:{normalized_code}"
+                if normalized_code else f"supplier:{normalized_supplier}|trade:{normalized_trade}"
+            )
+            material_candidates.setdefault(material_key, []).append(
+                (document_id, normalized, governing, confirmed_roles)
+            )
+            parent_names.update({
+                " ".join(value.casefold().split())
+                for value in (normalized.trade_name, normalized.product_code)
+                if value
+            })
+        direct_ingredients.extend(
+            _resolved_direct(
+                row,
+                store=store,
+                catalogue=catalogue,
+                linkages=linkages,
+            )
+            for row in extraction.direct_ingredients
+        )
+
+    agent_usage = _agent_material_usage_by_name(agent_state)
+    materials: list[SupplierMaterial] = []
+    for material_key, candidates in material_candidates.items():
+        ordered = sorted(candidates, key=lambda item: item[0])
+        governing_candidates = [item for item in ordered if item[2]]
+        if (
+            not governing_candidates
+            and len(ordered) == 1
+            and ordered[0][3] & {DocumentRole.SUPPLIER_COMPOSITION, DocumentRole.SDS_MSDS}
+        ):
+            governing_candidates = [ordered[0]]
+        selected = governing_candidates[0] if len(governing_candidates) == 1 else ordered[0]
+        selected_document_id, selected_material, _, selected_roles = selected
+        attached_document_ids = [item[0] for item in ordered]
+        conflict_ids = (
+            attached_document_ids
+            if len(ordered) > 1 and len(governing_candidates) != 1
+            else []
+        )
+        stable_id = selected_material.material_id
+        if len(ordered) > 1:
+            digest = hashlib.sha256(material_key.encode("utf-8")).hexdigest()[:16]
+            stable_id = f"material-group:{digest}"
+        disclosure = (
+            DisclosureStatus.PARTIAL
+            if DocumentRole.SDS_MSDS in selected_roles
+            else selected_material.disclosure_status
+        )
+        usage_candidates: list[CompositionQuantity] = []
+        for candidate_name in (selected_material.trade_name, selected_material.product_code):
+            normalized_name = " ".join((candidate_name or "").casefold().split())
+            if normalized_name:
+                usage_candidates.extend(agent_usage.get(normalized_name, []))
+        finished_product_usage = (
+            usage_candidates[0] if len(usage_candidates) == 1 else None
+        )
+        materials.append(selected_material.model_copy(update={
+            "material_id": stable_id,
+            "attached_document_ids": attached_document_ids,
+            "governing_document_id": (
+                selected_document_id if len(governing_candidates) == 1 else None
+            ),
+            "conflicting_document_ids": conflict_ids,
+            "finished_product_usage": finished_product_usage,
+            "disclosure_status": disclosure,
+            "confirmation_status": (
+                ConfirmationStatus.CONFIRMED
+                if len(governing_candidates) == 1 and not conflict_ids
+                else ConfirmationStatus.NEEDS_CONFIRMATION
+            ),
+        }))
+
+    direct_ingredients.extend(_direct_rows_from_agent(
+        version_id,
+        agent_state,
+        excluded_parent_names=parent_names,
+        store=store,
+        catalogue=catalogue,
+        linkages=linkages,
+    ))
+    unique_direct: dict[str, DirectIngredient] = {
+        row.ingredient_id: row for row in direct_ingredients
+    }
+    return FormulationAssemblyState(
+        direct_ingredients=list(unique_direct.values()),
+        materials=materials,
+        source_document_ids=sorted(set(source_document_ids + [f"primary:{version_id}"])),
+        source_document_snapshots=source_document_snapshots,
+        formulation_name=formulation_name,
+    )
+
+
+def prepare_trade_name_assembly(
+    *,
+    assembly_revision: int,
+    state: FormulationAssemblyState,
+    formulation_id: str | None,
+    source_filename: str | None,
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+) -> tuple[FormulationAssemblyState, PreparedAssembly]:
+    direct = [
+        _resolved_direct(row, store=store, catalogue=catalogue, linkages=linkages)
+        for row in state.direct_ingredients
+    ]
+    materials = [
+        material.model_copy(update={
+            "constituents": [
+                constituent.model_copy(update={
+                    "verified_identity_group": _identity_group(
+                        store,
+                        catalogue,
+                        linkages,
+                        constituent.submitted_name,
+                        constituent.cas_number,
+                    ),
+                })
+                for constituent in material.constituents
+            ],
+        })
+        for material in state.materials
+    ]
+    normalized_state = state.model_copy(update={
+        "direct_ingredients": direct,
+        "materials": materials,
+    })
+    prepared = prepare_assembly(
+        assembly_revision=assembly_revision,
+        direct_ingredients=direct,
+        materials=materials,
+        formulation_id=formulation_id,
+        formulation_name=state.formulation_name,
+        product_context=state.product_context,
+        product_applicability=state.product_applicability,
+        source_filename=source_filename,
+        source_document_ids=state.source_document_ids,
+    )
+    return normalized_state, prepared

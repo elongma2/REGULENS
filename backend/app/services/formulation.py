@@ -12,7 +12,10 @@ from backend.app.models.formulation import (
     IngredientScreeningResponse,
     source_snapshot_from_record,
 )
-from backend.app.models.screening import ConcentrationInput, IngredientInput
+from backend.app.models.screening import (
+    ConcentrationInput,
+    IngredientInput,
+)
 from backend.app.services.compliance import screen_ingredient
 from backend.app.services.resolver import resolve_ingredient
 from backend.app.services.ingredient_catalog import IDENTITY_SOURCE_NAME, IngredientCatalog
@@ -173,6 +176,8 @@ def screen_formulation(
             source_document_type=request.source_document_type,
             document_completeness=request.document_completeness,
             source_filename=request.source_filename,
+            assembly_scope=request.assembly_scope,
+            assembly_calculation_snapshot=request.assembly_calculation_snapshot,
         ),
         dataset=DatasetIdentity(
             dataset_version=store.dataset_version,

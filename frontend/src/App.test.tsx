@@ -157,11 +157,10 @@ describe("formula screening vertical slice", () => {
     expect(screen.getAllByText("Prohibited-list substance identified").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/A1136/).length).toBeGreaterThan(0);
     const aminoRow = screen.getAllByText("Aminophylline").find((element) => element.closest("tr"))!.closest("tr")!;
-    expect(within(aminoRow).getByText("—")).toBeInTheDocument();
-    expect(within(aminoRow).getByText(/Regulation 6\(1\)/)).toBeInTheDocument();
+    expect(within(aminoRow).getByText("Unknown")).toBeInTheDocument();
 
     expect(screen.getByText("Reviewer workflow not saved in a case")).toBeInTheDocument();
-    expect(screen.getByText(/Screening scope: Third Schedule Part I, Third Schedule Part II/)).toBeInTheDocument();
+    expect(screen.getByText(/Rules checked: Third Schedule Part I, Third Schedule Part II/)).toBeInTheDocument();
   });
 
   it("labels an ACD counterpart CAS separately from the submitted CAS", async () => {

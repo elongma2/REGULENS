@@ -10,6 +10,20 @@ import { ScreeningSummary } from "./ScreeningSummary";
 
 type FilterPreset = "all" | "attention" | "not_reviewed";
 
+const assemblyIssueLabels: Record<string, string> = {
+  material_usage_missing: "How much of a raw material is used in the finished product is missing.",
+  incomplete_supplier_disclosure: "A supplier file may list only some ingredients in the raw material.",
+  composition_statement_conflict: "More than one file describes the same raw material; the current file must be chosen.",
+  document_association_unconfirmed: "A raw material has not been connected to the correct supplier file.",
+  unresolved_raw_material: "A raw material could not be confidently identified.",
+  constituent_concentration_missing: "An ingredient amount could not be read from a supplier file.",
+  constituent_identity_unresolved: "An ingredient name or CAS number still needs confirmation.",
+  incompatible_quantity_basis: "Two amounts use units that cannot be combined safely.",
+  invalid_concentration_bound: "A supplier percentage or range falls outside 0% to 100%.",
+  impossible_composition_total: "The ingredient percentages in a supplier file add up to more than 100%.",
+  unverified_identity_aggregation: "Matching ingredient amounts could not be safely added together.",
+};
+
 export function ScreeningResultsPanel({
   response,
   selectedRow,
@@ -32,6 +46,14 @@ export function ScreeningResultsPanel({
   const [finding, setFinding] = useState<Finding | "all">("all");
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus | "all">("all");
   const reviewAvailable = reviewDataState === "available";
+  const assemblyScope = response.formulation.assembly_scope;
+  const coverageCodes = assemblyScope?.coverage_limitation_codes ?? (
+    assemblyScope?.issue_codes.includes("incomplete_supplier_disclosure")
+      ? ["incomplete_supplier_disclosure"] : []
+  );
+  const actionCodes = assemblyScope?.action_required_codes ?? assemblyScope?.issue_codes.filter(
+    (code) => !coverageCodes.includes(code),
+  ) ?? [];
   const reviewByRow = useMemo(() => new Map(reviewItems.map((item) => [item.submitted_row_number, item])), [reviewItems]);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const hasFilters = preset !== "all" || normalizedQuery.length > 0 || finding !== "all" || reviewStatus !== "all";
@@ -86,6 +108,30 @@ export function ScreeningResultsPanel({
         openFindingFollowUps={openFindingFollowUps}
       />
 
+      {assemblyScope && assemblyScope.completeness !== "complete" && (
+        <div className="assembly-scope-warning" role="status">
+          <strong>{assemblyScope.completeness === "blocked"
+            ? "Some ingredients could not be calculated"
+            : actionCodes.length
+              ? "Some inputs still need attention"
+              : "Screening reflects the supplier information provided"}</strong>
+          <p>
+            {assemblyScope.completeness === "blocked"
+              ? "The results below do not include the raw materials with missing or conflicting information."
+              : actionCodes.length
+                ? "Regulens screened the supported information. Remaining inputs and supplier-file limitations prevent a complete product conclusion."
+                : "Regulens screened the disclosed ingredients and amounts. Partial or proprietary supplier disclosure remains a coverage limitation, not a request to invent missing values."}
+          </p>
+          {(actionCodes.length > 0 || coverageCodes.length > 0) && <details>
+            <summary>View screening coverage</summary>
+            <ul>
+              {Array.from(new Set(actionCodes)).map((code) => <li key={`action:${code}`}>{assemblyIssueLabels[code] ?? "More information is needed before this ingredient can be fully checked."}</li>)}
+              {Array.from(new Set(coverageCodes)).map((code) => <li key={`coverage:${code}`}>{assemblyIssueLabels[code] ?? "The supplier evidence limits the scope of this screening."}</li>)}
+            </ul>
+          </details>}
+        </div>
+      )}
+
       {reviewDataState === "unavailable" && (
         <p className="review-data-notice" role="status">
           Review information is unavailable. Regulatory findings and evidence remain available.
@@ -124,7 +170,7 @@ export function ScreeningResultsPanel({
       <details className="screening-scope-disclosure">
         <summary>Screening scope and dataset</summary>
         <div>
-          <p>Screening scope: {Array.from(new Set(response.ingredient_results.flatMap((result) => result.searched_singapore_parts))).join(", ") || "No Singapore section searched"}. Positive-list checks require a declared regulated function.</p>
+          <p>Rules checked: {Array.from(new Set(response.ingredient_results.flatMap((result) => result.searched_singapore_parts))).join(", ") || "No Singapore section searched"}. Colourant, preservative and UV-filter checks require their use to be confirmed when it affects the rule.</p>
           <p>These are ingredient-level screening results for professional review, not a formulation-level compliance conclusion.</p>
           <p>Dataset {response.dataset.dataset_version} · Accepted baseline {response.dataset.accepted_baseline_sha256}</p>
         </div>

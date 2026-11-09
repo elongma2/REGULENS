@@ -13,7 +13,14 @@ from pydantic import Field, ValidationError
 
 from backend.app.models.formulation import FormulationScreeningResponse, ReviewExplanationMetadata
 from backend.app.models.openai import OpenAIUsage
-from backend.app.models.screening import ReviewExplanation, ReviewExplanationItem, ReviewType, StrictModel
+from backend.app.models.screening import (
+    ReviewCalculationContext,
+    ReviewCalculationContribution,
+    ReviewExplanation,
+    ReviewExplanationItem,
+    ReviewType,
+    StrictModel,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -153,6 +160,99 @@ def _unique(values: list[str]) -> list[str]:
         seen.add(key)
         output.append(value)
     return output
+
+
+def _snapshot_quantity_label(quantity: Any) -> str:
+    if not isinstance(quantity, dict):
+        return "Unavailable"
+    unit_value = quantity.get("unit")
+    unit = "%" if unit_value == "percent" else f" {unit_value}" if unit_value else ""
+    kind = quantity.get("kind")
+    if kind == "range" and isinstance(quantity.get("lower"), (int, float)) and isinstance(quantity.get("upper"), (int, float)):
+        return f"{quantity['lower']:g}\N{EN DASH}{quantity['upper']:g}{unit}"
+    if kind == "upper_bound" and isinstance(quantity.get("upper"), (int, float)):
+        marker = "\N{LESS-THAN OR EQUAL TO}" if quantity.get("upper_inclusive") else "<"
+        return f"{marker}{quantity['upper']:g}{unit}"
+    if kind == "lower_bound" and isinstance(quantity.get("lower"), (int, float)):
+        marker = "\N{GREATER-THAN OR EQUAL TO}" if quantity.get("lower_inclusive") else ">"
+        return f"{marker}{quantity['lower']:g}{unit}"
+    if isinstance(quantity.get("value"), (int, float)):
+        prefix = "Approximately " if kind == "approximate" or quantity.get("approximate") else ""
+        return f"{prefix}{quantity['value']:g}{unit}"
+    raw_text = quantity.get("raw_text")
+    return str(raw_text).strip() if raw_text else "Unavailable"
+
+
+def _normalise_lookup_name(value: Any) -> str:
+    return " ".join(str(value or "").casefold().split())
+
+
+def _assembly_aggregate(snapshot: Any, result) -> dict[str, Any] | None:
+    if not isinstance(snapshot, dict) or not isinstance(snapshot.get("aggregates"), list):
+        return None
+    aggregates = [item for item in snapshot["aggregates"] if isinstance(item, dict)]
+    submitted_cas = (result.submitted_ingredient.cas_number or "").strip()
+    if submitted_cas:
+        matched = next((item for item in aggregates if item.get("cas_number") == submitted_cas), None)
+        if matched is not None:
+            return matched
+    names = {
+        _normalise_lookup_name(result.submitted_ingredient.name),
+        _normalise_lookup_name(result.identity.identity_source_name),
+    }
+    if result.identity.catalogue_identity is not None:
+        names.add(_normalise_lookup_name(result.identity.catalogue_identity.canonical_name))
+    names.discard("")
+    return next(
+        (item for item in aggregates if _normalise_lookup_name(item.get("display_name")) in names),
+        None,
+    )
+
+
+def _attach_calculation_context(
+    explanation: ReviewExplanation,
+    result,
+    snapshot: Any,
+) -> ReviewExplanation:
+    aggregate = _assembly_aggregate(snapshot, result)
+    if aggregate is None:
+        return explanation
+    raw_contributions = aggregate.get("contributions")
+    if not isinstance(raw_contributions, list):
+        return explanation
+    materials = {
+        item.get("material_id"): item.get("trade_name")
+        for item in (snapshot.get("materials") or [])
+        if isinstance(item, dict) and item.get("material_id")
+    }
+    contributions: list[ReviewCalculationContribution] = []
+    for item in raw_contributions:
+        if not isinstance(item, dict) or not item.get("source_material_id"):
+            continue
+        source_pages = sorted({
+            int(evidence["page"])
+            for evidence in (item.get("source_evidence") or [])
+            if isinstance(evidence, dict) and isinstance(evidence.get("page"), int)
+        })
+        contributions.append(ReviewCalculationContribution(
+            trade_material=materials.get(item.get("source_material_id")) or str(item["source_material_id"]),
+            supplier_concentration=_snapshot_quantity_label(item.get("composition_quantity")),
+            material_usage=_snapshot_quantity_label(item.get("material_usage")),
+            finished_product_contribution=_snapshot_quantity_label(item.get("finished_product_quantity")),
+            calculation_formula=str(item.get("calculation_formula") or "Calculated deterministically"),
+            source_pages=source_pages,
+        ))
+    if not contributions:
+        return explanation
+    actions = explanation.reviewer_actions or ([explanation.what_to_check] if explanation.what_to_check else [])
+    regulatory_fact = _regulatory_fact(result)
+    context = ReviewCalculationContext(
+        finished_product_concentration=_snapshot_quantity_label(aggregate.get("aggregate_quantity")),
+        contributions=contributions,
+        regulatory_limits=[regulatory_fact] if regulatory_fact else [],
+        remaining_uncertainties=_unique(actions),
+    )
+    return explanation.model_copy(update={"calculation_context": context})
 
 
 def _legacy_fallback_explanation(result) -> ReviewExplanation:
@@ -370,7 +470,11 @@ class ReviewExplanationService:
         enriched = response.model_copy(deep=True)
         review_results = [result for result in enriched.ingredient_results if result.review_required]
         for result in review_results:
-            result.review_explanation = fallback_explanation(result)
+            result.review_explanation = _attach_calculation_context(
+                fallback_explanation(result),
+                result,
+                enriched.formulation.assembly_calculation_snapshot,
+            )
         enriched.review_explanation_metadata = ReviewExplanationMetadata(
             configured=bool(self.api_key),
             configured_model=self.model,
@@ -437,7 +541,11 @@ class ReviewExplanationService:
                 fallback_count += 1
             else:
                 model_count += 1
-            result.review_explanation = explanation
+            result.review_explanation = _attach_calculation_context(
+                explanation,
+                result,
+                enriched.formulation.assembly_calculation_snapshot,
+            )
 
         status = "model" if model_count and not fallback_count else ("mixed" if model_count else "fallback")
         enriched.review_explanation_metadata = ReviewExplanationMetadata(

@@ -8,7 +8,10 @@ import {
   basisLabel, comparisonRows, displayIngredientName, formatRuleConcentration,
   matchMethodLabel, preparationStageLabel, readableCode, reviewReasonLabel,
 } from "../lib/presentation";
-import { formatConcentration, isSingaporeEvaluation, regulationLabel } from "../lib/screening";
+import {
+  formatConcentration, ingredientReviewIssues, ingredientScreeningDisposition,
+  isSingaporeEvaluation, regulationLabel,
+} from "../lib/screening";
 import { reviewStatusPresentation, type WriteState } from "../lib/reviewPresentation";
 import type { InputProvenance } from "../types/agent";
 import type { FollowUp, ReviewDataState, ReviewerNote, ReviewItem, ReviewStatus } from "../types/review";
@@ -32,7 +35,7 @@ function ConcentrationComparison({ evaluation }: { evaluation: RuleEvaluation })
   const comparison = concentrationComparison(evaluation);
   if (!comparison) return null;
   return <div className="comparison-panel mt-3" aria-label="Concentration comparison">
-    <div><span>Submitted concentration</span><strong>{formatConcentration(comparison.submitted)}</strong></div>
+    <div><span>Evaluated concentration</span><strong>{formatConcentration(comparison.submitted)}</strong></div>
     <div><span>Singapore maximum</span><strong>{formatRuleConcentration(comparison.limit)}</strong></div>
     <div className="comparison-total"><span>Difference</span><strong className={comparison.difference > 0 ? "text-red-700" : "text-emerald-700"}>{comparison.difference > 0 ? "+" : ""}{comparison.difference.toFixed(2)} {comparison.limit.unit === "percent" ? "percentage points" : comparison.limit.unit}</strong></div>
   </div>;
@@ -49,8 +52,74 @@ function uniqueText(values: Array<string | null | undefined>): string[] {
   });
 }
 
+type AssemblyQuantity = {
+  kind?: string;
+  value?: number | null;
+  lower?: number | null;
+  upper?: number | null;
+  unit?: string | null;
+  raw_text?: string | null;
+};
+
+type AssemblyContribution = {
+  contribution_id?: string;
+  source_material_id?: string | null;
+  display_name?: string;
+  cas_number?: string | null;
+  composition_quantity?: AssemblyQuantity | null;
+  material_usage?: AssemblyQuantity | null;
+  finished_product_quantity?: AssemblyQuantity | null;
+  calculation_formula?: string;
+  source_evidence?: Array<{ page?: number | null; source_snippet?: string | null }>;
+};
+
+type AssemblyAggregate = {
+  display_name?: string;
+  cas_number?: string | null;
+  aggregate_quantity?: AssemblyQuantity;
+  contributions?: AssemblyContribution[];
+};
+
+function formatAssemblyQuantity(quantity?: AssemblyQuantity | null): string {
+  if (!quantity) return "—";
+  const unit = quantity.unit === "percent" ? "%" : quantity.unit ? ` ${quantity.unit}` : "";
+  if (quantity.raw_text && quantity.kind === "unknown") return quantity.raw_text;
+  if (quantity.kind === "range" && quantity.lower != null && quantity.upper != null) return `${quantity.lower}–${quantity.upper}${unit}`;
+  if (quantity.kind === "upper_bound" && quantity.upper != null) return `<${quantity.upper}${unit}`;
+  if (quantity.kind === "lower_bound" && quantity.lower != null) return `>${quantity.lower}${unit}`;
+  if (quantity.value != null) return `${quantity.kind === "approximate" ? "≈" : ""}${quantity.value}${unit}`;
+  return quantity.raw_text || "Unavailable";
+}
+
+function findAssemblyAggregate(
+  snapshot: Record<string, unknown> | null | undefined,
+  result: IngredientResult,
+): AssemblyAggregate | null {
+  const aggregates = Array.isArray(snapshot?.aggregates) ? snapshot.aggregates as AssemblyAggregate[] : [];
+  const submittedCas = result.submitted_ingredient.cas_number?.trim();
+  const submittedName = result.submitted_ingredient.name.trim().toLocaleLowerCase();
+  const displayName = displayIngredientName(result).trim().toLocaleLowerCase();
+  return aggregates.find((aggregate) => submittedCas && aggregate.cas_number === submittedCas)
+    ?? aggregates.find((aggregate) => {
+      const name = aggregate.display_name?.trim().toLocaleLowerCase();
+      return Boolean(name && (name === submittedName || name === displayName));
+    })
+    ?? null;
+}
+
+function assemblyMaterialName(
+  snapshot: Record<string, unknown> | null | undefined,
+  materialId: string | null | undefined,
+): string | null {
+  if (!materialId || !Array.isArray(snapshot?.materials)) return null;
+  const material = (snapshot.materials as Array<Record<string, unknown>>).find(
+    (item) => item.material_id === materialId,
+  );
+  return typeof material?.trade_name === "string" ? material.trade_name : null;
+}
+
 export function EvidenceDrawer({
-  result, sources, inputProvenance, explanationMetadata, reviewItem, reviewerNotes = [], followUps = [],
+  result, sources, inputProvenance, explanationMetadata, assemblyCalculationSnapshot, reviewItem, reviewerNotes = [], followUps = [],
   reviewDataState = "not_applicable", hasPrevious = false, hasNext = false,
   statusWriteState, noteWriteState, followUpWriteState, pendingReviewStatus,
   followUpWriteStates,
@@ -62,6 +131,7 @@ export function EvidenceDrawer({
   sources: SourceSnapshot[];
   inputProvenance?: InputProvenance | null;
   explanationMetadata?: ScreeningResponse["review_explanation_metadata"];
+  assemblyCalculationSnapshot?: Record<string, unknown> | null;
   reviewItem?: ReviewItem | null;
   reviewerNotes?: ReviewerNote[];
   followUps?: FollowUp[];
@@ -135,8 +205,16 @@ export function EvidenceDrawer({
     ...acdCandidates.flatMap((candidate) => candidate.cas_numbers.map((cas) => ({ cas, section: candidate.regulatory_section }))),
     ...counterparts.flatMap((counterpart) => counterpart.cas_numbers.map((cas) => ({ cas, section: counterpart.regulatory_section }))),
   ].filter((value, index, all) => all.findIndex((item) => item.cas === value.cas && item.section === value.section) === index);
-  const explanation = result.review_explanation;
-  const leadingIssue = result.review_issues?.[0];
+  const reviewIssues = ingredientReviewIssues(result);
+  const legacyAssemblyOnly = (result.review_issues ?? []).some((issue) => issue.code === "assembly_incomplete")
+    && reviewIssues.length === 0;
+  const storedExplanation = result.review_explanation;
+  const explanation = legacyAssemblyOnly && (
+    storedExplanation?.items?.every((item) => item.issue_code === "assembly_incomplete")
+    || storedExplanation?.title?.toLocaleLowerCase().includes("assembly incomplete")
+  ) ? undefined : storedExplanation;
+  const leadingIssue = reviewIssues[0];
+  const screeningDisposition = ingredientScreeningDisposition(result);
   const explanationItems = explanation?.items ?? [];
   const reviewerActions = uniqueText(
     explanation?.reviewer_actions?.length
@@ -154,6 +232,7 @@ export function EvidenceDrawer({
       && candidate.source_text === condition.source_text
       && candidate.reason === condition.reason) === index);
   const warningRequirements = result.warning_requirements ?? [];
+  const assemblyAggregate = findAssemblyAggregate(assemblyCalculationSnapshot, result);
   const incompleteFunctions = result.incomplete_positive_list_checks ?? [];
   const reviewerStatus = reviewDataState === "available" && reviewItem
     ? reviewStatusPresentation[reviewItem.review_status ?? "not_reviewed"].label
@@ -175,7 +254,7 @@ export function EvidenceDrawer({
             <button className="icon-button" type="button" onClick={onClose} aria-label="Close evidence drawer"><X size={18} /></button>
           </div>
         </div>
-        <div className="evidence-drawer-badges"><FindingBadge finding={result.primary_finding} /><span className={`review-status-badge ${reviewItem?.review_status ? reviewStatusPresentation[reviewItem.review_status].className : ""}`}>{reviewerStatus}</span></div>
+        <div className="evidence-drawer-badges"><FindingBadge finding={result.primary_finding} screeningDisposition={screeningDisposition} /><span className={`review-status-badge ${reviewItem?.review_status ? reviewStatusPresentation[reviewItem.review_status].className : ""}`}>{reviewerStatus}</span></div>
         <div className="evidence-drawer-tabs" role="tablist" aria-label="Result details">
           <button ref={(node) => { tabRefs.current.evidence = node; }} id="drawer-tab-evidence" role="tab" type="button" aria-selected={activeTab === "evidence"} aria-controls="drawer-panel-evidence" tabIndex={activeTab === "evidence" ? 0 : -1} onClick={() => setActiveTab("evidence")} onKeyDown={(event) => handleTabKeyDown(event, "evidence")}>Regulatory Evidence</button>
           <button ref={(node) => { tabRefs.current.review = node; }} id="drawer-tab-review" role="tab" type="button" aria-selected={activeTab === "review"} aria-controls="drawer-panel-review" tabIndex={activeTab === "review" ? 0 : -1} onClick={() => setActiveTab("review")} onKeyDown={(event) => handleTabKeyDown(event, "review")}>Review</button>
@@ -188,7 +267,7 @@ export function EvidenceDrawer({
           <div className="metadata-grid mt-3">
             <span>Identity resolution</span><strong>{readableCode(result.identity.status)}</strong>
             <span>Identity outcome</span><strong>{result.identity.identity_outcome ? readableCode(result.identity.identity_outcome) : readableCode(result.identity.status)}</strong>
-            <span>Screening coverage</span><strong>{result.screening_disposition ? readableCode(result.screening_disposition) : "Historical result"}</strong>
+            <span>Screening coverage</span><strong>{screeningDisposition ? readableCode(screeningDisposition) : "Historical result"}</strong>
             <span>Match method</span><strong>{result.identity.match_methods.map(matchMethodLabel).join(", ") || "—"}</strong>
             <span>Confirmed findings</span><strong>{result.confirmed_findings.map(readableCode).join(", ") || "—"}</strong>
             <span>Professional review</span><strong>{result.review_required ? "Required" : "Not required by this result"}</strong>
@@ -200,6 +279,15 @@ export function EvidenceDrawer({
             {(explanation?.submitted_fact || explanation?.regulatory_fact) && <div className="review-facts">
               {explanation.submitted_fact && <div><span>Submitted</span><strong>{explanation.submitted_fact}</strong></div>}
               {explanation.regulatory_fact && <div><span>{regulatoryFactLabel}</span><strong>{explanation.regulatory_fact}</strong></div>}
+            </div>}
+            {explanation?.calculation_context && <div className="review-calculation" aria-label="Trade-material calculation used for screening">
+              <div className="review-calculation-heading"><span>Calculated from supplier material</span><strong>{explanation.calculation_context.finished_product_concentration} in finished product</strong></div>
+              {explanation.calculation_context.contributions.map((contribution, index) => <div className="review-calculation-contribution" key={`${contribution.trade_material ?? "material"}-${contribution.calculation_formula}-${index}`}>
+                <strong>{contribution.trade_material ?? "Supplier material"}</strong>
+                <div><span>Supplier concentration</span><b>{contribution.supplier_concentration}</b><span>Material usage</span><b>{contribution.material_usage}</b><span>Final contribution</span><b>{contribution.finished_product_contribution}</b></div>
+                <small>{contribution.calculation_formula}{contribution.source_pages.length ? ` · Source page${contribution.source_pages.length > 1 ? "s" : ""} ${contribution.source_pages.join(", ")}` : ""}</small>
+              </div>)}
+              {explanation.calculation_context.regulatory_limits.length > 0 && <div className="review-calculation-limits"><span>Regulatory limit</span><strong>{explanation.calculation_context.regulatory_limits.join(" · ")}</strong></div>}
             </div>}
             {explanationItems.length > 1 && <details className="review-issue-details"><summary>Why this needs review ({explanationItems.length})</summary><div>{explanationItems.map((item, index) => <article key={`${item.issue_code}-${item.source_references.join("-")}-${index}`}><strong>{item.what_happened}</strong><p>{item.why_it_matters}</p>{item.source_references.length > 0 && <small>{item.source_references.join(" · ")}</small>}</article>)}</div></details>}
           </div>}
@@ -217,6 +305,14 @@ export function EvidenceDrawer({
             {result.submitted_ingredient.concentration && <><span>Preparation stage</span><strong>{preparationStageLabel(result.submitted_ingredient.concentration.preparation_stage)}</strong><span>Basis</span><strong>{basisLabel(result.submitted_ingredient.concentration.basis)}</strong></>}
           </div>
           {sourceIdentifiers.length > 0 && <div className="source-identifier"><span>Source-backed identifier</span>{sourceIdentifiers.map((identifier) => <div key={`${identifier.cas}-${identifier.section}`}>CAS {identifier.cas} · {identifier.section.replace("Part 1", "").trim()}</div>)}</div>}
+          {assemblyAggregate && <details className="acd-details"><summary>Calculated contribution from trade materials</summary><div className="drawer-details-body">
+            <div className="metadata-grid"><span>Finished-product amount</span><strong>{formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)}</strong><span>Contributions</span><strong>{assemblyAggregate.contributions?.length ?? 0}</strong></div>
+            {(assemblyAggregate.contributions ?? []).map((contribution, index) => <article className="evidence-card" key={contribution.contribution_id ?? `${contribution.source_material_id}-${index}`}>
+              <div className="evidence-card-heading"><strong>{contribution.source_material_id ? `Trade material ${assemblyMaterialName(assemblyCalculationSnapshot, contribution.source_material_id) ?? contribution.source_material_id}` : "Direct addition"}</strong><span className="quiet-badge">{formatAssemblyQuantity(contribution.finished_product_quantity)}</span></div>
+              <div className="metadata-grid mt-3"><span>Inside raw material</span><strong>{formatAssemblyQuantity(contribution.composition_quantity)}</strong><span>Material used</span><strong>{formatAssemblyQuantity(contribution.material_usage)}</strong><span>Calculation</span><strong>{contribution.calculation_formula || "Direct finished-product value"}</strong></div>
+              {(contribution.source_evidence ?? []).map((evidence, evidenceIndex) => evidence.source_snippet ? <p className="technical-note" key={`${evidence.page ?? "page"}-${evidenceIndex}`}>{evidence.page ? `Page ${evidence.page}: ` : ""}{evidence.source_snippet}</p> : null)}
+            </article>)}
+          </div></details>}
         </section>
 
         <section>
@@ -264,7 +360,7 @@ export function EvidenceDrawer({
           {result.identity.catalogue_identity && <section><h3 className="drawer-title">Ingredient identity catalogue</h3><div className="metadata-grid"><span>Recognised name</span><strong>{result.identity.catalogue_identity.canonical_name}</strong><span>Identity source</span><strong>{result.identity.catalogue_identity.source_name}</strong><span>EU entry</span><strong>{result.identity.catalogue_identity.source_entries.join(", ")}</strong><span>Source page</span><strong>{result.identity.catalogue_identity.source_pages.join(", ")}</strong></div><p className="catalogue-caveat">Catalogue recognition confirms the ingredient name only. It does not establish Singapore permission, safety, or regulatory status.</p><IdentitySourceEvidence identity={result.identity.catalogue_identity} /></section>}
         </div></details>}
 
-        {result.review_required && <details className="acd-details"><summary>Technical provenance</summary><div className="metadata-grid drawer-details-body"><span>Review types</span><strong>{result.review_types.join(", ")}</strong><span>Review reasons</span><strong>{result.review_reasons.join(", ")}</strong><span>Structured issue codes</span><strong>{result.review_issues?.map((item) => item.code).join(", ") || "Historical result"}</strong><span>Reviewer action</span><strong>{result.identity.reviewer_action ?? "—"}</strong><span>Applicable records</span><strong>{result.identity.applicable_regulatory_record_ids?.join(", ") || "—"}</strong>{result.identity.identifier_evidence?.map((item) => <span className="contents" key={`${item.identifier_type}-${item.submitted_value ?? "none"}`}><span>{readableCode(item.identifier_type)} lookup</span><strong>{readableCode(item.outcome)}{item.submitted_value ? ` · ${item.submitted_value}` : ""}</strong></span>)}<span>Explanation source</span><strong>{explanation?.source ?? "unavailable"}</strong><span>Explanation model</span><strong>{explanation?.source === "model" ? (explanationMetadata?.actual_model ?? explanationMetadata?.configured_model ?? "—") : "Deterministic fallback"}</strong></div><p className="technical-note">Review guidance explains the existing deterministic result. Regulatory evidence and rule evaluation remain the source of truth.</p></details>}
+        {result.review_required && <details className="acd-details"><summary>Technical provenance</summary><div className="metadata-grid drawer-details-body"><span>Review types</span><strong>{result.review_types.join(", ")}</strong><span>Review reasons</span><strong>{result.review_reasons.join(", ")}</strong><span>Structured issue codes</span><strong>{reviewIssues.map((item) => item.code).join(", ") || "Historical result"}</strong><span>Reviewer action</span><strong>{result.identity.reviewer_action ?? "—"}</strong><span>Applicable records</span><strong>{result.identity.applicable_regulatory_record_ids?.join(", ") || "—"}</strong>{result.identity.identifier_evidence?.map((item) => <span className="contents" key={`${item.identifier_type}-${item.submitted_value ?? "none"}`}><span>{readableCode(item.identifier_type)} lookup</span><strong>{readableCode(item.outcome)}{item.submitted_value ? ` · ${item.submitted_value}` : ""}</strong></span>)}<span>Explanation source</span><strong>{explanation?.source ?? "unavailable"}</strong><span>Explanation model</span><strong>{explanation?.source === "model" ? (explanationMetadata?.actual_model ?? explanationMetadata?.configured_model ?? "—") : "Deterministic fallback"}</strong></div><p className="technical-note">Review guidance explains the existing deterministic result. Regulatory evidence and rule evaluation remain the source of truth.</p></details>}
       </div>
 
       <div id="drawer-panel-review" className="evidence-drawer-body review-drawer-panel" role="tabpanel" aria-labelledby="drawer-tab-review" hidden={activeTab !== "review"}>

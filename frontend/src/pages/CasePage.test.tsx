@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CasePage } from "./CasePage";
 
-const api = vi.hoisted(() => ({ getCase: vi.fn(), deleteCase: vi.fn(), deleteFormulationVersion: vi.fn(), uploadCaseFormulation: vi.fn() }));
+const api = vi.hoisted(() => ({ getCase: vi.fn(), deleteCase: vi.fn(), deleteFormulationVersion: vi.fn(), uploadCaseFormulation: vi.fn(), uploadCaseFormulationDocuments: vi.fn() }));
 const reviewApi = vi.hoisted(() => ({ getReviewOverview: vi.fn(), getCaseActivity: vi.fn(), addReviewerNote: vi.fn() }));
 vi.mock("../api/cases", () => api);
 vi.mock("../api/review", () => reviewApi);
@@ -30,6 +30,8 @@ describe("case detail", () => {
     api.getCase.mockReset().mockResolvedValue(savedCase);
     api.deleteCase.mockReset().mockResolvedValue(undefined);
     api.deleteFormulationVersion.mockReset().mockResolvedValue(undefined);
+    api.uploadCaseFormulation.mockReset().mockResolvedValue({ id: "version-3" });
+    api.uploadCaseFormulationDocuments.mockReset().mockResolvedValue({ id: "version-3" });
     reviewApi.addReviewerNote.mockReset().mockResolvedValue(savedCaseNote);
     reviewApi.getCaseActivity.mockReset().mockResolvedValue({ case_id: "case-1", entries: [] });
     reviewApi.getReviewOverview.mockReset().mockResolvedValue({
@@ -107,5 +109,45 @@ describe("case detail", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Case note saved");
     expect(reviewApi.getCaseActivity).toHaveBeenCalledTimes(1);
     expect(reviewApi.getReviewOverview).toHaveBeenCalledTimes(1);
+  });
+
+  it("uploads one formulation with several supplier documents in one selection", async () => {
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    const formulation = new File(["Ingredient,Concentration\nOPTASENSE,2%"], "formula.csv", { type: "text/csv" });
+    const supplier = new File(["supplier composition"], "OPTASENSE.pdf", { type: "application/pdf" });
+
+    await user.upload(await screen.findByLabelText("Choose formulation and supporting files"), [formulation, supplier]);
+
+    await waitFor(() => expect(api.uploadCaseFormulationDocuments).toHaveBeenCalledWith(
+      "case-1",
+      [formulation, supplier],
+    ));
+  });
+
+  it("keeps a recognised SDS selected while asking for the finished formulation", async () => {
+    api.uploadCaseFormulationDocuments
+      .mockRejectedValueOnce({
+        message: "Regulens recognised an SDS/MSDS or supplier composition, but no finished-product formulation.",
+        status: 422,
+        code: "supplier_document_without_formulation",
+      });
+    const user = userEvent.setup();
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    const input = await screen.findByLabelText("Choose formulation and supporting files");
+    const sds = new File(["sds"], "supplier-sds.pdf", { type: "application/pdf", lastModified: 1 });
+    const formulation = new File(["formula"], "finished-formula.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", lastModified: 2 });
+
+    await user.upload(input, sds);
+
+    expect(await screen.findByRole("heading", { name: "Supplier document recognised" })).toBeInTheDocument();
+    expect(screen.getByText(/appears to be an SDS\/MSDS or supplier composition/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add finished formulation" })).toBeInTheDocument();
+
+    await user.upload(input, formulation);
+    await waitFor(() => expect(api.uploadCaseFormulationDocuments).toHaveBeenLastCalledWith(
+      "case-1",
+      [sds, formulation],
+    ));
   });
 });

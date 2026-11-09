@@ -12,6 +12,7 @@ from fastapi.testclient import TestClient
 from backend.app.config import OpenAISettings
 from backend.app.main import create_app as build_app
 from backend.app.models.agent import AgentAnswer, AgentAnswersRequest, AgentModelRun, AgentPrepareRequest, AgentRowUpdate, ModelInterpretation
+from backend.app.models.formulation import FormulationIngredientRequest, FormulationRequest
 from backend.app.models.openai import OpenAIUsage
 from backend.app.services.agent_csv import CSVUploadError, parse_csv_upload
 from backend.app.services.formulation_agent import (
@@ -363,6 +364,47 @@ def test_non_exact_identity_requires_confirmation(store, catalogue):
     assert session.interpreted_rows[0].name.source_value == "Tosyl chl Na"
     assert session.interpreted_rows[0].name.needs_confirmation is True
     assert any(question.question_type == "identity" for question in session.questions)
+
+
+def test_trade_material_row_questions_do_not_block_assembled_formulation(store, catalogue):
+    def trade_name_runner(parsed, accepted_store, accepted_catalogue, model):
+        return interpretation([{
+            "source_row": 2,
+            "source_name": "LumiMatrix 3000",
+            "interpreted_name": "LumiMatrix 3000",
+            "identity_status": "candidate",
+            "source_cas": None,
+            "source_concentration": "4%",
+            "concentration_value": 4,
+            "concentration_unit": "percent",
+            "issues": [],
+        }])
+
+    service = FormulationAgentService(store, catalogue, model_runner=trade_name_runner)
+    session = service.create(parse_csv_upload(
+        "formula.csv",
+        b"Raw material,Usage\nLumiMatrix 3000,4%\n",
+    ))
+    context_question = next(item for item in session.questions if item.question_type == "product_context")
+    updated = service.apply_answers(session.session_id, AgentAnswersRequest(
+        revision=session.revision,
+        answers=[AgentAnswer(question_id=context_question.question_id, option_id="not_supplied")],
+    ))
+    row_id = updated.interpreted_rows[0].row_id
+    assert any(question.row_id == row_id for question in updated.questions)
+
+    assembled = FormulationRequest(
+        ingredients=[FormulationIngredientRequest(name="GLYCERIN")],
+    )
+    prepared = service.prepare(
+        session.session_id,
+        AgentPrepareRequest(revision=updated.revision),
+        excluded_row_ids={row_id},
+        formulation_override=assembled,
+    )
+
+    assert [item.name for item in prepared.formulation.ingredients] == ["GLYCERIN"]
+    assert prepared.session.canonical_formulation == assembled
 
 
 def test_unchanged_unmatched_identity_has_no_fake_recommendation(store, catalogue):
@@ -733,6 +775,47 @@ def test_source_reference_failure_after_repair_retries_full_interpretation(store
     assert session.successful_attempt == 2
     assert session.attempt_diagnostics[0].failure_category == "source_reference"
     assert session.total_usage.input_tokens == 25
+
+
+def test_explicit_finished_product_workbook_uses_deterministic_fast_path(store, catalogue):
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.append([
+        "Submitted material / ingredient",
+        "CAS if supplied",
+        "Finished product usage (% w/w)",
+        "Entry type",
+        "Product-function / reviewer notes",
+    ])
+    sheet.append(["AQUA", "7732-18-5", 91, "Direct INCI", "Water"])
+    sheet.append(["GLYCERIN", "56-81-5", 3, "Direct INCI", "Humectant"])
+    sheet.append(["ClariPreserve P70", None, 1, "Supplier trade name", "Supplier blend"])
+    sheet.append([])
+    sheet.append(["TOTAL FINISHED-PRODUCT RAW-MATERIAL USAGE (%)", None, "=SUM(C2:C4)"])
+    content = io.BytesIO()
+    workbook.save(content)
+
+    service = FormulationAgentService(
+        store,
+        catalogue,
+        model_runner=OpenAIFormulationInterpreter(api_key=None),
+        sleep=lambda _: None,
+    )
+    session = service.create(parse_csv_upload("finished-formulation.xlsx", content.getvalue()))
+
+    assert session.state == "needs_confirmation"
+    assert session.error is None
+    assert session.attempts == 1
+    assert session.total_usage.request_rounds == 0
+    assert [row.source_row for row in session.interpreted_rows] == [2, 3, 4]
+    assert [row.name.value for row in session.interpreted_rows] == [
+        "AQUA",
+        "GLYCERIN",
+        "ClariPreserve P70",
+    ]
+    assert session.interpreted_rows[0].concentration.value.value == 91
+    assert session.interpreted_rows[0].concentration.unit.value == "percent"
+    assert session.interpreted_rows[0].concentration.preparation_stage.value == "finished_product"
 
 
 def test_model_failure_retains_recoverable_session(store, catalogue):

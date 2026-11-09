@@ -147,6 +147,22 @@ def _parsed_document_payload(parsed: ParsedCSV) -> dict[str, Any]:
     }
 
 
+def _header_field(cell: str) -> str | None:
+    """Map an explicit structured-table heading without interpreting row content."""
+    value = " ".join(cell.casefold().split())
+    if "cas" in value:
+        return "cas_number"
+    if any(token in value for token in ("ingredient", "inci", "submitted material", "raw material")):
+        return "ingredient_name"
+    if any(token in value for token in ("concentration", "usage", "use level", "dosage", "% w/w")):
+        return "concentration"
+    if "entry type" in value or "row type" in value:
+        return "raw_material_name"
+    if any(token in value for token in ("function", "reviewer notes", "notes", "remarks")):
+        return "notes"
+    return None
+
+
 class OpenAIFormulationInterpreter:
     def __init__(self, api_key: str | None = None, timeout_seconds: float = 180):
         self.api_key = api_key
@@ -697,7 +713,16 @@ class FormulationAgentService:
     def _run_interpretation_attempt(self, session: _Session) -> OpenAIUsage:
         original_view = session.view.model_copy(deep=True)
         try:
-            model_result = self.model_runner(session.parsed, self.store, self.catalogue, self.model)
+            deterministic = (
+                self._deterministic_structured_interpretation(session.parsed)
+                if isinstance(self.model_runner, OpenAIFormulationInterpreter)
+                else None
+            )
+            model_result = (
+                deterministic
+                if deterministic is not None
+                else self.model_runner(session.parsed, self.store, self.catalogue, self.model)
+            )
             if isinstance(model_result, AgentModelRun):
                 model_output = model_result.interpretation
                 usage = model_result.usage
@@ -750,6 +775,137 @@ class FormulationAgentService:
                 usage=OpenAIUsage(configured_model=self.model),
             ) from error
 
+    def _deterministic_structured_interpretation(self, parsed: ParsedCSV) -> ModelInterpretation | None:
+        """Interpret an unambiguous spreadsheet table without an external model call.
+
+        This intentionally handles only explicit ingredient/material and quantity
+        headings. Messy or semantic layouts continue through the existing Agent.
+        """
+        if parsed.source_format == "pdf" or not parsed.rows:
+            return None
+
+        header_row = None
+        header_fields: dict[str, int] = {}
+        for row_number, row in enumerate(parsed.rows, start=1):
+            fields = {
+                field: index
+                for index, cell in enumerate(row)
+                if (field := _header_field(cell)) is not None
+            }
+            if "ingredient_name" in fields and "concentration" in fields:
+                header_row = row_number
+                header_fields = fields
+                break
+        if header_row is None:
+            return None
+
+        name_index = header_fields["ingredient_name"]
+        concentration_index = header_fields["concentration"]
+        cas_index = header_fields.get("cas_number")
+        entry_type_index = header_fields.get("raw_material_name")
+        concentration_header = parsed.rows[header_row - 1][concentration_index]
+        header_folded = " ".join(concentration_header.casefold().split())
+        explicit_percent = "%" in concentration_header or "percent" in header_folded
+        explicit_finished_product = "finished product" in header_folded
+
+        ingredients: list[dict[str, Any]] = []
+        data_rows: list[int] = []
+        started = False
+        for source_row in range(header_row + 1, len(parsed.rows) + 1):
+            row = parsed.rows[source_row - 1]
+            if not any(cell.strip() for cell in row):
+                if started:
+                    break
+                continue
+            name = row[name_index].strip() if name_index < len(row) else ""
+            raw_quantity = row[concentration_index].strip() if concentration_index < len(row) else ""
+            if not name or not raw_quantity or re.search(r"\btotal\b", name, re.IGNORECASE):
+                if started and entry_type_index is None:
+                    break
+                continue
+            if entry_type_index is not None:
+                entry_type = row[entry_type_index].strip() if entry_type_index < len(row) else ""
+                if not re.search(r"\b(?:direct|ingredient|inci|supplier|trade|raw material)\b", entry_type, re.IGNORECASE):
+                    continue
+
+            parsed_quantity = parse_concentration_text(raw_quantity)
+            if parsed_quantity is None and not NUMERIC_ONLY.fullmatch(raw_quantity):
+                continue
+            started = True
+            data_rows.append(source_row)
+            parsed_value = parsed_quantity.value if parsed_quantity is not None else float(raw_quantity)
+            cas = row[cas_index].strip() if cas_index is not None and cas_index < len(row) else ""
+            exact = self.catalogue.find_exact_name(name) if self.catalogue else None
+            ingredients.append({
+                "row_id": f"row-{source_row}",
+                "source_rows": [source_row],
+                "interpreted_name": exact["canonical_name"] if exact else name,
+                "identity_status": "exact_match" if exact else "unresolved",
+                "name_sources": [{
+                    "source_row": source_row,
+                    "source_column_index": name_index,
+                    "source_value": row[name_index],
+                }],
+                "proposed_cas": cas or None,
+                "cas_sources": ([{
+                    "source_row": source_row,
+                    "source_column_index": cas_index,
+                    "source_value": row[cas_index],
+                }] if cas and cas_index is not None else []),
+                "concentration_value": parsed_value,
+                "concentration_text": raw_quantity,
+                "concentration_unit": "percent" if explicit_percent else None,
+                "concentration_value_sources": [{
+                    "source_row": source_row,
+                    "source_column_index": concentration_index,
+                    "source_value": row[concentration_index],
+                }],
+                "concentration_unit_sources": ([{
+                    "source_row": header_row,
+                    "source_column_index": concentration_index,
+                    "source_value": concentration_header,
+                }] if explicit_percent else []),
+                "basis": None,
+                "basis_sources": [],
+                "preparation_stage": "finished_product" if explicit_finished_product else None,
+                "preparation_stage_sources": ([{
+                    "source_row": header_row,
+                    "source_column_index": concentration_index,
+                    "source_value": concentration_header,
+                }] if explicit_finished_product else []),
+                "regulated_functions": [],
+                "regulated_function_sources": [],
+                "uncertainties": ([] if explicit_percent else ["concentration_unit"]),
+                "issues": [],
+            })
+
+        if not ingredients:
+            return None
+        mappings = [
+            {
+                "source_column_index": index,
+                "mapped_field": field,
+                "confidence": "high_confidence",
+            }
+            for field, index in header_fields.items()
+        ]
+        return ModelInterpretation.model_validate({
+            "header_rows": [header_row],
+            "data_rows": data_rows,
+            "column_mappings": mappings,
+            "ingredients": ingredients,
+            "formulation_metadata": {
+                "formulation_id": {"value": None, "sources": []},
+                "formulation_name": {"value": None, "sources": []},
+                "product_context": {"value": None, "sources": []},
+            },
+            "document_assessment": {
+                "multiple_products_detected": False,
+                "reasons": [],
+                "sources": [],
+            },
+        })
+
     def _interpret(self, session: _Session) -> AgentSessionView:
         last_error: AgentExecutionError | None = None
         for cycle_attempt in range(1, MAX_INTERPRETATION_ATTEMPTS + 1):
@@ -761,11 +917,12 @@ class FormulationAgentService:
                 with self._lock:
                     self._record_attempt(session, attempt_number, "failure", error.usage, error.failure_category)
                 LOGGER.warning(
-                    "Formulation Agent attempt %s failed (%s, transient=%s, model=%s)",
+                    "Formulation Agent attempt %s failed (%s, transient=%s, model=%s): %s",
                     attempt_number,
                     error.failure_category,
                     error.transient,
                     error.usage.actual_model if error.usage else self.model,
+                    str(error),
                 )
                 if not error.transient or cycle_attempt >= MAX_INTERPRETATION_ATTEMPTS:
                     break
@@ -857,10 +1014,10 @@ class FormulationAgentService:
                 *item.name_sources,
                 *item.cas_sources,
                 *item.concentration_value_sources,
-                *item.concentration_unit_sources,
                 *item.regulated_function_sources,
             ]
             contextual_references = [
+                *item.concentration_unit_sources,
                 *item.basis_sources,
                 *item.preparation_stage_sources,
             ]
@@ -870,8 +1027,11 @@ class FormulationAgentService:
                 if (
                     reference.source_row not in source_rows
                     and not (
-                        parsed.source_format == "pdf"
-                        and reference in contextual_references
+                        reference in contextual_references
+                        and (
+                            parsed.source_format == "pdf"
+                            or reference.source_row in output.header_rows
+                        )
                     )
                 ):
                     raise AgentExecutionError("agent_invalid_source_reference", "A field cites a row that is not attached to its logical ingredient.")
@@ -1377,7 +1537,19 @@ class FormulationAgentService:
     @staticmethod
     def _normalize_unit(value: str) -> str | None:
         normalized = value.strip().casefold().replace(" ", "")
-        return {"%": "percent", "percent": "percent", "ppm": "ppm", "mg/kg": "mg/kg"}.get(normalized)
+        exact = {"%": "percent", "percent": "percent", "ppm": "ppm", "mg/kg": "mg/kg"}.get(normalized)
+        if exact:
+            return exact
+        # A structured spreadsheet commonly states the unit once in its
+        # heading rather than repeating it in every numeric cell.
+        plain = value.casefold()
+        if "%" in value or "percent" in plain:
+            return "percent"
+        if "mg/kg" in normalized:
+            return "mg/kg"
+        if re.search(r"\bppm\b", plain):
+            return "ppm"
+        return None
 
     @staticmethod
     def _normalize_stage(value: str) -> str | None:
@@ -1899,13 +2071,32 @@ class FormulationAgentService:
                     uncertainty_code="preparation_stage",
                 ))
 
-    def prepare(self, session_id: str, request: AgentPrepareRequest) -> AgentPreparedFormulation:
+    def prepare(
+        self,
+        session_id: str,
+        request: AgentPrepareRequest,
+        *,
+        excluded_row_ids: set[str] | None = None,
+        formulation_override: FormulationRequest | None = None,
+    ) -> AgentPreparedFormulation:
         with self._lock:
             session = self._get(session_id)
+            excluded = excluded_row_ids or set()
             if request.revision != session.view.revision:
                 raise AgentRevisionConflictError("The agent session changed; reload it before preparing.")
             self._reconcile_questions(session.view)
-            blocking = [question for question in session.view.questions if question.blocking]
+            blocking = []
+            for question in session.view.questions:
+                if not question.blocking or question.row_id in excluded:
+                    continue
+                if question.affected_row_ids:
+                    remaining_row_ids = [
+                        row_id for row_id in question.affected_row_ids if row_id not in excluded
+                    ]
+                    if not remaining_row_ids:
+                        continue
+                    question = question.model_copy(update={"affected_row_ids": remaining_row_ids})
+                blocking.append(question)
             if blocking:
                 remaining = []
                 for question in blocking:
@@ -1923,6 +2114,8 @@ class FormulationAgentService:
                 )
             ingredients = []
             for row in session.view.interpreted_rows:
+                if row.row_id in excluded:
+                    continue
                 concentration = None
                 if row.concentration is not None:
                     fields = row.concentration
@@ -1951,7 +2144,7 @@ class FormulationAgentService:
                     "concentration": concentration,
                     "regulated_functions": row.regulated_functions,
                 })
-            formulation = FormulationRequest.model_validate({
+            formulation = formulation_override or FormulationRequest.model_validate({
                 "formulation_id": request.formulation_id if request.formulation_id is not None else (
                     session.view.formulation_id.value if session.view.formulation_id else None
                 ),

@@ -1,7 +1,7 @@
 import { ApiError } from "./screening";
 import { apiFetch } from "./http";
 import type { AgentPreparedFormulation, AgentRowAddition, AgentRowUpdate, AgentSession } from "../types/agent";
-import type { CaseView, CurrentUser, FormulationVersion, ScreeningRun } from "../types/cases";
+import type { AssemblyPreparation, CaseView, CurrentUser, DocumentRole, FormulationAssemblyState, FormulationDocument, FormulationDocumentBatch, FormulationVersion, ScreeningRun, SupplierDocument, SupplierDocumentDetail } from "../types/cases";
 
 async function parse<T>(response: Response): Promise<T> {
   const payload = await response.json().catch(() => ({}));
@@ -29,6 +29,11 @@ export async function uploadCaseFormulation(caseId: string, file: File): Promise
   const body = new FormData(); body.append("file", file);
   return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
 }
+export async function uploadCaseFormulationDocuments(caseId: string, files: File[]): Promise<FormulationVersion> {
+  const body = new FormData();
+  files.forEach((file) => body.append("files", file));
+  return parse<FormulationVersion>(await apiFetch(`/cases/${encodeURIComponent(caseId)}/formulations`, { method: "POST", body }));
+}
 export const getFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}`);
 export async function deleteFormulationVersion(id: string): Promise<void> { await json<unknown>(`/formulations/${encodeURIComponent(id)}`, { method: "DELETE", body: JSON.stringify({ confirmation: "DELETE" }) }); }
 export const retryFormulationVersion = (id: string) => json<FormulationVersion>(`/formulations/${encodeURIComponent(id)}/interpret`, { method: "POST" });
@@ -40,4 +45,90 @@ export function prepareFormulationVersion(session: AgentSession, metadata: { for
 }
 export const screenFormulationVersion = (id: string) => json<ScreeningRun>(`/formulations/${encodeURIComponent(id)}/screen`, { method: "POST" });
 export const listFormulationScreenings = (id: string) => json<ScreeningRun[]>(`/formulations/${encodeURIComponent(id)}/screenings`);
+
+export function listSupplierDocuments(options: { search?: string; availableOnly?: boolean; includeArchived?: boolean } = {}) {
+  const query = new URLSearchParams();
+  if (options.search) query.set("search", options.search);
+  if (options.availableOnly) query.set("available_only", "true");
+  if (options.includeArchived) query.set("include_archived", "true");
+  const suffix = query.size ? `?${query.toString()}` : "";
+  return json<SupplierDocument[]>(`/supplier-documents${suffix}`);
+}
+
+export const getSupplierDocument = (id: string) => json<SupplierDocumentDetail>(`/supplier-documents/${encodeURIComponent(id)}`);
+export const getSupplierDocumentFile = (id: string) => json<{ url: string; expires_in: number }>(`/supplier-documents/${encodeURIComponent(id)}/file`);
+
+export function updateSupplierDocument(id: string, revision: number, changes: { supplier_name?: string | null; trade_name?: string | null; product_code?: string | null; document_revision_label?: string | null; supersedes_supplier_document_id?: string | null; confirmed_roles?: DocumentRole[]; library_status?: "available" | "needs_confirmation" | "archived" }) {
+  return json<SupplierDocument>(`/supplier-documents/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ revision, ...changes }),
+  });
+}
+
+export async function deleteSupplierDocument(id: string): Promise<void> {
+  await parse<unknown>(await apiFetch(`/supplier-documents/${encodeURIComponent(id)}`, { method: "DELETE" }));
+}
+
+export const listFormulationDocuments = (versionId: string) => json<FormulationDocument[]>(`/formulations/${encodeURIComponent(versionId)}/documents`);
+
+export async function uploadFormulationDocuments(versionId: string, files: File[]): Promise<FormulationDocumentBatch> {
+  const body = new FormData();
+  files.forEach((file) => body.append("files", file));
+  return parse<FormulationDocumentBatch>(await apiFetch(`/formulations/${encodeURIComponent(versionId)}/documents`, { method: "POST", body }));
+}
+
+export function attachSupplierDocument(versionId: string, supplierDocumentId: string) {
+  return json<FormulationDocument>(`/formulations/${encodeURIComponent(versionId)}/documents/attach`, {
+    method: "POST",
+    body: JSON.stringify({ supplier_document_id: supplierDocumentId }),
+  });
+}
+
+export function updateFormulationDocument(id: string, revision: number, changes: { confirmed_roles?: DocumentRole[]; governing_for_material?: boolean; document_revision_label?: string | null }) {
+  return json<FormulationDocument>(`/formulation-documents/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({ revision, ...changes }),
+  });
+}
+
+export function retryFormulationDocument(id: string) {
+  return json<FormulationDocument>(`/formulation-documents/${encodeURIComponent(id)}/retry`, {
+    method: "POST",
+  });
+}
+
+export function interpretFormulationDocument(id: string) {
+  return json<FormulationDocument>(`/formulation-documents/${encodeURIComponent(id)}/interpret`, {
+    method: "POST",
+  });
+}
+
+export async function detachFormulationDocument(versionId: string, documentId: string): Promise<void> {
+  await parse<unknown>(await apiFetch(`/formulations/${encodeURIComponent(versionId)}/documents/${encodeURIComponent(documentId)}`, { method: "DELETE" }));
+}
+
+export const refreshFormulationAssembly = (versionId: string) => json<AssemblyPreparation>(
+  `/formulations/${encodeURIComponent(versionId)}/assembly/refresh`,
+  { method: "POST" },
+);
+
+export async function getOrInitializeFormulationAssembly(versionId: string): Promise<AssemblyPreparation> {
+  try {
+    return await json<AssemblyPreparation>(`/formulations/${encodeURIComponent(versionId)}/assembly`);
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 404 || error.code !== "assembly_not_initialized") {
+      throw error;
+    }
+    return refreshFormulationAssembly(versionId);
+  }
+}
+
+export const updateFormulationAssembly = (
+  versionId: string,
+  assemblyRevision: number,
+  assemblyState: FormulationAssemblyState,
+) => json<AssemblyPreparation>(`/formulations/${encodeURIComponent(versionId)}/assembly`, {
+  method: "PATCH",
+  body: JSON.stringify({ assembly_revision: assemblyRevision, assembly_state: assemblyState }),
+});
 

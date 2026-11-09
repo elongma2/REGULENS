@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.12"
 
 [[package]]
@@ -1238,6 +1238,7 @@ dependencies = [
     { name = "pdfplumber" },
     { name = "pydantic" },
     { name = "pypdf" },
+    { name = "pypdfium2" },
     { name = "python-dotenv" },
     { name = "python-multipart" },
     { name = "reportlab" },
@@ -1260,6 +1261,7 @@ requires-dist = [
     { name = "pdfplumber", specifier = ">=0.11.10" },
     { name = "pydantic", specifier = ">=2.13.5" },
     { name = "pypdf", specifier = ">=6.18.1" },
+    { name = "pypdfium2", specifier = ">=4.30.0" },
     { name = "python-dotenv", specifier = ">=1.2.3" },
     { name = "python-multipart", specifier = ">=0.0.32" },
     { name = "reportlab", specifier = ">=4.4.4" },

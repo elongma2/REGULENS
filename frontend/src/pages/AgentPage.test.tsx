@@ -6,7 +6,7 @@ import { AgentPage } from "./AgentPage";
 import { optionsFixture, testResponse } from "../test/fixtures";
 import type { AgentIngredientRow, AgentPreparedFormulation, AgentSession } from "../types/agent";
 
-function renderAgent(props: { caseId?: string; versionId?: string } = {}) {
+function renderAgent(props: { caseId?: string; versionId?: string; compact?: boolean; beforeRunScreening?: () => Promise<void>; handledMaterialNames?: string[] } = {}) {
   return render(<MemoryRouter><AgentPage {...props} /></MemoryRouter>);
 }
 
@@ -263,6 +263,55 @@ describe("Formulation Agent page", () => {
     await user.click(screen.getByRole("button", { name: /Confirm & Screen/ }));
     expect(await screen.findByRole("heading", { name: "Screening results" })).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
+  });
+
+  it("uses one Run screening action in the compact review workflow", async () => {
+    const prepared = preparedFixture();
+    const oneResult = structuredClone(testResponse);
+    oneResult.summary.ingredients_submitted = 1;
+    oneResult.ingredient_results = [oneResult.ingredient_results[0]];
+    let answerCount = 0;
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/agent/formulations")) return json(baseSession, 201);
+      if (url.endsWith("/answers")) return json(answerCount++ === 0 ? contextAnsweredSession() : answeredSession());
+      if (url.endsWith("/prepare")) return json(prepared);
+      if (url.endsWith("/screen-formulation")) return json(oneResult);
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    const beforeRunScreening = vi.fn().mockResolvedValue(undefined);
+    renderAgent({ compact: true, beforeRunScreening });
+    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
+    await user.click(await screen.findByLabelText("Agent Product context"));
+    await user.click(screen.getByRole("option", { name: "Toothpaste" }));
+    await user.click(screen.getByRole("button", { name: "Finished product" }));
+
+    expect(screen.queryByRole("button", { name: "Confirm Formulation" })).not.toBeInTheDocument();
+    await user.click(await screen.findByRole("button", { name: "Run screening" }));
+    expect(beforeRunScreening).toHaveBeenCalledTimes(1);
+    expect(await screen.findByRole("heading", { name: "Screening results" })).toBeInTheDocument();
+    expect(screen.queryByText("Formulation ready for screening")).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
+  });
+
+  it("does not ask users to reconfirm a recognised trade-name row", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/agent/formulations")) return json(contextAnsweredSession(), 201);
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    renderAgent({ compact: true, handledMaterialNames: ["NIACINAMIDE"] });
+    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
+
+    expect(await screen.findByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuemax", "1");
+    expect(screen.getByText("Ready to screen")).toBeInTheDocument();
+    expect(screen.getByText("Regulens will calculate supplier ingredients and screen everything together.")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Other ingredients" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Finished product" })).not.toBeInTheDocument();
   });
 
   it("keeps source evidence out of the pre-screen interpretation table", async () => {

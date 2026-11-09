@@ -338,6 +338,22 @@ class WarningRequirement(StrictModel):
     source_reference: str
 
 
+class ReviewCalculationContribution(StrictModel):
+    trade_material: str | None = None
+    supplier_concentration: str
+    material_usage: str
+    finished_product_contribution: str
+    calculation_formula: str
+    source_pages: list[int] = Field(default_factory=list)
+
+
+class ReviewCalculationContext(StrictModel):
+    finished_product_concentration: str
+    contributions: list[ReviewCalculationContribution] = Field(default_factory=list)
+    regulatory_limits: list[str] = Field(default_factory=list)
+    remaining_uncertainties: list[str] = Field(default_factory=list)
+
+
 class ReviewExplanation(StrictModel):
     title: str = Field(max_length=80)
     summary: str = Field(max_length=500)
@@ -348,6 +364,7 @@ class ReviewExplanation(StrictModel):
     items: list["ReviewExplanationItem"] = Field(default_factory=list)
     reviewer_actions: list[str] = Field(default_factory=list)
     primary_source_references: list[str] = Field(default_factory=list)
+    calculation_context: ReviewCalculationContext | None = None
 
 
 class ReviewExplanationItem(StrictModel):

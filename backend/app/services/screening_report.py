@@ -199,6 +199,132 @@ def _results_table(response: FormulationScreeningResponse, styles) -> LongTable:
     return table
 
 
+def _assembly_scope_section(response: FormulationScreeningResponse, styles) -> list[object]:
+    scope = response.formulation.assembly_scope
+    if scope is None:
+        return []
+    issue_labels = [code.replace("_", " ") for code in dict.fromkeys(scope.issue_codes)]
+    if scope.completeness == "complete":
+        summary = (
+            "The submitted screening input was calculated from confirmed trade-material "
+            "constituents and finished-product usage values."
+        )
+    elif scope.completeness == "blocked":
+        summary = (
+            "One or more trade materials could not be calculated. The ingredient results "
+            "in this report do not cover those unresolved inputs."
+        )
+    else:
+        summary = (
+            "The report covers the currently resolved formulation data only. One or more "
+            "supplier disclosures, material associations, identities or usage values remain "
+            "unresolved, so this is a partial screening."
+        )
+    rows = [
+        ["Assembly status", scope.completeness.replace("_", " ")],
+        ["Source documents", str(len(scope.source_document_ids))],
+        ["Unresolved materials", str(len(scope.unresolved_material_ids))],
+        ["Incomplete disclosures", str(len(scope.incomplete_disclosure_material_ids))],
+        ["Unresolved associations", str(len(scope.unresolved_association_ids))],
+        ["Remaining checks", ", ".join(issue_labels) if issue_labels else "None recorded"],
+    ]
+    table = Table(
+        [[Paragraph(_safe(label), styles["table_header"]), Paragraph(_safe(value), styles["body"])] for label, value in rows],
+        colWidths=[42 * mm, 140 * mm],
+    )
+    table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (0, -1), BRAND_DARK),
+        ("GRID", (0, 0), (-1, -1), 0.4, BORDER),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("LEFTPADDING", (0, 0), (-1, -1), 5),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 4),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+    ]))
+    section: list[object] = [
+        Spacer(1, 5 * mm),
+        Paragraph("Trade-material assembly coverage", styles["h2"]),
+        Paragraph(summary, styles["body"]),
+        Spacer(1, 2 * mm),
+        table,
+    ]
+    snapshot = response.formulation.assembly_calculation_snapshot or {}
+    aggregates = snapshot.get("aggregates") if isinstance(snapshot, dict) else None
+    if isinstance(aggregates, list) and aggregates:
+        def quantity_text(quantity: object) -> str:
+            if not isinstance(quantity, dict):
+                return "—"
+            unit = "%" if quantity.get("unit") == "percent" else f" {quantity.get('unit')}" if quantity.get("unit") else ""
+            kind = quantity.get("kind")
+            if kind == "range" and quantity.get("lower") is not None and quantity.get("upper") is not None:
+                return f"{quantity['lower']}–{quantity['upper']}{unit}"
+            if kind == "upper_bound" and quantity.get("upper") is not None:
+                return f"<{quantity['upper']}{unit}"
+            if kind == "lower_bound" and quantity.get("lower") is not None:
+                return f">{quantity['lower']}{unit}"
+            if quantity.get("value") is not None:
+                prefix = "approximately " if kind == "approximate" else ""
+                return f"{prefix}{quantity['value']}{unit}"
+            return str(quantity.get("raw_text") or "Unavailable")
+
+        contribution_rows: list[list[object]] = [[
+            Paragraph("Ingredient", styles["table_header"]),
+            Paragraph("Finished product", styles["table_header"]),
+            Paragraph("Material / source", styles["table_header"]),
+            Paragraph("Source calculation", styles["table_header"]),
+        ]]
+        for aggregate in aggregates:
+            if not isinstance(aggregate, dict):
+                continue
+            contributions = aggregate.get("contributions") if isinstance(aggregate.get("contributions"), list) else []
+            formulas = [
+                str(item.get("calculation_formula"))
+                for item in contributions
+                if isinstance(item, dict) and item.get("calculation_formula")
+            ]
+            source_labels: list[str] = []
+            for item in contributions:
+                if not isinstance(item, dict):
+                    continue
+                pages = sorted({
+                    str(evidence.get("page"))
+                    for evidence in item.get("source_evidence") or []
+                    if isinstance(evidence, dict) and evidence.get("page") is not None
+                })
+                material = item.get("source_material_id") or "Direct addition"
+                document = item.get("governing_document_id") or "source unavailable"
+                source_labels.append(
+                    f"{material} · {document}"
+                    + (f" · page {', '.join(pages)}" if pages else "")
+                )
+            contribution_rows.append([
+                Paragraph(_safe(aggregate.get("display_name"), "Unknown ingredient"), styles["body"]),
+                Paragraph(_safe(quantity_text(aggregate.get("aggregate_quantity"))), styles["body"]),
+                Paragraph(_safe("; ".join(source_labels) or "Source unavailable"), styles["small"]),
+                Paragraph(_safe("; ".join(formulas) or "Direct finished-product value"), styles["small"]),
+            ])
+        if len(contribution_rows) > 1:
+            contributions_table = LongTable(contribution_rows, colWidths=[36 * mm, 28 * mm, 54 * mm, 64 * mm], repeatRows=1)
+            contributions_table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), BRAND_DARK),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("GRID", (0, 0), (-1, -1), 0.4, BORDER),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                ("TOPPADDING", (0, 0), (-1, -1), 4),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
+            ]))
+            section.extend([
+                Spacer(1, 4 * mm),
+                Paragraph("Calculated ingredient contributions", styles["h2"]),
+                Paragraph("Finished-product amounts calculated from the saved trade-material inputs used for this screening run.", styles["small"]),
+                Spacer(1, 2 * mm),
+                contributions_table,
+            ])
+    return section
+
+
 def build_screening_report(
     response: FormulationScreeningResponse,
     *,
@@ -229,8 +355,10 @@ def build_screening_report(
         ("RIGHTPADDING", (0, 0), (-1, -1), 5), ("TOPPADDING", (0, 0), (-1, -1), 5),
         ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
     ]))
+    story.extend([meta_table])
+    story.extend(_assembly_scope_section(response, styles))
     story.extend([
-        meta_table, Spacer(1, 6 * mm), Paragraph("Screening summary", styles["h2"]), _summary_table(response, styles),
+        Spacer(1, 6 * mm), Paragraph("Screening summary", styles["h2"]), _summary_table(response, styles),
         Spacer(1, 5 * mm), Paragraph("Ingredient screening results", styles["h2"]), _results_table(response, styles),
         Spacer(1, 5 * mm), Paragraph("Dataset traceability", styles["h2"]),
         Paragraph(

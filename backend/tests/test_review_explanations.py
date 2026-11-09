@@ -117,6 +117,92 @@ def test_stage_and_conditional_fallbacks_are_plain_and_actionable():
     assert conditional_result.review_explanation.what_to_check.startswith("Check whether the exception")
 
 
+def test_calculated_trade_material_facts_are_attached_deterministically():
+    response = screen_formulation(
+        load_accepted_store(ROOT),
+        FormulationRequest.model_validate({"ingredients": [{
+            "name": "Tosylchloramide sodium",
+            "cas_number": "127-65-1",
+            "concentration": {
+                "value": 0.1,
+                "unit": "percent",
+                "basis": None,
+                "preparation_stage": "ready_for_use",
+            },
+        }]}),
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+    )
+    response.formulation.assembly_calculation_snapshot = {
+        "materials": [{"material_id": "material-1", "trade_name": "Supplier Blend X"}],
+        "aggregates": [{
+            "display_name": "Tosylchloramide sodium",
+            "cas_number": "127-65-1",
+            "aggregate_quantity": {"kind": "exact", "value": 0.1, "unit": "percent"},
+            "contributions": [{
+                "source_material_id": "material-1",
+                "composition_quantity": {"kind": "exact", "value": 5, "unit": "percent"},
+                "material_usage": {"kind": "exact", "value": 2, "unit": "percent"},
+                "finished_product_quantity": {"kind": "exact", "value": 0.1, "unit": "percent"},
+                "calculation_formula": "2% × 5% ÷ 100 = 0.1%",
+                "source_evidence": [{"page": 3, "source_snippet": "Tosylchloramide sodium 5%"}],
+            }],
+        }],
+    }
+
+    result = ReviewExplanationService(None).enrich(response).ingredient_results[0]
+    context = result.review_explanation.calculation_context
+    assert context.finished_product_concentration == "0.1%"
+    assert context.regulatory_limits == ["Maximum 0.2% (All products)"]
+    assert context.remaining_uncertainties == [
+        "Confirm the concentration at the stage stated in the rule."
+    ]
+    assert len(context.contributions) == 1
+    contribution = context.contributions[0]
+    assert contribution.trade_material == "Supplier Blend X"
+    assert contribution.supplier_concentration == "5%"
+    assert contribution.material_usage == "2%"
+    assert contribution.finished_product_contribution == "0.1%"
+    assert contribution.calculation_formula == "2% × 5% ÷ 100 = 0.1%"
+    assert contribution.source_pages == [3]
+
+
+def test_model_wording_cannot_replace_trade_material_calculation_facts():
+    response = review_response()
+    response.ingredient_results[0].review_issues = []
+    response.formulation.assembly_calculation_snapshot = {
+        "materials": [{"material_id": "material-1", "trade_name": "Supplier Blend X"}],
+        "aggregates": [{
+            "display_name": "Mystery Extract",
+            "aggregate_quantity": {"kind": "range", "lower": 0.5, "upper": 1, "unit": "percent"},
+            "contributions": [{
+                "source_material_id": "material-1",
+                "composition_quantity": {"kind": "range", "lower": 25, "upper": 50, "unit": "percent"},
+                "material_usage": {"kind": "exact", "value": 2, "unit": "percent"},
+                "finished_product_quantity": {"kind": "range", "lower": 0.5, "upper": 1, "unit": "percent"},
+                "calculation_formula": "2% × 25–50% ÷ 100 = 0.5–1%",
+                "source_evidence": [{"page": 2}],
+            }],
+        }],
+    }
+    fake = FakeResponses(valid_output())
+
+    result = ReviewExplanationService(
+        "test-key",
+        client_factory=lambda **_: SimpleNamespace(responses=fake),
+    ).enrich(response).ingredient_results[0]
+
+    assert result.review_explanation.source == "model"
+    context = result.review_explanation.calculation_context
+    assert context.finished_product_concentration == "0.5–1%"
+    assert context.contributions[0].supplier_concentration == "25–50%"
+    assert context.contributions[0].material_usage == "2%"
+    assert context.contributions[0].finished_product_contribution == "0.5–1%"
+    assert context.contributions[0].calculation_formula == "2% × 25–50% ÷ 100 = 0.5–1%"
+    assert context.remaining_uncertainties == [
+        "Confirm the correct INCI or common name and CAS number."
+    ]
+
+
 def test_name_and_cas_conflict_has_specific_plain_fallback_and_grounded_facts():
     deterministic = screen_formulation(
         load_accepted_store(ROOT),

@@ -1,26 +1,10 @@
 import { ChevronRight } from "lucide-react";
 import { FindingBadge } from "./FindingBadge";
-import { formatConcentration, regulationLabel, supportingSingaporeEvaluations } from "../lib/screening";
+import { formatConcentration, ingredientScreeningDisposition } from "../lib/screening";
 import { displayIngredientName } from "../lib/presentation";
 import { reviewStatusPresentation } from "../lib/reviewPresentation";
 import type { IngredientResult } from "../types/screening";
 import type { ReviewItem } from "../types/review";
-
-function RuleCell({ result }: { result: IngredientResult }) {
-  const evaluations = supportingSingaporeEvaluations(result);
-  if (!evaluations.length) return <span className="text-slate-400">—</span>;
-  const evaluation = evaluations[0];
-  const regulation = regulationLabel(evaluation);
-  return (
-    <div className="leading-5">
-      <div>{evaluation.evidence.regulatory_section}</div>
-      <div className="text-xs text-slate-500">
-        Ref {evaluation.evidence.reference_number}{regulation ? ` · ${regulation}` : ""}
-        {evaluations.length > 1 ? ` · +${evaluations.length - 1}` : ""}
-      </div>
-    </div>
-  );
-}
 
 export function ResultsTable({
   results,
@@ -43,9 +27,8 @@ export function ResultsTable({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-medium text-slate-500">
               <th className="px-4 py-3">Ingredient</th>
-              <th className="px-4 py-3">Submitted concentration</th>
-              <th className="px-4 py-3">Result</th>
-              <th className="px-4 py-3">Rule</th>
+              <th className="px-4 py-3">Evaluated finished-product concentration</th>
+              <th className="px-4 py-3">Regulatory finding</th>
               {showReviewStatus && <th className="px-4 py-3">Review status</th>}
               <th className="w-12 px-4 py-3"><span className="sr-only">Evidence</span></th>
             </tr>
@@ -74,8 +57,7 @@ export function ResultsTable({
                     <div className="mt-0.5 text-xs text-slate-400">Row {result.submitted_row_number}</div>
                   </td>
                   <td className="px-4 py-3.5 text-slate-700">{formatConcentration(result.submitted_ingredient.concentration)}</td>
-                  <td className="px-4 py-3.5"><FindingBadge finding={result.primary_finding} /></td>
-                  <td className="px-4 py-3.5 text-slate-700"><RuleCell result={result} /></td>
+                  <td className="px-4 py-3.5"><FindingBadge finding={result.primary_finding} screeningDisposition={ingredientScreeningDisposition(result)} /></td>
                   {showReviewStatus && <td className="px-4 py-3.5">{reviewItem?.review_status ? <span className={`review-status-badge ${reviewStatusPresentation[reviewItem.review_status].className}`}>{reviewStatusPresentation[reviewItem.review_status].label}</span> : <span className="text-slate-400">—</span>}</td>}
                   <td className="px-4 py-3.5 text-slate-400"><ChevronRight size={16} /></td>
                 </tr>
