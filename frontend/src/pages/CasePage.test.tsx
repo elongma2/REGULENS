@@ -113,7 +113,7 @@ describe("case detail", () => {
 
   it("uploads one formulation with several supplier documents in one selection", async () => {
     const user = userEvent.setup();
-    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Formulation workspace</div>} /></Routes></MemoryRouter>);
     const formulation = new File(["Ingredient,Concentration\nOPTASENSE,2%"], "formula.csv", { type: "text/csv" });
     const supplier = new File(["supplier composition"], "OPTASENSE.pdf", { type: "application/pdf" });
 
@@ -133,7 +133,7 @@ describe("case detail", () => {
         code: "supplier_document_without_formulation",
       });
     const user = userEvent.setup();
-    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Formulation workspace</div>} /></Routes></MemoryRouter>);
     const input = await screen.findByLabelText("Choose formulation and supporting files");
     const sds = new File(["sds"], "supplier-sds.pdf", { type: "application/pdf", lastModified: 1 });
     const formulation = new File(["formula"], "finished-formula.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", lastModified: 2 });

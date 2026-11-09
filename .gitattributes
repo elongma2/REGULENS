@@ -1,8 +1,11 @@
 # Accepted JSON datasets are hashed byte-for-byte. Preserve the line endings
 # produced by each pipeline so Windows core.autocrlf cannot invalidate them.
+*.pdf binary
 data_pipeline/accepted_output_hashes.json text eol=crlf
 data_pipeline/raw/*.json text eol=crlf
 data_pipeline/processed/*.json text eol=crlf
+data_pipeline/candidate/raw/*.json text eol=crlf
+data_pipeline/candidate/processed/*.json text eol=crlf
 data_pipeline/identity/eu_common_ingredient_glossary/accepted/*.json text eol=crlf
 data_pipeline/identity/eu_common_ingredient_glossary/raw/*.json text eol=crlf
 data_pipeline/identity/eu_common_ingredient_glossary/processed/*.json text eol=crlf

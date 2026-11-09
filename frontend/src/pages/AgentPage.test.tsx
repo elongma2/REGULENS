@@ -6,7 +6,7 @@ import { AgentPage } from "./AgentPage";
 import { optionsFixture, testResponse } from "../test/fixtures";
 import type { AgentIngredientRow, AgentPreparedFormulation, AgentSession } from "../types/agent";
 
-function renderAgent(props: { caseId?: string; versionId?: string; compact?: boolean; beforeRunScreening?: () => Promise<void>; handledMaterialNames?: string[] } = {}) {
+function renderAgent(props: { caseId?: string; versionId?: string; compact?: boolean; beforeRunScreening?: () => Promise<void>; handledMaterialRowIds?: string[]; assemblyRevision?: number | null; focusRowRequest?: { rowId: string; requestId: number } | null } = {}) {
   return render(<MemoryRouter><AgentPage {...props} /></MemoryRouter>);
 }
 
@@ -304,7 +304,7 @@ describe("Formulation Agent page", () => {
       return json({}, 404);
     });
     const user = userEvent.setup();
-    renderAgent({ compact: true, handledMaterialNames: ["NIACINAMIDE"] });
+    renderAgent({ compact: true, handledMaterialRowIds: ["row-2"] });
     await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
 
     expect(await screen.findByRole("progressbar", { name: "Confirmation progress" })).toHaveAttribute("aria-valuemax", "1");
@@ -312,6 +312,21 @@ describe("Formulation Agent page", () => {
     expect(screen.getByText("Regulens will calculate supplier ingredients and screen everything together.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Other ingredients" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Finished product" })).not.toBeInTheDocument();
+  });
+
+  it("opens the exact formulation row requested by an assembly issue", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/agent/formulations")) return json(baseSession, 201);
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    renderAgent({ compact: true, focusRowRequest: { rowId: "row-2", requestId: 1 } });
+    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
+
+    expect(await screen.findByRole("dialog", { name: "Edit ingredient" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Row 2 interpreted name")).toHaveValue("NIACINAMIDE");
   });
 
   it("keeps source evidence out of the pre-screen interpretation table", async () => {
@@ -576,8 +591,8 @@ describe("Formulation Agent page", () => {
       canonical_formulation: preparedFixture().formulation, product_context: null,
     };
     const runs = [
-      { id: "run-new", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-new", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: testResponse, created_at: "2026-10-20T08:00:00Z" },
-      { id: "run-old", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-old", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: olderResponse, created_at: "2026-10-19T08:00:00Z" },
+      { id: "run-new", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-new", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: testResponse, created_at: "2026-10-20T08:00:00Z", current_input_matches: true },
+      { id: "run-old", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-old", jurisdiction: "Singapore", request_snapshot: preparedFixture().formulation, result_snapshot: olderResponse, created_at: "2026-10-19T08:00:00Z", current_input_matches: false },
     ];
     const workspace = (runId: string) => ({
       case_id: "case-1",
@@ -633,6 +648,8 @@ describe("Formulation Agent page", () => {
     expect(screen.getByRole("textbox", { name: "Search ingredients" })).toHaveValue("");
     expect(screen.queryByLabelText("Regulatory evidence")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Screening 1/).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(/Inputs changed—run screening again/)).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Screening 1.*Historical/ })).toBeInTheDocument();
   });
 
   it("shows a saved finding note immediately without reloading the review workspace", async () => {

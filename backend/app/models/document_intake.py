@@ -87,6 +87,11 @@ class AssemblyIssueScope(StrEnum):
     CALCULATION = "calculation"
 
 
+class FormulationRowOwnerType(StrEnum):
+    DIRECT_INGREDIENT = "direct_ingredient"
+    SUPPLIER_MATERIAL = "supplier_material"
+
+
 class DocumentSourceEvidence(StrictModel):
     document_id: str
     page: int | None = Field(default=None, ge=1)
@@ -266,6 +271,39 @@ class DirectIngredient(StrictModel):
     verified_identity_group: str | None = None
 
 
+class FormulationRowOwnership(StrictModel):
+    """Durable owner for one interpreted row in the primary formulation."""
+
+    row_id: str
+    owner_type: FormulationRowOwnerType
+    material_id: str | None = None
+    candidate_material_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("row_id")
+    @classmethod
+    def require_row_id(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Formulation row ownership requires a row ID")
+        return stripped
+
+    @model_validator(mode="after")
+    def validate_owner(self) -> "FormulationRowOwnership":
+        candidates = list(dict.fromkeys(self.candidate_material_ids))
+        self.candidate_material_ids = candidates
+        if self.owner_type == FormulationRowOwnerType.DIRECT_INGREDIENT:
+            if self.material_id is not None or candidates:
+                raise ValueError("Direct ingredient ownership cannot reference supplier materials")
+            return self
+        if not candidates:
+            raise ValueError("Supplier material ownership requires at least one candidate material")
+        if self.material_id is not None and self.material_id not in candidates:
+            raise ValueError("Selected supplier material must be one of the ownership candidates")
+        if len(candidates) == 1 and self.material_id is None:
+            self.material_id = candidates[0]
+        return self
+
+
 class CalculatedContribution(StrictModel):
     contribution_id: str
     source_type: Literal["material_constituent", "direct_ingredient"]
@@ -349,6 +387,7 @@ class FormulationAssemblyState(StrictModel):
 
     direct_ingredients: list[DirectIngredient] = Field(default_factory=list)
     materials: list[SupplierMaterial] = Field(default_factory=list)
+    formulation_row_ownership: list[FormulationRowOwnership] = Field(default_factory=list)
     source_document_ids: list[str] = Field(default_factory=list)
     source_document_snapshots: dict[str, str] = Field(default_factory=dict)
     formulation_name: str | None = None

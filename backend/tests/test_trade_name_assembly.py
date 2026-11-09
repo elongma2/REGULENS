@@ -24,6 +24,7 @@ from backend.app.models.document_intake import (
     DocumentRole,
     DocumentRoleEvidence,
     FormulationAssemblyState,
+    FormulationRowOwnerType,
     MaterialConstituent,
     SupplierMaterial,
 )
@@ -34,6 +35,7 @@ from backend.app.models.formulation import (
 from backend.app.services.trade_name_assembly import (
     _identity_group,
     derive_assembly_state,
+    formulation_row_ownership,
     matched_trade_material_row_ids,
     prepare_trade_name_assembly,
 )
@@ -86,6 +88,45 @@ def test_supplier_material_owns_matching_trade_name_and_product_code_rows() -> N
     )
 
     assert matched_trade_material_row_ids(session, [material]) == {"trade-name-row"}
+
+    ownership = {item.row_id: item for item in formulation_row_ownership(session, [material])}
+    assert ownership["trade-name-row"].owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+    assert ownership["trade-name-row"].material_id == "material-1"
+    assert ownership["direct-row"].owner_type == FormulationRowOwnerType.DIRECT_INGREDIENT
+
+
+def test_ambiguous_exact_material_match_stays_supplier_owned_without_selecting_one() -> None:
+    session = AgentSessionView(
+        session_id="version-1",
+        revision=1,
+        state=AgentSessionState.NEEDS_CONFIRMATION,
+        filename="formula.csv",
+        interpreted_rows=[AgentIngredientRow(
+            row_id="shared-trade-row",
+            source_row=2,
+            source_rows=[2],
+            source_cells=["Shared Blend", "2%"],
+            name=AgentFieldProvenance(
+                value="Shared Blend",
+                source_value="Shared Blend",
+                source_row=2,
+                interpretation_method="source_value",
+            ),
+            identity_status=AgentConfidence.NEEDS_CONFIRMATION,
+        )],
+    )
+    materials = [
+        SupplierMaterial(material_id="material-a", trade_name="Shared Blend", supplier_name="A"),
+        SupplierMaterial(material_id="material-b", trade_name="Shared Blend", supplier_name="B"),
+    ]
+
+    ownership = formulation_row_ownership(session, materials)
+
+    assert len(ownership) == 1
+    assert ownership[0].owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+    assert ownership[0].material_id is None
+    assert ownership[0].candidate_material_ids == ["material-a", "material-b"]
+    assert matched_trade_material_row_ids(session, materials) == {"shared-trade-row"}
 
 
 def test_genuine_name_cas_conflict_is_not_treated_as_verified_for_aggregation(monkeypatch) -> None:
@@ -478,6 +519,9 @@ def test_finished_formulation_trade_name_usage_populates_parent_material(monkeyp
     assert material.finished_product_usage.value == 2
     assert material.finished_product_usage.quantity_scope == "finished_product"
     assert all(row.ingredient.name != "OPTASENSE" for row in state.direct_ingredients)
+    assert state.formulation_row_ownership[0].row_id == "trade-row"
+    assert state.formulation_row_ownership[0].owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+    assert state.formulation_row_ownership[0].material_id == material.material_id
 
 
 def test_filename_material_alias_owns_parent_row_and_legacy_direct_rows_are_ignored(
@@ -622,6 +666,10 @@ def test_filename_material_alias_owns_parent_row_and_legacy_direct_rows_are_igno
     assert state.materials[0].finished_product_usage is not None
     assert state.materials[0].finished_product_usage.value == 1
     assert [row.ingredient.name for row in state.direct_ingredients] == ["AQUA"]
+    ownership = {item.row_id: item for item in state.formulation_row_ownership}
+    assert ownership["material-row"].owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+    assert ownership["material-row"].material_id == state.materials[0].material_id
+    assert ownership["aqua-row"].owner_type == FormulationRowOwnerType.DIRECT_INGREDIENT
 
     _, prepared = prepare_trade_name_assembly(
         assembly_revision=1,

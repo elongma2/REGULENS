@@ -178,6 +178,7 @@ def screen_formulation(
             source_filename=request.source_filename,
             assembly_scope=request.assembly_scope,
             assembly_calculation_snapshot=request.assembly_calculation_snapshot,
+            input_revision=request.input_revision,
         ),
         dataset=DatasetIdentity(
             dataset_version=store.dataset_version,

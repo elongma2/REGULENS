@@ -9,7 +9,31 @@ from fastapi.testclient import TestClient
 
 from backend.app.config import OpenAISettings
 from backend.app.main import create_app
-from backend.app.services.supabase_gateway import AuthenticatedUser, CaseDeletionError, ResourceNotFoundError
+from backend.app.models.agent import (
+    AgentConcentration,
+    AgentConfidence,
+    AgentFieldProvenance,
+    AgentIngredientRow,
+    AgentSessionState,
+    AgentSessionView,
+)
+from backend.app.models.document_intake import (
+    CompositionQuantity,
+    ConfirmationStatus,
+    DisclosureStatus,
+    DocumentClassification,
+    DocumentExtraction,
+    DocumentRole,
+    DocumentRoleEvidence,
+    MaterialConstituent,
+    SupplierMaterial,
+)
+from backend.app.services.supabase_gateway import (
+    AuthenticatedUser,
+    CaseDeletionError,
+    ResourceNotFoundError,
+    RevisionConflictError,
+)
 
 
 USER_A = UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
@@ -29,6 +53,7 @@ class FakePersistentGateway:
         self.organisations = {USER_A: ORG_A, USER_B: ORG_B}
         self.cases: dict[str, dict] = {}
         self.versions: dict[str, dict] = {}
+        self.formulation_documents: dict[str, list[dict]] = {}
         self.screenings: list[dict] = []
         self.review_items: list[dict] = []
         self.clarifications: list[dict] = []
@@ -148,6 +173,56 @@ class FakePersistentGateway:
         self._case(user_id, row["case_id"])
         return deepcopy(row)
 
+    def list_formulation_documents(self, user_id: UUID, version_id: UUID | str) -> list[dict]:
+        self.get_version(user_id, version_id)
+        return deepcopy(self.formulation_documents.get(str(version_id), []))
+
+    def persist_assembly(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+        *,
+        expected_assembly_revision: int,
+        assembly_state: dict,
+        calculation_snapshot: dict,
+        canonical_formulation: dict | None,
+    ) -> dict:
+        version = self.versions[str(version_id)]
+        self.get_version(user_id, version_id)
+        if int(version.get("assembly_revision") or 0) != expected_assembly_revision:
+            raise RevisionConflictError("The formulation assembly changed; reload before continuing")
+        version.update({
+            "assembly_state": deepcopy(assembly_state),
+            "assembly_revision": expected_assembly_revision + 1,
+            "calculation_snapshot": deepcopy(calculation_snapshot),
+            "canonical_formulation": deepcopy(canonical_formulation),
+        })
+        return self.get_version(user_id, version_id)
+
+    def persist_agent_state(
+        self,
+        user_id: UUID,
+        version_id: UUID | str,
+        expected_revision: int,
+        status: str,
+        agent_state: dict,
+        canonical_formulation: dict | None,
+        product_context: dict | None,
+        clarifications: list[dict],
+    ) -> dict:
+        version = self.versions[str(version_id)]
+        self.get_version(user_id, version_id)
+        if int(version.get("revision") or 0) != expected_revision:
+            raise RevisionConflictError("The formulation changed; reload before continuing")
+        version.update({
+            "status": status,
+            "revision": int(agent_state["revision"]),
+            "agent_session": deepcopy(agent_state),
+            "canonical_formulation": deepcopy(canonical_formulation),
+            "product_context": deepcopy(product_context),
+        })
+        return self.get_version(user_id, version_id)
+
     def insert_screening(self, user_id: UUID, version_id: UUID, dataset_id: str, jurisdiction: str, request_snapshot: dict, result_snapshot: dict) -> dict:
         self.get_version(user_id, version_id)
         row = {
@@ -163,12 +238,13 @@ class FakePersistentGateway:
                 "prohibited_substance_identified", "restriction_exceeded", "professional_review_required",
                 "information_missing", "identity_unresolved",
             }
+            timestamp = _now()
             self.review_items.append({
                 "id": str(uuid4()), "screening_run_id": row["id"], "subject_type": "formulation_ingredient_result",
                 "subject_key": f"ingredient:{result['submitted_row_number']}",
                 "submitted_row_number": result["submitted_row_number"], "engine_finding": finding,
                 "requires_attention": attention, "review_status": "not_reviewed" if attention else None,
-                "updated_by": str(user_id), "created_at": _now(), "updated_at": _now(), "reviewed_at": None,
+                "updated_by": str(user_id), "created_at": timestamp, "updated_at": timestamp, "reviewed_at": None,
             })
         return deepcopy(row)
 
@@ -387,6 +463,226 @@ def test_persisted_version_survives_new_app_and_screening_runs_are_immutable_sna
     assert report.headers["content-type"] == "application/pdf"
     assert report.content.startswith(b"%PDF-")
     assert client.get(f"/screenings/{first.json()['id']}/report.pdf", headers=_auth("token-b")).status_code == 404
+
+
+def test_screening_run_reports_when_current_inputs_no_longer_match(persistent_client):
+    client, gateway = persistent_client
+    case_id = client.post("/cases", headers=_auth(), json={"name": "Freshness"}).json()["id"]
+    version_id = str(uuid4()); timestamp = _now()
+    gateway.versions[version_id] = {
+        "id": version_id, "case_id": case_id, "version_number": 1,
+        "original_filename": "freshness.csv", "status": "ready_to_screen",
+        "revision": 4, "assembly_revision": 2,
+        "created_at": timestamp, "updated_at": timestamp, "screening_count": 0,
+        "raw_extraction": {}, "agent_session": None, "product_context": None,
+        "canonical_formulation": {
+            "formulation_name": "Freshness",
+            "input_revision": {"agent_revision": 4, "assembly_revision": 2},
+            "ingredients": [{"name": "NIACINAMIDE"}],
+        },
+    }
+
+    created = client.post(f"/formulations/{version_id}/screen", headers=_auth())
+    assert created.status_code == 201
+    assert created.json()["current_input_matches"] is True
+
+    gateway.versions[version_id]["assembly_revision"] = 3
+    listed = client.get(f"/formulations/{version_id}/screenings", headers=_auth())
+    assert listed.status_code == 200
+    assert listed.json()[0]["current_input_matches"] is False
+    assert listed.json()[0]["request_snapshot"]["input_revision"] == {
+        "agent_revision": 4,
+        "assembly_revision": 2,
+    }
+
+
+def test_authenticated_dual_supplier_flow_persists_exact_screened_aggregate(
+    persistent_client,
+) -> None:
+    client, gateway = persistent_client
+    case_id = client.post(
+        "/cases", headers=_auth(), json={"name": "Dual supplier gate"},
+    ).json()["id"]
+    version_id = str(uuid4()); timestamp = _now()
+
+    def field(value, row: int, source: str) -> AgentFieldProvenance:
+        return AgentFieldProvenance(
+            value=value,
+            source_value=source,
+            source_row=row,
+            interpretation_method="deterministic_source",
+            confirmed_by_user=True,
+        )
+
+    def formula_row(row_id: str, row_number: int, name: str, value: float, *, confirmed: bool) -> AgentIngredientRow:
+        return AgentIngredientRow(
+            row_id=row_id,
+            source_row=row_number,
+            source_rows=[row_number],
+            source_cells=[name, f"{value:g}%"],
+            name=field(name, row_number, name),
+            concentration=AgentConcentration(
+                concentration_type=field("exact", row_number, f"{value:g}%"),
+                value=field(value, row_number, f"{value:g}%"),
+                original_text=f"{value:g}%",
+                unit=field("percent", row_number, "%"),
+                basis=field(None, row_number, ""),
+                preparation_stage=field("finished_product", row_number, "finished product"),
+            ),
+            identity_status=(
+                AgentConfidence.CONFIRMED if confirmed else AgentConfidence.UNRESOLVED
+            ),
+        )
+
+    session = AgentSessionView(
+        session_id=version_id,
+        revision=3,
+        state=AgentSessionState.NEEDS_CONFIRMATION,
+        filename="dual-supplier.csv",
+        product_context=AgentFieldProvenance(
+            value=None,
+            source_value=None,
+            source_row=1,
+            interpretation_method="user_confirmed_context_unavailable",
+            confirmed_by_user=True,
+        ),
+        interpreted_rows=[
+            formula_row("clari-row", 2, "ClariPreserve P70", 1, confirmed=False),
+            formula_row("nova-row", 3, "NovaBlend H45", 1, confirmed=False),
+            formula_row("glycerin-row", 4, "GLYCERIN", 3, confirmed=True),
+        ],
+        model="test-model",
+    )
+    gateway.versions[version_id] = {
+        "id": version_id,
+        "case_id": case_id,
+        "version_number": 1,
+        "original_filename": "dual-supplier.csv",
+        "status": "clarification_required",
+        "revision": 3,
+        "assembly_revision": 0,
+        "created_at": timestamp,
+        "updated_at": timestamp,
+        "screening_count": 0,
+        "raw_extraction": {
+            "filename": "dual-supplier.csv",
+            "delimiter": ",",
+            "rows": [
+                ["Material", "Usage"],
+                ["ClariPreserve P70", "1%"],
+                ["NovaBlend H45", "1%"],
+                ["GLYCERIN", "3%"],
+            ],
+        },
+        "agent_session": session.model_dump(mode="json"),
+        "canonical_formulation": None,
+        "product_context": None,
+    }
+
+    def supplier_extraction(
+        document_id: str,
+        trade_name: str,
+        constituents: list[MaterialConstituent],
+    ) -> dict:
+        return DocumentExtraction(
+            document_id=document_id,
+            classification=DocumentClassification(
+                proposed_roles=[DocumentRoleEvidence(
+                    role=DocumentRole.SUPPLIER_COMPOSITION,
+                    confidence="high",
+                )],
+                trade_name=trade_name,
+                recommended_extraction_schema="supplier_composition",
+            ),
+            supplier_materials=[SupplierMaterial(
+                material_id=f"{document_id}:material",
+                trade_name=trade_name,
+                constituents=constituents,
+                disclosure_status=DisclosureStatus.COMPLETE,
+                confirmation_status=ConfirmationStatus.CONFIRMED,
+            )],
+            extraction_schema_version="trade-document-v1",
+        ).model_dump(mode="json")
+
+    exact_70 = CompositionQuantity(
+        kind="exact", value=70, unit="percent", quantity_scope="supplier_material",
+    )
+    range_35_45 = CompositionQuantity(
+        kind="range", lower=35, upper=45, unit="percent", quantity_scope="supplier_material",
+    )
+    gateway.formulation_documents[version_id] = [
+        {
+            "id": "clari-doc",
+            "original_filename": "clari.pdf",
+            "processing_status": "ready",
+            "confirmed_roles": ["supplier_composition"],
+            "governing_for_material": True,
+            "attached_extraction_key": "clari-v1",
+            "revision": 1,
+            "extraction_result": supplier_extraction("clari-doc", "ClariPreserve P70", [
+                MaterialConstituent(
+                    constituent_id="clari:phenoxyethanol",
+                    submitted_name="PHENOXYETHANOL",
+                    cas_number="122-99-6",
+                    composition_quantity=exact_70,
+                    regulated_functions=["preservative"],
+                ),
+            ]),
+        },
+        {
+            "id": "nova-doc",
+            "original_filename": "nova.pdf",
+            "processing_status": "ready",
+            "confirmed_roles": ["supplier_composition"],
+            "governing_for_material": True,
+            "attached_extraction_key": "nova-v1",
+            "revision": 1,
+            "extraction_result": supplier_extraction("nova-doc", "NovaBlend H45", [
+                MaterialConstituent(
+                    constituent_id="nova:phenoxyethanol",
+                    submitted_name="PHENOXYETHANOL",
+                    cas_number="122-99-6",
+                    composition_quantity=range_35_45,
+                    regulated_functions=["preservative"],
+                ),
+                MaterialConstituent(
+                    constituent_id="nova:glycerin",
+                    submitted_name="GLYCERIN",
+                    cas_number="56-81-5",
+                    composition_quantity=range_35_45,
+                ),
+            ]),
+        },
+    ]
+
+    prepared = client.post(
+        f"/formulations/{version_id}/prepare",
+        headers=_auth(),
+        json={"revision": 3},
+    )
+    assert prepared.status_code == 200, prepared.text
+    canonical = {
+        item["name"]: item["concentration"]
+        for item in prepared.json()["formulation"]["ingredients"]
+    }
+    assert canonical["PHENOXYETHANOL"]["lower_bound"] == pytest.approx(1.05)
+    assert canonical["PHENOXYETHANOL"]["upper_bound"] == pytest.approx(1.15)
+    assert canonical["GLYCERIN"]["lower_bound"] == pytest.approx(3.35)
+    assert canonical["GLYCERIN"]["upper_bound"] == pytest.approx(3.45)
+    assert "ClariPreserve P70" not in canonical
+    assert "NovaBlend H45" not in canonical
+
+    screened = client.post(f"/formulations/{version_id}/screen", headers=_auth())
+    assert screened.status_code == 201, screened.text
+    assert screened.json()["current_input_matches"] is True
+    snapshot = screened.json()["request_snapshot"]
+    assert snapshot["ingredients"] == prepared.json()["formulation"]["ingredients"]
+    screened_inputs = {
+        item["submitted_ingredient"]["name"]: item["submitted_ingredient"]["concentration"]
+        for item in screened.json()["result_snapshot"]["ingredient_results"]
+    }
+    assert screened_inputs["PHENOXYETHANOL"] == canonical["PHENOXYETHANOL"]
+    assert screened_inputs["GLYCERIN"] == canonical["GLYCERIN"]
 
 
 def test_case_delete_cascades_fake_versions_and_screenings(persistent_client):

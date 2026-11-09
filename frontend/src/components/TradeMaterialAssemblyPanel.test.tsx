@@ -31,7 +31,11 @@ const preparation = {
   assembly_revision: 1,
   state: {
     direct_ingredients: [], source_document_ids: ["doc-1"],
-    source_document_snapshots: { "doc-1": "assembly-v3|key|revision:1|governing:true|roles:supplier_composition" },
+    source_document_snapshots: { "doc-1": "assembly-v4|key|revision:1|governing:true|roles:supplier_composition" },
+    formulation_row_ownership: [{
+      row_id: "trade-row", owner_type: "supplier_material",
+      material_id: "material-1", candidate_material_ids: ["material-1"],
+    }],
     formulation_name: "Pilot",
     product_context: null, product_applicability: {},
     materials: [{
@@ -89,11 +93,11 @@ describe("TradeMaterialAssemblyPanel", () => {
     expect(screen.getByText(/Page 2 · GLYCERIN 56-81-5 C/)).toBeInTheDocument();
   });
 
-  it("reports recognised trade names to the formulation review", async () => {
-    const onHandledMaterialNamesChange = vi.fn();
-    render(<TradeMaterialAssemblyPanel compact versionId="version-1" documents={[document as never]} onHandledMaterialNamesChange={onHandledMaterialNamesChange} />);
+  it("reports durable supplier-owned row IDs to the formulation review", async () => {
+    const onHandledMaterialRowIdsChange = vi.fn();
+    render(<TradeMaterialAssemblyPanel compact versionId="version-1" documents={[document as never]} onHandledMaterialRowIdsChange={onHandledMaterialRowIdsChange} />);
 
-    await waitFor(() => expect(onHandledMaterialNamesChange).toHaveBeenCalledWith(["OPTASENSE", "EN80159"]));
+    await waitFor(() => expect(onHandledMaterialRowIdsChange).toHaveBeenCalledWith(["trade-row"]));
   });
 
   it("shows one compact attention queue and opens a focused material editor", async () => {
@@ -171,6 +175,8 @@ describe("TradeMaterialAssemblyPanel", () => {
   });
 
   it("shows a cross-document impossible total as a clear correction instead of hiding it", async () => {
+    const user = userEvent.setup();
+    const onIssueAction = vi.fn();
     const impossibleTotal = {
       ...preparation,
       assembly: {
@@ -192,12 +198,14 @@ describe("TradeMaterialAssemblyPanel", () => {
     };
     api.getOrInitializeFormulationAssembly.mockResolvedValue(impossibleTotal);
 
-    render(<TradeMaterialAssemblyPanel compact versionId="version-1" documents={[document as never]} />);
+    render(<TradeMaterialAssemblyPanel compact versionId="version-1" documents={[document as never]} onIssueAction={onIssueAction} />);
 
     expect(await screen.findByText(/combined finished-product amount for GLYCERIN/)).toBeInTheDocument();
     expect(screen.getByText(/more than one finished formulation or duplicate source/)).toBeInTheDocument();
     expect(screen.getByText("Can screen with limits")).toBeInTheDocument();
     expect(screen.queryByText(/No changes needed/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /combined finished-product amount for GLYCERIN/ }));
+    expect(onIssueAction).toHaveBeenCalledWith(impossibleTotal.assembly.issues[0]);
   });
 
   it("keeps hook order stable when documents arrive after the case opens", async () => {
@@ -218,7 +226,7 @@ describe("TradeMaterialAssemblyPanel", () => {
       state: {
         ...preparation.state,
         source_document_snapshots: {
-          "doc-1": "assembly-v3|key-v2|revision:2|governing:true|roles:supplier_composition",
+          "doc-1": "assembly-v4|key-v2|revision:2|governing:true|roles:supplier_composition",
         },
       },
     };

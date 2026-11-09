@@ -8,7 +8,7 @@ export interface FormulationVersionSummary { id: string; case_id: string; versio
 export interface CaseReviewSummary { latest_screening_run_id: string | null; latest_screening_formulation_version_id: string | null; latest_screening_at: string | null; attention_results: number; reviewer_items_remaining: number; open_follow_ups: number; unresolved_clarifications: number; last_review_activity_at: string | null; }
 export interface CaseView { id: string; organisation_id: string; name: string; client_name: string | null; product_type: string | null; status: "active" | "archived"; created_at: string; updated_at: string; archived_at: string | null; formulations: FormulationVersionSummary[]; latest_formulation?: FormulationVersionSummary | null; latest_finding_count?: number | null; review_summary?: CaseReviewSummary | null; }
 export interface FormulationVersion extends FormulationVersionSummary { raw_extraction: Record<string, unknown> | null; agent_session: AgentSession | null; canonical_formulation: FormulationRequest | null; product_context: Record<string, unknown> | null; assembly_state?: Record<string, unknown> | null; assembly_revision?: number; calculation_snapshot?: Record<string, unknown> | null; }
-export interface ScreeningRun { id: string; formulation_version_id: string; regulatory_dataset_id: string; jurisdiction: string; request_snapshot: FormulationRequest; result_snapshot: ScreeningResponse; created_at: string; }
+export interface ScreeningRun { id: string; formulation_version_id: string; regulatory_dataset_id: string; jurisdiction: string; request_snapshot: FormulationRequest; result_snapshot: ScreeningResponse; created_at: string; current_input_matches: boolean | null; }
 
 export type DocumentRole = "finished_product_formulation" | "ingredient_list" | "supplier_composition" | "sds_msds" | "technical_document" | "unknown";
 export type DocumentProcessingStatus = "uploaded" | "parsing" | "classifying" | "extracting" | "needs_confirmation" | "ready" | "interrupted" | "failed";
@@ -144,6 +144,12 @@ export interface SupplierMaterialState {
 export interface FormulationAssemblyState {
   direct_ingredients: unknown[];
   materials: SupplierMaterialState[];
+  formulation_row_ownership: Array<{
+    row_id: string;
+    owner_type: "direct_ingredient" | "supplier_material";
+    material_id: string | null;
+    candidate_material_ids: string[];
+  }>;
   source_document_ids: string[];
   source_document_snapshots: Record<string, string>;
   formulation_name: string | null;

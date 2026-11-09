@@ -140,6 +140,13 @@ class FormulationAssemblyScope(StrictModel):
     calculated_from_trade_materials: bool = True
 
 
+class ScreeningInputRevision(StrictModel):
+    """Version pair that identifies the inputs used by one screening run."""
+
+    agent_revision: int = Field(ge=0)
+    assembly_revision: int = Field(ge=0)
+
+
 class FormulationRequest(StrictModel):
     formulation_id: str | None = None
     formulation_name: str | None = None
@@ -150,6 +157,7 @@ class FormulationRequest(StrictModel):
     source_filename: str | None = None
     assembly_scope: FormulationAssemblyScope | None = None
     assembly_calculation_snapshot: dict[str, Any] | None = None
+    input_revision: ScreeningInputRevision | None = None
     ingredients: list[FormulationIngredientRequest] = Field(min_length=1)
 
     @field_validator("formulation_id", "formulation_name", "product_context", "source_filename")
@@ -170,6 +178,7 @@ class FormulationMetadata(StrictModel):
     source_filename: str | None = None
     assembly_scope: FormulationAssemblyScope | None = None
     assembly_calculation_snapshot: dict[str, Any] | None = None
+    input_revision: ScreeningInputRevision | None = None
 
 
 class SourceSnapshot(StrictModel):

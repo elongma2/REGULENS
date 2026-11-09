@@ -16,6 +16,8 @@ from backend.app.models.document_intake import (
     DocumentRole,
     DocumentSourceEvidence,
     FormulationAssemblyState,
+    FormulationRowOwnership,
+    FormulationRowOwnerType,
     MaterialConstituent,
     PreparedAssembly,
     SupplierMaterial,
@@ -36,7 +38,7 @@ from backend.app.services.loader import RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 
 
-ASSEMBLY_DERIVATION_VERSION = "assembly-v3"
+ASSEMBLY_DERIVATION_VERSION = "assembly-v4"
 
 
 _DOCUMENT_SUFFIX_RE = re.compile(
@@ -240,24 +242,70 @@ def _material_usage_from_agent_row(row: Any) -> CompositionQuantity | None:
     )
 
 
-def _agent_material_usage_by_name(
+def _agent_material_usage_by_row_id(
     agent_state: dict[str, Any] | None,
-) -> dict[str, dict[str, CompositionQuantity]]:
+) -> dict[str, CompositionQuantity]:
     if not agent_state:
         return {}
     try:
         session = AgentSessionView.model_validate(agent_state)
     except ValueError:
         return {}
-    output: dict[str, dict[str, CompositionQuantity]] = {}
+    output: dict[str, CompositionQuantity] = {}
     for row in session.interpreted_rows:
         usage = _material_usage_from_agent_row(row)
-        if usage is None:
-            continue
-        for value in (row.name.value, row.name.source_value):
-            for alias in _commercial_aliases(str(value or "")):
-                output.setdefault(alias, {})[row.row_id] = usage
+        if usage is not None:
+            output[row.row_id] = usage
     return output
+
+
+def formulation_row_ownership(
+    agent_state: dict[str, Any] | AgentSessionView | None,
+    materials: Iterable[SupplierMaterial],
+) -> list[FormulationRowOwnership]:
+    """Assign every primary-formulation row to a stable workflow owner.
+
+    Exact commercial aliases may identify one or more supplier-material
+    candidates. Ambiguous exact matches remain supplier-owned so the parent row
+    cannot leak into chemical identity screening, but no material is selected
+    until the association is unambiguous.
+    """
+    if agent_state is None:
+        return []
+    try:
+        session = (
+            agent_state
+            if isinstance(agent_state, AgentSessionView)
+            else AgentSessionView.model_validate(agent_state)
+        )
+    except ValueError:
+        return []
+    material_list = list(materials)
+    ownership: list[FormulationRowOwnership] = []
+    for row in session.interpreted_rows:
+        row_aliases = {
+            alias
+            for value in (row.name.value, row.name.source_value)
+            for alias in _commercial_aliases(str(value or ""))
+        }
+        candidates = sorted({
+            material.material_id
+            for material in material_list
+            if row_aliases & _material_aliases(material)
+        })
+        if candidates:
+            ownership.append(FormulationRowOwnership(
+                row_id=row.row_id,
+                owner_type=FormulationRowOwnerType.SUPPLIER_MATERIAL,
+                material_id=candidates[0] if len(candidates) == 1 else None,
+                candidate_material_ids=candidates,
+            ))
+        else:
+            ownership.append(FormulationRowOwnership(
+                row_id=row.row_id,
+                owner_type=FormulationRowOwnerType.DIRECT_INGREDIENT,
+            ))
+    return ownership
 
 
 def matched_trade_material_row_ids(
@@ -281,14 +329,10 @@ def matched_trade_material_row_ids(
         )
     except ValueError:
         return set()
-    parent_names = {alias for material in materials for alias in _material_aliases(material)}
     return {
-        row.row_id
-        for row in session.interpreted_rows
-        if any(
-            bool(_commercial_aliases(str(value or "")) & parent_names)
-            for value in (row.name.value, row.name.source_value)
-        )
+        item.row_id
+        for item in formulation_row_ownership(session, materials)
+        if item.owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
     }
 
 
@@ -296,7 +340,7 @@ def _direct_rows_from_agent(
     version_id: str,
     agent_state: dict[str, Any] | None,
     *,
-    excluded_parent_names: set[str],
+    excluded_row_ids: set[str],
     store: RegulatoryStore,
     catalogue: IngredientCatalog | None,
     linkages: IngredientLinkageStore | None,
@@ -310,10 +354,7 @@ def _direct_rows_from_agent(
     output: list[DirectIngredient] = []
     for row in session.interpreted_rows:
         name = str(row.name.value or "").strip()
-        row_aliases = _commercial_aliases(name) | _commercial_aliases(
-            str(row.name.source_value or "")
-        )
-        if not name or row_aliases & excluded_parent_names:
+        if not name or row.row_id in excluded_row_ids:
             continue
         cas_number = str(row.cas_number.value).strip() if row.cas_number and row.cas_number.value else None
         ingredient = FormulationIngredientRequest(
@@ -360,7 +401,6 @@ def derive_assembly_state(
     source_document_snapshots: dict[str, str] = {}
     material_candidates: dict[str, list[tuple[str, SupplierMaterial, bool, set[DocumentRole]]]] = {}
     direct_ingredients: list[DirectIngredient] = []
-    parent_names: set[str] = set()
 
     for document in documents:
         extraction_payload = document.get("extraction_result")
@@ -453,7 +493,6 @@ def derive_assembly_state(
             material_candidates.setdefault(material_key, []).append(
                 (document_id, normalized, governing, confirmed_roles)
             )
-            parent_names.update(_material_aliases(normalized))
         # A supplier composition describes constituents inside a commercial
         # parent material. Its rows must never also be treated as direct
         # finished-product additions, even when an older extraction snapshot
@@ -469,7 +508,7 @@ def derive_assembly_state(
                 for row in extraction.direct_ingredients
             )
 
-    agent_usage = _agent_material_usage_by_name(agent_state)
+    agent_usage = _agent_material_usage_by_row_id(agent_state)
     materials: list[SupplierMaterial] = []
     for material_key, candidates in material_candidates.items():
         ordered = sorted(candidates, key=lambda item: item[0])
@@ -497,12 +536,6 @@ def derive_assembly_state(
             if DocumentRole.SDS_MSDS in selected_roles
             else selected_material.disclosure_status
         )
-        usage_candidates: dict[str, CompositionQuantity] = {}
-        for alias in _material_aliases(selected_material):
-            usage_candidates.update(agent_usage.get(alias, {}))
-        finished_product_usage = (
-            next(iter(usage_candidates.values())) if len(usage_candidates) == 1 else None
-        )
         materials.append(selected_material.model_copy(update={
             "material_id": stable_id,
             "attached_document_ids": attached_document_ids,
@@ -510,7 +543,7 @@ def derive_assembly_state(
                 selected_document_id if len(governing_candidates) == 1 else None
             ),
             "conflicting_document_ids": conflict_ids,
-            "finished_product_usage": finished_product_usage,
+            "finished_product_usage": None,
             "disclosure_status": disclosure,
             "confirmation_status": (
                 ConfirmationStatus.CONFIRMED
@@ -519,10 +552,35 @@ def derive_assembly_state(
             ),
         }))
 
+    row_ownership = formulation_row_ownership(agent_state, materials)
+    usage_by_material: dict[str, dict[str, CompositionQuantity]] = {}
+    for owner in row_ownership:
+        usage = agent_usage.get(owner.row_id)
+        if (
+            usage is not None
+            and owner.owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+            and owner.material_id is not None
+        ):
+            usage_by_material.setdefault(owner.material_id, {})[owner.row_id] = usage
+    materials = [
+        material.model_copy(update={
+            "finished_product_usage": (
+                next(iter(candidates.values())) if len(candidates) == 1 else None
+            ),
+        })
+        for material in materials
+        for candidates in [usage_by_material.get(material.material_id, {})]
+    ]
+
+    excluded_row_ids = {
+        item.row_id for item in row_ownership
+        if item.owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+    }
+
     direct_ingredients.extend(_direct_rows_from_agent(
         version_id,
         agent_state,
-        excluded_parent_names=parent_names,
+        excluded_row_ids=excluded_row_ids,
         store=store,
         catalogue=catalogue,
         linkages=linkages,
@@ -533,6 +591,7 @@ def derive_assembly_state(
     return FormulationAssemblyState(
         direct_ingredients=list(unique_direct.values()),
         materials=materials,
+        formulation_row_ownership=row_ownership,
         source_document_ids=sorted(set(source_document_ids + [f"primary:{version_id}"])),
         source_document_snapshots=source_document_snapshots,
         formulation_name=formulation_name,

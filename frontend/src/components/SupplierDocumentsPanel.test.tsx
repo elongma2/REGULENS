@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { SupplierDocumentsPanel } from "./SupplierDocumentsPanel";
+import { SupplierDocumentsPanel, type SupplierDocumentsPanelHandle } from "./SupplierDocumentsPanel";
 
 const api = vi.hoisted(() => ({
   listFormulationDocuments: vi.fn(),
@@ -70,12 +71,24 @@ describe("SupplierDocumentsPanel", () => {
     api.listFormulationDocuments.mockResolvedValue([{ ...attachment, confirmed_roles: ["supplier_composition"], governing_for_material: true }]);
     render(<SupplierDocumentsPanel compact versionId="version-1" />);
 
-    expect(await screen.findByText("1 of 1 processed")).toBeInTheDocument();
+    expect(await screen.findByText("1 ready")).toBeInTheDocument();
     expect(screen.queryByText("Reuse a saved supplier file")).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Manage files" }));
     expect(screen.getByRole("dialog", { name: "Manage supplier files" })).toBeInTheDocument();
     expect(screen.getByText("Reuse a saved supplier file")).toBeInTheDocument();
     expect(screen.getByText(/keeps the private original file and the ingredients extracted from it/i)).toBeInTheDocument();
+  });
+
+  it("opens the exact source file requested by an assembly issue", async () => {
+    const ref = createRef<SupplierDocumentsPanelHandle>();
+    api.listFormulationDocuments.mockResolvedValue([{ ...attachment, confirmed_roles: ["supplier_composition"] }]);
+    render(<SupplierDocumentsPanel ref={ref} compact versionId="version-1" />);
+
+    await screen.findByText("1 ready");
+    ref.current?.openManager("attachment-1");
+
+    expect(await screen.findByRole("dialog", { name: "Manage supplier files" })).toBeInTheDocument();
+    await waitFor(() => expect(document.getElementById("supplier-document-attachment-1")).toBeInTheDocument());
   });
 
   it("uploads multiple documents through one supporting-document control", async () => {
@@ -366,11 +379,38 @@ describe("SupplierDocumentsPanel", () => {
     });
     render(<SupplierDocumentsPanel versionId="version-1" />);
 
-    expect(await screen.findByText("Reading document · 1 page")).toBeInTheDocument();
+    expect(await screen.findByText("Processing · Reading document · 1 page")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Check or resume" }));
 
     await waitFor(() => expect(api.retryFormulationDocument).toHaveBeenCalledWith("attachment-1"));
     expect(api.uploadFormulationDocuments).not.toHaveBeenCalled();
+  });
+
+  it("places every supplier file in one clear workflow state", async () => {
+    api.listFormulationDocuments.mockResolvedValue([
+      { ...attachment, id: "ready", confirmed_roles: ["supplier_composition"] },
+      { ...attachment, id: "processing", original_filename: "processing.pdf", processing_status: "extracting" },
+      {
+        ...attachment,
+        id: "choice",
+        original_filename: "choice.pdf",
+        detected_roles: [{ role: "technical_document", confidence: "medium", page: 1, source_snippet: null, reasons: [] }],
+      },
+      {
+        ...attachment,
+        id: "retry",
+        original_filename: "retry.pdf",
+        processing_status: "interrupted",
+        error: { code: "parse_failed", message: "Try again", recoverable: true },
+      },
+    ]);
+
+    render(<SupplierDocumentsPanel versionId="version-1" />);
+
+    expect(await screen.findByText("1 ready · 1 processing · 1 choice needed · 1 retry needed")).toBeInTheDocument();
+    expect(screen.getByText("2 documents need action before screening")).toBeInTheDocument();
+    expect(screen.getByText(/Choice needed · Technical document/)).toBeInTheDocument();
+    expect(screen.getByText(/Retry needed · Supplier composition/)).toBeInTheDocument();
   });
 
   it("lets the reviewer choose the exact supplier revision used for calculation", async () => {

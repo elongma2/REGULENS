@@ -1,5 +1,5 @@
 import { AlertCircle, Archive, CheckCircle2, ExternalLink, FileStack, Library, LoaderCircle, Paperclip, RotateCcw, Trash2, Upload, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import {
   attachSupplierDocument,
   deleteSupplierDocument,
@@ -50,6 +50,23 @@ function automaticallyRecognisedSupplier(document: FormulationDocument): boolean
     && Boolean(evidence && ["confirmed", "high"].includes(evidence.confidence));
 }
 
+type DocumentWorkflowState = "processing" | "ready" | "choice_needed" | "retry_needed";
+
+function documentWorkflowState(
+  document: FormulationDocument,
+  revisionChoiceNeeded: boolean,
+): DocumentWorkflowState {
+  if (["interrupted", "failed"].includes(document.processing_status)) return "retry_needed";
+  if (["uploaded", "parsing", "classifying", "extracting"].includes(document.processing_status)) return "processing";
+  if (revisionChoiceNeeded) return "choice_needed";
+  if (
+    document.processing_status === "ready"
+    && (document.confirmed_roles.length > 0 || automaticallyRecognisedSupplier(document))
+  ) return "ready";
+  if (automaticallyRecognisedSupplier(document)) return "ready";
+  return "choice_needed";
+}
+
 function supplierMaterialKeys(document: FormulationDocument): string[] {
   const extraction = document.extraction_result as {
     supplier_materials?: Array<{
@@ -73,15 +90,19 @@ function documentName(document: SupplierDocument): string {
 
 type SupplierMetadataDraft = Pick<SupplierDocument, "supplier_name" | "trade_name" | "product_code" | "document_revision_label">;
 
-export function SupplierDocumentsPanel({
-  versionId,
-  onDocumentsChanged,
-  compact = false,
-}: {
+export interface SupplierDocumentsPanelHandle {
+  openManager: (documentId?: string) => void;
+}
+
+export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
   versionId: string;
   onDocumentsChanged?: (documents: FormulationDocument[]) => void;
   compact?: boolean;
-}) {
+}>(function SupplierDocumentsPanel({
+  versionId,
+  onDocumentsChanged,
+  compact = false,
+}, ref) {
   const uploadInput = useRef<HTMLInputElement>(null);
   const autoStarted = useRef(new Set<string>());
   const interpretationQueue = useRef<FormulationDocument[]>([]);
@@ -101,6 +122,24 @@ export function SupplierDocumentsPanel({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [managerOpen, setManagerOpen] = useState(false);
+  const [targetDocumentId, setTargetDocumentId] = useState<string | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    openManager: (documentId?: string) => {
+      setTargetDocumentId(documentId ?? null);
+      setManagerOpen(true);
+    },
+  }), []);
+
+  useEffect(() => {
+    if (!managerOpen || !targetDocumentId) return;
+    const frame = window.requestAnimationFrame(() => {
+      const target = document.getElementById(`supplier-document-${targetDocumentId}`);
+      target?.scrollIntoView({ behavior: "smooth", block: "center" });
+      target?.querySelector<HTMLElement>("button:not([disabled]), input:not([disabled]), select:not([disabled])")?.focus();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [managerOpen, targetDocumentId]);
 
   const load = async () => {
     setError(null);
@@ -208,14 +247,30 @@ export function SupplierDocumentsPanel({
       supplierMaterialKeys(document).includes(key) && document.governing_for_material
     )).length !== 1),
   ), [documents, revisionConflictKeys]);
-  const processedCount = documents.filter((item) => (
-    item.processing_status === "ready" || automaticallyRecognisedSupplier(item)
-  )).length;
-  const documentIssueCount = documents.filter((item) => (
-    ["interrupted", "failed", "needs_confirmation"].includes(item.processing_status)
-    && !automaticallyRecognisedSupplier(item)
-  )).length;
-  const attentionCount = documentIssueCount + unresolvedRevisionConflictKeys.size;
+  const workflowStates = useMemo(() => new Map(documents.map((document) => [
+    document.id,
+    documentWorkflowState(
+      document,
+      supplierMaterialKeys(document).some((key) => unresolvedRevisionConflictKeys.has(key)),
+    ),
+  ])), [documents, unresolvedRevisionConflictKeys]);
+  const workflowCounts = useMemo(() => {
+    const counts: Record<DocumentWorkflowState, number> = {
+      processing: 0,
+      ready: 0,
+      choice_needed: 0,
+      retry_needed: 0,
+    };
+    workflowStates.forEach((state) => { counts[state] += 1; });
+    return counts;
+  }, [workflowStates]);
+  const workflowSummary = [
+    workflowCounts.ready ? `${workflowCounts.ready} ready` : null,
+    workflowCounts.processing ? `${workflowCounts.processing} processing` : null,
+    workflowCounts.choice_needed ? `${workflowCounts.choice_needed} choice needed` : null,
+    workflowCounts.retry_needed ? `${workflowCounts.retry_needed} retry needed` : null,
+  ].filter(Boolean).join(" · ");
+  const attentionCount = workflowCounts.choice_needed + workflowCounts.retry_needed;
 
   const loadManagedLibrary = async () => {
     setManagerLoading(true); setError(null);
@@ -575,8 +630,8 @@ export function SupplierDocumentsPanel({
     </div> : null}
 
     {documents.length > 0 ? <div className="supplier-document-summary" role="status">
-      <strong>{processedCount} of {documents.length} documents processed automatically</strong>
-      <span>{attentionCount ? `${attentionCount} choice${attentionCount === 1 ? "" : "s"} needed before screening` : "All documents are ready"}</span>
+      <strong>{workflowSummary}</strong>
+      <span>{attentionCount ? `${attentionCount} document${attentionCount === 1 ? "" : "s"} need action before screening` : workflowCounts.processing ? "Document processing is still in progress" : "All documents are ready"}</span>
     </div> : null}
 
     {documents.length > 0 ? <ul className="supplier-document-list">
@@ -589,13 +644,20 @@ export function SupplierDocumentsPanel({
         const interrupted = document.processing_status === "interrupted" || document.processing_status === "failed";
         const processing = ["uploaded", "parsing", "classifying", "extracting"].includes(document.processing_status);
         const needsRole = document.confirmed_roles.length === 0 && !automaticSupplier && !interrupted && !processing;
-        return <li key={document.id}>
+        const workflowState = workflowStates.get(document.id) ?? "choice_needed";
+        const workflowLabel = {
+          processing: "Processing",
+          ready: "Ready",
+          choice_needed: "Choice needed",
+          retry_needed: "Retry needed",
+        }[workflowState];
+        return <li id={`supplier-document-${document.id}`} key={document.id}>
           <div className={`supplier-document-status ${interrupted ? "is-warning" : document.confirmed_roles.length || automaticSupplier ? "is-ready" : ""}`} aria-hidden="true">
             {processing ? <LoaderCircle className="spin" size={18} /> : interrupted ? <AlertCircle size={18} /> : document.confirmed_roles.length || automaticSupplier ? <CheckCircle2 size={18} /> : <FileStack size={18} />}
           </div>
           <div className="supplier-document-copy">
             <strong>{document.original_filename}</strong>
-            <span>{processing ? "Reading document" : `${roleLabels[role]}${automaticSupplier ? " · recognised automatically" : ""}`}{document.page_count ? ` · ${document.page_count} page${document.page_count === 1 ? "" : "s"}` : ""}</span>
+            <span>{workflowLabel} · {processing ? "Reading document" : `${roleLabels[role]}${automaticSupplier ? " · recognised automatically" : ""}`}{document.page_count ? ` · ${document.page_count} page${document.page_count === 1 ? "" : "s"}` : ""}</span>
             {interrupted ? <small>{document.error?.message || "Text extraction did not finish. The private file was kept for retry."}</small> : null}
             {needsRole ? <div className="supplier-role-actions" aria-label={`Confirm the role of ${document.original_filename}`}>
               <span>Confirm document type:</span>
@@ -658,7 +720,7 @@ export function SupplierDocumentsPanel({
         <span>{loading
           ? "Loading…"
           : documents.length
-            ? `${processedCount} of ${documents.length} processed${attentionCount ? ` · ${attentionCount} need attention` : ""}`
+            ? workflowSummary
             : "No supporting documents attached"}</span>
       </div>
       <button className="text-button" type="button" onClick={() => setManagerOpen(true)}>Manage files</button>
@@ -675,4 +737,6 @@ export function SupplierDocumentsPanel({
       </aside>
     </div> : null}
   </>;
-}
+});
+
+SupplierDocumentsPanel.displayName = "SupplierDocumentsPanel";

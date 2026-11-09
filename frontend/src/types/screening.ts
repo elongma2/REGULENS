@@ -84,6 +84,7 @@ export interface FormulationRequest {
   source_filename?: string | null;
   assembly_scope?: FormulationAssemblyScope | null;
   assembly_calculation_snapshot?: Record<string, unknown> | null;
+  input_revision?: { agent_revision: number; assembly_revision: number } | null;
   ingredients: FormulationIngredient[];
 }
 
@@ -457,6 +458,7 @@ export interface ScreeningResponse {
     source_filename?: string | null;
     assembly_scope?: FormulationAssemblyScope | null;
     assembly_calculation_snapshot?: Record<string, unknown> | null;
+    input_revision?: { agent_revision: number; assembly_revision: number } | null;
   };
   dataset: {
     dataset_version: string;

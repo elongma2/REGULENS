@@ -42,8 +42,12 @@ from backend.app.models.cases import (
     SupplierDocumentUpdate,
     SupplierDocumentView,
 )
-from backend.app.models.formulation import FormulationRequest, FormulationScreeningResponse
-from backend.app.models.document_intake import FormulationAssemblyState
+from backend.app.models.formulation import (
+    FormulationRequest,
+    FormulationScreeningResponse,
+    ScreeningInputRevision,
+)
+from backend.app.models.document_intake import FormulationAssemblyState, FormulationRowOwnerType
 from backend.app.services.agent_csv import CSVUploadError, MAX_FILE_BYTES, ParsedCSV, parse_formulation_upload
 from backend.app.services.formulation import screen_formulation
 from backend.app.services.formulation_agent import (
@@ -60,7 +64,6 @@ from backend.app.services.supplier_documents import (
 from backend.app.services.document_batch import DocumentBatchError, select_primary_formulation
 from backend.app.services.trade_name_assembly import (
     derive_assembly_state,
-    matched_trade_material_row_ids,
     prepare_trade_name_assembly,
 )
 from backend.app.services.supabase_gateway import (
@@ -199,10 +202,21 @@ def _case(model: type[CaseView] | type[CaseListItem], row: dict[str, Any]) -> Ca
     return model.model_validate({key: value for key, value in row.items() if key in model.model_fields})
 
 
-def _screening(row: dict[str, Any]) -> ScreeningRunView:
-    return ScreeningRunView.model_validate({
+def _screening(
+    row: dict[str, Any],
+    version: dict[str, Any] | None = None,
+) -> ScreeningRunView:
+    payload = {
         key: value for key, value in row.items() if key in ScreeningRunView.model_fields
-    })
+    }
+    input_revision = (row.get("request_snapshot") or {}).get("input_revision")
+    if version is not None and isinstance(input_revision, dict):
+        payload["current_input_matches"] = (
+            input_revision.get("agent_revision") == int(version.get("revision") or 0)
+            and input_revision.get("assembly_revision")
+            == int(version.get("assembly_revision") or 0)
+        )
+    return ScreeningRunView.model_validate(payload)
 
 
 def _supplier_document(
@@ -1304,8 +1318,10 @@ def prepare_formulation(
     supporting_documents = gateway.list_formulation_documents(user.id, version_id)
     excluded_row_ids: set[str] = set()
     formulation_override: FormulationRequest | None = None
+    assembly_revision = int(row.get("assembly_revision") or 0)
     if any(document.get("extraction_result") for document in supporting_documents):
         assembly = refresh_formulation_assembly(version_id, request, user, gateway)
+        assembly_revision = assembly.assembly_revision
         if assembly.formulation is None:
             raise HTTPException(
                 status_code=409,
@@ -1314,7 +1330,11 @@ def prepare_formulation(
                     "message": "Resolve the source-document and material checks before screening.",
                 },
             )
-        excluded_row_ids = matched_trade_material_row_ids(view, assembly.state.materials)
+        excluded_row_ids = {
+            item.row_id
+            for item in assembly.state.formulation_row_ownership
+            if item.owner_type == FormulationRowOwnerType.SUPPLIER_MATERIAL
+        }
         assembled_formulation = FormulationRequest.model_validate(assembly.formulation)
         formulation_override = assembled_formulation.model_copy(update={
             "formulation_id": payload.formulation_id or assembled_formulation.formulation_id,
@@ -1331,6 +1351,18 @@ def prepare_formulation(
         )
     except (AgentRevisionConflictError, AgentConfirmationRequiredError) as error:
         raise HTTPException(status_code=409, detail={"code": "agent_confirmation_required", "message": str(error)}) from error
+    formulation = prepared.formulation.model_copy(update={
+        "input_revision": ScreeningInputRevision(
+            agent_revision=prepared.session.revision,
+            assembly_revision=assembly_revision,
+        ),
+    })
+    prepared = prepared.model_copy(update={
+        "formulation": formulation,
+        "session": prepared.session.model_copy(update={
+            "canonical_formulation": formulation,
+        }),
+    })
     _persist(gateway, user, version_id, row["revision"], prepared.session)
     return prepared
 
@@ -1375,7 +1407,7 @@ def screen_persistent_formulation(
             status_code=409,
             detail={
                 "code": "formulation_assembly_not_prepared",
-                "message": "Save and recalculate the attached source documents before screening.",
+                "message": "Source information changed. Review the highlighted input and run screening again.",
             },
         )
     store = request.app.state.regulatory_store
@@ -1403,7 +1435,7 @@ def screen_persistent_formulation(
         user.id, version_id, store.dataset_version, "Singapore",
         formulation.model_dump(mode="json"), result.model_dump(mode="json"),
     )
-    return _screening(saved)
+    return _screening(saved, row)
 
 
 @router.get("/formulations/{version_id}/screenings", response_model=list[ScreeningRunView])
@@ -1413,7 +1445,11 @@ def list_screenings(
     gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
 ) -> list[ScreeningRunView]:
     try:
-        return [_screening(item) for item in gateway.list_screenings(user.id, version_id)]
+        version = gateway.get_version(user.id, version_id)
+        return [
+            _screening(item, version)
+            for item in gateway.list_screenings(user.id, version_id)
+        ]
     except ResourceNotFoundError as error:
         raise _not_found(error) from error
 
@@ -1425,7 +1461,9 @@ def get_screening(
     gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
 ) -> ScreeningRunView:
     try:
-        return _screening(gateway.get_screening(user.id, screening_id))
+        row = gateway.get_screening(user.id, screening_id)
+        version = gateway.get_version(user.id, row["formulation_version_id"])
+        return _screening(row, version)
     except ResourceNotFoundError as error:
         raise _not_found(error) from error
 

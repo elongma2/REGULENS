@@ -129,7 +129,7 @@ describe("formula screening vertical slice", () => {
       if (url.endsWith("/formulations/version-1/screenings")) return jsonResponse([{
         id: "run-1", formulation_version_id: "version-1", regulatory_dataset_id: "accepted-test",
         jurisdiction: "Singapore", request_snapshot: persistedPrepared().formulation,
-        result_snapshot: testResponse, created_at: "2026-10-13T00:00:00Z",
+        result_snapshot: testResponse, created_at: "2026-10-13T00:00:00Z", current_input_matches: true,
       }]);
       if (url.endsWith("/formulations/version-1")) return jsonResponse(version);
       return jsonResponse({}, 404);

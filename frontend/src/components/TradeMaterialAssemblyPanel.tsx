@@ -10,7 +10,7 @@ import type {
 } from "../types/cases";
 import type { RegulatedFunction } from "../types/screening";
 
-const ASSEMBLY_DERIVATION_VERSION = "assembly-v3";
+const ASSEMBLY_DERIVATION_VERSION = "assembly-v4";
 
 function quantityLabel(quantity: CompositionQuantity | null): string {
   if (!quantity) return "Not stated";
@@ -336,10 +336,12 @@ interface TradeMaterialAssemblyPanelProps {
   versionId: string;
   documents: FormulationDocument[];
   compact?: boolean;
-  onHandledMaterialNamesChange?: (names: string[]) => void;
+  onHandledMaterialRowIdsChange?: (rowIds: string[]) => void;
+  onAssemblyRevisionChange?: (revision: number | null) => void;
+  onIssueAction?: (issue: AssemblyIssue) => void;
 }
 
-export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelHandle, TradeMaterialAssemblyPanelProps>(({ versionId, documents, compact = false, onHandledMaterialNamesChange }, ref) => {
+export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelHandle, TradeMaterialAssemblyPanelProps>(({ versionId, documents, compact = false, onHandledMaterialRowIdsChange, onAssemblyRevisionChange, onIssueAction }, ref) => {
   const [assembly, setAssembly] = useState<AssemblyPreparation | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -433,7 +435,10 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
   const attentionIssues = allIssues.filter((issue) => issue.severity !== "warning");
   const coverageIssues = allIssues.filter((issue) => issue.severity === "warning");
   const materialAttentionIssues = attentionIssues.filter((issue) => issue.material_ids.length > 0);
-  const generalAttentionIssues = attentionIssues.filter((issue) => issue.material_ids.length === 0);
+  const generalAttentionIssues = attentionIssues.filter((issue) => (
+    issue.material_ids.length === 0
+    && !(issue.code === "calculation_withheld" && attentionIssues.length > 1)
+  ));
   const materialAttentionGroups = useMemo(() => assembly?.state.materials.flatMap((material) => {
     const seen = new Set<string>();
     const issues = materialAttentionIssues.filter((issue) => {
@@ -447,10 +452,14 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
   }) ?? [], [assembly?.state.materials, materialAttentionIssues]);
 
   useEffect(() => {
-    onHandledMaterialNamesChange?.(assembly?.state.materials.flatMap((material) =>
-      [material.trade_name, material.product_code].filter((value): value is string => Boolean(value?.trim())),
-    ) ?? []);
-  }, [assembly?.state.materials, onHandledMaterialNamesChange]);
+    onHandledMaterialRowIdsChange?.(assembly?.state.formulation_row_ownership
+      .filter((item) => item.owner_type === "supplier_material")
+      .map((item) => item.row_id) ?? []);
+  }, [assembly?.state.formulation_row_ownership, onHandledMaterialRowIdsChange]);
+
+  useEffect(() => {
+    onAssemblyRevisionChange?.(assembly?.assembly_revision ?? null);
+  }, [assembly?.assembly_revision, onAssemblyRevisionChange]);
 
   if (!signature) return null;
 
@@ -489,10 +498,15 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
             <span><strong>{material.trade_name}</strong><small>{issues[0].message}</small><small>{issues[0].reviewer_action}</small>{issues.length > 1 ? <small>Open to review all {issues.length} checks.</small> : null}</span>
             <span className="attention-level">{issues.some((issue) => issue.blocking_for_calculation) ? "Must fix" : "Can screen with limits"}</span>
           </button></li>;
-        })}{generalAttentionIssues.map((issue) => <li key={issue.issue_id}><div className="attention-static">
-          <span><strong>{issue.message}</strong><small>{issue.reviewer_action}</small></span>
-          <span className="attention-level">{issue.blocking_for_calculation ? "Must fix" : "Can screen with limits"}</span>
-        </div></li>)}</ul>
+        })}{generalAttentionIssues.map((issue) => {
+          const hasTarget = issue.document_ids.length > 0 || issue.constituent_ids.length > 0;
+          const hasDirectRowTarget = issue.constituent_ids.some((id) => id.startsWith("agent:"));
+          const content = <>
+            <span><strong>{issue.message}</strong><small>{issue.reviewer_action}</small>{hasTarget ? <small>Open the affected {hasDirectRowTarget ? "formulation row" : "source file"}.</small> : <small>This is a system-level limitation with no value to invent.</small>}</span>
+            <span className="attention-level">{issue.blocking_for_calculation && hasTarget ? "Must fix" : issue.blocking_for_calculation ? "System check" : "Can screen with limits"}</span>
+          </>;
+          return <li key={issue.issue_id}>{hasTarget ? <button type="button" onClick={() => onIssueAction?.(issue)}>{content}</button> : <div className="attention-static">{content}</div>}</li>;
+        })}</ul>
       </section> : <div className="review-ready-summary"><CheckCircle2 size={17} /><span>No changes needed. Regulens will calculate these materials when screening runs.</span></div>}
 
       {coverageIssues.length ? <section className="coverage-summary" aria-labelledby="coverage-summary-title">

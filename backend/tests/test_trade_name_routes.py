@@ -364,8 +364,9 @@ def test_agent_prepare_rebuilds_trade_material_canonical_input(
     monkeypatch.setattr(
         "backend.app.routes.cases.refresh_formulation_assembly",
         lambda *args, **kwargs: SimpleNamespace(
+            assembly_revision=8,
             formulation=calculated.model_dump(mode="json"),
-            state=SimpleNamespace(materials=[]),
+            state=FormulationAssemblyState(),
         ),
     )
     gateway = SimpleNamespace(
@@ -387,6 +388,9 @@ def test_agent_prepare_rebuilds_trade_material_canonical_input(
     assert result.formulation.ingredients[0].name == "GLYCERIN"
     assert result.formulation.assembly_scope is not None
     assert result.formulation.assembly_scope.completeness == "partial"
+    assert result.formulation.input_revision is not None
+    assert result.formulation.input_revision.agent_revision == 3
+    assert result.formulation.input_revision.assembly_revision == 8
     assert prepare_kwargs["formulation_override"].ingredients[0].name == "GLYCERIN"
 
 
@@ -417,4 +421,36 @@ def test_screening_waits_for_every_retained_supporting_document() -> None:
 
     assert caught.value.status_code == 409
     assert caught.value.detail["code"] == "supporting_documents_not_ready"
+
+
+def test_screening_uses_single_action_copy_when_assembly_is_stale() -> None:
+    gateway = SimpleNamespace(
+        get_version=lambda user_id, version_id: {
+            "canonical_formulation": FormulationRequest(
+                ingredients=[FormulationIngredientRequest(name="AQUA")],
+            ).model_dump(mode="json"),
+        },
+        list_formulation_documents=lambda user_id, version_id: [{
+            "processing_status": "ready",
+            "extraction_result": {"supplier_materials": [{}]},
+        }],
+    )
+    request = Request({
+        "type": "http", "method": "POST", "path": "/screen", "headers": [],
+        "app": SimpleNamespace(state=SimpleNamespace()),
+    })
+
+    with pytest.raises(HTTPException) as caught:
+        screen_persistent_formulation(
+            VERSION_ID,
+            request,
+            CurrentUser(id=USER_ID, email="reviewer@example.com"),
+            gateway,
+        )
+
+    assert caught.value.status_code == 409
+    assert caught.value.detail == {
+        "code": "formulation_assembly_not_prepared",
+        "message": "Source information changed. Review the highlighted input and run screening again.",
+    }
 

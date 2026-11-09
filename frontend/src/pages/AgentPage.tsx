@@ -41,6 +41,8 @@ interface ReviewDraft {
 
 type WorkspaceTab = "findings" | "formulation" | "activity";
 
+const NO_HANDLED_MATERIAL_ROW_IDS: string[] = [];
+
 function optional(value: string): string | null {
   return value.trim() || null;
 }
@@ -99,13 +101,17 @@ export function AgentPage({
   versionId,
   compact = false,
   beforeRunScreening,
-  handledMaterialNames = [],
+  handledMaterialRowIds = NO_HANDLED_MATERIAL_ROW_IDS,
+  assemblyRevision = null,
+  focusRowRequest = null,
 }: {
   caseId?: string;
   versionId?: string;
   compact?: boolean;
   beforeRunScreening?: () => Promise<void>;
-  handledMaterialNames?: string[];
+  handledMaterialRowIds?: string[];
+  assemblyRevision?: number | null;
+  focusRowRequest?: { rowId: string; requestId: number } | null;
 } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -152,25 +158,19 @@ export function AgentPage({
   const [activityRefreshToken, setActivityRefreshToken] = useState(0);
   const [confirmationTracker, setConfirmationTracker] = useState<{ sessionId: string | null; total: number }>({ sessionId: null, total: 0 });
   const [newIngredient, setNewIngredient] = useState({ name: "", cas: "", value: "", unit: "percent" as ConcentrationUnit });
-  const handledMaterialNameSet = useMemo(() => new Set(
-    handledMaterialNames.map((value) => value.trim().toLocaleLowerCase()).filter(Boolean),
-  ), [handledMaterialNames]);
-  const handledMaterialRowIds = useMemo(() => new Set(
-    session?.interpreted_rows
-      .filter((row) => [row.name.value, row.name.source_value].some(
-        (value) => handledMaterialNameSet.has(String(value ?? "").trim().toLocaleLowerCase()),
-      ))
-      .map((row) => row.row_id) ?? [],
-  ), [handledMaterialNameSet, session]);
+  const handledMaterialRowIdSet = useMemo(
+    () => new Set(handledMaterialRowIds),
+    [handledMaterialRowIds],
+  );
   const directRows = useMemo(() => session?.interpreted_rows.filter(
-    (row) => !handledMaterialRowIds.has(row.row_id),
-  ) ?? [], [handledMaterialRowIds, session]);
+    (row) => !handledMaterialRowIdSet.has(row.row_id),
+  ) ?? [], [handledMaterialRowIdSet, session]);
   const activeQuestions = useMemo(() => session?.questions.flatMap((question) => {
-    if (question.row_id && handledMaterialRowIds.has(question.row_id)) return [];
+    if (question.row_id && handledMaterialRowIdSet.has(question.row_id)) return [];
     if (!question.affected_row_ids.length) return [question];
-    const affectedRowIds = question.affected_row_ids.filter((rowId) => !handledMaterialRowIds.has(rowId));
+    const affectedRowIds = question.affected_row_ids.filter((rowId) => !handledMaterialRowIdSet.has(rowId));
     return affectedRowIds.length ? [{ ...question, affected_row_ids: affectedRowIds }] : [];
-  }) ?? [], [handledMaterialRowIds, session]);
+  }) ?? [], [handledMaterialRowIdSet, session]);
 
   const writeState = (key: string): WriteState => reviewWriteStates[key] ?? idleWriteState;
   const setWriteState = (key: string, state: WriteState) => setReviewWriteStates((current) => ({ ...current, [key]: state }));
@@ -429,7 +429,7 @@ export function AgentPage({
   const focusRow = (rowId: string, targetField?: AgentQuestion["target_field"]) => {
     setEditingRowId(rowId);
     const element = document.getElementById(`agent-row-${rowId}`);
-    element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    element?.scrollIntoView?.({ behavior: "smooth", block: "center" });
     setHighlightedRow(rowId);
     window.setTimeout(() => setHighlightedRow((current) => current === rowId ? null : current), 1400);
     const selector = targetField === "ingredient_name" ? "input[data-agent-field='ingredient_name']" : targetField === "cas_number" ? "input[data-agent-field='cas_number']" : targetField === "concentration.unit" ? "select[data-agent-field='concentration.unit']" : targetField === "preparation_stage" ? "select[data-agent-field='preparation_stage']" : "input, select";
@@ -438,11 +438,17 @@ export function AgentPage({
 
   const focusQuestion = (questionId: string) => {
     const element = document.getElementById(`agent-question-${questionId}`);
-    element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    element?.scrollIntoView?.({ behavior: "smooth", block: "center" });
     setHighlightedQuestion(questionId);
     window.setTimeout(() => setHighlightedQuestion((current) => current === questionId ? null : current), 1400);
     window.setTimeout(() => element?.querySelector<HTMLElement>("button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])")?.focus(), 250);
   };
+
+  useEffect(() => {
+    if (!focusRowRequest || !session) return;
+    setWorkspaceTab("formulation");
+    window.setTimeout(() => focusRow(focusRowRequest.rowId), 0);
+  }, [focusRowRequest?.requestId, session]);
 
   const prepare = async () => {
     if (!session || busy) return;
@@ -706,6 +712,14 @@ export function AgentPage({
   };
 
   const activeScreeningRun = screeningRuns.find((run) => run.id === activeScreeningRunId) ?? null;
+  const activeScreeningRunFreshness = activeScreeningRun ? (() => {
+    if (activeScreeningRun.current_input_matches === false) return "stale";
+    const inputRevision = activeScreeningRun.request_snapshot.input_revision;
+    if (!inputRevision) return "unverified";
+    if (session && inputRevision.agent_revision !== session.revision) return "stale";
+    if (assemblyRevision !== null && inputRevision.assembly_revision !== assemblyRevision) return "stale";
+    return "current";
+  })() : "current";
   const activeScreeningRunIndex = activeScreeningRun ? screeningRuns.findIndex((run) => run.id === activeScreeningRun.id) : -1;
   const activeScreeningLabel = activeScreeningRunIndex >= 0 ? `Screening ${screeningRuns.length - activeScreeningRunIndex}` : null;
   const openFindingFollowUps = reviewWorkspace?.follow_ups.filter((item) => item.review_item_id && item.status === "open").length ?? 0;
@@ -922,6 +936,8 @@ export function AgentPage({
 
         {error && <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert"><AlertTriangle size={16} />{error}</div>}
         {deepLinkNotice && <div className="workspace-link-notice" role="status"><span>{deepLinkNotice}</span><button className="text-button" type="button" onClick={() => setDeepLinkNotice(null)}>Dismiss</button></div>}
+        {activeScreeningRunFreshness === "stale" && <div className="workspace-link-notice" role="status"><span><strong>Inputs changed—run screening again.</strong> These findings are a historical snapshot and no longer represent the current formulation.</span></div>}
+        {activeScreeningRunFreshness === "unverified" && <div className="workspace-link-notice" role="status"><span><strong>Run screening again to confirm the current inputs.</strong> This older snapshot predates input-revision tracking, so its freshness cannot be verified.</span></div>}
 
         {loadingPersisted && <section className="agent-dropzone"><LoaderCircle className="animate-spin text-slate-500" size={34} /><h2>Loading saved formulation</h2><p>Restoring the interpretation and clarification state.</p></section>}
 
@@ -954,7 +970,7 @@ export function AgentPage({
                     <span>Active screening run</span>
                     <select value={activeScreeningRunId ?? ""} onChange={(event) => selectScreeningRun(event.target.value)}>
                       {screeningRuns.map((run, index) => (
-                        <option key={run.id} value={run.id}>Screening {screeningRuns.length - index} · {new Date(run.created_at).toLocaleString()}</option>
+                        <option key={run.id} value={run.id}>Screening {screeningRuns.length - index} · {new Date(run.created_at).toLocaleString()}{run.current_input_matches === false ? " · Historical" : run.current_input_matches == null ? " · Legacy" : ""}</option>
                       ))}
                     </select>
                   </label>

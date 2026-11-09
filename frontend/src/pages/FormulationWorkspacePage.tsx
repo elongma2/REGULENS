@@ -2,9 +2,9 @@ import { Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { deleteFormulationVersion } from "../api/cases";
-import { SupplierDocumentsPanel } from "../components/SupplierDocumentsPanel";
+import { SupplierDocumentsPanel, type SupplierDocumentsPanelHandle } from "../components/SupplierDocumentsPanel";
 import { TradeMaterialAssemblyPanel, type TradeMaterialAssemblyPanelHandle } from "../components/TradeMaterialAssemblyPanel";
-import type { FormulationDocument } from "../types/cases";
+import type { AssemblyIssue, FormulationDocument } from "../types/cases";
 import { TypedDeleteDialog } from "../components/TypedDeleteDialog";
 import { AgentPage } from "./AgentPage";
 
@@ -15,8 +15,21 @@ export function FormulationWorkspacePage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [sourceDocuments, setSourceDocuments] = useState<FormulationDocument[]>([]);
-  const [handledMaterialNames, setHandledMaterialNames] = useState<string[]>([]);
+  const [handledMaterialRowIds, setHandledMaterialRowIds] = useState<string[]>([]);
+  const [assemblyRevision, setAssemblyRevision] = useState<number | null>(null);
+  const [agentFocusRequest, setAgentFocusRequest] = useState<{ rowId: string; requestId: number } | null>(null);
+  const supplierDocuments = useRef<SupplierDocumentsPanelHandle>(null);
   const materialAssembly = useRef<TradeMaterialAssemblyPanelHandle>(null);
+  const openIssueTarget = (issue: AssemblyIssue) => {
+    const rowId = issue.constituent_ids
+      .find((id) => id.startsWith("agent:"))
+      ?.slice("agent:".length);
+    if (rowId) {
+      setAgentFocusRequest({ rowId, requestId: Date.now() });
+      return;
+    }
+    if (issue.document_ids[0]) supplierDocuments.current?.openManager(issue.document_ids[0]);
+  };
   const remove = async () => {
     setDeleting(true); setDeleteError(null);
     try {
@@ -30,9 +43,9 @@ export function FormulationWorkspacePage() {
   return <>
     <div aria-hidden={dialogOpen}>
       <div className="case-workspace-breadcrumb"><Link to={`/cases/${caseId}`}>← Case Overview</Link><button className="danger-text-button" type="button" onClick={() => { setDialogOpen(true); setDeleteError(null); }}><Trash2 size={14} /> Delete formulation</button></div>
-      <SupplierDocumentsPanel compact versionId={versionId} onDocumentsChanged={setSourceDocuments} />
-      <TradeMaterialAssemblyPanel ref={materialAssembly} compact versionId={versionId} documents={sourceDocuments} onHandledMaterialNamesChange={setHandledMaterialNames} />
-      <AgentPage compact caseId={caseId} versionId={versionId} handledMaterialNames={handledMaterialNames} beforeRunScreening={() => materialAssembly.current?.savePendingChanges() ?? Promise.resolve()} />
+      <SupplierDocumentsPanel ref={supplierDocuments} compact versionId={versionId} onDocumentsChanged={setSourceDocuments} />
+      <TradeMaterialAssemblyPanel ref={materialAssembly} compact versionId={versionId} documents={sourceDocuments} onHandledMaterialRowIdsChange={setHandledMaterialRowIds} onAssemblyRevisionChange={setAssemblyRevision} onIssueAction={openIssueTarget} />
+      <AgentPage compact caseId={caseId} versionId={versionId} handledMaterialRowIds={handledMaterialRowIds} assemblyRevision={assemblyRevision} focusRowRequest={agentFocusRequest} beforeRunScreening={() => materialAssembly.current?.savePendingChanges() ?? Promise.resolve()} />
     </div>
     <TypedDeleteDialog open={dialogOpen} title="Delete this formulation version?" description="This permanently removes its uploaded file, interpretation, clarifications, screening runs, finding reviews, formulation and finding notes, and linked follow-ups. Case-level notes remain." actionLabel="Delete formulation" busy={deleting} error={deleteError} onCancel={() => { if (!deleting) { setDialogOpen(false); setDeleteError(null); } }} onConfirm={() => void remove()} />
   </>;

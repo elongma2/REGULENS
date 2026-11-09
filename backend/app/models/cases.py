@@ -214,6 +214,7 @@ class ScreeningRunView(StrictModel):
     request_snapshot: dict[str, Any]
     result_snapshot: FormulationScreeningResponse
     created_at: datetime
+    current_input_matches: bool | None = None
 
 
 class SignedFileView(StrictModel):

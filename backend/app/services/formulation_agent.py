@@ -566,12 +566,18 @@ class FormulationAgentService:
         sleep: Callable[[float], None] = time.sleep,
         retry_backoff_seconds: tuple[float, ...] = RETRY_BACKOFF_SECONDS,
         linkage_store: IngredientLinkageStore | None = None,
+        deterministic_structured_interpretation: bool | None = None,
     ):
         self.store = store
         self.catalogue = catalogue
         self.linkage_store = linkage_store
         self.model = model or "gpt-5.6-sol"
         self.model_runner = model_runner or OpenAIFormulationInterpreter()
+        self.deterministic_structured_interpretation = (
+            type(self.model_runner) is OpenAIFormulationInterpreter
+            if deterministic_structured_interpretation is None
+            else deterministic_structured_interpretation
+        )
         self.sleep = sleep
         self.retry_backoff_seconds = retry_backoff_seconds
         self._sessions: dict[str, _Session] = {}
@@ -715,7 +721,7 @@ class FormulationAgentService:
         try:
             deterministic = (
                 self._deterministic_structured_interpretation(session.parsed)
-                if isinstance(self.model_runner, OpenAIFormulationInterpreter)
+                if self.deterministic_structured_interpretation
                 else None
             )
             model_result = (

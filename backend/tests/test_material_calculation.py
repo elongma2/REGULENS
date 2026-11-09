@@ -840,6 +840,109 @@ def test_calculated_trade_material_contribution_reaches_singapore_screening(
     } == {"5"}
 
 
+def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> None:
+    """Release gate for the handover's dual-supplier diagnostic scenario."""
+    clari = SupplierMaterial(
+        material_id="clari",
+        trade_name="ClariPreserve P70",
+        finished_product_usage=quantity(
+            "exact", value=1, unit="percent",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+        attached_document_ids=["clari.pdf"],
+        governing_document_id="clari.pdf",
+        constituents=[MaterialConstituent(
+            constituent_id="clari:phenoxyethanol",
+            submitted_name="PHENOXYETHANOL",
+            cas_number="122-99-6",
+            composition_quantity=quantity(
+                "exact", value=70, unit="percent",
+                quantity_scope="supplier_material",
+            ),
+            verified_identity_group="catalogue:phenoxyethanol",
+            regulated_functions=["preservative"],
+        )],
+        disclosure_status=DisclosureStatus.COMPLETE,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+    nova = SupplierMaterial(
+        material_id="nova",
+        trade_name="NovaBlend H45",
+        finished_product_usage=quantity(
+            "exact", value=1, unit="percent",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+        attached_document_ids=["nova.pdf"],
+        governing_document_id="nova.pdf",
+        constituents=[
+            MaterialConstituent(
+                constituent_id="nova:phenoxyethanol",
+                submitted_name="PHENOXYETHANOL",
+                cas_number="122-99-6",
+                composition_quantity=quantity(
+                    "range", lower=35, upper=45, unit="percent",
+                    quantity_scope="supplier_material",
+                ),
+                verified_identity_group="catalogue:phenoxyethanol",
+                regulated_functions=["preservative"],
+            ),
+            MaterialConstituent(
+                constituent_id="nova:glycerin",
+                submitted_name="GLYCERIN",
+                cas_number="56-81-5",
+                composition_quantity=quantity(
+                    "range", lower=35, upper=45, unit="percent",
+                    quantity_scope="supplier_material",
+                ),
+                verified_identity_group="catalogue:glycerin",
+            ),
+        ],
+        disclosure_status=DisclosureStatus.COMPLETE,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+    direct_glycerin = DirectIngredient(
+        ingredient_id="formula:glycerin",
+        source_document_id="formula.xlsx",
+        verified_identity_group="catalogue:glycerin",
+        ingredient=FormulationIngredientRequest(
+            name="GLYCERIN",
+            cas_number="56-81-5",
+            concentration=FormulationConcentration(
+                concentration_type="exact", value=3, unit="percent",
+                basis=None, preparation_stage="finished_product",
+            ),
+        ),
+    )
+
+    prepared = prepare_assembly(
+        assembly_revision=1,
+        direct_ingredients=[direct_glycerin],
+        materials=[clari, nova],
+        source_document_ids=["formula.xlsx", "clari.pdf", "nova.pdf"],
+    )
+
+    assert prepared.formulation is not None
+    canonical = {item.name: item.concentration for item in prepared.formulation.ingredients}
+    assert canonical["PHENOXYETHANOL"].lower_bound == pytest.approx(1.05)
+    assert canonical["PHENOXYETHANOL"].upper_bound == pytest.approx(1.15)
+    assert canonical["GLYCERIN"].lower_bound == pytest.approx(3.35)
+    assert canonical["GLYCERIN"].upper_bound == pytest.approx(3.45)
+    assert "ClariPreserve P70" not in canonical
+    assert "NovaBlend H45" not in canonical
+
+    screened = screen_formulation(load_accepted_store(ROOT), prepared.formulation)
+    screened_inputs = {
+        item.submitted_ingredient.name: item.submitted_ingredient.concentration
+        for item in screened.ingredient_results
+    }
+    assert screened_inputs["PHENOXYETHANOL"].model_dump(mode="json") == canonical[
+        "PHENOXYETHANOL"
+    ].model_dump(mode="json")
+    assert screened_inputs["GLYCERIN"].model_dump(mode="json") == canonical[
+        "GLYCERIN"
+    ].model_dump(mode="json")
+
+
 @pytest.mark.parametrize(
     ("supplier_lower", "supplier_upper", "expected_lower", "expected_upper", "expected_finding"),
     [
