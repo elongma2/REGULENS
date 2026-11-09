@@ -1,4 +1,4 @@
-import { CheckCircle2, Filter, MessageSquarePlus, RotateCcw, Search } from "lucide-react";
+import { CheckCircle2, Filter, LoaderCircle, MessageSquarePlus, RotateCcw, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { addReviewerNote, getCaseActivity, updateFollowUp } from "../api/review";
@@ -214,7 +214,7 @@ export function NotesActivityPanel({
       <button className="secondary-button compact" type="button" onClick={() => { setNoteOpen((value) => !value); setSavedMessage(null); }}><MessageSquarePlus size={14} /> Add case note</button>
     </header>
 
-    {noteOpen && <form className="case-note-composer activity-note-composer" onSubmit={submitNote}><label htmlFor="activity-case-note">Case note</label><textarea id="activity-case-note" autoFocus value={noteDraft} maxLength={4000} placeholder="Record an observation or professional decision about this case" onChange={(event) => { setNoteDraft(event.target.value); setSaveError(null); }} />{saveError && <p className="field-error" role="alert">{saveError}</p>}<div><button className="primary-button" disabled={savingNote || !noteDraft.trim()}>{savingNote ? "Saving…" : saveError ? "Retry save" : "Save note"}</button><button className="text-button" type="button" onClick={() => setNoteOpen(false)} disabled={savingNote}>Cancel</button></div></form>}
+    {noteOpen && <form className="case-note-composer activity-note-composer" onSubmit={submitNote}><label htmlFor="activity-case-note">Case note</label><textarea id="activity-case-note" autoFocus value={noteDraft} maxLength={4000} placeholder="Record an observation or professional decision about this case" onChange={(event) => { setNoteDraft(event.target.value); setSaveError(null); }} />{saveError && <p className="field-error" role="alert">{saveError}</p>}<div><button className="primary-button" disabled={savingNote || !noteDraft.trim()} aria-busy={savingNote}>{savingNote ? <><LoaderCircle className="button-spinner" size={14} aria-hidden="true" /> Saving…</> : saveError ? "Retry save" : "Save note"}</button><button className="text-button" type="button" onClick={() => setNoteOpen(false)} disabled={savingNote}>Cancel</button></div></form>}
     {savedMessage && <p className="local-save-state" role="status">{savedMessage}</p>}
     {refreshError && <div className="inline-notice activity-local-message" role="status"><span>Showing saved activity. The latest refresh did not complete.</span><button className="text-button" type="button" onClick={() => void load(true)}>Retry</button></div>}
 

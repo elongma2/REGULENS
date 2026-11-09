@@ -294,6 +294,7 @@ describe("formula screening vertical slice", () => {
     await waitFor(() => expect(button).toBeEnabled());
     await user.click(button);
     expect(screen.getByRole("button", { name: "Screening…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Screening…" })).toHaveAttribute("aria-busy", "true");
     await user.click(screen.getByRole("button", { name: "Screening…" }));
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
     resolvePost({ ok: true, status: 200, json: async () => testResponse } as Response);

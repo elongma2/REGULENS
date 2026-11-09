@@ -182,10 +182,10 @@ export function FormulaScreeningPage() {
           <div className="screening-title-bar">
             <h1 className="page-title">Formula screening</h1>
             <div className="screening-title-actions">
-              {response && <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exporting || !lastRequest}>
+              {response && <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exporting || !lastRequest} aria-busy={exporting}>
                 {exporting ? <><LoaderCircle className="animate-spin" size={15} /> Preparing PDF…</> : <><Download size={15} /> Export PDF</>}
               </button>}
-              <button className="primary-button" type="button" onClick={submit} disabled={loading || integrityFailure || !options}>
+              <button className="primary-button" type="button" onClick={submit} disabled={loading || integrityFailure || !options} aria-busy={loading}>
                 {loading ? <><LoaderCircle className="animate-spin" size={16} /> Screening…</> : "Run screen"}
               </button>
             </div>

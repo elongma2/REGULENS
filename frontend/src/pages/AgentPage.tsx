@@ -893,7 +893,7 @@ export function AgentPage({
             <h1 className="page-title">{response ? "Screening results" : compact ? "Review the formulation" : prepared ? "Confirm your screening input" : "Review your formulation"}</h1>
             {!response && <p className="guided-subtitle">{compact ? "Resolve only the items that need attention, then run screening." : "Confirm the source values before running regulatory screening."}{versionId && " · Saved formulation workspace"}</p>}
           </div>
-          {response ? <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exportingReport}>
+          {response ? <button className="secondary-button report-download-button" type="button" onClick={() => void exportReport()} disabled={exportingReport} aria-busy={exportingReport}>
             {exportingReport ? <><LoaderCircle className="animate-spin" size={15} /> Preparing PDF…</> : <><Download size={15} /> Export PDF</>}
           </button> : !session && <span className="guided-market">Singapore screening</span>}
         </header>
@@ -922,7 +922,7 @@ export function AgentPage({
                   </div>
                 </div>
               </div>
-              <button className="primary-button confirmation-action" type="button" onClick={compact ? runScreening : prepare} disabled={busy || remainingConfirmations > 0}>{busy ? (compact ? "Screening…" : "Confirming…") : <>{compact ? "Run screening" : "Confirm Formulation"} <ArrowRight size={15} aria-hidden="true" /></>}</button>
+              <button className="primary-button confirmation-action" type="button" onClick={compact ? runScreening : prepare} disabled={busy || remainingConfirmations > 0} aria-busy={busy}>{busy ? <><LoaderCircle className="button-spinner" size={16} aria-hidden="true" />{compact ? "Screening…" : "Confirming…"}</> : <>{compact ? "Run screening" : "Confirm Formulation"} <ArrowRight size={15} aria-hidden="true" /></>}</button>
             </section>
           )}
         </div>
@@ -1059,7 +1059,7 @@ export function AgentPage({
                 <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Formulation ready for screening</p><h2 className="section-title">{prepared.formulation.ingredients.length} ingredients</h2></div><Sparkles size={19} className="text-emerald-700" /></div>
                 <div className="agent-ready-meta"><span>Formulation</span><strong>{prepared.formulation.formulation_name ?? "Untitled formulation"}</strong><span>Product context</span><strong>{prepared.formulation.product_context ?? "Not supplied"}</strong></div>
                 <div className="mt-4 overflow-x-auto"><table className="agent-table"><thead><tr><th>Ingredient</th><th>Function</th><th>CAS</th><th>Concentration</th><th>Basis</th><th>Preparation stage</th><th>Source rows</th></tr></thead><tbody>{prepared.formulation.ingredients.map((ingredient, index) => <tr key={`${ingredient.name}-${index}`}><td><strong>{ingredient.name}</strong></td><td>{ingredient.regulated_functions?.map((item) => item.replaceAll("_", " ")).join(", ") || "Not declared"}</td><td>{ingredient.cas_number ?? "—"}</td><td>{formatConcentration(ingredient.concentration)}</td><td>{ingredient.concentration?.basis ?? "No specific basis"}</td><td>{ingredient.concentration?.preparation_stage ? ingredient.concentration.preparation_stage.replaceAll("_", " ") : "—"}</td><td>{prepared.row_provenance[index]?.source_rows.join(", ")}</td></tr>)}</tbody></table></div>
-                <div className="mt-5 flex justify-between gap-3"><button className="secondary-button" type="button" onClick={() => setPrepared(null)}>Back to interpretation</button><button className="primary-button" type="button" onClick={screenPrepared} disabled={busy}>{busy ? <><LoaderCircle className="animate-spin" size={15} /> Screening…</> : <><Check size={15} /> Confirm & Screen</>}</button></div>
+                <div className="mt-5 flex justify-between gap-3"><button className="secondary-button" type="button" onClick={() => setPrepared(null)}>Back to interpretation</button><button className="primary-button" type="button" onClick={screenPrepared} disabled={busy} aria-busy={busy}>{busy ? <><LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> Screening…</> : <><Check size={15} /> Confirm & Screen</>}</button></div>
               </section>
             )}
 

@@ -1,4 +1,4 @@
-import { ClipboardCheck, MessageSquarePlus, Plus, RotateCcw } from "lucide-react";
+import { ClipboardCheck, LoaderCircle, MessageSquarePlus, Plus, RotateCcw } from "lucide-react";
 import type { FormEvent } from "react";
 import type { FollowUp, ReviewerNote, ReviewItem, ReviewStatus } from "../types/review";
 import { idleWriteState, reviewStatusPresentation, type WriteState } from "../lib/reviewPresentation";
@@ -85,7 +85,7 @@ export function ReviewerWorkspace({
         {notes.length ? <ul className="review-note-list">{[...notes].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).map((item) => <li key={item.id}><p>{item.body}</p><small>{item.author_name} · {new Date(item.created_at).toLocaleString()}</small></li>)}</ul> : <p className="review-empty">No notes for this result.</p>}
         <form onSubmit={submitNote} className="review-inline-form">
           <textarea aria-label="Reviewer note" value={noteDraft} maxLength={4000} placeholder="Record an observation or decision" onChange={(event) => onNoteDraftChange(event.target.value)} />
-          <button className="secondary-button" disabled={noteWriteState.phase === "saving" || !noteDraft.trim()}><Plus size={14} /> {noteWriteState.phase === "saving" ? "Saving…" : noteWriteState.phase === "failed" ? "Retry note" : "Add note"}</button>
+          <button className="secondary-button" disabled={noteWriteState.phase === "saving" || !noteDraft.trim()} aria-busy={noteWriteState.phase === "saving"}>{noteWriteState.phase === "saving" ? <LoaderCircle className="button-spinner" size={14} aria-hidden="true" /> : <Plus size={14} />} {noteWriteState.phase === "saving" ? "Saving…" : noteWriteState.phase === "failed" ? "Retry note" : "Add note"}</button>
         </form>
         {noteWriteState.phase !== "idle" && noteWriteState.phase !== "saving" && <p className={`write-state is-${noteWriteState.phase}`} role={noteWriteState.phase === "failed" ? "alert" : "status"}>{noteWriteState.phase === "saved" ? "Note saved" : noteWriteState.message ?? "The note could not be saved. Your draft was kept."}</p>}
       </div>
@@ -95,7 +95,7 @@ export function ReviewerWorkspace({
         {followUps.length ? <ul className="follow-up-list">{[...followUps].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).map((item) => { const state = followUpWriteStates[item.id] ?? idleWriteState; return <li key={item.id}><div><strong>{item.action_text}</strong><small>{item.target_label ? `${item.target_label} · ` : ""}{item.status === "open" ? "Open" : "Resolved"} · {item.author_name} · {new Date(item.created_at).toLocaleString()}</small>{state.phase === "failed" && <span className="write-state is-failed" role="alert">{state.message}</span>}{state.phase === "saved" && <span className="write-state is-saved" role="status">Follow-up updated</span>}</div><button className="text-button" type="button" disabled={state.phase === "saving"} onClick={() => void onToggleFollowUp(item)}>{state.phase === "saving" ? "Saving…" : state.phase === "failed" ? `Retry ${item.status === "open" ? "resolve" : "reopen"}` : item.status === "open" ? "Resolve" : "Reopen"}</button></li>; })}</ul> : <p className="review-empty">No follow-ups for this result.</p>}
         <form onSubmit={submitAction} className="review-inline-form">
           <input aria-label="Follow-up action" value={followUpDraft} maxLength={1000} placeholder="Describe the information or action needed" onChange={(event) => onFollowUpDraftChange(event.target.value)} />
-          <button className="secondary-button" disabled={followUpWriteState.phase === "saving" || !followUpDraft.trim()}><Plus size={14} /> {followUpWriteState.phase === "saving" ? "Saving…" : followUpWriteState.phase === "failed" ? "Retry follow-up" : "Add follow-up"}</button>
+          <button className="secondary-button" disabled={followUpWriteState.phase === "saving" || !followUpDraft.trim()} aria-busy={followUpWriteState.phase === "saving"}>{followUpWriteState.phase === "saving" ? <LoaderCircle className="button-spinner" size={14} aria-hidden="true" /> : <Plus size={14} />} {followUpWriteState.phase === "saving" ? "Saving…" : followUpWriteState.phase === "failed" ? "Retry follow-up" : "Add follow-up"}</button>
         </form>
         {followUpWriteState.phase !== "idle" && followUpWriteState.phase !== "saving" && <p className={`write-state is-${followUpWriteState.phase}`} role={followUpWriteState.phase === "failed" ? "alert" : "status"}>{followUpWriteState.phase === "saved" ? "Follow-up saved" : followUpWriteState.message ?? "The follow-up could not be saved. Your draft was kept."}</p>}
       </div>
