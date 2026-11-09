@@ -6,7 +6,7 @@ import { ReviewerWorkspace } from "./ReviewerWorkspace";
 import { SourceEvidence } from "./SourceEvidence";
 import {
   basisLabel, comparisonRows, displayIngredientName, formatRuleConcentration,
-  matchMethodLabel, preparationStageLabel, readableCode, reviewReasonLabel,
+  matchMethodLabel, preparationStageLabel, readableCode,
 } from "../lib/presentation";
 import {
   formatConcentration, ingredientReviewIssues, ingredientScreeningDisposition,
@@ -161,9 +161,6 @@ export function EvidenceDrawer({
       ? explanation.reviewer_actions
       : [...explanationItems.map((item) => item.what_to_check), explanation?.what_to_check, leadingIssue?.reviewer_action],
   );
-  const visibleReviewerActions = reviewerActions.slice(0, 3);
-  const additionalReviewerActions = reviewerActions.slice(3);
-  const regulatoryFactLabel = result.review_types.includes("identity_review") ? "Source" : "Rule";
   const declaredFunctions = result.submitted_ingredient.regulated_functions ?? [];
   const functionEvaluations = result.function_evaluations ?? [];
   const conditionEvaluations = (result.condition_evaluations ?? []).filter((condition, index, all) =>
@@ -173,6 +170,16 @@ export function EvidenceDrawer({
       && candidate.reason === condition.reason) === index);
   const warningRequirements = result.warning_requirements ?? [];
   const assemblyAggregate = findAssemblyAggregate(assemblyCalculationSnapshot, result);
+  const finalConcentration = assemblyAggregate
+    ? formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)
+    : formatConcentration(result.submitted_ingredient.concentration);
+  const singaporeLimits = uniqueText(singapore.map((evaluation) =>
+    evaluation.evidence.concentration ? formatRuleConcentration(evaluation.evidence.concentration) : null));
+  const nextAction = reviewerActions[0] ?? (
+    result.primary_finding === "restriction_exceeded" || result.primary_finding === "permitted_use_condition_not_met"
+      ? "Reformulate to meet the applicable Singapore requirement, then screen the updated formulation."
+      : "No regulatory action is required for this ingredient within the evaluated scope."
+  );
   const incompleteFunctions = result.incomplete_positive_list_checks ?? [];
   const reviewerStatus = reviewDataState === "available" && reviewItem
     ? reviewStatusPresentation[reviewItem.review_status ?? "not_reviewed"].label
@@ -203,49 +210,22 @@ export function EvidenceDrawer({
 
       <div id="drawer-panel-evidence" className="evidence-drawer-body" role="tabpanel" aria-labelledby="drawer-tab-evidence" hidden={activeTab !== "evidence"}>
         <section>
-          <h3 className="drawer-title">Screening result</h3>
-          <div className="metadata-grid mt-3">
-            <span>Identity resolution</span><strong>{readableCode(result.identity.status)}</strong>
-            <span>Identity outcome</span><strong>{result.identity.identity_outcome ? readableCode(result.identity.identity_outcome) : readableCode(result.identity.status)}</strong>
-            <span>Screening coverage</span><strong>{screeningDisposition ? readableCode(screeningDisposition) : "Historical result"}</strong>
-            <span>Match method</span><strong>{result.identity.match_methods.map(matchMethodLabel).join(", ") || "—"}</strong>
-            <span>Confirmed findings</span><strong>{result.confirmed_findings.map(readableCode).join(", ") || "—"}</strong>
-            <span>Professional review</span><strong>{result.review_required ? "Required" : "Not required by this result"}</strong>
+          <h3 className="drawer-title">Regulatory assessment</h3>
+          <div className="finding-summary-grid mt-3">
+            <div><span>Ingredient</span><strong>{displayIngredientName(result)}</strong></div>
+            <div><span>Combined final concentration</span><strong>{finalConcentration}</strong></div>
+            <div><span>Applicable Singapore limit</span><strong>{singaporeLimits.join(" · ") || "No concentration limit identified"}</strong></div>
+            <div><span>Outcome</span><strong>{readableCode(result.primary_finding)}</strong></div>
           </div>
           {(result.review_required || leadingIssue) && <div className="review-panel mt-4">
             <h4>{explanation?.title ?? (leadingIssue ? readableCode(leadingIssue.code) : "This result needs checking")}</h4>
             <p>{explanation?.summary ?? leadingIssue?.message ?? "Regulens could not confirm one part of this result."}</p>
-            {reviewerActions.length > 0 && <div className="review-check"><span>What to check</span><ol className="review-action-list">{visibleReviewerActions.map((action) => <li key={action}>{action}</li>)}</ol>{additionalReviewerActions.length > 0 && <details className="review-check-more"><summary>Show all checks ({reviewerActions.length})</summary><ol start={4}>{additionalReviewerActions.map((action) => <li key={action}>{action}</li>)}</ol></details>}</div>}
-            {(explanation?.submitted_fact || explanation?.regulatory_fact) && <div className="review-facts">
-              {explanation.submitted_fact && <div><span>Submitted</span><strong>{explanation.submitted_fact}</strong></div>}
-              {explanation.regulatory_fact && <div><span>{regulatoryFactLabel}</span><strong>{explanation.regulatory_fact}</strong></div>}
-            </div>}
-            {explanation?.calculation_context && <div className="review-calculation" aria-label="Trade-material calculation used for screening">
-              <div className="review-calculation-heading"><span>Calculated from supplier material</span><strong>{explanation.calculation_context.finished_product_concentration} in finished product</strong></div>
-              {explanation.calculation_context.contributions.map((contribution, index) => <div className="review-calculation-contribution" key={`${contribution.trade_material ?? "material"}-${contribution.calculation_formula}-${index}`}>
-                <strong>{contribution.trade_material ?? "Supplier material"}</strong>
-                <div><span>Supplier concentration</span><b>{contribution.supplier_concentration}</b><span>Material usage</span><b>{contribution.material_usage}</b><span>Final contribution</span><b>{contribution.finished_product_contribution}</b></div>
-                <small>{contribution.calculation_formula}{contribution.source_pages.length ? ` · Source page${contribution.source_pages.length > 1 ? "s" : ""} ${contribution.source_pages.join(", ")}` : ""}</small>
-              </div>)}
-              {explanation.calculation_context.regulatory_limits.length > 0 && <div className="review-calculation-limits"><span>Regulatory limit</span><strong>{explanation.calculation_context.regulatory_limits.join(" · ")}</strong></div>}
-            </div>}
-            {explanationItems.length > 1 && <details className="review-issue-details"><summary>Why this needs review ({explanationItems.length})</summary><div>{explanationItems.map((item, index) => <article key={`${item.issue_code}-${item.source_references.join("-")}-${index}`}><strong>{item.what_happened}</strong><p>{item.why_it_matters}</p>{item.source_references.length > 0 && <small>{item.source_references.join(" · ")}</small>}</article>)}</div></details>}
           </div>}
+          <div className="next-action"><span>Next action</span><strong>{nextAction}</strong></div>
         </section>
 
-        <section>
-          <h3 className="drawer-title">Submitted and resolved identity</h3>
-          <div className="metadata-grid mt-3">
-            <span>Submitted name</span><strong>{result.submitted_ingredient.name}</strong>
-            <span>Resolved display name</span><strong>{displayIngredientName(result)}</strong>
-            <span>Submitted CAS</span><strong>{result.submitted_ingredient.cas_number ?? "—"}</strong>
-            <span>Concentration</span><strong>{formatConcentration(result.submitted_ingredient.concentration)}</strong>
-            <span>Product context</span><strong>{result.submitted_product_context ?? "—"}</strong>
-            <span>Declared functions</span><strong>{declaredFunctions.length ? declaredFunctions.map(readableCode).join(", ") : "None declared"}</strong>
-            {result.submitted_ingredient.concentration && <><span>Preparation stage</span><strong>{preparationStageLabel(result.submitted_ingredient.concentration.preparation_stage)}</strong><span>Basis</span><strong>{basisLabel(result.submitted_ingredient.concentration.basis)}</strong></>}
-          </div>
-          {sourceIdentifiers.length > 0 && <div className="source-identifier"><span>Source-backed identifier</span>{sourceIdentifiers.map((identifier) => <div key={`${identifier.cas}-${identifier.section}`}>CAS {identifier.cas} · {identifier.section.replace("Part 1", "").trim()}</div>)}</div>}
-          {assemblyAggregate && <details className="acd-details"><summary>Contribution breakdown</summary><div className="drawer-details-body">
+        {(assemblyAggregate || explanation?.calculation_context) && <details className="acd-details"><summary>View calculation</summary><div className="drawer-details-body">
+          {assemblyAggregate && <>
             <div className="metadata-grid"><span>Finished-product amount</span><strong>{formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)}</strong><span>Contributions</span><strong>{assemblyAggregate.contributions?.length ?? 0}</strong></div>
             {(assemblyAggregate.contributions ?? []).map((contribution, index) => {
               const documentReference = contributionDocumentReference(assemblyCalculationSnapshot, contribution);
@@ -260,8 +240,12 @@ export function EvidenceDrawer({
                 {(contribution.source_evidence ?? []).map((evidence, evidenceIndex) => evidence.source_snippet ? <p className="technical-note" key={`${evidence.page ?? "page"}-${evidenceIndex}`}>{evidence.page ? `Page ${evidence.page}: ` : ""}{evidence.source_snippet}</p> : null)}
               </article>;
             })}
-          </div></details>}
-        </section>
+          </>}
+          {!assemblyAggregate && explanation?.calculation_context && <div className="review-calculation" aria-label="Supplier calculation used for screening">
+            <div className="review-calculation-heading"><span>Combined finished-product concentration</span><strong>{explanation.calculation_context.finished_product_concentration}</strong></div>
+            {explanation.calculation_context.contributions.map((contribution, index) => <div className="review-calculation-contribution" key={`${contribution.trade_material ?? "material"}-${index}`}><strong>{contribution.trade_material ?? "Supplier material"}</strong><div><span>Inside supplier material</span><b>{contribution.supplier_concentration}</b><span>Material used</span><b>{contribution.material_usage}</b><span>Finished-product contribution</span><b>{contribution.finished_product_contribution}</b></div><small>{contribution.calculation_formula}{contribution.source_pages.length ? ` · Source page${contribution.source_pages.length > 1 ? "s" : ""} ${contribution.source_pages.join(", ")}` : ""}</small></div>)}
+          </div>}
+        </div></details>}
 
         <section>
           <h3 className="drawer-title">Applicable Singapore rules</h3>
@@ -286,20 +270,40 @@ export function EvidenceDrawer({
 
         {singaporeGroups.length > 0 && <section><h3 className="drawer-title">Accepted source evidence</h3>{singaporeGroups.map((evaluations) => { const evaluation = evaluations[0]; return <SourceEvidence key={`${evaluation.evidence.regulatory_section}-${evaluation.evidence.reference_number}`} evaluation={evaluation} source={sources.find((source) => source.source_document === evaluation.evidence.source_document)} />; })}</section>}
 
-        <section>
-          <h3 className="drawer-title">Warnings and bounded scope</h3>
-          <div className="evidence-card">
-            <div className="metadata-grid"><span>Singapore sections searched</span><strong>{result.searched_singapore_parts.join(", ") || "—"}</strong><span>Positive-list checks</span><strong>{functionEvaluations.length ? functionEvaluations.map((item) => `${readableCode(item.regulated_function)}: ${readableCode(item.status)}`).join(" · ") : "No regulated function declared"}</strong></div>
+        <details className="acd-details"><summary>Advanced details</summary><div className="drawer-details-body">
+          <div className="metadata-grid">
+            <span>Submitted name</span><strong>{result.submitted_ingredient.name}</strong>
+            <span>Resolved identity</span><strong>{displayIngredientName(result)}</strong>
+            <span>Submitted CAS</span><strong>{result.submitted_ingredient.cas_number ?? "—"}</strong>
+            <span>Identity matching</span><strong>{result.identity.match_methods.map(matchMethodLabel).join(", ") || "—"}</strong>
+            <span>Identity outcome</span><strong>{result.identity.identity_outcome ? readableCode(result.identity.identity_outcome) : readableCode(result.identity.status)}</strong>
+            <span>Screening coverage</span><strong>{screeningDisposition ? readableCode(screeningDisposition) : "Historical result"}</strong>
+            <span>Product context</span><strong>{result.submitted_product_context ?? "—"}</strong>
+            <span>Declared functions</span><strong>{declaredFunctions.length ? declaredFunctions.map(readableCode).join(", ") : "None declared"}</strong>
+            {result.submitted_ingredient.concentration && <><span>Preparation stage</span><strong>{preparationStageLabel(result.submitted_ingredient.concentration.preparation_stage)}</strong><span>Basis</span><strong>{basisLabel(result.submitted_ingredient.concentration.basis)}</strong></>}
+            <span>Screening datasets</span><strong>{result.searched_singapore_parts.join(", ") || "—"}</strong>
+            <span>Positive-list checks</span><strong>{functionEvaluations.length ? functionEvaluations.map((item) => `${readableCode(item.regulated_function)}: ${readableCode(item.status)}`).join(" · ") : "No regulated function declared"}</strong>
+            {explanation?.submitted_fact && <><span>Submitted assessment fact</span><strong>{explanation.submitted_fact}</strong></>}
+            {explanation?.regulatory_fact && <><span>{result.review_types.includes("identity_review") ? "Source" : "Rule"}</span><strong>{explanation.regulatory_fact}</strong></>}
+          </div>
+          {sourceIdentifiers.length > 0 && <div className="source-identifier"><span>Source-backed identifier</span>{sourceIdentifiers.map((identifier) => <div key={`${identifier.cas}-${identifier.section}`}>CAS {identifier.cas} · {identifier.section.replace("Part 1", "").trim()}</div>)}</div>}
+          <div className="evidence-card mt-4">
             {incompleteFunctions.length > 0 && <p className="scope-warning">Incomplete because the active dataset or submitted facts do not support: {incompleteFunctions.map(readableCode).join(", ")}.</p>}
             <p>{result.scope_note}</p>
           </div>
           {warningRequirements.length > 0 && <div className="warning-list"><h4>Label warning requirements</h4><p>These are source requirements for future label review. Formulation screening does not confirm that a label contains them.</p>{warningRequirements.map((warning, index) => <article className="evidence-card" key={`${warning.rule_id}-${index}`}><div className="evidence-card-heading"><strong>{warning.source_reference}</strong><span className="quiet-badge">{readableCode(warning.applicability)}</span></div><p>{warning.warning_text}</p>{warning.trigger_text && <small>Applies when: {warning.trigger_text}</small>}</article>)}</div>}
           {result.searched_regulatory_sections.length > 0 && <ul className="scope-check-list">{result.searched_regulatory_sections.map((section) => <li key={section}><span aria-hidden="true">✓</span>{section} searched</li>)}</ul>}
           {result.identity.catalogue_identity && result.rule_evaluations.length === 0 && <p className="no-listing">No scoped regulatory listing identified</p>}
-        </section>
+        </div></details>
 
         {(crossReferences.length > 0 || counterparts.length > 0 || acdCandidates.length > 0) && <details className="acd-details"><summary>ACD comparison</summary><div className="drawer-details-body">
-          {crossReferences.map((reference) => <article key={reference.cross_reference_id}>{reference.material_difference && <p className="scope-warning">Material Singapore–ACD difference requires professional review.</p>}<div className="evidence-card-heading"><strong>ACD reference {reference.reference_number}</strong><span className="quiet-badge">{readableCode(reference.comparison_status)}</span></div>{comparisonRows(reference).length > 0 && <div className="acd-comparison-table"><div className="acd-comparison-head"><span>Field</span><span>ASEAN ACD</span><span>Singapore</span></div>{comparisonRows(reference).map((row, index) => <div className="acd-comparison-row" key={`${row.field}-${index}`}><strong>{row.field}</strong><span>{row.acd}</span><span>{row.singapore}</span></div>)}</div>}{reference.review_reasons.map((reason) => <p className="scope-warning" key={reason}>{reviewReasonLabel(reason)}</p>)}</article>)}
+          {crossReferences.map((reference) => <article key={reference.cross_reference_id}>
+            <div className="evidence-card-heading"><strong>ACD reference {reference.reference_number}</strong><span className="quiet-badge">{readableCode(reference.semantic_comparison_status ?? reference.comparison_status)}</span></div>
+            <p>{reference.comparison_summary ?? "Comparison has not yet been semantically validated."}</p>
+            {reference.verification_needed && <p className="scope-warning"><strong>Verification needed:</strong> {reference.verification_needed}</p>}
+            {comparisonRows(reference).length > 0 && <div className="acd-comparison-table"><div className="acd-comparison-head"><span>Requirement</span><span>ASEAN ACD</span><span>Singapore</span></div>{comparisonRows(reference).map((row, index) => <div className="acd-comparison-row" key={`${row.field}-${index}`}><strong>{row.field}</strong><span>{row.acd}</span><span>{row.singapore}</span></div>)}</div>}
+            {(reference.comparison_citations ?? []).length > 0 && <div className="comparison-citations">{reference.comparison_citations?.map((citation) => citation.source_url ? <a className="source-link" href={citation.source_url} target="_blank" rel="noreferrer" key={`${citation.jurisdiction}-${citation.rule_id}`}>{citation.jurisdiction}: {citation.section} Ref {citation.reference_number}{citation.source_pages.length ? `, page ${citation.source_pages.join(", ")}` : ""} <ExternalLink size={13} /></a> : null)}</div>}
+          </article>)}
           {counterparts.map((counterpart) => <article className="counterpart-rule" key={counterpart.rule_id}><strong>{counterpart.regulatory_section} · Ref {counterpart.reference_number}</strong><p>{counterpart.source_version}</p><p>{counterpart.source_text}</p><a className="source-link" href={counterpart.source_url} target="_blank" rel="noreferrer">View ACD source <ExternalLink size={14} /></a></article>)}
         </div></details>}
 

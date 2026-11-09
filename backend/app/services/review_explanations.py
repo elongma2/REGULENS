@@ -426,7 +426,7 @@ def fallback_explanation(result) -> ReviewExplanation:
         "impurity_trace_requirement": "Trace impurity needs confirmation",
         "identity_related_forms": "Chemical form needs confirmation",
         "regulated_function_not_listed": "Declared regulated use is not listed",
-        "source_difference_material": "Singapore and ACD sources differ",
+        "source_difference_material": "Singapore and ACD requirements differ",
         "preparation_stage_mismatch": "Concentration stage needs confirmation",
         "concentration_unit_mismatch": "Concentration unit needs confirmation",
         "concentration_basis_mismatch": "Concentration basis needs confirmation",
@@ -468,7 +468,10 @@ class ReviewExplanationService:
 
     def fallback_only(self, response: FormulationScreeningResponse) -> FormulationScreeningResponse:
         enriched = response.model_copy(deep=True)
-        review_results = [result for result in enriched.ingredient_results if result.review_required]
+        review_results = [
+            result for result in enriched.ingredient_results
+            if result.review_required or result.review_issues
+        ]
         for result in review_results:
             result.review_explanation = _attach_calculation_context(
                 fallback_explanation(result),
@@ -486,7 +489,10 @@ class ReviewExplanationService:
 
     def enrich(self, response: FormulationScreeningResponse) -> FormulationScreeningResponse:
         enriched = response.model_copy(deep=True)
-        review_results = [result for result in enriched.ingredient_results if result.review_required]
+        review_results = [
+            result for result in enriched.ingredient_results
+            if result.review_required or result.review_issues
+        ]
         if not review_results:
             enriched.review_explanation_metadata = ReviewExplanationMetadata(
                 configured=bool(self.api_key), configured_model=self.model, status="not_needed",

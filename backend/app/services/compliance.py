@@ -85,7 +85,7 @@ def _concentration_relation(submitted, comparator: str, limit: float) -> str:
 
 def _material_source_difference(store: RegulatoryStore, rule: dict) -> bool:
     return any(
-        reference.get("material_difference", reference.get("comparison_status") != "aligned")
+        reference.get("confirmed_material_difference", False)
         for reference in store.cross_references_by_rule_id.get(rule["rule_id"], ())
     )
 
@@ -865,7 +865,7 @@ def screen_ingredient(
                     "reasons": _dedupe([reason, *evaluation.reasons]),
                 }))
                 if _material_source_difference(store, rule):
-                    difference = f"{rule['rule_id']}: material Singapore-ACD source difference requires professional review"
+                    difference = f"{rule['rule_id']}: confirmed material Singapore-ACD requirement difference requires professional review"
                     candidate_review.append(difference)
 
             review_reasons.extend(candidate_review)
@@ -904,7 +904,7 @@ def screen_ingredient(
                 evaluation.evaluation_status != "not_applicable_to_submitted_context"
                 and _material_source_difference(store, rule)
             ):
-                reason = f"{rule['rule_id']}: material Singapore-ACD source difference requires professional review"
+                reason = f"{rule['rule_id']}: confirmed material Singapore-ACD requirement difference requires professional review"
                 review_reasons.append(reason)
                 function_review.append(reason)
         if Finding.PERMITTED_USE_CONDITION_NOT_MET in function_findings:

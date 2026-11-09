@@ -17,6 +17,7 @@ from .config import (
 from .extract import write_json
 from .models import CrossReference
 from .normalize import conservative_text
+from .regulatory_semantics import validate_regulatory_comparison
 
 
 RANGE_RE = re.compile(
@@ -69,6 +70,7 @@ def compare_mapping(
     singapore = _groups(rules, singapore_section)
     acd_candidates = _candidate_index(acd)
     singapore_candidates = _candidate_index(singapore)
+    rules_by_id = {rule["rule_id"]: rule for rule in rules}
     references = sorted(set(acd) | set(singapore), key=lambda value: (not value[:1].isdigit(), value))
     output: list[CrossReference] = []
     comparable_fields = ["substance_name"]
@@ -140,20 +142,20 @@ def compare_mapping(
             material_fields & differences.keys()
         )
         output.append(
-            CrossReference(
-                cross_reference_id=f"xref-{mapping_name}-{reference_key.replace(' ', '-')}",
-                regulatory_mapping=mapping_name,
-                reference_number=display_reference,
-                acd_rule_ids=sorted(item["rule_id"] for item in acd_group),
-                singapore_rule_ids=sorted(item["rule_id"] for item in sg_group),
-                match_basis="reference_number" if acd_group and sg_group else "unmatched",
-                comparison_status=status,
-                field_differences=differences,
-                candidate_matches=sorted(set(candidate_matches)),
-                professional_review_required=status != "aligned",
-                material_difference=material_difference,
-                review_reasons=sorted(set(reasons)),
-            )
+            CrossReference.model_validate(validate_regulatory_comparison({
+                "cross_reference_id": f"xref-{mapping_name}-{reference_key.replace(' ', '-')}",
+                "regulatory_mapping": mapping_name,
+                "reference_number": display_reference,
+                "acd_rule_ids": sorted(item["rule_id"] for item in acd_group),
+                "singapore_rule_ids": sorted(item["rule_id"] for item in sg_group),
+                "match_basis": "reference_number" if acd_group and sg_group else "unmatched",
+                "comparison_status": status,
+                "field_differences": differences,
+                "candidate_matches": sorted(set(candidate_matches)),
+                "professional_review_required": status != "aligned",
+                "material_difference": material_difference,
+                "review_reasons": sorted(set(reasons)),
+            }, rules_by_id))
         )
     return output
 

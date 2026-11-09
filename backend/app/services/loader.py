@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from data_pipeline.scripts.normalize import cas_is_valid, conservative_text
+from data_pipeline.scripts.regulatory_semantics import RegulatoryComparisonService
 from backend.app.services.search_names import derived_except_search_name
 
 
@@ -38,6 +39,9 @@ ALL_REGULATORY_SEARCH_SCOPE = (
 
 class AcceptedBaselineError(RuntimeError):
     """Raised when runtime data does not match the reviewed baseline."""
+
+
+_COMPARISON_SERVICE = RegulatoryComparisonService()
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -158,8 +162,11 @@ def load_accepted_store(root: Path | None = None) -> RegulatoryStore:
 
     rules = rules_document["rules"]
     substances = substances_document["substances"]
-    cross_references = tuple(cross_reference_document["cross_references"])
     rules_by_id = {rule["rule_id"]: rule for rule in rules}
+    cross_references = tuple(
+        _COMPARISON_SERVICE.compare(reference, rules_by_id)
+        for reference in cross_reference_document["cross_references"]
+    )
     substances_by_id = {substance["substance_id"]: substance for substance in substances}
     raw_by_id = {
         record["raw_record_id"]: record

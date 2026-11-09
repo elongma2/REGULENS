@@ -1598,6 +1598,10 @@
       "message": "The applicable positive-list check is unavailable in the active dataset.",
       "reviewer_action": "Review the intended function against the current official source."
     },
+    "regulated_function_missing": {
+      "message": "The ingredient matches a Singapore positive-list entry, but its intended function was not confirmed.",
+      "reviewer_action": "Confirm whether the ingredient is intended to act as the regulated function stated in the source."
+    },
     "regulated_function_not_listed": {
       "message": "The ingredient was explicitly submitted for a regulated function but no matching entry was found in that Singapore positive list.",
       "reviewer_action": "Confirm the intended function and the ingredient identity against the applicable Singapore list."
@@ -1615,8 +1619,8 @@
       "reviewer_action": "Review each unresolved condition before relying on the screening result."
     },
     "source_difference_material": {
-      "message": "The Singapore and ACD source records contain a material difference.",
-      "reviewer_action": "Review both source records and apply the current Singapore requirement."
+      "message": "Singapore and ACD impose different regulatory requirements for this use.",
+      "reviewer_action": "Review the exact requirements shown for each source; Regulens applies the Singapore requirement to this screening."
     },
     "warning_requirement_unverified": {
       "message": "The source contains a warning requirement whose applicability has not been established.",

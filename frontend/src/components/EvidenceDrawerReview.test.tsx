@@ -100,14 +100,15 @@ describe("review guidance", () => {
       }}
       onClose={vi.fn()}
     />);
-    await user.click(screen.getByText("Contribution breakdown"));
+    await user.click(screen.getByText("View calculation"));
     expect(screen.getByText("AegisMix P80 · Aegis Labs")).toBeInTheDocument();
     expect(screen.getByText("2% × 50% = 1%")).toBeInTheDocument();
     expect(screen.getByText("AegisMix-P80.pdf")).toBeInTheDocument();
     expect(screen.getByText("Page 2: Glycerin 50%")).toBeInTheDocument();
   });
 
-  it("shows deterministic supplier calculation facts in the main review explanation", () => {
+  it("shows deterministic supplier calculation facts in an expandable calculation", async () => {
+    const user = userEvent.setup();
     const result = reviewResult("deterministic_fallback");
     result.review_explanation!.calculation_context = {
       finished_product_concentration: "0.1%",
@@ -124,14 +125,14 @@ describe("review guidance", () => {
     };
     render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
 
-    expect(screen.getByLabelText("Trade-material calculation used for screening")).toBeInTheDocument();
-    expect(screen.getByText("Calculated from supplier material")).toBeInTheDocument();
-    expect(screen.getByText("0.1% in finished product")).toBeInTheDocument();
+    await user.click(screen.getByText("View calculation"));
+    expect(screen.getByLabelText("Supplier calculation used for screening")).toBeInTheDocument();
+    expect(screen.getByText("Combined finished-product concentration")).toBeInTheDocument();
+    expect(screen.getAllByText("0.1%")).toHaveLength(2);
     expect(screen.getByText("Supplier Blend X")).toBeInTheDocument();
-    expect(screen.getByText("Supplier concentration")).toBeInTheDocument();
-    expect(screen.getByText("Final contribution")).toBeInTheDocument();
+    expect(screen.getByText("Inside supplier material")).toBeInTheDocument();
+    expect(screen.getByText("Finished-product contribution")).toBeInTheDocument();
     expect(screen.getByText("2% × 5% ÷ 100 = 0.1% · Source page 3")).toBeInTheDocument();
-    expect(screen.getByText("Maximum 0.2% · Finished product")).toBeInTheDocument();
   });
 
   it("shows plain guidance and keeps machine codes collapsed", async () => {
@@ -251,7 +252,7 @@ describe("review guidance", () => {
     expect(onPrevious).not.toHaveBeenCalled();
   });
 
-  it("renders one deduplicated reviewer checklist and can widen the drawer", async () => {
+  it("renders one concise next action and can widen the drawer", async () => {
     const user = userEvent.setup();
     const result = reviewResult("deterministic_fallback");
     result.review_explanation = {
@@ -276,10 +277,10 @@ describe("review guidance", () => {
 
     render(<EvidenceDrawer result={result} sources={[]} onClose={vi.fn()} />);
 
-    expect(screen.getAllByText("What to check")).toHaveLength(1);
-    expect(screen.getAllByText("Confirm whether the product may result in inhalation exposure.")).toHaveLength(1);
-    expect(screen.getByText("Show all checks (4)")).toBeInTheDocument();
-    expect(screen.getByText("Why this needs review (2)").closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText("Next action")).toBeInTheDocument();
+    expect(screen.getByText("Confirm whether Zinc Oxide (nano) is present and verify the combined concentration.")).toBeInTheDocument();
+    expect(screen.queryByText("Show all checks (4)")).not.toBeInTheDocument();
+    expect(screen.queryByText("Why this needs review (2)")).not.toBeInTheDocument();
 
     const drawer = screen.getByRole("dialog", { name: "Regulatory evidence" });
     await user.click(screen.getByRole("button", { name: "Widen evidence drawer" }));

@@ -268,7 +268,14 @@ def test_triggered_source_warning_stays_undetermined_until_review(store):
 
 def test_material_acd_difference_requires_review_without_replacing_singapore_finding(store):
     synthetic, rule = positive_store(store, RegulatedFunction.PRESERVATIVE)
-    xref = {"comparison_status": "changed", "material_difference": True, "acd_rule_ids": [], "singapore_rule_ids": [rule["rule_id"]]}
+    xref = {
+        "comparison_status": "changed",
+        "material_difference": True,
+        "confirmed_material_difference": True,
+        "semantic_comparison_status": "material_difference",
+        "acd_rule_ids": [],
+        "singapore_rule_ids": [rule["rule_id"]],
+    }
     synthetic = replace(synthetic, cross_references_by_rule_id={**synthetic.cross_references_by_rule_id, rule["rule_id"]: (xref,)})
     result = screen_ingredient(synthetic, IngredientInput(
         name="Tosylchloramide sodium", concentration=concentration(0.1), regulated_functions=[RegulatedFunction.PRESERVATIVE],
@@ -276,6 +283,13 @@ def test_material_acd_difference_requires_review_without_replacing_singapore_fin
     assert Finding.PERMITTED_USE_WITHIN_CONDITIONS in result.confirmed_findings
     assert result.review_required is True
     assert result.primary_finding == Finding.PROFESSIONAL_REVIEW
+
+    exceeded = screen_ingredient(synthetic, IngredientInput(
+        name="Tosylchloramide sodium", concentration=concentration(0.3), regulated_functions=[RegulatedFunction.PRESERVATIVE],
+    ))
+    assert exceeded.review_required is True
+    assert Finding.PERMITTED_USE_CONDITION_NOT_MET in exceeded.confirmed_findings
+    assert exceeded.primary_finding == Finding.PERMITTED_USE_CONDITION_NOT_MET
 
 
 def test_ci_identifier_resolves_to_colourant_rule_and_checks_limit(store):

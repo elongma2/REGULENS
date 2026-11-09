@@ -161,6 +161,16 @@ class CrossReference(StrictModel):
     professional_review_required: bool
     material_difference: bool = False
     review_reasons: list[str] = Field(default_factory=list)
+    semantic_comparison_status: Literal[
+        "equivalent", "material_difference", "verification_required"
+    ] | None = None
+    confirmed_material_difference: bool = False
+    requirement_differences: list[dict[str, str]] = Field(default_factory=list)
+    comparison_summary: str | None = None
+    verification_needed: str | None = None
+    comparison_method: str | None = None
+    comparison_citations: list[dict[str, Any]] = Field(default_factory=list)
+    ai_semantic_interpretation: dict[str, Any] | None = None
 
 
 class SubstanceRecord(StrictModel):

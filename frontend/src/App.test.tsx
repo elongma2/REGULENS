@@ -201,7 +201,7 @@ describe("formula screening vertical slice", () => {
     expect(within(acdDetails).getByText("Product context")).toBeInTheDocument();
     expect(within(acdDetails).getByText("Ready for use")).toBeInTheDocument();
     expect(within(acdDetails).getByText("Finished product")).toBeInTheDocument();
-    expect(within(acdDetails).getByText("The ACD and Singapore records differ. Compare the source wording before deciding.")).toBeInTheDocument();
+    expect(within(acdDetails).getByText("Comparison has not yet been semantically validated.")).toBeInTheDocument();
     expect(within(drawer).queryByText("Technical provenance")).not.toBeInTheDocument();
     expect(within(drawer).queryByText(/\[parent\]/)).not.toBeInTheDocument();
   });

@@ -38,7 +38,7 @@ ISSUE_TEMPLATES: dict[str, tuple[str, str]] = {
     "regulated_function_not_listed": ("The ingredient was explicitly submitted for a regulated function but no matching entry was found in that Singapore positive list.", "Confirm the intended function and the ingredient identity against the applicable Singapore list."),
     "regulated_function_missing": ("The ingredient matches a Singapore positive-list entry, but its intended function was not confirmed.", "Confirm whether the ingredient is intended to act as the regulated function stated in the source."),
     "regulated_function_dataset_incomplete": ("The applicable positive-list check is unavailable in the active dataset.", "Review the intended function against the current official source."),
-    "source_difference_material": ("The Singapore and ACD source records contain a material difference.", "Review both source records and apply the current Singapore requirement."),
+    "source_difference_material": ("Singapore and ACD impose different regulatory requirements for this use.", "Review the exact requirements shown for each source; Regulens applies the Singapore requirement to this screening."),
     "rule_normalization_withheld": ("The source rule could not be represented as a reliable deterministic check.", "Review the original source wording and all listed conditions."),
     "inactive_applicability_unresolved": ("An inactive source entry has unresolved current applicability.", "Confirm the entry's current legal status from the official source."),
     "screening_incomplete": ("At least one applicable regulatory check was withheld or could not be completed.", "Review each unresolved condition before relying on the screening result."),

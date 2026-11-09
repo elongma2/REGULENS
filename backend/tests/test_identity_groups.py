@@ -119,10 +119,11 @@ def test_confirmed_groups_reach_preservative_uv_and_colourant_evaluation():
         {"sg-third-schedule-v-10-case-a", "sg-third-schedule-v-10-case-b"},
         {"sg-third-schedule-ii-190", "sg-third-schedule-iii-42090"},
     ]
-    for ingredient, rule_ids in zip(inputs, expected, strict=True):
+    expected_dispositions = ["fully_evaluated", "partially_evaluated", "partially_evaluated"]
+    for ingredient, rule_ids, disposition in zip(inputs, expected, expected_dispositions, strict=True):
         result = screen_ingredient(store, ingredient, ingredient_catalog=catalogue, linkage_store=linkages)
         assert rule_ids <= {item.rule_id for item in result.rule_evaluations}
-        assert result.screening_disposition.value == "partially_evaluated"
+        assert result.screening_disposition.value == disposition
 
 
 def test_phenoxyethanol_without_function_discovers_and_assesses_preservative_rule():
@@ -206,9 +207,8 @@ def test_octocrylene_uses_the_applicable_branch_and_exposes_footnote_seven():
     assert evaluations["sg-third-schedule-v-10-case-b"].evidence.concentration["value"] == 10
     assert evaluations["sg-third-schedule-v-10-case-b"].evidence.footnotes[0]["footnote_number"] == "7"
     assert result.screening_disposition.value == "partially_evaluated"
-    assert {item.code for item in result.review_issues} >= {
-        "impurity_trace_requirement", "source_difference_material"
-    }
+    assert "impurity_trace_requirement" in {item.code for item in result.review_issues}
+    assert "source_difference_material" not in {item.code for item in result.review_issues}
     assert not any(
         item.rule_id == "sg-third-schedule-v-10-case-a"
         for item in result.review_issues

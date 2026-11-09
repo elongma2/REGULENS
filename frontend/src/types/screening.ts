@@ -239,6 +239,20 @@ export interface CrossReference {
   professional_review_required: boolean;
   material_difference?: boolean;
   review_reasons: string[];
+  semantic_comparison_status?: "equivalent" | "material_difference" | "verification_required";
+  confirmed_material_difference?: boolean;
+  requirement_differences?: Array<{ aspect: string; acd: string; singapore: string; effect: string }>;
+  comparison_summary?: string;
+  verification_needed?: string | null;
+  comparison_method?: string;
+  comparison_citations?: Array<{
+    jurisdiction: "ACD" | "Singapore";
+    rule_id: string;
+    section: string;
+    reference_number: string;
+    source_url?: string | null;
+    source_pages: number[];
+  }>;
 }
 
 export interface CounterpartRule {

@@ -190,6 +190,13 @@ export interface ComparisonRow {
 }
 
 export function comparisonRows(reference: CrossReference): ComparisonRow[] {
+  if (reference.requirement_differences) {
+    return reference.requirement_differences.map((difference) => ({
+      field: fieldLabels[difference.aspect] ?? readableCode(difference.aspect),
+      acd: difference.acd,
+      singapore: difference.singapore,
+    }));
+  }
   const rows: ComparisonRow[] = [];
   for (const [field, rawDifference] of Object.entries(reference.field_differences)) {
     const difference = rawDifference && typeof rawDifference === "object"

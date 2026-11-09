@@ -56,6 +56,20 @@ describe("evidence presentation", () => {
     expect(raw.field_differences).toEqual(before);
   });
 
+  it("shows only validated requirement differences when semantic comparison is available", () => {
+    const reference = {
+      cross_reference_id: "xref", regulatory_mapping: "mapping", reference_number: "29",
+      acd_rule_ids: ["acd"], singapore_rule_ids: ["sg"], match_basis: "reference_number",
+      comparison_status: "changed" as const,
+      field_differences: { substance_name: { acd: "2 Phenoxyethanol", singapore: "2-Phenoxyethanol" } },
+      candidate_matches: [], professional_review_required: false, review_reasons: [],
+      semantic_comparison_status: "material_difference" as const,
+      requirement_differences: [{ aspect: "concentration_limit", acd: "0.8%", singapore: "1%", effect: "Different maximum" }],
+    };
+
+    expect(comparisonRows(reference)).toEqual([{ field: "Concentration limit", acd: "0.8%", singapore: "1%" }]);
+  });
+
   it("maps internal review codes to bounded readable labels", () => {
     expect(reviewReasonLabel("no_source_backed_identity_match")).toMatch(/could not match this ingredient/);
     expect(reviewReasonLabel("sg-rule: ambiguous_multi_case_concentration_not_normalized")).toBe(
