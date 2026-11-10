@@ -43,7 +43,7 @@ export function FormulationWorkspacePage() {
   return <>
     <div aria-hidden={dialogOpen}>
       <div className="case-workspace-breadcrumb"><Link to={`/cases/${caseId}`}>← Case Overview</Link><button className="danger-text-button" type="button" onClick={() => { setDialogOpen(true); setDeleteError(null); }}><Trash2 size={14} /> Delete formulation</button></div>
-      <SupplierDocumentsPanel ref={supplierDocuments} compact allowUploads={false} versionId={versionId} onDocumentsChanged={setSourceDocuments} />
+      <SupplierDocumentsPanel ref={supplierDocuments} compact versionId={versionId} onDocumentsChanged={setSourceDocuments} />
       <TradeMaterialAssemblyPanel ref={materialAssembly} compact versionId={versionId} documents={sourceDocuments} onHandledMaterialRowIdsChange={setHandledMaterialRowIds} onAssemblyRevisionChange={setAssemblyRevision} onIssueAction={openIssueTarget} />
       <AgentPage compact caseId={caseId} versionId={versionId} handledMaterialRowIds={handledMaterialRowIds} assemblyRevision={assemblyRevision} focusRowRequest={agentFocusRequest} beforeRunScreening={() => materialAssembly.current?.savePendingChanges() ?? Promise.resolve()} />
     </div>

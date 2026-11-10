@@ -185,7 +185,7 @@ describe("case detail", () => {
     const attachment = { id: "attachment-1", original_filename: "supplier-sds.pdf" };
     api.uploadFormulationDocuments.mockResolvedValueOnce({ documents: [attachment], failures: [] });
     const user = userEvent.setup();
-    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /></Routes></MemoryRouter>);
+    render(<MemoryRouter initialEntries={["/cases/case-1"]}><Routes><Route path="/cases/:caseId" element={<CasePage />} /><Route path="/cases/:caseId/formulations/:versionId" element={<div>Updated formulation review</div>} /></Routes></MemoryRouter>);
     const sds = new File(["sds"], "supplier-sds.pdf", { type: "application/pdf", lastModified: 1 });
 
     await user.upload(await screen.findByLabelText("Choose supplier documents"), sds);

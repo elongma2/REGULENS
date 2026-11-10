@@ -561,6 +561,152 @@ def test_assembly_aggregates_direct_and_multiple_supplier_materials() -> None:
     assert len(prepared.result.included_ingredients[0].contributions) == 3
 
 
+def test_case_b_threshold_range_and_partial_supplier_coverage() -> None:
+    phenoxy_identity = "catalogue:case-b-phenoxyethanol"
+    glycerin_identity = "catalogue:case-b-glycerin"
+    direct = DirectIngredient(
+        ingredient_id="case-b:direct:phenoxyethanol",
+        source_document_id="B_00_Finished_Formula.xlsx",
+        verified_identity_group=phenoxy_identity,
+        ingredient=FormulationIngredientRequest(
+            name="PHENOXYETHANOL",
+            cas_number="122-99-6",
+            concentration=FormulationConcentration(
+                concentration_type="exact",
+                value=0.7,
+                unit="percent",
+                basis=None,
+                preparation_stage="finished_product",
+                original_text="0.7%",
+            ),
+        ),
+    )
+    range_shield = SupplierMaterial(
+        material_id="case-b:rangeshield",
+        trade_name="RangeShield P30",
+        supplier_name="Juniper Formulation Tech (synthetic)",
+        product_code="RS-P30-12",
+        finished_product_usage=quantity(
+            "exact", value=1, unit="percent", quantity_scope="finished_product",
+            preparation_stage="finished_product", raw_text="1%",
+        ),
+        attached_document_ids=["B_01_RangeShield_P30_Coded.pdf"],
+        governing_document_id="B_01_RangeShield_P30_Coded.pdf",
+        constituents=[
+            MaterialConstituent(
+                constituent_id="case-b:rangeshield:phenoxyethanol",
+                submitted_name="PHENOXYETHANOL",
+                cas_number="122-99-6",
+                verified_identity_group=phenoxy_identity,
+                composition_quantity=quantity(
+                    "range", lower=20, upper=40, lower_inclusive=True,
+                    upper_inclusive=True, unit="percent",
+                    quantity_scope="supplier_material", raw_text="Code X (20-40%)",
+                ),
+            ),
+            MaterialConstituent(
+                constituent_id="case-b:rangeshield:glycerin",
+                submitted_name="GLYCERIN",
+                cas_number="56-81-5",
+                verified_identity_group=glycerin_identity,
+                composition_quantity=quantity(
+                    "range", lower=30, upper=50, lower_inclusive=True,
+                    upper_inclusive=True, unit="percent",
+                    quantity_scope="supplier_material", raw_text="Code Y (30-50%)",
+                ),
+            ),
+        ],
+        disclosure_status=DisclosureStatus.COMPLETE,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+    green_extract = SupplierMaterial(
+        material_id="case-b:greenextract",
+        trade_name="GreenExtract 500",
+        supplier_name="Foliage Concepts (synthetic)",
+        product_code="GE-500",
+        finished_product_usage=quantity(
+            "exact", value=2, unit="percent", quantity_scope="finished_product",
+            preparation_stage="finished_product", raw_text="2%",
+        ),
+        attached_document_ids=["B_02_GreenExtract_Partial.pdf"],
+        governing_document_id="B_02_GreenExtract_Partial.pdf",
+        constituents=[
+            MaterialConstituent(
+                constituent_id="case-b:greenextract:glycerin",
+                submitted_name="GLYCERIN",
+                cas_number="56-81-5",
+                verified_identity_group=glycerin_identity,
+                composition_quantity=quantity(
+                    "range", lower=10, upper=20, lower_inclusive=True,
+                    upper_inclusive=True, unit="percent",
+                    quantity_scope="supplier_material", raw_text="10-20%",
+                ),
+            ),
+            MaterialConstituent(
+                constituent_id="case-b:greenextract:proprietary",
+                submitted_name="PROPRIETARY PLANT COMPLEX",
+                composition_quantity=quantity(
+                    "range", lower=5, upper=10, lower_inclusive=True,
+                    upper_inclusive=True, unit="percent",
+                    quantity_scope="supplier_material", raw_text="5-10%",
+                ),
+            ),
+            MaterialConstituent(
+                constituent_id="case-b:greenextract:carrier",
+                submitted_name="UNDECLARED CARRIER SYSTEM",
+            ),
+        ],
+        disclosure_status=DisclosureStatus.PARTIAL,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+
+    prepared = prepare_assembly(
+        assembly_revision=1,
+        direct_ingredients=[direct],
+        materials=[range_shield, green_extract],
+        source_document_ids=[
+            "B_00_Finished_Formula.xlsx",
+            "B_01_RangeShield_P30_Coded.pdf",
+            "B_02_GreenExtract_Partial.pdf",
+        ],
+    )
+
+    assert prepared.formulation is not None
+    assert prepared.result.completeness.value == "partial"
+    assert prepared.formulation.assembly_scope is not None
+    assert "incomplete_supplier_disclosure" in (
+        prepared.formulation.assembly_scope.coverage_limitation_codes
+    )
+    by_cas = {item.cas_number: item for item in prepared.formulation.ingredients}
+    phenoxy = by_cas["122-99-6"].concentration
+    glycerin = by_cas["56-81-5"].concentration
+    assert phenoxy is not None
+    assert phenoxy.lower_bound == pytest.approx(0.9)
+    assert phenoxy.upper_bound == pytest.approx(1.1)
+    assert glycerin is not None
+    assert glycerin.lower_bound == pytest.approx(0.5)
+    assert glycerin.upper_bound == pytest.approx(0.9)
+
+    screened = screen_formulation(
+        load_accepted_store(ROOT),
+        prepared.formulation,
+        ingredient_catalog=load_accepted_ingredient_catalog(ROOT),
+        linkage_store=load_accepted_ingredient_linkages(ROOT),
+    )
+    phenoxy_result = next(
+        item for item in screened.ingredient_results
+        if item.submitted_ingredient.cas_number == "122-99-6"
+    )
+    assert phenoxy_result.primary_finding.value == "professional_review_required"
+    assert any(
+        evaluation.evidence.concentration
+        and evaluation.evidence.concentration.get("value") == 1.0
+        for evaluation in phenoxy_result.rule_evaluations
+    )
+    assert screened.formulation.assembly_scope is not None
+    assert screened.formulation.assembly_scope.completeness == "partial"
+
+
 def test_unknown_supplier_contribution_keeps_known_subtotal_qualified() -> None:
     direct = DirectIngredient(
         ingredient_id="direct-phenoxyethanol",

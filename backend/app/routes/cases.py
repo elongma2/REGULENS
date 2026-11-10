@@ -165,6 +165,8 @@ def _question_value(view: AgentSessionView, question: Any) -> tuple[Any, Any]:
 def _clarifications(view: AgentSessionView) -> list[dict[str, Any]]:
     items: list[dict[str, Any]] = []
     for question in view.questions:
+        if question.question_type == "ingredient_function":
+            continue
         source, proposed = _question_value(view, question)
         items.append({
             "question_key": question.question_id,

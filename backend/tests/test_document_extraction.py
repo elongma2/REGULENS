@@ -326,6 +326,75 @@ def test_partial_disclosure_keeps_no_cas_rows_and_unresolved_carrier() -> None:
     assert len(extraction.unresolved_source_rows) == 1
 
 
+def test_case_b_coded_supplier_pdf_uses_local_legend_and_ignores_footer() -> None:
+    parsed = _parsed([
+        ("SYNTHETIC REGULENS VALIDATION FILE",),
+        ("RangeShield P30 - Composition Statement",),
+        ("Supplier Juniper Formulation Tech (synthetic)",),
+        ("Product code RS-P30-12",),
+        ("Trade name RangeShield P30",),
+        ("Revision 1.2 (2026-11-01)",),
+        ("Disclosure Complete identity list; variable percentages, % w/w",),
+        ("Composition / documented ingredients",),
+        ("Ingredient / INCI CAS (if stated) Supplier-material %",),
+        ("PHENOXYETHANOL 122-99-6 Code X",),
+        ("GLYCERIN 56-81-5 Code Y",),
+        ("AQUA 7732-18-5 Code Z",),
+        ("Disclosure and interpretation",),
+        ("Document-local code legend: X = 20-40%; Y = 30-50%; Z = 10-20%.",),
+        ("TEST FIXTURE ONLY - NOT A REAL SUPPLIER SPECIFICATION.",),
+    ], filename="B_01_RangeShield_P30_Coded.pdf", pages=[1] * 15)
+
+    extraction = extract_document(parsed, document_id="case-b:rangeshield")
+    material = extraction.supplier_materials[0]
+
+    assert extraction.classification.supplier_name == "Juniper Formulation Tech (synthetic)"
+    assert extraction.classification.trade_name == "RangeShield P30"
+    assert material.disclosure_status == DisclosureStatus.COMPLETE
+    assert [item.submitted_name for item in material.constituents] == [
+        "PHENOXYETHANOL", "GLYCERIN", "AQUA",
+    ]
+    assert [item.composition_quantity.reported_code for item in material.constituents] == [
+        "X", "Y", "Z",
+    ]
+    entries = {
+        entry.code: entry.normalized_quantity
+        for entry in extraction.legends[0].entries
+    }
+    assert set(entries) == {"X", "Y", "Z"}
+    assert (entries["X"].lower, entries["X"].upper) == (20, 40)
+
+
+def test_case_b_partial_supplier_pdf_preserves_disclosed_rows_and_coverage_limit() -> None:
+    parsed = _parsed([
+        ("GreenExtract 500 - Partial Supplier Disclosure",),
+        ("Supplier Foliage Concepts (synthetic)",),
+        ("Product code GE-500",),
+        ("Trade name GreenExtract 500",),
+        ("Disclosure PARTIAL - some constituents are not disclosed",),
+        ("Ingredient / INCI CAS (if stated) Supplier-material %",),
+        ("GLYCERIN 56-81-5 10-20%",),
+        ("PROPRIETARY PLANT COMPLEX Not disclosed 5-10%",),
+        ("UNDECLARED CARRIER SYSTEM Not disclosed Balance not disclosed",),
+        ("Disclosure and interpretation",),
+        ("TEST FIXTURE ONLY - NOT A REAL SUPPLIER SPECIFICATION.",),
+    ], filename="B_02_GreenExtract_Partial.pdf", pages=[1] * 11)
+
+    extraction = extract_document(parsed, document_id="case-b:greenextract")
+    material = extraction.supplier_materials[0]
+
+    assert extraction.classification.supplier_name == "Foliage Concepts (synthetic)"
+    assert material.disclosure_status == DisclosureStatus.PARTIAL
+    assert [item.submitted_name for item in material.constituents] == [
+        "GLYCERIN", "PROPRIETARY PLANT COMPLEX", "UNDECLARED CARRIER SYSTEM",
+    ]
+    assert material.constituents[0].composition_quantity.lower == 10
+    assert material.constituents[0].composition_quantity.upper == 20
+    assert material.constituents[1].composition_quantity.lower == 5
+    assert material.constituents[1].composition_quantity.upper == 10
+    assert material.constituents[2].composition_quantity is None
+
+
 @pytest.mark.parametrize(
     ("filename", "expected_constituents", "expected_legend_entries"),
     [

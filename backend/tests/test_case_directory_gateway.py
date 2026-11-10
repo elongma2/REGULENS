@@ -139,7 +139,10 @@ def test_case_directory_summary_uses_narrow_columns_and_skips_context_decoration
         }],
         "reviewer_notes": [{"created_at": "2026-10-21T00:15:00Z"}],
         "follow_up_actions": [{"status": "open", "updated_at": "2026-10-21T00:45:00Z"}],
-        "clarifications": [{"id": str(uuid4())}],
+        "clarifications": [
+            {"id": str(uuid4()), "field_name": "product_context"},
+            {"id": str(uuid4()), "field_name": "regulated_functions"},
+        ],
     })
     gateway = _gateway(client)
     gateway._decorate_authors = lambda *_args: (_ for _ in ()).throw(AssertionError("author decoration"))

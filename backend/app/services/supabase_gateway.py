@@ -983,9 +983,13 @@ class SupabaseGateway:
         ).execute().data or []
         unresolved = 0
         if current:
-            unresolved = len(self.client.table("clarifications").select("id").eq(
+            clarification_rows = self.client.table("clarifications").select("id,field_name").eq(
                 "formulation_version_id", current["id"]
-            ).eq("status", "unresolved").execute().data or [])
+            ).eq("status", "unresolved").execute().data or []
+            unresolved = sum(
+                1 for clarification in clarification_rows
+                if clarification.get("field_name") != "regulated_functions"
+            )
         statuses = {status: 0 for status in ("not_reviewed", "in_review", "awaiting_information", "reviewed")}
         for item in items:
             if item.get("review_status") in statuses:
@@ -1061,8 +1065,12 @@ class SupabaseGateway:
         clarifications = []
         if version_ids:
             clarifications = self.client.table("clarifications").select(
-                "id,formulation_version_id,question_key,row_id,question"
+                "id,formulation_version_id,question_key,row_id,field_name,question"
             ).in_("formulation_version_id", version_ids).execute().data or []
+            clarifications = [
+                clarification for clarification in clarifications
+                if clarification.get("field_name") != "regulated_functions"
+            ]
         clarification_by_id = {str(row["id"]): row for row in clarifications}
 
         notes = self.client.table("reviewer_notes").select("*").eq(
@@ -1219,6 +1227,10 @@ class SupabaseGateway:
         clarifications = self.client.table("clarifications").select(
             "id,question_key,row_id,field_name,question,status"
         ).eq("formulation_version_id", str(version_id)).execute().data or []
+        clarifications = [
+            clarification for clarification in clarifications
+            if clarification.get("field_name") != "regulated_functions"
+        ]
         clarification_ids = {str(item["id"]) for item in clarifications}
         case_notes = self.client.table("reviewer_notes").select("*").eq("case_id", str(case_id)).order("created_at", desc=True).execute().data or []
         notes = [row for row in case_notes if (

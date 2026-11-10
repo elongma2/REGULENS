@@ -15,8 +15,9 @@ from backend.app.models.document_intake import (
     SupplierMaterial,
 )
 from backend.app.services.agent_csv import CSVUploadError, ParsedCSV
-from backend.app.services.document_vision import VisionExtraction
+from backend.app.services.document_extraction import EXTRACTION_SCHEMA_VERSION
 from backend.app.services.document_text import TextDocumentExtraction
+from backend.app.services.document_vision import VisionExtraction
 from backend.app.services.supplier_documents import (
     SupplierDocumentProcessingError,
     SupplierDocumentService,
@@ -243,7 +244,7 @@ def test_standalone_supplier_upload_is_saved_and_processed_without_formulation_a
 
 def test_saved_extraction_compatibility_checks_schema_and_processor_configuration() -> None:
     deterministic = {
-        "extraction_schema_version": "trade-document-v2",
+        "extraction_schema_version": EXTRACTION_SCHEMA_VERSION,
         "extraction_result": {"supplier_materials": [{}]},
         "model_configuration": "deterministic-trade-document-v1",
         "processing_diagnostics": {"model_calls": 0},

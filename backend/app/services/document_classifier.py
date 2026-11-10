@@ -14,7 +14,8 @@ _SDS_RE = re.compile(r"\b(?:safety data sheet|material safety data sheet|sds|msd
 _SECTION_THREE_RE = re.compile(r"\bsection\s*3\b.*\b(?:composition|ingredients?)\b", re.I)
 _IDENTITY_HEADER_RE = re.compile(r"\b(?:inci|ingredient|chemical name|cas(?:\s+no\.?)?)\b", re.I)
 _QUANTITY_HEADER_RE = re.compile(
-    r"\b(?:concentration|composition|percentage|lower limit|upper limit|%\s*w/w|fda code|range code)\b",
+    r"\b(?:concentration|composition|percentage|lower limit|upper limit|"
+    r"%\s*w/w|supplier[- ]material|fda code|range code)\b",
     re.I,
 )
 _COMPOSITION_STATEMENT_RE = re.compile(
@@ -31,7 +32,10 @@ _PRODUCT_RE = re.compile(
     r"^\s*(?:product|trade)\s*(?:name|designation)?\s*[:\-]\s*(.+)$",
     re.I,
 )
-_SUPPLIER_RE = re.compile(r"\b(?:supplier|manufacturer)\s*[:\-]\s*(.+)$", re.I)
+_SUPPLIER_RE = re.compile(
+    r"^\s*(?:supplier|manufacturer)(?:\s*:\s*|\s+-\s+)(.+)$",
+    re.I,
+)
 _PRODUCT_CODE_RE = re.compile(r"\b(?:product|item|material)\s*(?:code|no\.?|number)\s*[:\-]\s*(.+)$", re.I)
 _REVISION_RE = re.compile(r"\b(?:revision|rev\.?|version)\s*[:\-]?\s*([A-Za-z0-9._\-/]+)", re.I)
 _MULTIPLE_PRODUCTS_RE = re.compile(r"\bdocument contains multiple products\s*:\s*yes\b", re.I)

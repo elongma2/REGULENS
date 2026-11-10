@@ -30,10 +30,10 @@ from backend.app.services.concentration import parse_concentration_text
 from backend.app.services.document_classifier import classify_document
 
 
-EXTRACTION_SCHEMA_VERSION = "trade-document-v2"
+EXTRACTION_SCHEMA_VERSION = "trade-document-v3"
 _CAS_IN_TEXT_RE = re.compile(r"(?<!\d)(\d{2,7}-\d{2}-\d)(?!\d)")
 _LEGEND_RE = re.compile(
-    r"\b([A-H])\s*(?:=|:)?\s*"
+    r"\b([A-Z])\s*(?:=|:)?\s*"
     r"((?:[<>]=?|[≤≥])?\s*\d+(?:\.\d+)?\s*(?:[-–—]|to)?\s*\d*(?:\.\d+)?\s*%?)",
     re.I,
 )
@@ -48,14 +48,14 @@ _NO_CAS_DISCLOSURE_ROW_RE = re.compile(
 )
 _PARTIAL_DISCLOSURE_RE = re.compile(
     r"\b(?:partial(?:ly)?\s+(?:composition|disclosure)|"
-    r"disclosure\s+status\s*:\s*partial|"
+    r"disclosure\s*(?:status\s*)?[:\-]?\s*partial|"
     r"not\s+all\s+constituents?\s+(?:are\s+)?disclosed|"
     r"remaining\s+(?:ingredients?|constituents?|carrier)\s+not\s+disclosed)\b",
     re.I,
 )
 _COMPLETE_DISCLOSURE_RE = re.compile(
     r"\b(?:complete\s+(?:supplier\s+)?disclosure|"
-    r"disclosure\s+status\s*:\s*complete|"
+    r"disclosure\s*(?:status\s*)?[:\-]?\s*complete|"
     r"complete\s*[-:]?\s*totals?\s+100\s*%)\b",
     re.I,
 )
@@ -128,10 +128,10 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
             raw_text=value,
             approximate=parsed.concentration_type == ConcentrationType.APPROXIMATE,
         )
-    if re.fullmatch(r"[A-Za-z]", value):
+    if match := re.fullmatch(r"(?:code\s+)?([A-Za-z])", value, re.I):
         return CompositionQuantity(
             kind=CompositionQuantityKind.CODED_RANGE,
-            reported_code=value.upper(),
+            reported_code=match.group(1).upper(),
             quantity_scope="supplier_material",
             raw_text=value,
         )
@@ -172,6 +172,12 @@ def _legends(parsed: ParsedCSV, document_id: str) -> list[CompositionLegend]:
         raw = " | ".join(row)
         for match in _LEGEND_RE.finditer(raw):
             code = match.group(1).upper()
+            separator = raw[match.end(1):match.start(2)]
+            # Legacy FDA legends commonly omit '=' for codes A-H. Wider
+            # alphabetic codes are accepted only with an explicit separator,
+            # so product labels such as "P30" cannot become legend entries.
+            if code not in set("ABCDEFGH") and not re.search(r"[=:]", separator):
+                continue
             definition = match.group(2).strip()
             quantity = _supplier_quantity(definition, default_percent=True)
             if quantity is None or quantity.kind == CompositionQuantityKind.CODED_RANGE:
@@ -522,7 +528,12 @@ def _one_cell_supplier_rows(
         )
         for row_number, row in enumerate(parsed.rows[header_index:], start=header_index + 1):
             raw = " | ".join(row).strip()
-            if re.search(r"^(?:declaration|disclaimer|non-warranty)\b", raw, re.I):
+            if re.search(
+                r"^(?:disclosure\s+and\s+interpretation|interpretation\s+note|"
+                r"declaration|disclaimer|non-warranty)\b",
+                raw,
+                re.I,
+            ):
                 break
             cas_match = _CAS_IN_TEXT_RE.search(raw)
             if cas_match:
