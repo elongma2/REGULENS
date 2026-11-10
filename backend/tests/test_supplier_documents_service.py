@@ -257,6 +257,10 @@ def test_saved_extraction_compatibility_checks_schema_and_processor_configuratio
         {**deterministic, "extraction_schema_version": "older-schema"},
         vision_extractor=None,
     ) is False
+    assert SupplierDocumentService.extraction_is_compatible(
+        {**deterministic, "extraction_schema_version": "trade-document-v4"},
+        vision_extractor=None,
+    ) is False
 
     vision = {
         **deterministic,

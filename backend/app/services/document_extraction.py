@@ -30,7 +30,7 @@ from backend.app.services.concentration import parse_concentration_text
 from backend.app.services.document_classifier import classify_document
 
 
-EXTRACTION_SCHEMA_VERSION = "trade-document-v4"
+EXTRACTION_SCHEMA_VERSION = "trade-document-v5"
 _CAS_IN_TEXT_RE = re.compile(r"(?<!\d)(\d{2,7}-\d{2}-\d)(?!\d)")
 _LEGEND_RE = re.compile(
     r"\b([A-Z])\s*(?:=|:)?\s*"
