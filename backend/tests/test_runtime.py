@@ -296,7 +296,7 @@ def test_invalid_concentration_semantics_are_rejected(payload):
 
 @pytest.mark.parametrize(
     "submitted",
-    [concentration(0.1, unit="mg/kg"), concentration(0.1, basis="ingredient"), concentration(0.1, stage="raw_material")],
+    [concentration(0.1, basis="ingredient"), concentration(0.1, stage="raw_material")],
 )
 def test_incompatible_concentration_semantics_are_not_converted(store, submitted):
     result = screen_ingredient(
@@ -304,6 +304,22 @@ def test_incompatible_concentration_semantics_are_not_converted(store, submitted
     )
     assert result.primary_finding == Finding.PROFESSIONAL_REVIEW
     assert result.confirmed_findings == []
+
+
+def test_compatible_mass_fraction_unit_is_converted_before_screening(store):
+    result = screen_ingredient(
+        store,
+        IngredientInput(
+            name="Tosylchloramide sodium",
+            concentration=concentration(0.1, unit="mg/kg"),
+        ),
+    )
+
+    assert result.primary_finding == Finding.WITHIN_LIMIT
+    evaluation = next(item for item in result.rule_evaluations if item.submitted_concentration)
+    assert evaluation.submitted_concentration.unit == "percent"
+    assert evaluation.submitted_concentration.value == pytest.approx(0.00001)
+    assert any("exact mass-fraction relationship" in reason for reason in evaluation.reasons)
 
 
 def test_missing_concentration_is_information_missing(store):

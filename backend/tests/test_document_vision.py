@@ -32,6 +32,7 @@ def test_visible_facts_preserve_page_snippet_and_quantity_text() -> None:
             cas_number="56-81-5",
             concentration_text="C",
             unit_text=None,
+            basis_text=None,
             function_or_role=None,
             notes=None,
             extraction_uncertainty=None,
@@ -47,7 +48,7 @@ def test_visible_facts_preserve_page_snippet_and_quantity_text() -> None:
 
     assert parsed.page_count == 6
     assert ("C = 25-50%",) in parsed.rows
-    row_index = parsed.rows.index(("GLYCERIN", "56-81-5", "C"))
+    row_index = parsed.rows.index(("GLYCERIN", "56-81-5", "C", "", ""))
     assert parsed.row_pages[row_index] == 4
     assert parsed.row_snippets[row_index] == "GLYCERIN 56-81-5 C"
 
@@ -65,6 +66,7 @@ def test_vision_multiple_product_signal_survives_deterministic_classification() 
             cas_number=None,
             concentration_text="10%",
             unit_text=None,
+            basis_text=None,
             function_or_role=None,
             notes=None,
             extraction_uncertainty=None,
@@ -98,6 +100,7 @@ def test_formulation_vision_preserves_layout_fields_ranges_and_uncertainty() -> 
             cas_number=None,
             concentration_text="5 - 10",
             unit_text="%",
+            basis_text="free base",
             function_or_role="Humectant complex",
             notes="Add below 40 C",
             extraction_uncertainty="The first digit is visually faint.",
@@ -116,6 +119,7 @@ def test_formulation_vision_preserves_layout_fields_ranges_and_uncertainty() -> 
         "CAS No.",
         "Concentration",
         "Unit",
+        "Basis",
         "Function / Role",
         "Notes",
         "Extraction uncertainty",
@@ -127,6 +131,7 @@ def test_formulation_vision_preserves_layout_fields_ranges_and_uncertainty() -> 
         "",
         "5 - 10",
         "%",
+        "free base",
         "Humectant complex",
         "Add below 40 C",
         "The first digit is visually faint.",
@@ -157,6 +162,7 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
                 cas_number="9006-65-9",
                 concentration_text="1-5%",
                 unit_text=None,
+                basis_text=None,
                 function_or_role=None,
                 notes=None,
                 extraction_uncertainty=None,
@@ -170,6 +176,7 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
                 cas_number=None,
                 concentration_text=None,
                 unit_text=None,
+                basis_text=None,
                 function_or_role=None,
                 notes=None,
                 extraction_uncertainty=None,
@@ -186,7 +193,7 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
     classification = classify_document(parsed)
 
     assert parsed.rows[0] == ("Material Safety Data Sheet",)
-    assert ("First name fragment second fragment", "9006-65-9", "1-5%") in parsed.rows
+    assert ("First name fragment second fragment", "9006-65-9", "1-5%", "", "") in parsed.rows
     assert sum(row[0].casefold().endswith("fragment") for row in parsed.rows) == 1
     assert "sds_msds" in {item.role.value for item in classification.proposed_roles}
     assert classification.recommended_extraction_schema == "sds_composition"
@@ -205,6 +212,7 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
             cas_number="56-81-5",
             concentration_text="20%",
             unit_text=None,
+            basis_text=None,
             function_or_role=None,
             notes=None,
             extraction_uncertainty=None,
@@ -227,6 +235,7 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
             cas_number="7732-18-5",
             concentration_text="80%",
             unit_text=None,
+            basis_text=None,
             function_or_role=None,
             notes=None,
             extraction_uncertainty=None,
@@ -272,8 +281,8 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
 
     assert len(calls) == 2
     assert extraction.parsed.page_count == 9
-    glycerin_index = extraction.parsed.rows.index(("GLYCERIN", "56-81-5", "20%"))
-    aqua_index = extraction.parsed.rows.index(("AQUA", "7732-18-5", "80%"))
+    glycerin_index = extraction.parsed.rows.index(("GLYCERIN", "56-81-5", "20%", "", ""))
+    aqua_index = extraction.parsed.rows.index(("AQUA", "7732-18-5", "80%", "", ""))
     assert extraction.parsed.row_pages[glycerin_index] == 8
     assert extraction.parsed.row_pages[aqua_index] == 9
     assert extraction.diagnostics["model_calls"] == 2

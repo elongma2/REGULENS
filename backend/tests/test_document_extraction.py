@@ -92,6 +92,50 @@ def test_classifies_and_extracts_vertically_flattened_supplier_composition() -> 
     assert extraction.supplier_materials[0].constituents[1].composition_quantity.upper == 30
 
 
+@pytest.mark.parametrize(
+    ("unit_text", "expected_unit"),
+    [
+        ("% w/w", "percent"),
+        ("ppm", "ppm"),
+        ("mg / kg", "mg/kg"),
+    ],
+)
+def test_structured_supplier_unit_and_basis_columns_are_preserved(
+    unit_text: str,
+    expected_unit: str,
+) -> None:
+    parsed = _parsed([
+        ("Supplier composition statement",),
+        ("Product Name: Unit Blend",),
+        ("Ingredient name", "CAS No.", "Concentration", "Unit", "Basis"),
+        ("ZINC OXIDE", "1314-13-2", "25", unit_text, "as zinc"),
+    ], filename="vision-supplier.pdf", pages=[1, 1, 1, 1])
+
+    extraction = extract_document(parsed, document_id="vision-supplier")
+    quantity = extraction.supplier_materials[0].constituents[0].composition_quantity
+
+    assert quantity is not None
+    assert quantity.value == 25
+    assert quantity.unit == expected_unit
+    assert quantity.basis == "zinc"
+
+
+def test_shared_percent_header_applies_to_numeric_supplier_rows() -> None:
+    parsed = _parsed([
+        ("Supplier composition statement",),
+        ("Product Name: Shared Unit Blend",),
+        ("Ingredient name", "CAS No.", "Concentration (% w/w)"),
+        ("GLYCERIN", "56-81-5", "20"),
+    ], filename="shared-unit.pdf", pages=[1, 1, 1, 1])
+
+    extraction = extract_document(parsed, document_id="shared-unit")
+    quantity = extraction.supplier_materials[0].constituents[0].composition_quantity
+
+    assert quantity is not None
+    assert quantity.value == 20
+    assert quantity.unit == "percent"
+
+
 def test_reversed_supplier_range_is_preserved_as_invalid_source_evidence() -> None:
     parsed = _parsed([
         ("BoundShift X - Supplier Composition",),

@@ -7,7 +7,10 @@ from backend.app.models.screening import ConcentrationType
 
 
 _NUMBER = r"(?:\d+(?:\.\d*)?|\.\d+)"
-_UNIT = r"(?P<unit>%|percent|ppm|mg\s*/\s*kg)"
+_UNIT = (
+    r"(?P<unit>%\s*(?:w\s*/\s*w)?|w\s*/\s*w\s*%|"
+    r"percent(?:\s+w\s*/\s*w)?|ppm|mg\s*(?:/|per)\s*kg)"
+)
 _RANGE_RE = re.compile(
     rf"^\s*(?P<lower>{_NUMBER})\s*(?:-|–|—|to)\s*(?P<upper>{_NUMBER})\s*{_UNIT}?\s*$",
     re.IGNORECASE,
@@ -47,9 +50,9 @@ def _unit(value: str | None) -> str | None:
     if value is None:
         return None
     token = value.casefold().replace(" ", "")
-    if token in {"%", "percent"}:
+    if "%" in token or token.startswith("percent"):
         return "percent"
-    return "mg/kg" if token == "mg/kg" else "ppm"
+    return "mg/kg" if token in {"mg/kg", "mgperkg"} else "ppm"
 
 
 def parse_concentration_text(value: str) -> ParsedConcentrationText | None:

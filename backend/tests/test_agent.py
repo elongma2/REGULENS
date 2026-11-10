@@ -870,6 +870,27 @@ def test_explicit_finished_product_workbook_uses_deterministic_fast_path(store, 
     assert session.interpreted_rows[0].concentration.preparation_stage.value == "finished_product"
 
 
+def test_structured_formulation_uses_separate_unit_and_basis_columns(store, catalogue):
+    service = FormulationAgentService(
+        store,
+        catalogue,
+        model_runner=OpenAIFormulationInterpreter(api_key=None),
+        sleep=lambda _: None,
+    )
+
+    session = service.create(parse_csv_upload(
+        "separate-units.csv",
+        b"INCI,Concentration,Unit,Basis\nZINC OXIDE,25,ppm,as zinc\n",
+    ))
+
+    concentration = session.interpreted_rows[0].concentration
+    assert concentration is not None
+    assert concentration.value.value == 25
+    assert concentration.unit.value == "ppm"
+    assert concentration.basis.value == "zinc"
+    assert not any(question.question_type == "unit" for question in session.questions)
+
+
 def test_model_failure_retains_recoverable_session(store, catalogue):
     def failed_runner(*args):
         raise AgentExecutionError("agent_model_unavailable", "Model unavailable")

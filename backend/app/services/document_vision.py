@@ -25,6 +25,7 @@ class VisionCompositionRow(StrictModel):
     cas_number: str | None
     concentration_text: str | None
     unit_text: str | None
+    basis_text: str | None
     function_or_role: str | None
     notes: str | None
     extraction_uncertainty: str | None
@@ -154,13 +155,14 @@ def facts_to_parsed(
             "CAS No.",
             "Concentration",
             "Unit",
+            "Basis",
             "Function / Role",
             "Notes",
             "Extraction uncertainty",
             "Source row",
         ))
     else:
-        rows.append(("Ingredient name", "CAS No.", "Concentration"))
+        rows.append(("Ingredient name", "CAS No.", "Concentration", "Unit", "Basis"))
     pages.append(None)
     snippets.append(None)
     for item in normalized_rows:
@@ -170,6 +172,7 @@ def facts_to_parsed(
                 item.cas_number or "",
                 item.concentration_text or "",
                 item.unit_text or "",
+                item.basis_text or "",
                 item.function_or_role or "",
                 item.notes or "",
                 item.extraction_uncertainty or "",
@@ -180,6 +183,8 @@ def facts_to_parsed(
                 item.ingredient_name or "",
                 item.cas_number or "",
                 item.concentration_text or "",
+                item.unit_text or "",
+                item.basis_text or "",
             ))
         pages.append(item.page)
         snippets.append(item.source_snippet)
@@ -230,6 +235,9 @@ Preserve an ingredient or trade name exactly enough for later supplier-document 
 or role when it is explicitly printed. Copy relevant row notes. If an identity, quantity, unit, function, or visual
 relationship is genuinely unclear, keep the visible value, leave unsupported fields null, and describe the exact
 ambiguity in extraction_uncertainty so the existing clarification workflow can resolve it.
+When one visibly shared table heading establishes the unit or chemical basis for all rows, copy that source-backed
+unit_text or basis_text onto every applicable row. This is table interpretation, not an inferred unit.
+Preserve an explicitly printed chemical basis (for example "as NH3", "free base", or "as zinc") in basis_text.
 Preserve a printed row number or row label in source_row_label when one is visibly present; otherwise return null.
 Copy document-local legend lines exactly. Do not calculate or resolve legend codes.
 Join a chemical name that wraps onto the next visual line into one ingredient_name. If a wrapped fragment is

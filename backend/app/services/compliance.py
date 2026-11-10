@@ -26,6 +26,7 @@ from backend.app.services.loader import REGULATORY_SEARCH_SCOPE, RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 from backend.app.services.ingredient_catalog import IngredientCatalog
 from backend.app.services.evaluation_issues import build_review_issues, disposition_is_incomplete
+from backend.app.services.concentration_units import convert_concentration_unit
 
 
 def _same(value: str | None, expected: str | None) -> bool:
@@ -371,9 +372,19 @@ def _evaluate_positive_rule(
                 review_reasons,
                 missing_reasons,
             )
+        evaluated = submitted
+        conversion_reason: str | None = None
+        if not _same(submitted.unit, constraint.get("unit")):
+            converted = convert_concentration_unit(submitted, constraint.get("unit"))
+            if converted is not None:
+                evaluated = converted
+                conversion_reason = (
+                    f"Converted {submitted.unit} to {constraint.get('unit')} using the exact "
+                    "mass-fraction relationship."
+                )
         incompatible = [
             field for field in ("unit", "basis", "preparation_stage")
-            if not _same(getattr(submitted, field), constraint.get(field))
+            if not _same(getattr(evaluated, field), constraint.get(field))
         ]
         if incompatible:
             reason = f"{rule['rule_id']}: incompatible " + ", ".join(incompatible) + "; no conversion performed"
@@ -399,7 +410,7 @@ def _evaluate_positive_rule(
                 review_reasons,
                 missing_reasons,
             )
-        relation = _concentration_relation(submitted, comparator, float(limit))
+        relation = _concentration_relation(evaluated, comparator, float(limit))
         if relation == "potential":
             reason = f"{rule['rule_id']}: reported concentration range or approximate value cannot be conclusively compared with the limit"
             review_reasons.append(reason)
@@ -414,8 +425,9 @@ def _evaluate_positive_rule(
         within = relation == "within"
         finding = Finding.PERMITTED_USE_WITHIN_CONDITIONS if within else Finding.PERMITTED_USE_CONDITION_NOT_MET
         evaluation_status = "withheld_professional_review" if review_reasons or unresolved_combined else "deterministic"
+        evaluation_reasons = ([conversion_reason] if conversion_reason else []) + review_reasons
         return (
-            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status=evaluation_status, finding=finding, reasons=review_reasons, submitted_concentration=submitted, evidence=evidence),
+            RuleEvaluation(rule_id=rule["rule_id"], evaluation_status=evaluation_status, finding=finding, reasons=evaluation_reasons, submitted_concentration=evaluated, evidence=evidence),
             conditions,
             _warning_results(rule, WarningApplicability.APPLICABLE if within else WarningApplicability.NOT_APPLICABLE),
             finding,
@@ -698,12 +710,22 @@ def screen_ingredient(
                 )
             )
             continue
-        incompatible = []
+        evaluated = submitted
+        conversion_reason: str | None = None
         if not _same(submitted.unit, constraint.get("unit")):
+            converted = convert_concentration_unit(submitted, constraint.get("unit"))
+            if converted is not None:
+                evaluated = converted
+                conversion_reason = (
+                    f"Converted {submitted.unit} to {constraint.get('unit')} using the exact "
+                    "mass-fraction relationship."
+                )
+        incompatible = []
+        if not _same(evaluated.unit, constraint.get("unit")):
             incompatible.append("unit")
-        if not _same(submitted.basis, constraint.get("basis")):
+        if not _same(evaluated.basis, constraint.get("basis")):
             incompatible.append("basis")
-        if not _same(submitted.preparation_stage, constraint.get("preparation_stage")):
+        if not _same(evaluated.preparation_stage, constraint.get("preparation_stage")):
             incompatible.append("preparation_stage")
         if incompatible:
             reason = f"{rule['rule_id']}: incompatible " + ", ".join(incompatible) + "; no conversion performed"
@@ -733,7 +755,7 @@ def screen_ingredient(
                 )
             )
             continue
-        relation = _concentration_relation(submitted, comparator, float(limit))
+        relation = _concentration_relation(evaluated, comparator, float(limit))
         if relation == "potential":
             reason = f"{rule['rule_id']}: reported concentration range or approximate value cannot be conclusively compared with the limit"
             review_reasons.append(reason)
@@ -742,7 +764,7 @@ def screen_ingredient(
                     rule_id=rule["rule_id"],
                     evaluation_status="withheld_professional_review",
                     reasons=[reason],
-                    submitted_concentration=submitted,
+                    submitted_concentration=evaluated,
                     evidence=evidence,
                 )
             )
@@ -756,13 +778,14 @@ def screen_ingredient(
         if (rule.get("required_warning") or "").strip():
             ancillary_reasons.append("required warning was returned as evidence but not evaluated")
         review_reasons.extend(f"{rule['rule_id']}: {reason}" for reason in ancillary_reasons)
+        evaluation_reasons = ([conversion_reason] if conversion_reason else []) + ancillary_reasons
         evaluations.append(
             RuleEvaluation(
                 rule_id=rule["rule_id"],
                 evaluation_status="deterministic",
                 finding=finding,
-                reasons=ancillary_reasons,
-                submitted_concentration=submitted,
+                reasons=evaluation_reasons,
+                submitted_concentration=evaluated,
                 evidence=evidence,
             )
         )

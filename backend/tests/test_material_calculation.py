@@ -426,11 +426,28 @@ def test_material_calculation_preserves_unresolved_constituent_as_issue():
     assert any(issue.code == "constituent_identity_unresolved" for issue in issues)
 
 
-def test_incompatible_basis_is_not_silently_converted():
+def test_mg_per_kg_supplier_quantity_is_scaled_by_finished_product_usage():
     source = material(
         constituent(
             "a", "A",
             quantity("exact", value=25.0, unit="mg/kg", quantity_scope="supplier_material"),
+            identity="identity:a",
+        ),
+        complete=False,
+    )
+    _, contributions, issues = calculate_material_contributions(source)
+    assert not any(issue.code == "incompatible_quantity_basis" for issue in issues)
+    assert len(contributions) == 1
+    assert contributions[0].finished_product_quantity.value == pytest.approx(0.5)
+    assert contributions[0].finished_product_quantity.unit == "mg/kg"
+    assert contributions[0].calculation_formula == "2% × 25 mg/kg ÷ 100 = 0.5 mg/kg"
+
+
+def test_unsupported_supplier_unit_is_not_silently_converted():
+    source = material(
+        constituent(
+            "a", "A",
+            quantity("exact", value=25.0, unit="parts", quantity_scope="supplier_material"),
             identity="identity:a",
         ),
         complete=False,
@@ -503,6 +520,32 @@ def test_incompatible_semantics_are_not_aggregated():
         material_id="m2",
     )
     aggregates, issues = aggregate_contributions([percent, ppm])
+    assert issues == []
+    assert len(aggregates) == 1
+    assert aggregates[0].aggregate_quantity.unit == "percent"
+    assert aggregates[0].aggregate_quantity.value == pytest.approx(1.0001)
+
+
+def test_different_chemical_bases_are_not_aggregated() -> None:
+    free_base = contribution(
+        "one", "catalogue:active",
+        quantity(
+            "exact", value=1.0, unit="percent", basis="free base",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+        material_id="m1",
+    )
+    hydrochloride = contribution(
+        "two", "catalogue:active",
+        quantity(
+            "exact", value=1.0, unit="percent", basis="hydrochloride",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+        material_id="m2",
+    )
+
+    aggregates, issues = aggregate_contributions([free_base, hydrochloride])
+
     assert aggregates == []
     assert issues[0].code == "unverified_identity_aggregation"
 

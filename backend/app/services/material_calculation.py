@@ -24,6 +24,7 @@ from backend.app.models.document_intake import (
 
 COMPOSITION_ROUNDING_TOLERANCE_PERCENT = 0.5
 _PERCENT_UNITS = {"%", "percent", "percentage", "w/w %", "% w/w"}
+_MASS_FRACTION_UNITS = {*_PERCENT_UNITS, "ppm", "mg/kg"}
 _REVERSED_PERCENT_RANGE_RE = re.compile(
     r"^\s*(?P<lower>\d+(?:\.\d+)?)\s*(?:-|–|—|to)\s*"
     r"(?P<upper>\d+(?:\.\d+)?)\s*(?:%\s*(?:w/w)?|w/w\s*%|percent)?"
@@ -49,6 +50,13 @@ def _token(value: str | None) -> str | None:
 
 def is_percent(quantity: CompositionQuantity) -> bool:
     return _token(quantity.unit) in _PERCENT_UNITS
+
+
+def _mass_fraction_unit(quantity: CompositionQuantity) -> str | None:
+    unit = _token(quantity.unit)
+    if unit in _PERCENT_UNITS:
+        return "percent"
+    return unit if unit in {"ppm", "mg/kg"} else None
 
 
 def quantity_label(quantity: CompositionQuantity) -> str:
@@ -171,9 +179,34 @@ def multiply_percentage_quantities(
             f"({material_usage.raw_text or material_usage.kind.value}) x "
             f"({constituent_quantity.raw_text or constituent_quantity.kind.value}) / 100"
         ),
+        unit=_mass_fraction_unit(constituent_quantity) or "percent",
         basis=constituent_quantity.basis,
         preparation_stage=material_usage.preparation_stage,
         quantity_scope="finished_product",
+    )
+
+
+def _as_percent(quantity: CompositionQuantity) -> CompositionQuantity | None:
+    unit = _mass_fraction_unit(quantity)
+    if unit is None:
+        return None
+    if unit == "percent":
+        return quantity.model_copy(update={"unit": "percent"})
+    interval = quantity_interval(quantity)
+    factor = 1 / 10_000
+    return _quantity_from_interval(
+        QuantityInterval(
+            lower=interval.lower * factor if interval.lower is not None else None,
+            upper=interval.upper * factor if interval.upper is not None else None,
+            lower_inclusive=interval.lower_inclusive,
+            upper_inclusive=interval.upper_inclusive,
+            approximate=interval.approximate,
+        ),
+        raw_text=quantity.raw_text or quantity_label(quantity),
+        unit="percent",
+        basis=quantity.basis,
+        preparation_stage=quantity.preparation_stage,
+        quantity_scope=quantity.quantity_scope or "finished_product",
     )
 
 
@@ -206,6 +239,7 @@ def add_percentage_quantities(quantities: Iterable[CompositionQuantity]) -> Comp
             approximate=any(interval.approximate for interval in intervals),
         ),
         raw_text=" + ".join(quantity.raw_text or quantity.kind.value for quantity in values),
+        unit=_mass_fraction_unit(values[0]) or "percent",
         basis=values[0].basis,
         preparation_stage=values[0].preparation_stage,
         quantity_scope="finished_product",
@@ -416,7 +450,7 @@ def _compatible_for_calculation(
 ) -> bool:
     return (
         is_percent(material_usage)
-        and is_percent(constituent_quantity)
+        and _mass_fraction_unit(constituent_quantity) is not None
         and material_usage.quantity_scope == "finished_product"
         and constituent_quantity.quantity_scope == "supplier_material"
         and _token(material_usage.preparation_stage) in {"finished_product", "finished product"}
@@ -526,7 +560,10 @@ def calculate_material_contributions(
                 material,
                 code="incompatible_quantity_basis",
                 message=f"The amount for {constituent.submitted_name} uses units that cannot be combined safely.",
-                action="Confirm that the supplier amount is a percentage of the raw material and the usage is a percentage of the finished product.",
+                action=(
+                    "Confirm that the supplier amount uses %, ppm or mg/kg for the raw material, and that "
+                    "the material usage is a percentage of the finished product."
+                ),
                 constituent=constituent,
             ))
             continue
@@ -567,6 +604,19 @@ def aggregate_contributions(
     issues: list[AssemblyIssue] = []
     for identity_group, items in sorted(groups.items()):
         cas_numbers = {item.cas_number for item in items if item.cas_number}
+        original_units = {
+            _mass_fraction_unit(item.finished_product_quantity)
+            for item in items
+        }
+        convertible_units = None not in original_units
+        normalized_items = items
+        if convertible_units and len(original_units) > 1:
+            normalized_items = [
+                item.model_copy(update={
+                    "finished_product_quantity": _as_percent(item.finished_product_quantity),
+                })
+                for item in items
+            ]
         semantics = {
             (
                 _token(item.finished_product_quantity.unit),
@@ -574,23 +624,28 @@ def aggregate_contributions(
                 _token(item.finished_product_quantity.preparation_stage),
                 item.finished_product_quantity.quantity_scope,
             )
-            for item in items
+            for item in normalized_items
         }
-        if len(semantics) != 1 or len(cas_numbers) > 1:
+        if not convertible_units or len(semantics) != 1 or len(cas_numbers) > 1:
             issues.append(AssemblyIssue(
                 issue_id=f"unverified_identity_aggregation:{identity_group}",
                 code="unverified_identity_aggregation",
                 severity=AssemblyIssueSeverity.REVIEW_REQUIRED,
                 scope=AssemblyIssueScope.CALCULATION,
                 message=f"Regulens found {items[0].display_name} in more than one place, but cannot safely add the amounts together.",
-                reviewer_action="Confirm that the entries are the same ingredient and that all amounts use compatible percentage units.",
+                reviewer_action=(
+                    "Confirm that the entries are the same ingredient and use compatible %, ppm or mg/kg "
+                    "mass-fraction units with the same chemical basis."
+                ),
                 blocking_for_calculation=True,
                 material_ids=sorted({item.source_material_id for item in items if item.source_material_id}),
                 constituent_ids=sorted({item.source_constituent_id for item in items if item.source_constituent_id}),
                 document_ids=sorted({item.governing_document_id for item in items}),
             ))
             continue
-        aggregate = add_percentage_quantities(item.finished_product_quantity for item in items)
+        aggregate = add_percentage_quantities(
+            item.finished_product_quantity for item in normalized_items
+        )
         aggregates.append(AggregatedIngredient(
             verified_identity_group=identity_group,
             display_name=items[0].display_name,
@@ -600,7 +655,7 @@ def aggregate_contributions(
                 key=lambda function: function.value,
             ),
             aggregate_quantity=aggregate,
-            contributions=items,
+            contributions=normalized_items,
             completeness=AssemblyCompleteness.COMPLETE,
         ))
     return aggregates, issues

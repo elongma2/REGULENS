@@ -99,6 +99,24 @@ def test_concentration_text_types(raw, expected_type, lower, upper, inclusive):
 
 
 @pytest.mark.parametrize(
+    ("raw", "expected_value", "unit"),
+    [
+        ("5 % w/w", 5, "percent"),
+        ("5 w/w %", 5, "percent"),
+        ("25 ppm", 25, "ppm"),
+        ("25 mg / kg", 25, "mg/kg"),
+        ("25 mg per kg", 25, "mg/kg"),
+    ],
+)
+def test_concentration_text_normalizes_supported_mass_fraction_units(raw, expected_value, unit):
+    parsed = parse_concentration_text(raw)
+
+    assert parsed is not None
+    assert parsed.value == expected_value
+    assert parsed.unit == unit
+
+
+@pytest.mark.parametrize(
     ("concentration", "finding"),
     [
         ({"concentration_type": "range", "lower_bound": 0.05, "upper_bound": 0.1}, Finding.WITHIN_LIMIT),

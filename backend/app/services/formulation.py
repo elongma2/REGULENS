@@ -23,6 +23,7 @@ from backend.app.services.ingredient_linkage import IngredientLinkageStore
 from backend.app.services.loader import RegulatoryStore
 from backend.app.models.identity_catalogue import IdentityCatalogueDataset, IdentityLinkageDataset
 from backend.app.services.parsing import validate_formulation_request
+from backend.app.services.concentration_units import convert_concentration_unit
 
 
 def _runtime_ingredient(ingredient) -> IngredientInput:
@@ -82,17 +83,21 @@ def _combined_contexts(store, ingredients, identities) -> dict[str, dict]:
         compatible = not missing
         for concentrations in contributions.values():
             for concentration in concentrations:
+                evaluated = (
+                    convert_concentration_unit(concentration, maximum["unit"])
+                    if concentration is not None
+                    else None
+                )
                 if (
-                    concentration is None
-                    or concentration.concentration_type.value != "exact"
-                    or concentration.value is None
-                    or concentration.unit != maximum["unit"]
-                    or concentration.basis != maximum.get("basis")
-                    or concentration.preparation_stage != maximum["preparation_stage"]
+                    evaluated is None
+                    or evaluated.concentration_type.value != "exact"
+                    or evaluated.value is None
+                    or evaluated.basis != maximum.get("basis")
+                    or evaluated.preparation_stage != maximum["preparation_stage"]
                 ):
                     compatible = False
                 else:
-                    values.append(concentration.value)
+                    values.append(evaluated.value)
         output[group_key] = {
             "status": "complete" if compatible else "incomplete",
             "total": sum(values) if compatible else None,

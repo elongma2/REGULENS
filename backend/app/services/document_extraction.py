@@ -66,9 +66,37 @@ _PERCENT_RANGE_TEXT_RE = re.compile(
     r"(?:\s*\([^)]*\))?\s*$",
     re.I,
 )
+_BASIS_PATTERNS = (
+    (re.compile(r"\btetrahydrochloride\b", re.I), "tetrahydrochloride"),
+    (re.compile(r"\bhydrochloride\b", re.I), "hydrochloride"),
+    (re.compile(r"\bfree\s+base\b", re.I), "free base"),
+    (re.compile(r"\bsulphate\b|\bsulfate\b", re.I), "sulphate"),
+    (re.compile(r"\b(?:as\s+)?nh3\b", re.I), "NH3"),
+    (re.compile(r"\b(?:as\s+)?zinc\b", re.I), "zinc"),
+)
 
 
 IdentityResolver = Callable[[str, str | None], str | None]
+
+
+def _unit_from_text(value: str | None) -> str | None:
+    if not value:
+        return None
+    token = " ".join(value.casefold().replace("per cent", "percent").split())
+    compact = token.replace(" ", "")
+    if "%" in token or "percent" in token:
+        return "percent"
+    if re.search(r"\bppm\b", token):
+        return "ppm"
+    if "mg/kg" in compact or re.search(r"\bmg\s+per\s+kg\b", token):
+        return "mg/kg"
+    return None
+
+
+def _basis_from_text(value: str | None) -> str | None:
+    if not value:
+        return None
+    return next((canonical for pattern, canonical in _BASIS_PATTERNS if pattern.search(value)), None)
 
 
 def _disclosure_status(parsed: ParsedCSV) -> DisclosureStatus:
@@ -90,7 +118,13 @@ def _evidence(parsed: ParsedCSV, document_id: str, row_number: int, raw: str) ->
     )
 
 
-def _supplier_quantity(raw: str, *, default_percent: bool = False) -> CompositionQuantity | None:
+def _supplier_quantity(
+    raw: str,
+    *,
+    default_percent: bool = False,
+    explicit_unit: str | None = None,
+    basis: str | None = None,
+) -> CompositionQuantity | None:
     value = raw.strip()
     if not value:
         return None
@@ -98,14 +132,16 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
         return CompositionQuantity(
             kind=CompositionQuantityKind.REMAINDER_TO_TOTAL,
             value=float(match.group(1)),
-            unit="percent",
+            unit=explicit_unit or "percent",
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=value,
         )
     if _QS_ONLY_RE.fullmatch(value):
         return CompositionQuantity(
             kind=CompositionQuantityKind.UNKNOWN,
-            unit="percent" if default_percent else None,
+            unit=explicit_unit or ("percent" if default_percent else None),
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=value,
         )
@@ -114,7 +150,8 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
             kind=CompositionQuantityKind.UPPER_BOUND,
             upper=float(match.group(1)),
             upper_inclusive=True,
-            unit="percent" if match.group(2) or default_percent else None,
+            unit=explicit_unit or ("percent" if match.group(2) or default_percent else None),
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=value,
         )
@@ -122,14 +159,15 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
         return CompositionQuantity(
             kind=CompositionQuantityKind.APPROXIMATE,
             value=float(match.group(1)),
-            unit="percent" if match.group(2) or default_percent else None,
+            unit=explicit_unit or ("percent" if match.group(2) or default_percent else None),
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=value,
             approximate=True,
         )
     parsed = parse_concentration_text(value)
     if parsed:
-        unit = parsed.unit or ("percent" if default_percent else None)
+        unit = parsed.unit or explicit_unit or ("percent" if default_percent else None)
         return CompositionQuantity(
             kind=CompositionQuantityKind(parsed.concentration_type.value),
             value=parsed.value,
@@ -138,6 +176,7 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
             lower_inclusive=parsed.lower_inclusive,
             upper_inclusive=parsed.upper_inclusive,
             unit=unit,
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=value,
             approximate=parsed.concentration_type == ConcentrationType.APPROXIMATE,
@@ -156,6 +195,8 @@ def _supplier_quantity_preserving_invalid(
     raw: str,
     *,
     default_percent: bool = False,
+    explicit_unit: str | None = None,
+    basis: str | None = None,
 ) -> CompositionQuantity | None:
     """Preserve a malformed numeric range without normalising its endpoints.
 
@@ -164,14 +205,23 @@ def _supplier_quantity_preserving_invalid(
     with the exact source text lets the assembly validator raise a focused
     invalid-bound issue while retaining the ingredient identity and evidence.
     """
-    quantity = _supplier_quantity(raw, default_percent=default_percent)
+    quantity = _supplier_quantity(
+        raw,
+        default_percent=default_percent,
+        explicit_unit=explicit_unit,
+        basis=basis,
+    )
     if quantity is not None:
         return quantity
     match = _PERCENT_RANGE_TEXT_RE.fullmatch(raw.strip())
     if match and float(match.group("lower")) > float(match.group("upper")):
         return CompositionQuantity(
             kind=CompositionQuantityKind.UNKNOWN,
-            unit="percent" if default_percent or "%" in raw or "percent" in raw.casefold() else None,
+            unit=(
+                explicit_unit
+                or ("percent" if default_percent or "%" in raw or "percent" in raw.casefold() else None)
+            ),
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=raw.strip(),
         )
@@ -254,6 +304,8 @@ def _header_map(parsed: ParsedCSV) -> tuple[int | None, dict[str, int]]:
                 mapping.setdefault("upper", index)
             elif any(token in cell for token in ("unit", "uom")):
                 mapping.setdefault("unit", index)
+            elif any(token in cell for token in ("basis", "expressed as", "calculated as")):
+                mapping.setdefault("basis", index)
             elif any(token in cell for token in ("code", "fda code", "range code")):
                 mapping.setdefault("code", index)
             elif any(token in cell for token in (
@@ -282,6 +334,8 @@ def _range_from_columns(
     mapping: dict[str, int],
     *,
     default_percent: bool,
+    explicit_unit: str | None = None,
+    basis: str | None = None,
 ) -> CompositionQuantity | None:
     if not {"lower", "upper"}.issubset(mapping):
         return None
@@ -295,7 +349,7 @@ def _range_from_columns(
     except ValueError:
         return None
     unit_raw = row[mapping["unit"]].strip() if "unit" in mapping and mapping["unit"] < len(row) else ""
-    unit = "percent" if default_percent or "%" in unit_raw or "percent" in unit_raw.casefold() else unit_raw or None
+    unit = explicit_unit or _unit_from_text(unit_raw) or ("percent" if default_percent else None)
     raw_text = " - ".join(value for value in (lower_raw, upper_raw) if value)
     if unit_raw:
         raw_text = f"{raw_text} {unit_raw}"
@@ -304,6 +358,7 @@ def _range_from_columns(
             return CompositionQuantity(
                 kind=CompositionQuantityKind.UNKNOWN,
                 unit=unit,
+                basis=basis,
                 quantity_scope="supplier_material",
                 raw_text=raw_text,
             )
@@ -314,6 +369,7 @@ def _range_from_columns(
             lower_inclusive=None,
             upper_inclusive=None,
             unit=unit,
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=raw_text,
         )
@@ -323,6 +379,7 @@ def _range_from_columns(
             upper=upper,
             upper_inclusive=None,
             unit=unit,
+            basis=basis,
             quantity_scope="supplier_material",
             raw_text=raw_text,
         )
@@ -331,6 +388,7 @@ def _range_from_columns(
         lower=lower,
         lower_inclusive=None,
         unit=unit,
+        basis=basis,
         quantity_scope="supplier_material",
         raw_text=raw_text,
     )
@@ -367,13 +425,21 @@ def _structured_rows(
         ):
             continue
         header_text = " | ".join(parsed.rows[header_row - 1])
+        unit_raw = row[mapping["unit"]].strip() if "unit" in mapping and mapping["unit"] < len(row) else ""
+        basis_raw = row[mapping["basis"]].strip() if "basis" in mapping and mapping["basis"] < len(row) else ""
+        explicit_unit = _unit_from_text(unit_raw) or _unit_from_text(header_text)
+        basis = _basis_from_text(basis_raw) or _basis_from_text(header_text)
         quantity = _range_from_columns(
             row,
             mapping,
-            default_percent="%" in header_text or "percent" in header_text.casefold(),
+            default_percent=explicit_unit == "percent",
+            explicit_unit=explicit_unit,
+            basis=basis,
         ) or _supplier_quantity_preserving_invalid(
             raw_quantity,
-            default_percent="%" in header_text or "percent" in header_text.casefold(),
+            default_percent=explicit_unit == "percent",
+            explicit_unit=explicit_unit,
+            basis=basis,
         )
         rows.append((
             name,

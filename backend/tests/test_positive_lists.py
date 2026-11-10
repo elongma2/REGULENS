@@ -172,7 +172,7 @@ def test_multiple_functions_and_categories_are_all_retained(store):
     assert {item.regulated_function for item in result.function_evaluations} == {RegulatedFunction.PRESERVATIVE, RegulatedFunction.UV_FILTER}
 
 
-def test_incompatible_concentration_semantics_and_combined_limits_require_review(store):
+def test_convertible_concentration_units_and_incomplete_combined_limits(store):
     synthetic, _ = positive_store(store, RegulatedFunction.PRESERVATIVE)
     incompatible = screen_ingredient(synthetic, IngredientInput(
         name="Tosylchloramide sodium", concentration=concentration(100, unit="ppm"),
@@ -186,7 +186,14 @@ def test_incompatible_concentration_semantics_and_combined_limits_require_review
         name="Tosylchloramide sodium", concentration=concentration(0.1),
         regulated_functions=[RegulatedFunction.PRESERVATIVE],
     ))
-    assert incompatible.primary_finding == Finding.PROFESSIONAL_REVIEW
+    assert incompatible.primary_finding == Finding.WITHIN_LIMIT
+    evaluation = next(
+        item for item in incompatible.rule_evaluations
+        if item.submitted_concentration is not None
+    )
+    assert evaluation.submitted_concentration.value == pytest.approx(0.01)
+    assert evaluation.submitted_concentration.unit == "percent"
+    assert any("exact mass-fraction relationship" in reason for reason in evaluation.reasons)
     assert combined.primary_finding == Finding.PROFESSIONAL_REVIEW
     issue = next(item for item in combined.review_issues if item.code == "combined_limit_information_missing")
     assert issue.related_constituent_references == ["12", "12a"]

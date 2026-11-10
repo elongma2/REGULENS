@@ -156,6 +156,10 @@ def _header_field(cell: str) -> str | None:
     value = " ".join(cell.casefold().split())
     if "cas" in value:
         return "cas_number"
+    if value in {"unit", "uom", "concentration unit", "amount unit"}:
+        return "unit"
+    if any(token in value for token in ("basis", "expressed as", "calculated as")):
+        return "basis"
     if any(token in value for token in ("ingredient", "inci", "submitted material", "raw material")):
         return "ingredient_name"
     if any(token in value for token in ("concentration", "usage", "use level", "dosage", "% w/w")):
@@ -812,6 +816,8 @@ class FormulationAgentService:
         name_index = header_fields["ingredient_name"]
         concentration_index = header_fields["concentration"]
         cas_index = header_fields.get("cas_number")
+        unit_index = header_fields.get("unit")
+        basis_index = header_fields.get("basis")
         entry_type_index = header_fields.get("raw_material_name")
         concentration_header = parsed.rows[header_row - 1][concentration_index]
         header_folded = " ".join(concentration_header.casefold().split())
@@ -844,6 +850,12 @@ class FormulationAgentService:
             started = True
             data_rows.append(source_row)
             parsed_value = parsed_quantity.value if parsed_quantity is not None else float(raw_quantity)
+            row_unit = row[unit_index].strip() if unit_index is not None and unit_index < len(row) else ""
+            explicit_unit_value = (parsed_quantity.unit if parsed_quantity is not None else None) or self._normalize_unit(row_unit) or (
+                "percent" if explicit_percent else None
+            )
+            row_basis = row[basis_index].strip() if basis_index is not None and basis_index < len(row) else ""
+            explicit_basis = self._normalize_basis(row_basis)
             cas = row[cas_index].strip() if cas_index is not None and cas_index < len(row) else ""
             exact = self.catalogue.find_exact_name(name) if self.catalogue else None
             ingredients.append({
@@ -864,19 +876,27 @@ class FormulationAgentService:
                 }] if cas and cas_index is not None else []),
                 "concentration_value": parsed_value,
                 "concentration_text": raw_quantity,
-                "concentration_unit": "percent" if explicit_percent else None,
+                "concentration_unit": explicit_unit_value,
                 "concentration_value_sources": [{
                     "source_row": source_row,
                     "source_column_index": concentration_index,
                     "source_value": row[concentration_index],
                 }],
                 "concentration_unit_sources": ([{
+                    "source_row": source_row,
+                    "source_column_index": unit_index,
+                    "source_value": row[unit_index],
+                }] if row_unit and unit_index is not None else ([{
                     "source_row": header_row,
                     "source_column_index": concentration_index,
                     "source_value": concentration_header,
-                }] if explicit_percent else []),
-                "basis": None,
-                "basis_sources": [],
+                }] if explicit_percent else [])),
+                "basis": explicit_basis,
+                "basis_sources": ([{
+                    "source_row": source_row,
+                    "source_column_index": basis_index,
+                    "source_value": row[basis_index],
+                }] if explicit_basis and basis_index is not None else []),
                 "preparation_stage": "finished_product" if explicit_finished_product else None,
                 "preparation_stage_sources": ([{
                     "source_row": header_row,
@@ -885,7 +905,7 @@ class FormulationAgentService:
                 }] if explicit_finished_product else []),
                 "regulated_functions": [],
                 "regulated_function_sources": [],
-                "uncertainties": ([] if explicit_percent else ["concentration_unit"]),
+                "uncertainties": ([] if explicit_unit_value else ["concentration_unit"]),
                 "issues": [],
             })
 
@@ -1193,11 +1213,7 @@ class FormulationAgentService:
             if concentration is not None:
                 if item.basis is not None:
                     if not item.basis_sources or not any(
-                        self._exact_text(reference.source_value) == self._exact_text(item.basis)
-                        or (
-                            parsed.source_format == "pdf"
-                            and self._exact_text(item.basis) in self._exact_text(reference.source_value)
-                        )
+                        self._normalize_basis(reference.source_value) == item.basis
                         for reference in item.basis_sources
                     ):
                         raise AgentExecutionError("agent_invalid_source_reference", "A concentration basis has no exact source cell.")
@@ -1542,6 +1558,19 @@ class FormulationAgentService:
         if re.search(r"\bppm\b", plain):
             return "ppm"
         return None
+
+    @staticmethod
+    def _normalize_basis(value: str) -> str | None:
+        folded = " ".join(value.casefold().split())
+        patterns = (
+            (r"\btetrahydrochloride\b", "tetrahydrochloride"),
+            (r"\bhydrochloride\b", "hydrochloride"),
+            (r"\bfree\s+base\b", "free base"),
+            (r"\b(?:sulphate|sulfate)\b", "sulphate"),
+            (r"\b(?:as\s+)?nh3\b", "NH3"),
+            (r"\b(?:as\s+)?zinc\b", "zinc"),
+        )
+        return next((canonical for pattern, canonical in patterns if re.search(pattern, folded)), None)
 
     @staticmethod
     def _normalize_stage(value: str) -> str | None:
