@@ -1274,11 +1274,8 @@ def test_dual_supplier_aggregate_is_the_exact_canonical_and_screened_input() -> 
         item for item in phenoxyethanol_result.rule_evaluations
         if item.rule_id == "sg-third-schedule-iv-29"
     )
-    assert candidate.evaluation_status == "withheld_intended_function_missing"
-    assert any(
-        "does not meet the candidate rule's evaluated conditions" in reason
-        for reason in candidate.reasons
-    )
+    assert candidate.evaluation_status == "deterministic"
+    assert candidate.finding.value == "permitted_use_condition_not_met"
 
 
 @pytest.mark.parametrize(

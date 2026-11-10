@@ -1,5 +1,6 @@
 import { displayIngredientName } from "./presentation";
 import type { IngredientResult } from "../types/screening";
+import { formatDisplayNumber } from "./numbers";
 
 export type AssemblyQuantity = {
   kind?: string;
@@ -79,10 +80,10 @@ export function formatAssemblyQuantity(quantity?: AssemblyQuantity | null): stri
   if (!quantity) return "—";
   const unit = quantity.unit === "percent" ? "%" : quantity.unit ? ` ${quantity.unit}` : "";
   if (quantity.raw_text && quantity.kind === "unknown") return quantity.raw_text;
-  if (quantity.kind === "range" && quantity.lower != null && quantity.upper != null) return `${quantity.lower}–${quantity.upper}${unit}`;
-  if (quantity.kind === "upper_bound" && quantity.upper != null) return `<${quantity.upper}${unit}`;
-  if (quantity.kind === "lower_bound" && quantity.lower != null) return `>${quantity.lower}${unit}`;
-  if (quantity.value != null) return `${quantity.kind === "approximate" ? "≈" : ""}${quantity.value}${unit}`;
+  if (quantity.kind === "range" && quantity.lower != null && quantity.upper != null) return `${formatDisplayNumber(quantity.lower)}–${formatDisplayNumber(quantity.upper)}${unit}`;
+  if (quantity.kind === "upper_bound" && quantity.upper != null) return `<${formatDisplayNumber(quantity.upper)}${unit}`;
+  if (quantity.kind === "lower_bound" && quantity.lower != null) return `>${formatDisplayNumber(quantity.lower)}${unit}`;
+  if (quantity.value != null) return `${quantity.kind === "approximate" ? "≈" : ""}${formatDisplayNumber(quantity.value)}${unit}`;
   return quantity.raw_text || "Unavailable";
 }
 

@@ -117,6 +117,7 @@ describe("formatConcentration", () => {
     expect(formatConcentration({ ...semantics, concentration_type: "upper_bound", value: null, upper_bound: 1, upper_inclusive: true })).toBe("≤1.00%");
     expect(formatConcentration({ ...semantics, concentration_type: "lower_bound", value: null, lower_bound: 0.1, lower_inclusive: true })).toBe("≥0.10%");
     expect(formatConcentration({ ...semantics, concentration_type: "approximate", value: 0.5 })).toBe("≈0.50%");
+    expect(formatConcentration({ ...semantics, concentration_type: "range", value: null, lower_bound: 0.278, upper_bound: 0.305 })).toBe("0.28–0.31%");
     expect(formatConcentration({ ...semantics, concentration_type: "unknown", value: null, unit: null, preparation_stage: null })).toBe("Unknown");
   });
 });

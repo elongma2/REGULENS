@@ -1,8 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { baseResult } from "../test/fixtures";
-import { combinedSourceNote, findAssemblyAggregate, formatEvaluatedAssemblyQuantity } from "./assembly";
+import { combinedSourceNote, findAssemblyAggregate, formatAssemblyQuantity, formatEvaluatedAssemblyQuantity } from "./assembly";
 
 describe("assembly result matching", () => {
+  it("rounds displayed assembly quantities without changing stored values", () => {
+    const quantity = { kind: "range", lower: 0.278, upper: 0.305, unit: "percent" };
+    expect(formatAssemblyQuantity(quantity)).toBe("0.28–0.31%");
+    expect(quantity).toEqual({ kind: "range", lower: 0.278, upper: 0.305, unit: "percent" });
+  });
+
   it("uses concentration to distinguish legacy split aggregates with the same CAS", () => {
     const result = baseResult(8, "2-Phenoxyethanol");
     result.submitted_ingredient.cas_number = "122-99-6";

@@ -1,4 +1,5 @@
 import { supportingSingaporeEvaluations } from "./screening";
+import { formatDisplayNumber } from "./numbers";
 import type {
   CrossReference,
   IngredientResult,
@@ -151,7 +152,7 @@ export function comparatorLabel(value: string | undefined): string {
 export function formatRuleConcentration(value: RuleConcentration | null): string {
   if (!value || typeof value.value !== "number") return value?.source_text ?? "—";
   const unit = value.unit === "percent" ? "%" : ` ${value.unit ?? ""}`;
-  return `${value.value}${unit}`;
+  return `${formatDisplayNumber(value.value)}${unit}`;
 }
 
 export function acceptedSnapshotLabel(evaluation: RuleEvaluation): string {

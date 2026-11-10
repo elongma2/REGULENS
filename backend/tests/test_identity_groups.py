@@ -152,14 +152,11 @@ def test_phenoxyethanol_without_function_discovers_and_assesses_preservative_rul
         if item.rule_id == "sg-third-schedule-iv-29"
     )
     assert result.primary_finding != Finding.NO_ISSUE
-    assert candidate.evaluation_status == "withheld_intended_function_missing"
-    assert any(
-        "does not meet the candidate rule's evaluated conditions" in reason
-        for reason in candidate.reasons
-    )
+    assert candidate.evaluation_status == "deterministic"
+    assert candidate.finding == Finding.PERMITTED_USE_CONDITION_NOT_MET
     assert result.function_evaluations[0].regulated_function == RegulatedFunction.PRESERVATIVE
-    assert result.function_evaluations[0].status == "information_missing"
-    assert any(item.code == "regulated_function_missing" for item in result.review_issues)
+    assert result.function_evaluations[0].status == "not_satisfied"
+    assert not any(item.code == "regulated_function_missing" for item in result.review_issues)
 
 
 def test_exact_catalogue_names_with_unmapped_cas_remain_resolved_without_false_conflict():

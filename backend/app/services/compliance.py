@@ -849,6 +849,7 @@ def screen_ingredient(
         if function not in declared_functions:
             candidate_missing: list[str] = []
             candidate_review: list[str] = []
+            candidate_findings: list[Finding] = []
             potentially_applicable = False
             for rule in sorted(matching, key=lambda item: item["rule_id"]):
                 evaluation, conditions, warnings, conditional_finding, rule_review, rule_missing = _evaluate_positive_rule(
@@ -869,38 +870,38 @@ def screen_ingredient(
                     continue
 
                 potentially_applicable = True
-                assessment = {
-                    Finding.PERMITTED_USE_WITHIN_CONDITIONS: "the submitted concentration meets the candidate rule's evaluated conditions",
-                    Finding.PERMITTED_USE_CONDITION_NOT_MET: "the submitted concentration does not meet the candidate rule's evaluated conditions",
-                }.get(conditional_finding)
-                reason = (
-                    f"{rule['rule_id']}: intended ingredient function is required to determine whether "
-                    f"{part} applies"
-                )
-                if assessment:
-                    reason += f"; if used as {function.value.replace('_', ' ')}, {assessment}"
-                candidate_missing.append(reason)
                 candidate_review.extend(rule_review)
                 candidate_missing.extend(rule_missing)
-                evaluations.append(evaluation.model_copy(update={
-                    "evaluation_status": "withheld_intended_function_missing",
-                    "finding": None,
-                    "reasons": _dedupe([reason, *evaluation.reasons]),
-                }))
+                evaluations.append(evaluation)
+                if conditional_finding:
+                    confirmed.append(conditional_finding)
+                    candidate_findings.append(conditional_finding)
                 if _material_source_difference(store, rule):
                     difference = f"{rule['rule_id']}: confirmed material Singapore-ACD requirement difference requires professional review"
                     candidate_review.append(difference)
 
             review_reasons.extend(candidate_review)
             missing_reasons.extend(candidate_missing)
+            if Finding.PERMITTED_USE_CONDITION_NOT_MET in candidate_findings:
+                candidate_status = ConditionStatus.NOT_SATISFIED
+                candidate_finding = Finding.PERMITTED_USE_CONDITION_NOT_MET
+            elif candidate_review:
+                candidate_status = ConditionStatus.PROFESSIONAL_REVIEW
+                candidate_finding = None
+            elif candidate_missing:
+                candidate_status = ConditionStatus.INFORMATION_MISSING
+                candidate_finding = None
+            elif potentially_applicable:
+                candidate_status = ConditionStatus.SATISFIED
+                candidate_finding = Finding.PERMITTED_USE_WITHIN_CONDITIONS
+            else:
+                candidate_status = ConditionStatus.NOT_APPLICABLE
+                candidate_finding = None
             function_evaluations.append(FunctionEvaluation(
                 regulated_function=function,
                 singapore_part=part,
-                status=(
-                    ConditionStatus.INFORMATION_MISSING
-                    if potentially_applicable
-                    else ConditionStatus.NOT_APPLICABLE
-                ),
+                status=candidate_status,
+                finding=candidate_finding,
                 rule_ids=[rule["rule_id"] for rule in matching],
                 reasons=_dedupe(candidate_review + candidate_missing),
             ))

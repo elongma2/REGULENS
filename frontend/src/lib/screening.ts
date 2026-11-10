@@ -1,4 +1,5 @@
 import type { Finding, IngredientResult, RuleEvaluation } from "../types/screening";
+import { formatDisplayNumber } from "./numbers";
 
 export const findingPresentation: Record<Finding, { label: string; tone: string; dot: string }> = {
   prohibited_substance_identified: {
@@ -136,19 +137,13 @@ export function regulationLabel(evaluation: RuleEvaluation): string | null {
 
 export function formatConcentration(value: IngredientResult["submitted_ingredient"]["concentration"]): string {
   if (!value || value.concentration_type === "unknown") return "Unknown";
-  const formatNumber = (number: number | null | undefined): string => {
-    if (number == null || !Number.isFinite(number)) return "Unknown";
-    const [whole, fraction = ""] = number.toFixed(12).split(".");
-    const significant = fraction.replace(/0+$/, "").padEnd(2, "0");
-    return `${whole}.${significant}`;
-  };
   const unit = value.unit === "percent" ? "%" : value.unit ? ` ${value.unit}` : "";
   switch (value.concentration_type ?? "exact") {
-    case "range": return `${formatNumber(value.lower_bound)}–${formatNumber(value.upper_bound)}${unit}`;
-    case "upper_bound": return `${value.upper_inclusive ? "≤" : "<"}${formatNumber(value.upper_bound)}${unit}`;
-    case "lower_bound": return `${value.lower_inclusive ? "≥" : ">"}${formatNumber(value.lower_bound)}${unit}`;
-    case "approximate": return `≈${formatNumber(value.value)}${unit}`;
-    default: return `${formatNumber(value.value)}${unit}`;
+    case "range": return `${formatDisplayNumber(value.lower_bound)}–${formatDisplayNumber(value.upper_bound)}${unit}`;
+    case "upper_bound": return `${value.upper_inclusive ? "≤" : "<"}${formatDisplayNumber(value.upper_bound)}${unit}`;
+    case "lower_bound": return `${value.lower_inclusive ? "≥" : ">"}${formatDisplayNumber(value.lower_bound)}${unit}`;
+    case "approximate": return `≈${formatDisplayNumber(value.value)}${unit}`;
+    default: return `${formatDisplayNumber(value.value)}${unit}`;
   }
 }
 

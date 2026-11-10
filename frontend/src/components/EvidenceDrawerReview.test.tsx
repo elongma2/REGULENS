@@ -305,8 +305,8 @@ describe("review guidance", () => {
     expect(screen.getByText("2 conditions")).toBeInTheDocument();
     expect(screen.getByText("Propellant spray products")).toBeInTheDocument();
     expect(screen.getByText("Other products")).toBeInTheDocument();
-    expect(screen.getByText("9%")).toBeInTheDocument();
-    expect(screen.getByText("10%")).toBeInTheDocument();
+    expect(screen.getByText("9.00%")).toBeInTheDocument();
+    expect(screen.getByText("10.00%")).toBeInTheDocument();
     expect(screen.getAllByText(/Reference 10/)).toHaveLength(1);
   });
 });

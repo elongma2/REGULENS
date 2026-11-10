@@ -120,19 +120,23 @@ def test_confirmed_function_absent_from_complete_list_is_bounded_issue(store):
     assert result.primary_finding == Finding.REGULATED_FUNCTION_NOT_PERMITTED
 
 
-def test_unknown_function_discovers_candidate_without_assuming_preservative_use(store):
+def test_unknown_function_is_automatically_screened_without_assuming_preservative_use(store):
     synthetic, rule = positive_store(store, RegulatedFunction.PRESERVATIVE)
     result = screen_ingredient(synthetic, IngredientInput(name="Tosylchloramide sodium", concentration=concentration(0.1)))
     assert result.primary_finding != Finding.REGULATED_FUNCTION_NOT_PERMITTED
-    assert result.primary_finding == Finding.INFORMATION_MISSING
+    assert result.primary_finding == Finding.WITHIN_LIMIT
     assert result.incomplete_positive_list_checks == []
-    assert result.confirmed_findings == [Finding.WITHIN_LIMIT]
-    assert result.function_evaluations[0].status == "information_missing"
+    assert result.confirmed_findings == [
+        Finding.WITHIN_LIMIT,
+        Finding.PERMITTED_USE_WITHIN_CONDITIONS,
+    ]
+    assert result.function_evaluations[0].status == "satisfied"
     assert result.function_evaluations[0].regulated_function == RegulatedFunction.PRESERVATIVE
     candidate = next(item for item in result.rule_evaluations if item.rule_id == rule["rule_id"])
-    assert candidate.evaluation_status == "withheld_intended_function_missing"
-    assert candidate.finding is None
-    assert any(item.code == "regulated_function_missing" for item in result.review_issues)
+    assert candidate.evaluation_status == "deterministic"
+    assert candidate.finding == Finding.PERMITTED_USE_WITHIN_CONDITIONS
+    assert not any(item.code == "regulated_function_missing" for item in result.review_issues)
+    assert result.submitted_ingredient.regulated_functions == []
 
 
 def test_unknown_function_preserves_established_positive_list_exception(store):
