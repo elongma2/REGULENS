@@ -349,6 +349,9 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
   const [error, setError] = useState<string | null>(null);
   const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
   const savePromiseRef = useRef<Promise<void> | null>(null);
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
+  const refreshErrorRef = useRef<Error | null>(null);
+  const saveErrorRef = useRef<Error | null>(null);
   const dirtyRef = useRef(false);
   const signature = useMemo(() => documents
     .filter((item) => item.extraction_result)
@@ -356,25 +359,39 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
     .sort().join("|"), [documents]);
 
   useEffect(() => {
-    if (!signature) { setAssembly(null); return; }
+    if (!signature) { setAssembly(null); refreshPromiseRef.current = null; refreshErrorRef.current = null; return; }
     let active = true;
     setLoading(true); setError(null);
-    void getOrInitializeFormulationAssembly(versionId).then(async (value) => {
-      const expectedSnapshots = Object.fromEntries(documents
-        .filter((item) => item.extraction_result)
-        .map((item) => [
-          item.id,
-          `${ASSEMBLY_DERIVATION_VERSION}|${item.attached_extraction_key || `revision:${item.revision}`}|revision:${item.revision}|governing:${item.governing_for_material}|roles:${[...item.confirmed_roles].sort().join(",")}`,
-        ]));
-      const currentSnapshots = value.state.source_document_snapshots || {};
-      const snapshotsMatch = JSON.stringify(
-        Object.entries(currentSnapshots).sort(),
-      ) === JSON.stringify(Object.entries(expectedSnapshots).sort());
-      const current = snapshotsMatch ? value : await refreshFormulationAssembly(versionId);
-      if (active) { setAssembly(current); setDirty(false); dirtyRef.current = false; }
-    }).catch((caught) => {
-      if (active) setError(caught instanceof Error ? caught.message : "Material calculations could not be prepared.");
-    }).finally(() => { if (active) setLoading(false); });
+    refreshErrorRef.current = null;
+    const task = (async () => {
+      try {
+        const value = await getOrInitializeFormulationAssembly(versionId);
+        const expectedSnapshots = Object.fromEntries(documents
+          .filter((item) => item.extraction_result)
+          .map((item) => [
+            item.id,
+            `${ASSEMBLY_DERIVATION_VERSION}|${item.attached_extraction_key || `revision:${item.revision}`}|revision:${item.revision}|governing:${item.governing_for_material}|roles:${[...item.confirmed_roles].sort().join(",")}`,
+          ]));
+        const currentSnapshots = value.state.source_document_snapshots || {};
+        const snapshotsMatch = JSON.stringify(
+          Object.entries(currentSnapshots).sort(),
+        ) === JSON.stringify(Object.entries(expectedSnapshots).sort());
+        const current = snapshotsMatch ? value : await refreshFormulationAssembly(versionId);
+        if (active) { setAssembly(current); setDirty(false); dirtyRef.current = false; }
+      } catch (caught) {
+        const failure = caught instanceof Error ? caught : new Error("Material calculations could not be prepared.");
+        if (active) {
+          refreshErrorRef.current = failure;
+          setError(failure.message);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    refreshPromiseRef.current = task;
+    void task.finally(() => {
+      if (refreshPromiseRef.current === task) refreshPromiseRef.current = null;
+    });
     return () => { active = false; };
   }, [versionId, signature]);
 
@@ -398,6 +415,7 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
     if (!assembly || !dirtyRef.current) return;
     const task = (async () => {
       setSaving(true); setError(null);
+      saveErrorRef.current = null;
       try {
         const updated = await updateFormulationAssembly(
           versionId,
@@ -406,7 +424,9 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
         );
         setAssembly(updated); setDirty(false); dirtyRef.current = false;
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Material calculations could not be saved.");
+        const failure = caught instanceof Error ? caught : new Error("Material calculations could not be saved.");
+        saveErrorRef.current = failure;
+        setError(failure.message);
       } finally { setSaving(false); }
     })();
     savePromiseRef.current = task;
@@ -425,8 +445,11 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
 
   useImperativeHandle(ref, () => ({
     savePendingChanges: async () => {
+      if (refreshPromiseRef.current) await refreshPromiseRef.current;
+      if (refreshErrorRef.current) throw refreshErrorRef.current;
       if (savePromiseRef.current) await savePromiseRef.current;
       if (dirtyRef.current) await recalculate();
+      if (saveErrorRef.current) throw saveErrorRef.current;
     },
   }), [recalculate]);
 

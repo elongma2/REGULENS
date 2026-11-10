@@ -123,6 +123,8 @@ export function AgentPage({
   const formulationPanel = useRef<HTMLDivElement>(null);
   const initializedSessionId = useRef<string | null>(null);
   const reviewRequestId = useRef(0);
+  const previousAssemblyRevision = useRef<number | null>(assemblyRevision);
+  const runScreeningRef = useRef<() => Promise<void>>(async () => undefined);
   const tabRefs = useRef<Record<WorkspaceTab, HTMLButtonElement | null>>({ findings: null, formulation: null, activity: null });
   const [session, setSession] = useState<AgentSession | null>(null);
   const [prepared, setPrepared] = useState<AgentPreparedFormulation | null>(null);
@@ -528,6 +530,7 @@ export function AgentPage({
       setError(caught instanceof ApiError || caught instanceof Error ? caught.message : "Screening failed.");
     } finally { setBusy(false); }
   };
+  runScreeningRef.current = runScreening;
 
   useEffect(() => {
     if (compact || !session || editingRowId) return;
@@ -824,6 +827,25 @@ export function AgentPage({
               : "Upload a file, confirm the interpreted values, then screen and review the findings.";
 
   useEffect(() => {
+    const previous = previousAssemblyRevision.current;
+    previousAssemblyRevision.current = assemblyRevision;
+    if (
+      previous === null
+      || assemblyRevision === null
+      || previous === assemblyRevision
+      || !compact
+      || !versionId
+      || !response
+      || activeScreeningRunIndex !== 0
+      || busy
+      || remainingConfirmations > 0
+      || screeningBlockedReason
+    ) return;
+    const timer = window.setTimeout(() => { void runScreeningRef.current(); }, 250);
+    return () => window.clearTimeout(timer);
+  }, [assemblyRevision]);
+
+  useEffect(() => {
     if (!prepared && !response) return;
     (response ? findingsPanel.current : formulationPanel.current)?.scrollIntoView?.({
       behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
@@ -940,7 +962,7 @@ export function AgentPage({
 
         {error && <div className="mb-5 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert"><AlertTriangle size={16} />{error}</div>}
         {deepLinkNotice && <div className="workspace-link-notice" role="status"><span>{deepLinkNotice}</span><button className="text-button" type="button" onClick={() => setDeepLinkNotice(null)}>Dismiss</button></div>}
-        {activeScreeningRunFreshness === "stale" && <div className="workspace-link-notice" role="status"><span><strong>Inputs changed—run screening again.</strong> These findings are a historical snapshot and no longer represent the current formulation.</span></div>}
+        {activeScreeningRunFreshness === "stale" && <div className="workspace-link-notice" role="status">{busy ? <LoaderCircle className="button-spinner" size={16} aria-hidden="true" /> : null}<span>{busy ? <><strong>Updating calculations and findings…</strong> Regulens is screening the corrected supplier inputs.</> : <><strong>Inputs changed—run screening again.</strong> These findings are a historical snapshot and no longer represent the current formulation.</>}</span></div>}
         {activeScreeningRunFreshness === "unverified" && <div className="workspace-link-notice" role="status"><span><strong>Run screening again to confirm the current inputs.</strong> This older snapshot predates input-revision tracking, so its freshness cannot be verified.</span></div>}
 
         {loadingPersisted && <section className="agent-dropzone"><LoaderCircle className="animate-spin text-slate-500" size={34} /><h2>Loading saved formulation</h2><p>Restoring the interpretation and clarification state.</p></section>}

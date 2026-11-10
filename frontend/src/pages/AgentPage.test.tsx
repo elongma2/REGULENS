@@ -679,6 +679,58 @@ describe("Formulation Agent page", () => {
     expect(screen.getByRole("option", { name: /Screening 1.*Historical/ })).toBeInTheDocument();
   });
 
+  it("automatically re-screens the active findings after supplier calculations change", async () => {
+    const currentPrepared = preparedFixture();
+    const persistedSession = { ...answeredSession(), session_id: "version-1" };
+    currentPrepared.session = persistedSession;
+    currentPrepared.formulation.input_revision = { agent_revision: 3, assembly_revision: 1 };
+    const updatedPrepared = structuredClone(currentPrepared);
+    updatedPrepared.formulation.input_revision = { agent_revision: 3, assembly_revision: 2 };
+    const version = {
+      id: "version-1", case_id: "case-1", version_number: 1,
+      original_filename: "saved.csv", status: "screened", revision: 3,
+      assembly_revision: 1,
+      created_at: "2026-10-19T00:00:00Z", updated_at: "2026-10-20T00:00:00Z",
+      screening_count: 1, raw_extraction: {}, agent_session: persistedSession,
+      canonical_formulation: currentPrepared.formulation, product_context: null,
+    };
+    const run = {
+      id: "run-1", formulation_version_id: "version-1", regulatory_dataset_id: "dataset-current",
+      jurisdiction: "Singapore", request_snapshot: currentPrepared.formulation,
+      result_snapshot: testResponse, created_at: "2026-10-20T08:00:00Z", current_input_matches: true,
+    };
+    const updatedResponse = structuredClone(testResponse);
+    updatedResponse.ingredient_results[0].submitted_ingredient.name = "UPDATED AFTER RECALCULATION";
+    const updatedRun = {
+      ...run,
+      id: "run-2",
+      request_snapshot: updatedPrepared.formulation,
+      result_snapshot: updatedResponse,
+      created_at: "2026-10-20T08:01:00Z",
+    };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/formulations/version-1/screenings")) return json([run]);
+      if (url.endsWith("/formulations/version-1/prepare")) return json(updatedPrepared);
+      if (url.endsWith("/formulations/version-1/screen")) return json(updatedRun, 201);
+      if (url.endsWith("/formulations/version-1")) return json(version);
+      if (url.includes("/formulations/version-1/review-workspace")) return json({
+        case_id: "case-1", formulation_version_id: "version-1", screening_run_id: "run-1",
+        clarification_targets: [], review_items: [], notes: [], follow_ups: [],
+      });
+      return json({}, 404);
+    });
+    const view = renderAgent({ caseId: "case-1", versionId: "version-1", compact: true, assemblyRevision: 1 });
+
+    expect(await screen.findByRole("tab", { name: "Results" })).toHaveAttribute("aria-selected", "true");
+    view.rerender(<MemoryRouter><AgentPage caseId="case-1" versionId="version-1" compact assemblyRevision={2} /></MemoryRouter>);
+
+    expect(await screen.findByText("UPDATED AFTER RECALCULATION")).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/formulations/version-1/prepare"))).toHaveLength(1);
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/formulations/version-1/screen"))).toHaveLength(1);
+  });
+
   it("shows a saved finding note immediately without reloading the review workspace", async () => {
     const version = {
       id: "version-1", case_id: "case-1", version_number: 2,

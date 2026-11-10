@@ -140,7 +140,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .secondary-button:hover:not(:disabled) { background: #f8fafc; color: #0f172a; }
 .primary-button[aria-busy="true"], .secondary-button[aria-busy="true"] { position: relative; overflow: hidden; cursor: progress; opacity: .82; }
 .primary-button[aria-busy="true"]::after, .secondary-button[aria-busy="true"]::after { position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 20%) 48%, transparent 76%); content: ""; pointer-events: none; transform: translateX(-110%); animation: button-loading-sheen 1.35s ease-in-out infinite; }
-.button-spinner { flex: none; animation: button-spinner 800ms linear infinite; }
+.button-spinner, .spin { flex: none; transform-origin: center; animation: button-spinner 800ms linear infinite; }
 @keyframes button-spinner { to { transform: rotate(360deg); } }
 @keyframes button-loading-sheen { to { transform: translateX(110%); } }
 .scope-label { display: inline-flex; height: 38px; align-items: center; gap: 7px; color: #64748b; font-size: 12px; }
@@ -949,7 +949,8 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 }
 @media (prefers-reduced-motion: reduce) {
   .guided-session > section, .evidence-drawer { animation: none; }
-  .button-spinner, .primary-button[aria-busy="true"]::after, .secondary-button[aria-busy="true"]::after { animation: none; }
+  .primary-button[aria-busy="true"]::after, .secondary-button[aria-busy="true"]::after { animation: none; }
+  .button-spinner, .spin, .animate-spin { animation: button-spinner 1.6s steps(8) infinite; }
   .workspace, .primary-button, .secondary-button, .icon-button, .nav-item, .result-row, .case-list-row, .agent-target-highlight, .confirmation-progress-fill, .review-workspace-tabs button, .results-filter-presets button { transition: none; }
 }
 

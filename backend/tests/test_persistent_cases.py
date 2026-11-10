@@ -672,6 +672,16 @@ def test_authenticated_dual_supplier_flow_persists_exact_screened_aggregate(
     assert "ClariPreserve P70" not in canonical
     assert "NovaBlend H45" not in canonical
 
+    first_assembly_revision = gateway.versions[version_id]["assembly_revision"]
+    prepared_again = client.post(
+        f"/formulations/{version_id}/prepare",
+        headers=_auth(),
+        json={"revision": prepared.json()["session"]["revision"]},
+    )
+    assert prepared_again.status_code == 200, prepared_again.text
+    assert gateway.versions[version_id]["assembly_revision"] == first_assembly_revision
+    assert prepared_again.json()["formulation"]["ingredients"] == prepared.json()["formulation"]["ingredients"]
+
     screened = client.post(f"/formulations/{version_id}/screen", headers=_auth())
     assert screened.status_code == 201, screened.text
     assert screened.json()["current_input_matches"] is True

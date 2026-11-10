@@ -65,6 +65,7 @@ from backend.app.services.supplier_documents import (
 from backend.app.services.document_batch import DocumentBatchError, select_primary_formulation
 from backend.app.services.document_extraction import EXTRACTION_SCHEMA_VERSION
 from backend.app.services.trade_name_assembly import (
+    ASSEMBLY_DERIVATION_VERSION,
     derive_assembly_state,
     prepare_trade_name_assembly,
 )
@@ -1276,6 +1277,30 @@ def _current_formulation_documents(
     return current_documents
 
 
+def _source_document_snapshots(documents: list[dict[str, Any]]) -> dict[str, str]:
+    """Build the exact source signature used by assembly discovery.
+
+    Keeping this comparison next to the prepare route prevents an unchanged
+    assembly from being persisted as a new revision every time screening runs.
+    """
+    snapshots: dict[str, str] = {}
+    for document in documents:
+        if not document.get("extraction_result") or not document.get("id"):
+            continue
+        document_id = str(document["id"])
+        extraction_key = str(
+            document.get("attached_extraction_key")
+            or document.get("processing_key")
+            or f"revision:{document.get('revision', 0)}"
+        )
+        role_key = ",".join(sorted(str(value) for value in document.get("confirmed_roles") or []))
+        snapshots[document_id] = (
+            f"{ASSEMBLY_DERIVATION_VERSION}|{extraction_key}|revision:{document.get('revision', 0)}|"
+            f"governing:{bool(document.get('governing_for_material'))}|roles:{role_key}"
+        )
+    return snapshots
+
+
 @router.get(
     "/formulations/{version_id}/assembly",
     response_model=AssemblyPreparationView,
@@ -1513,12 +1538,27 @@ def prepare_formulation(
     row, view = _hydrate(request, gateway, user, version_id)
     if payload.revision != row["revision"]:
         raise HTTPException(status_code=409, detail={"code": "agent_revision_conflict", "message": "The formulation changed; reload before continuing."})
-    supporting_documents = gateway.list_formulation_documents(user.id, version_id)
+    supporting_documents = _current_formulation_documents(
+        request=request,
+        gateway=gateway,
+        user=user,
+        version_id=version_id,
+    )
     excluded_row_ids: set[str] = set()
     formulation_override: FormulationRequest | None = None
     assembly_revision = int(row.get("assembly_revision") or 0)
     if any(document.get("extraction_result") for document in supporting_documents):
-        assembly = refresh_formulation_assembly(version_id, request, user, gateway)
+        raw_assembly_state = row.get("assembly_state")
+        persisted_snapshots = (
+            raw_assembly_state.get("source_document_snapshots")
+            if isinstance(raw_assembly_state, dict) else None
+        )
+        current_snapshots = _source_document_snapshots(supporting_documents)
+        assembly = (
+            get_formulation_assembly(version_id, request, user, gateway)
+            if raw_assembly_state and persisted_snapshots == current_snapshots
+            else refresh_formulation_assembly(version_id, request, user, gateway)
+        )
         assembly_revision = assembly.assembly_revision
         if assembly.formulation is None:
             raise HTTPException(

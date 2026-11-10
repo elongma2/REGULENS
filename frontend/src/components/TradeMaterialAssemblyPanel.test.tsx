@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRef } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { TradeMaterialAssemblyPanel } from "./TradeMaterialAssemblyPanel";
+import { TradeMaterialAssemblyPanel, type TradeMaterialAssemblyPanelHandle } from "./TradeMaterialAssemblyPanel";
 
 const api = vi.hoisted(() => ({
   getOrInitializeFormulationAssembly: vi.fn(),
@@ -236,6 +237,34 @@ describe("TradeMaterialAssemblyPanel", () => {
 
     await waitFor(() => expect(api.refreshFormulationAssembly).toHaveBeenCalledWith("version-1"));
     expect(await screen.findByRole("heading", { name: "OPTASENSE" })).toBeInTheDocument();
+  });
+
+  it("waits for an active source refresh before allowing screening to continue", async () => {
+    const ref = createRef<TradeMaterialAssemblyPanelHandle>();
+    const reprocessed = { ...document, attached_extraction_key: "key-v2", revision: 2 };
+    let finishRefresh!: (value: typeof preparation) => void;
+    api.refreshFormulationAssembly.mockReturnValue(new Promise((resolve) => { finishRefresh = resolve; }));
+
+    render(<TradeMaterialAssemblyPanel ref={ref} compact versionId="version-1" documents={[reprocessed as never]} />);
+
+    await waitFor(() => expect(api.refreshFormulationAssembly).toHaveBeenCalledWith("version-1"));
+    let finished = false;
+    const pendingSave = ref.current!.savePendingChanges().then(() => { finished = true; });
+    await Promise.resolve();
+    expect(finished).toBe(false);
+
+    finishRefresh({
+      ...preparation,
+      assembly_revision: 2,
+      state: {
+        ...preparation.state,
+        source_document_snapshots: {
+          "doc-1": "assembly-v6|key-v2|revision:2|governing:true|roles:supplier_composition",
+        },
+      },
+    });
+    await pendingSave;
+    expect(finished).toBe(true);
   });
 
   it("refreshes a saved assembly created before the verified-identity regrouping fix", async () => {

@@ -568,6 +568,59 @@ def test_assembly_aggregates_direct_and_trade_material_contributions():
     assert len(prepared.result.included_ingredients[0].contributions) == 2
 
 
+@pytest.mark.parametrize(("supplier_percent", "expected_total"), [(80.0, 5.2), (70.0, 4.8)])
+def test_case_c_selected_revision_replaces_supplier_contribution_without_summing_revisions(
+    supplier_percent: float,
+    expected_total: float,
+) -> None:
+    direct = DirectIngredient(
+        ingredient_id="case-c:direct:glycerin",
+        source_document_id="C_00_Finished_Formula.csv",
+        verified_identity_group="catalogue:glycerin",
+        ingredient=FormulationIngredientRequest(
+            name="GLYCERIN",
+            cas_number="56-81-5",
+            concentration=FormulationConcentration(
+                concentration_type="exact",
+                value=2.0,
+                unit="percent",
+                basis=None,
+                preparation_stage="finished_product",
+            ),
+        ),
+    )
+    selected_revision = material(constituent(
+        "case-c:lumaguard:glycerin",
+        "GLYCERIN",
+        quantity(
+            "exact", value=supplier_percent, unit="percent",
+            quantity_scope="supplier_material",
+        ),
+        identity="catalogue:glycerin",
+    )).model_copy(update={
+        "material_id": "case-c:lumaguard",
+        "trade_name": "LumaGuard 3000",
+        "finished_product_usage": quantity(
+            "exact", value=4.0, unit="percent",
+            quantity_scope="finished_product", preparation_stage="finished_product",
+        ),
+    })
+    selected_revision.constituents[0].cas_number = "56-81-5"
+
+    prepared = prepare_assembly(
+        assembly_revision=1,
+        direct_ingredients=[direct],
+        materials=[selected_revision],
+    )
+
+    assert prepared.formulation is not None
+    glycerin = prepared.formulation.ingredients[0].concentration
+    assert glycerin is not None
+    assert glycerin.concentration_type.value == "exact"
+    assert glycerin.value == pytest.approx(expected_total)
+    assert len(prepared.result.included_ingredients[0].contributions) == 2
+
+
 def test_assembly_aggregates_direct_and_multiple_supplier_materials() -> None:
     direct = DirectIngredient(
         ingredient_id="direct-phenoxyethanol",
