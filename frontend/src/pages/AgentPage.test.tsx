@@ -6,7 +6,7 @@ import { AgentPage } from "./AgentPage";
 import { optionsFixture, testResponse } from "../test/fixtures";
 import type { AgentIngredientRow, AgentPreparedFormulation, AgentSession } from "../types/agent";
 
-function renderAgent(props: { caseId?: string; versionId?: string; compact?: boolean; beforeRunScreening?: () => Promise<void>; handledMaterialRowIds?: string[]; assemblyRevision?: number | null; focusRowRequest?: { rowId: string; requestId: number } | null } = {}) {
+function renderAgent(props: { caseId?: string; versionId?: string; compact?: boolean; beforeRunScreening?: () => Promise<void>; handledMaterialRowIds?: string[]; assemblyRevision?: number | null; focusRowRequest?: { rowId: string; requestId: number } | null; screeningBlockedReason?: string | null; onResolveScreeningBlock?: () => void } = {}) {
   return render(<MemoryRouter><AgentPage {...props} /></MemoryRouter>);
 }
 
@@ -294,6 +294,33 @@ describe("Formulation Agent page", () => {
     expect(await screen.findByRole("heading", { name: "Screening results" })).toBeInTheDocument();
     expect(screen.queryByText("Formulation ready for screening")).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/screen-formulation"))).toHaveLength(1);
+  });
+
+  it("routes the reviewer to an unresolved supplier revision instead of screening", async () => {
+    let answerCount = 0;
+    vi.spyOn(globalThis, "fetch").mockImplementation((input) => {
+      const url = String(input);
+      if (url.endsWith("/screening-options")) return json(optionsFixture);
+      if (url.endsWith("/agent/formulations")) return json(baseSession, 201);
+      if (url.endsWith("/answers")) return json(answerCount++ === 0 ? contextAnsweredSession() : answeredSession());
+      return json({}, 404);
+    });
+    const user = userEvent.setup();
+    const onResolveScreeningBlock = vi.fn();
+    renderAgent({
+      compact: true,
+      screeningBlockedReason: "Choose the current revision for one supplier material before screening.",
+      onResolveScreeningBlock,
+    });
+    await user.upload(screen.getByLabelText("Choose formulation CSV"), new File(["INCI,Concentration\nNIACINAMIDE,5%"], "demo.csv", { type: "text/csv" }));
+    await user.click(await screen.findByLabelText("Agent Product context"));
+    await user.click(screen.getByRole("option", { name: "Toothpaste" }));
+    await user.click(screen.getByRole("button", { name: "Finished product" }));
+
+    expect(screen.getByText("Supplier revision choice needed")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Run screening" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Choose revision" }));
+    expect(onResolveScreeningBlock).toHaveBeenCalledTimes(1);
   });
 
   it("does not ask users to reconfirm a recognised trade-name row", async () => {

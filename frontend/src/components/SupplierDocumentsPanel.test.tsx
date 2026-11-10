@@ -521,12 +521,71 @@ describe("SupplierDocumentsPanel", () => {
     }));
     render(<SupplierDocumentsPanel versionId="version-1" />);
 
-    const choices = await screen.findAllByLabelText("Use this revision");
+    const choices = await screen.findAllByRole("button", { name: "Use this revision" });
     await user.click(choices[1]);
 
     await waitFor(() => expect(api.updateFormulationDocument).toHaveBeenCalledWith(
       first.id, first.revision, { governing_for_material: false },
     ));
     expect(screen.getByText("All documents are ready")).toBeInTheDocument();
+  });
+
+  it("recommends an explicitly superseding revision and blocks screening until one revision is chosen", async () => {
+    const user = userEvent.setup();
+    const onWorkflowStatusChange = vi.fn();
+    const extraction_result = {
+      supplier_materials: [{ trade_name: "LumaGuard", product_code: "LUMA-1" }],
+    };
+    const first = {
+      ...attachment,
+      id: "attachment-a",
+      supplier_document_id: "supplier-a",
+      original_filename: "LumaGuard Rev A.pdf",
+      document_revision_label: "Rev A",
+      extraction_result,
+      governing_for_material: false,
+    };
+    const second = {
+      ...attachment,
+      id: "attachment-b",
+      supplier_document_id: "supplier-b",
+      original_filename: "LumaGuard Rev B.pdf",
+      document_revision_label: "Rev B",
+      parsed_content: { pages: [{ text: "Revision: Rev B\nSupersedes Rev A" }] },
+      extraction_result,
+      governing_for_material: false,
+    };
+    api.listFormulationDocuments.mockResolvedValue([first, second]);
+    api.listSupplierDocuments.mockResolvedValue([
+      { ...savedDocument, id: "supplier-a", original_filename: first.original_filename, document_revision_label: "Rev A" },
+      { ...savedDocument, id: "supplier-b", original_filename: second.original_filename, document_revision_label: "Rev B" },
+    ]);
+    api.updateFormulationDocument.mockImplementation(async (id, revision, changes) => ({
+      ...(id === first.id ? first : second),
+      ...changes,
+      revision: revision + 1,
+    }));
+
+    render(<SupplierDocumentsPanel versionId="version-1" onWorkflowStatusChange={onWorkflowStatusChange} />);
+
+    expect(await screen.findByText("Revision choice required")).toBeInTheDocument();
+    expect(screen.getByText("Recommended")).toBeInTheDocument();
+    expect(screen.getByText(/source states that it supersedes Rev A/i)).toBeInTheDocument();
+    await waitFor(() => expect(onWorkflowStatusChange).toHaveBeenLastCalledWith(expect.objectContaining({
+      blocking: true,
+      unresolvedRevisionGroups: 1,
+    })));
+
+    await user.click(screen.getByRole("button", { name: "Use Rev B" }));
+
+    await waitFor(() => expect(api.updateFormulationDocument).toHaveBeenCalledWith(
+      second.id, second.revision, { governing_for_material: true },
+    ));
+    await waitFor(() => expect(onWorkflowStatusChange).toHaveBeenLastCalledWith(expect.objectContaining({
+      blocking: false,
+      unresolvedRevisionGroups: 0,
+    })));
+    expect(screen.getByText("Used in calculation")).toBeInTheDocument();
+    expect(screen.getByText(/Previous revision · retained for audit only/)).toBeInTheDocument();
   });
 });

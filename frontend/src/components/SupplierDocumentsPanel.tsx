@@ -90,6 +90,77 @@ function documentName(document: SupplierDocument): string {
 
 type SupplierMetadataDraft = Pick<SupplierDocument, "supplier_name" | "trade_name" | "product_code" | "document_revision_label">;
 
+export interface SupplierDocumentWorkflowStatus {
+  blocking: boolean;
+  unresolvedRevisionGroups: number;
+  reason: string | null;
+}
+
+interface RevisionGroup {
+  key: string;
+  name: string;
+  documents: FormulationDocument[];
+  recommendedDocumentId: string | null;
+  recommendationReason: string | null;
+}
+
+function materialName(document: FormulationDocument, key: string): string {
+  const extraction = document.extraction_result as {
+    supplier_materials?: Array<{ trade_name?: string | null; product_code?: string | null }>;
+  } | null;
+  const material = (extraction?.supplier_materials ?? []).find((candidate) => {
+    const productCode = (candidate.product_code ?? "").trim().toLocaleLowerCase();
+    if (productCode && `code:${productCode}` === key) return true;
+    const tradeName = (candidate.trade_name ?? "").trim().toLocaleLowerCase();
+    return key.endsWith(`|trade:${tradeName}`);
+  });
+  return material?.trade_name || material?.product_code || "Supplier material";
+}
+
+function revisionRecommendation(
+  documents: FormulationDocument[],
+  savedById: Map<string, SupplierDocument>,
+): { documentId: string | null; reason: string | null } {
+  const normaliseRevision = (value: string | null | undefined) => (value ?? "")
+    .toLocaleLowerCase()
+    .replace(/^revision/, "rev")
+    .replace(/[^a-z0-9]/g, "");
+  const explicitTextSuccessors = documents.flatMap((document) => {
+    const sourceText = JSON.stringify(document.parsed_content ?? {});
+    const match = /supersedes?\s+(?:(?:document\s+)?revision\s*)?((?:rev(?:ision)?\.?\s*)?[a-z0-9][a-z0-9._/-]*)/i.exec(sourceText);
+    if (!match) return [];
+    const supersededRevision = normaliseRevision(match[1]);
+    const hasMatchingPredecessor = documents.some((candidate) => (
+      candidate.id !== document.id
+      && normaliseRevision(candidate.document_revision_label) === supersededRevision
+    ));
+    return hasMatchingPredecessor ? [{ document, label: match[1] }] : [];
+  });
+  if (explicitTextSuccessors.length === 1) {
+    const successor = explicitTextSuccessors[0];
+    return { documentId: successor.document.id, reason: `The source states that it supersedes ${successor.label}.` };
+  }
+
+  const attachedSavedIds = new Set(documents.flatMap((document) => document.supplier_document_id ? [document.supplier_document_id] : []));
+  const explicitSuccessors = documents.filter((document) => {
+    const source = document.supplier_document_id ? savedById.get(document.supplier_document_id) : null;
+    return Boolean(source?.supersedes_supplier_document_id && attachedSavedIds.has(source.supersedes_supplier_document_id));
+  });
+  if (explicitSuccessors.length === 1) {
+    return { documentId: explicitSuccessors[0].id, reason: "This file is explicitly linked as superseding another attached revision." };
+  }
+
+  const dated = documents.flatMap((document) => {
+    const source = document.supplier_document_id ? savedById.get(document.supplier_document_id) : null;
+    const timestamp = source?.document_date ? Date.parse(source.document_date) : Number.NaN;
+    return Number.isFinite(timestamp) ? [{ document, timestamp }] : [];
+  }).sort((left, right) => right.timestamp - left.timestamp);
+  if (dated.length >= 2 && dated[0].timestamp > dated[1].timestamp) {
+    return { documentId: dated[0].document.id, reason: "This file has the latest stated document date." };
+  }
+  return { documentId: null, reason: null };
+}
+
 export interface SupplierDocumentsPanelHandle {
   openManager: (documentId?: string) => void;
 }
@@ -97,11 +168,13 @@ export interface SupplierDocumentsPanelHandle {
 export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
   versionId: string;
   onDocumentsChanged?: (documents: FormulationDocument[]) => void;
+  onWorkflowStatusChange?: (status: SupplierDocumentWorkflowStatus) => void;
   compact?: boolean;
   allowUploads?: boolean;
 }>(function SupplierDocumentsPanel({
   versionId,
   onDocumentsChanged,
+  onWorkflowStatusChange,
   compact = false,
   allowUploads = true,
 }, ref) {
@@ -254,6 +327,29 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
       supplierMaterialKeys(document).includes(key) && document.governing_for_material
     )).length !== 1),
   ), [documents, revisionConflictKeys]);
+  const savedById = useMemo(() => new Map(library.map((document) => [document.id, document])), [library]);
+  const revisionGroups = useMemo<RevisionGroup[]>(() => [...revisionConflictKeys].map((key) => {
+    const groupedDocuments = documents.filter((document) => supplierMaterialKeys(document).includes(key));
+    const recommendation = revisionRecommendation(groupedDocuments, savedById);
+    return {
+      key,
+      name: materialName(groupedDocuments[0], key),
+      documents: groupedDocuments,
+      recommendedDocumentId: recommendation.documentId,
+      recommendationReason: recommendation.reason,
+    };
+  }), [documents, revisionConflictKeys, savedById]);
+  const workflowStatus = useMemo<SupplierDocumentWorkflowStatus>(() => {
+    const count = unresolvedRevisionConflictKeys.size;
+    return {
+      blocking: count > 0,
+      unresolvedRevisionGroups: count,
+      reason: count > 0
+        ? `Choose the current revision for ${count === 1 ? "one supplier material" : `${count} supplier materials`} before screening.`
+        : null,
+    };
+  }, [unresolvedRevisionConflictKeys]);
+  useEffect(() => onWorkflowStatusChange?.(workflowStatus), [onWorkflowStatusChange, workflowStatus]);
   const workflowStates = useMemo(() => new Map(documents.map((document) => [
     document.id,
     documentWorkflowState(
@@ -467,6 +563,13 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
     try {
       const keys = new Set(supplierMaterialKeys(document));
       let nextDocuments = [...documents];
+      const currentDocument = nextDocuments.find((item) => item.id === document.id) ?? document;
+      const updated = currentDocument.governing_for_material
+        ? currentDocument
+        : await updateFormulationDocument(currentDocument.id, currentDocument.revision, {
+          governing_for_material: true,
+        });
+      nextDocuments = nextDocuments.map((item) => item.id === updated.id ? updated : item);
       const selectedPeers = nextDocuments.filter((candidate) => (
         candidate.id !== document.id
         && candidate.governing_for_material
@@ -478,13 +581,6 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
         });
         nextDocuments = nextDocuments.map((item) => item.id === updatedPeer.id ? updatedPeer : item);
       }
-      const currentDocument = nextDocuments.find((item) => item.id === document.id) ?? document;
-      const updated = currentDocument.governing_for_material
-        ? currentDocument
-        : await updateFormulationDocument(currentDocument.id, currentDocument.revision, {
-          governing_for_material: true,
-        });
-      nextDocuments = nextDocuments.map((item) => item.id === updated.id ? updated : item);
       setDocuments(nextDocuments);
       onDocumentsChanged?.(nextDocuments);
     } catch (caught) {
@@ -641,6 +737,45 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
       <span>{attentionCount ? `${attentionCount} document${attentionCount === 1 ? "" : "s"} need action before screening` : workflowCounts.processing ? "Document processing is still in progress" : "All documents are ready"}</span>
     </div> : null}
 
+    {revisionGroups.length > 0 ? <div className="supplier-revision-groups">
+      {revisionGroups.map((group) => {
+        const selected = group.documents.filter((document) => document.governing_for_material);
+        const resolved = selected.length === 1;
+        return <section className={`supplier-revision-group ${resolved ? "is-resolved" : "needs-choice"}`} key={group.key} aria-labelledby={`revision-group-${group.key}`}>
+          <div className="supplier-revision-group-heading">
+            <div>
+              <span className="supplier-revision-kicker">{resolved ? "Current revision selected" : "Revision choice required"}</span>
+              <h3 id={`revision-group-${group.key}`}>{group.name}</h3>
+              <p>Both source files are retained. Only the selected revision is used in concentration calculations.</p>
+            </div>
+            <span className={`supplier-revision-state ${resolved ? "is-resolved" : ""}`}>{resolved ? "Ready" : "Choose one"}</span>
+          </div>
+          <div className="supplier-revision-options">
+            {group.documents.map((document) => {
+              const source = document.supplier_document_id ? savedById.get(document.supplier_document_id) : null;
+              const recommended = group.recommendedDocumentId === document.id;
+              const current = resolved && document.governing_for_material;
+              const revision = document.document_revision_label || source?.document_revision_label;
+              return <div className={`supplier-revision-option ${current ? "is-current" : ""}`} key={document.id}>
+                <div>
+                  <strong>{revision || document.original_filename}</strong>
+                  <span>{[revision ? document.original_filename : null, source?.document_date ? new Date(source.document_date).toLocaleDateString() : null].filter(Boolean).join(" · ")}</span>
+                  {recommended && group.recommendationReason ? <small>{group.recommendationReason}</small> : null}
+                </div>
+                <div>
+                  {recommended ? <span className="supplier-recommended-badge">Recommended</span> : null}
+                  {current ? <span className="supplier-current-badge"><CheckCircle2 size={13} /> Used in calculation</span> : <button className={recommended ? "primary-button" : "secondary-button"} type="button" disabled={Boolean(busyKey)} onClick={() => void selectGoverning(document)}>
+                    {busyKey === `governing:${document.id}` ? <LoaderCircle className="spin" size={14} /> : null}
+                    {recommended ? `Use ${revision || "recommended revision"}` : `Use ${revision || "this revision"}`}
+                  </button>}
+                </div>
+              </div>;
+            })}
+          </div>
+        </section>;
+      })}
+    </div> : null}
+
     {documents.length > 0 ? <ul className="supplier-document-list">
       {documents.map((document) => {
         const role = primaryRole(document);
@@ -683,7 +818,7 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
                 </select>
               </label>
             </div> : null}
-            {!interrupted && ["supplier_composition", "sds_msds"].includes(role) && (hasRevisionConflict || (!automaticSupplier && !document.governing_for_material)) ? <label className="supplier-governing-toggle">
+            {!interrupted && ["supplier_composition", "sds_msds"].includes(role) && !hasRevisionConflict && (!automaticSupplier && !document.governing_for_material) ? <label className="supplier-governing-toggle">
               <input
                 type="radio"
                 name={`current-supplier-file-${documentMaterialKeys[0] ?? document.id}`}
@@ -692,13 +827,13 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
                 onClick={() => void selectGoverning(document)}
                 onChange={() => undefined}
               />
-              {hasRevisionConflict ? "Use this revision" : "Use this file"}
+              Use this file
             </label> : null}
             {hasRevisionConflict ? <small>{revisionSelectionNeeded
-              ? "Two files describe the same raw material. Select the one that applies to this formulation."
+              ? "Waiting for the revision choice above."
               : document.governing_for_material
-                ? "Regulens will use this revision for the calculation."
-                : "This revision will not be used in the calculation."}</small> : null}
+                ? "Current revision · used in the calculation."
+                : "Previous revision · retained for audit only."}</small> : null}
           </div>
           <div className="supplier-document-item-actions">
             {document.supplier_document_id ? <button className="secondary-button" type="button" disabled={Boolean(busyKey)} onClick={() => void openSource(document)}>

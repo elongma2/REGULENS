@@ -104,6 +104,8 @@ export function AgentPage({
   handledMaterialRowIds = NO_HANDLED_MATERIAL_ROW_IDS,
   assemblyRevision = null,
   focusRowRequest = null,
+  screeningBlockedReason = null,
+  onResolveScreeningBlock,
 }: {
   caseId?: string;
   versionId?: string;
@@ -112,6 +114,8 @@ export function AgentPage({
   handledMaterialRowIds?: string[];
   assemblyRevision?: number | null;
   focusRowRequest?: { rowId: string; requestId: number } | null;
+  screeningBlockedReason?: string | null;
+  onResolveScreeningBlock?: () => void;
 } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -491,7 +495,7 @@ export function AgentPage({
   };
 
   const runScreening = async () => {
-    if (!session || busy) return;
+    if (!session || busy || screeningBlockedReason) return;
     setBusy(true); setError(null);
     try {
       await beforeRunScreening?.();
@@ -911,18 +915,18 @@ export function AgentPage({
           </nav>
 
           {showConfirmationControl && (
-            <section className={`confirmation-control ${remainingConfirmations === 0 ? "is-complete" : ""}`} aria-label="Confirmation status">
+            <section className={`confirmation-control ${remainingConfirmations === 0 && !screeningBlockedReason ? "is-complete" : ""}`} aria-label="Confirmation status">
               <div className="confirmation-meter" role="progressbar" aria-label="Confirmation progress" aria-valuemin={0} aria-valuemax={Math.max(totalConfirmations, 1)} aria-valuenow={totalConfirmations > 0 ? completedConfirmations : 1}>
                 <span className="confirmation-progress-fill" style={{ transform: `scaleX(${confirmationPercent / 100})` }} aria-hidden="true" />
                 <div className="confirmation-meter-content">
-                  <strong className="confirmation-count">{remainingConfirmations}</strong>
+                  <strong className="confirmation-count">{screeningBlockedReason ? "!" : remainingConfirmations}</strong>
                   <div>
-                    <span className="confirmation-label">{remainingConfirmations > 0 ? `confirmation${remainingConfirmations === 1 ? "" : "s"} needed before screening` : "Ready to screen"}</span>
-                    <small>{remainingConfirmations > 0 ? `${blockingItems.length} item${blockingItems.length === 1 ? "" : "s"} to modify` : compact ? "Regulens will calculate supplier ingredients and screen everything together." : "All required confirmations are complete"}</small>
+                    <span className="confirmation-label">{screeningBlockedReason ? "Supplier revision choice needed" : remainingConfirmations > 0 ? `confirmation${remainingConfirmations === 1 ? "" : "s"} needed before screening` : "Ready to screen"}</span>
+                    <small>{screeningBlockedReason || (remainingConfirmations > 0 ? `${blockingItems.length} item${blockingItems.length === 1 ? "" : "s"} to modify` : compact ? "Regulens will calculate supplier ingredients and screen everything together." : "All required confirmations are complete")}</small>
                   </div>
                 </div>
               </div>
-              <button className="primary-button confirmation-action" type="button" onClick={compact ? runScreening : prepare} disabled={busy || remainingConfirmations > 0} aria-busy={busy}>{busy ? <><LoaderCircle className="button-spinner" size={16} aria-hidden="true" />{compact ? "Screening…" : "Confirming…"}</> : <>{compact ? "Run screening" : "Confirm Formulation"} <ArrowRight size={15} aria-hidden="true" /></>}</button>
+              {screeningBlockedReason && onResolveScreeningBlock ? <button className="secondary-button confirmation-action" type="button" onClick={onResolveScreeningBlock}>Choose revision <ArrowRight size={15} aria-hidden="true" /></button> : <button className="primary-button confirmation-action" type="button" onClick={compact ? runScreening : prepare} disabled={busy || remainingConfirmations > 0 || Boolean(screeningBlockedReason)} aria-busy={busy}>{busy ? <><LoaderCircle className="button-spinner" size={16} aria-hidden="true" />{compact ? "Screening…" : "Confirming…"}</> : <>{compact ? "Run screening" : "Confirm Formulation"} <ArrowRight size={15} aria-hidden="true" /></>}</button>}
             </section>
           )}
         </div>
