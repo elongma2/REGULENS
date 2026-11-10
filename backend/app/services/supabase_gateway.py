@@ -778,6 +778,31 @@ class SupabaseGateway:
         row["screening_count"] = len(self.client.table("screening_runs").select("id").eq("formulation_version_id", str(version_id)).execute().data or [])
         return row
 
+    def download_formulation_source(
+        self,
+        user_id: UUID,
+        version_id: str | UUID,
+    ) -> bytes:
+        row = self._version_row(user_id, version_id)
+        path = row.get("source_storage_path")
+        if not path:
+            raise ResourceNotFoundError("The original formulation source is unavailable")
+        content = self.client.storage.from_(FORMULATION_BUCKET).download(path)
+        return bytes(content)
+
+    def replace_version_raw_extraction(
+        self,
+        user_id: UUID,
+        version_id: str | UUID,
+        raw_extraction: dict[str, Any],
+    ) -> None:
+        self._version_row(user_id, version_id)
+        rows = self.client.table("formulation_versions").update({
+            "raw_extraction": raw_extraction,
+        }).eq("id", str(version_id)).execute().data or []
+        if not rows:
+            raise ResourceNotFoundError("Formulation version not found")
+
     def persist_agent_state(
         self,
         user_id: UUID,

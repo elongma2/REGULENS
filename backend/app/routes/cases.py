@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 from typing import Annotated, Any
 from uuid import UUID, uuid4
 
@@ -49,7 +50,13 @@ from backend.app.models.formulation import (
     ScreeningInputRevision,
 )
 from backend.app.models.document_intake import FormulationAssemblyState, FormulationRowOwnerType
-from backend.app.services.agent_csv import CSVUploadError, MAX_FILE_BYTES, ParsedCSV, parse_formulation_upload
+from backend.app.services.agent_csv import (
+    CSVUploadError,
+    MAX_FILE_BYTES,
+    MAX_PDF_FILE_BYTES,
+    ParsedCSV,
+    parse_formulation_upload,
+)
 from backend.app.services.formulation import screen_formulation
 from backend.app.services.formulation_agent import (
     AgentConfirmationRequiredError,
@@ -63,6 +70,7 @@ from backend.app.services.supplier_documents import (
     SupplierDocumentService,
 )
 from backend.app.services.document_batch import DocumentBatchError, select_primary_formulation
+from backend.app.services.document_classifier import classify_document
 from backend.app.services.document_extraction import EXTRACTION_SCHEMA_VERSION
 from backend.app.services.trade_name_assembly import (
     ASSEMBLY_DERIVATION_VERSION,
@@ -104,7 +112,10 @@ def _parsed(raw: dict[str, Any]) -> ParsedCSV:
         rows=tuple(tuple(str(cell) for cell in row) for row in raw["rows"]),
         source_format=str(raw.get("source_format") or "structured_grid"),
         row_pages=tuple(raw.get("row_pages") or ()),
-        row_snippets=tuple(str(value) for value in (raw.get("row_snippets") or ())),
+        row_snippets=tuple(
+            str(value) if value is not None else None
+            for value in (raw.get("row_snippets") or ())
+        ),
         page_count=raw.get("page_count"),
     )
 
@@ -119,6 +130,27 @@ def _raw(parsed: ParsedCSV) -> dict[str, Any]:
         "row_snippets": list(parsed.row_snippets),
         "page_count": parsed.page_count,
     }
+
+
+def _pdf_text_needs_vision(parsed: ParsedCSV) -> bool:
+    """Return true when local PDF text lacks a dependable formulation structure."""
+    if parsed.source_format != "pdf" or parsed.delimiter == "vision":
+        return False
+    if parsed.page_count and parsed.row_pages:
+        pages_with_text = {page for page in parsed.row_pages if page is not None}
+        if len(pages_with_text) < parsed.page_count:
+            return True
+    roles = {item.role.value for item in classify_document(parsed).proposed_roles}
+    return not roles.intersection({"finished_product_formulation", "ingredient_list"})
+
+
+def _vision_placeholder(filename: str) -> ParsedCSV:
+    return ParsedCSV(
+        filename=Path(filename or "formulation.pdf").name,
+        delimiter="vision_pending",
+        rows=(("Vision processing pending",),),
+        source_format="pdf",
+    )
 
 
 def _status(view: AgentSessionView) -> str:
@@ -450,7 +482,12 @@ async def upload_formulation(
     buffered: list[tuple[UploadFile, bytes, ParsedCSV | None]] = []
     parse_errors: list[tuple[UploadFile, CSVUploadError]] = []
     for upload in uploads:
-        content = await upload.read(MAX_FILE_BYTES + 1)
+        read_limit = (
+            MAX_PDF_FILE_BYTES
+            if Path(upload.filename or "").suffix.casefold() == ".pdf"
+            else MAX_FILE_BYTES
+        )
+        content = await upload.read(read_limit + 1)
         try:
             parsed_upload = parse_formulation_upload(
                 upload.filename or "formulation.csv",
@@ -461,19 +498,73 @@ async def upload_formulation(
             parse_errors.append((upload, error))
         buffered.append((upload, content, parsed_upload))
 
+    vision_extractor = getattr(request.app.state, "document_vision_extractor", None)
+    vision_failures: dict[int, Exception] = {}
+
+    def apply_vision(index: int) -> None:
+        upload, content, current = buffered[index]
+        if Path(upload.filename or "").suffix.casefold() != ".pdf":
+            return
+        parse_error = next((error for item, error in parse_errors if item is upload), None)
+        needs_vision = (
+            parse_error is not None and parse_error.code == "agent_pdf_text_unavailable"
+        ) or (current is not None and _pdf_text_needs_vision(current))
+        if not needs_vision:
+            return
+        if vision_extractor is None:
+            vision_failures[index] = RuntimeError("The AI vision document processor is not configured.")
+            return
+        try:
+            extraction = vision_extractor.extract_pdf(
+                upload.filename or "formulation.pdf",
+                content,
+                expected_role="finished_product_formulation",
+            )
+        except Exception as error:
+            LOGGER.exception("Vision extraction failed for primary formulation %s", upload.filename)
+            vision_failures[index] = error
+            return
+        vision_failures.pop(index, None)
+        buffered[index] = (upload, content, extraction.parsed)
+        parse_errors[:] = [(item, error) for item, error in parse_errors if item is not upload]
+
+    # The central upload interface sends the selected formulation through the
+    # legacy `file` field. Its user-selected role is authoritative, so perform
+    # scan/poor-text fallback before primary selection.
+    if file is not None:
+        apply_vision(0)
+
     try:
         primary_index = select_primary_formulation(
             [item[2] for item in buffered],
             legacy_first_file=file is not None,
         )
     except DocumentBatchError as error:
-        raise HTTPException(
-            status_code=422,
-            detail={"code": error.code, "message": str(error)},
-        ) from error
+        # Compatibility uploads do not identify a primary file. If local text
+        # could not identify one, inspect only the ambiguous PDFs and select
+        # again from their source-backed vision output.
+        if file is None:
+            for index in range(len(buffered)):
+                apply_vision(index)
+            try:
+                primary_index = select_primary_formulation(
+                    [item[2] for item in buffered],
+                    legacy_first_file=False,
+                )
+            except DocumentBatchError:
+                raise HTTPException(
+                    status_code=422,
+                    detail={"code": error.code, "message": str(error)},
+                ) from error
+        else:
+            raise HTTPException(
+                status_code=422,
+                detail={"code": error.code, "message": str(error)},
+            ) from error
 
     primary_file, content, parsed = buffered[primary_index]
-    if parsed is None:
+    recoverable_vision_failure = primary_index in vision_failures
+    if parsed is None and not recoverable_vision_failure:
         primary_error = next(error for upload, error in parse_errors if upload is primary_file)
         raise HTTPException(
             status_code=primary_error.status_code,
@@ -484,41 +575,76 @@ async def upload_formulation(
     except ResourceNotFoundError as error:
         raise _not_found(error) from error
 
+    source = parsed or _vision_placeholder(primary_file.filename or "formulation.pdf")
     version_id = uuid4()
-    storage_path = f"{case['organisation_id']}/{case_id}/{version_id}/{parsed.filename}"
+    storage_path = f"{case['organisation_id']}/{case_id}/{version_id}/{source.filename}"
     initial = AgentSessionView(
         session_id=str(version_id), revision=0, state=AgentSessionState.PARSING,
-        filename=parsed.filename, source_format=parsed.source_format,
+        filename=source.filename, source_format=source.source_format,
         model=_agent_service(request).model,
         activity=[AgentActivityItem(
             activity_id=str(uuid4()), status="complete",
             message=(
-                f"Extracted {len(parsed.rows)} text lines from {parsed.page_count or 0} PDF page(s)"
-                if parsed.source_format == "pdf" else f"Read {len(parsed.rows)} formulation rows"
+                f"Extracted {len(source.rows)} source rows from {source.page_count or 0} PDF page(s)"
+                if source.source_format == "pdf" else f"Read {len(source.rows)} formulation rows"
             ),
         )],
     )
     gateway.upload_file(storage_path, content, primary_file.content_type)
     try:
-        gateway.create_version(user.id, version_id, case_id, parsed.filename, storage_path, _raw(parsed), initial.model_dump(mode="json"))
+        gateway.create_version(user.id, version_id, case_id, source.filename, storage_path, _raw(source), initial.model_dump(mode="json"))
     except Exception:
         gateway.remove_file(storage_path)
         raise
-    try:
-        view = _agent_service(request).create(parsed, session_id=str(version_id))
-    except Exception as error:
-        LOGGER.exception("Persistent formulation interpretation failed unexpectedly for version %s", version_id)
+    if recoverable_vision_failure:
         initial.revision = 1
         initial.state = AgentSessionState.FAILED
         initial.error = AgentFailure(
-            code="agent_interpretation_failed",
-            message="Regulens could not complete the interpretation. Your uploaded file has been preserved.",
+            code="document_vision_failed",
+            message="Regulens could not visually interpret this PDF. The original file has been preserved; retry when ready.",
             recoverable=True,
         )
         initial.activity.append(AgentActivityItem(
-            activity_id=str(uuid4()), status="error", message="Interpretation could not be completed",
+            activity_id=str(uuid4()), status="error", message="Visual interpretation could not be completed",
         ))
         view = initial
+    else:
+        try:
+            view = _agent_service(request).create(source, session_id=str(version_id))
+            # A PDF that looked structurally usable in extracted text can still
+            # fail semantic table interpretation. Retry from the rendered pages
+            # before surfacing a recoverable failure.
+            if (
+                view.state == AgentSessionState.FAILED
+                and source.source_format == "pdf"
+                and source.delimiter != "vision"
+                and vision_extractor is not None
+            ):
+                vision = vision_extractor.extract_pdf(
+                    source.filename,
+                    content,
+                    expected_role="finished_product_formulation",
+                )
+                source = vision.parsed
+                gateway.replace_version_raw_extraction(user.id, version_id, _raw(source))
+                view = _agent_service(request).create(source, session_id=str(version_id))
+        except Exception:
+            LOGGER.exception("Persistent formulation interpretation failed unexpectedly for version %s", version_id)
+            initial.revision = 1
+            initial.state = AgentSessionState.FAILED
+            initial.error = AgentFailure(
+                code=(
+                    "document_vision_failed"
+                    if source.source_format == "pdf" and source.delimiter != "vision"
+                    else "agent_interpretation_failed"
+                ),
+                message="Regulens could not complete the interpretation. Your uploaded file has been preserved for retry.",
+                recoverable=True,
+            )
+            initial.activity.append(AgentActivityItem(
+                activity_id=str(uuid4()), status="error", message="Interpretation could not be completed",
+            ))
+            view = initial
     _persist(gateway, user, version_id, 0, view)
 
     supplier_service = SupplierDocumentService(gateway)
@@ -1501,7 +1627,51 @@ def retry_interpretation(
     gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
 ) -> FormulationVersionView:
     row, view = _hydrate(request, gateway, user, version_id)
-    result = _agent_service(request).retry(view.session_id)
+    parsed = _parsed(row["raw_extraction"])
+    should_retry_with_vision = (
+        parsed.source_format == "pdf"
+        and parsed.delimiter != "vision"
+        and (
+            parsed.delimiter == "vision_pending"
+            or view.state == AgentSessionState.FAILED
+            or _pdf_text_needs_vision(parsed)
+        )
+    )
+    if should_retry_with_vision:
+        vision_extractor = getattr(request.app.state, "document_vision_extractor", None)
+        if vision_extractor is None:
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "code": "document_vision_not_configured",
+                    "message": "The AI vision document processor is unavailable. The original PDF remains saved for retry.",
+                    "recoverable": True,
+                },
+            )
+        try:
+            content = gateway.download_formulation_source(user.id, version_id)
+            parsed = vision_extractor.extract_pdf(
+                view.filename,
+                content,
+                expected_role="finished_product_formulation",
+            ).parsed
+            gateway.replace_version_raw_extraction(user.id, version_id, _raw(parsed))
+            result = _agent_service(request).create(parsed, session_id=view.session_id)
+            result.revision = int(row["revision"]) + 1
+        except ResourceNotFoundError as error:
+            raise _not_found(error) from error
+        except Exception as error:
+            LOGGER.exception("Formulation vision retry failed for version %s", version_id)
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    "code": "document_vision_failed",
+                    "message": "Visual interpretation failed again. The original PDF remains saved and can be retried.",
+                    "recoverable": True,
+                },
+            ) from error
+    else:
+        result = _agent_service(request).retry(view.session_id)
     _persist(gateway, user, version_id, row["revision"], result)
     return _view_from_row(gateway.get_version(user.id, version_id))
 

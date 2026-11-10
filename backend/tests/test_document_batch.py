@@ -4,6 +4,7 @@ import pytest
 
 from backend.app.services.agent_csv import ParsedCSV
 from backend.app.services.document_batch import DocumentBatchError, select_primary_formulation
+from backend.app.routes.cases import _pdf_text_needs_vision
 
 
 def _parsed(filename: str, rows: list[tuple[str, ...]]) -> ParsedCSV:
@@ -101,3 +102,38 @@ def test_single_sds_is_not_silently_treated_as_the_finished_formulation() -> Non
 def test_legacy_single_file_path_remains_unchanged() -> None:
     document = _parsed("legacy.csv", [("Anything",), ("A",)])
     assert select_primary_formulation([document], legacy_first_file=True) == 0
+
+
+def test_pdf_text_quality_routes_only_unstructured_pdf_to_vision() -> None:
+    reliable = ParsedCSV(
+        filename="native.pdf",
+        delimiter="pdf_text",
+        rows=(("Finished product formulation",), ("Ingredient", "Amount used")),
+        source_format="pdf",
+    )
+    unreliable = ParsedCSV(
+        filename="messy.pdf",
+        delimiter="pdf_text",
+        rows=(("I N C I 5 0 0 broken visual ordering",),),
+        source_format="pdf",
+    )
+    vision = ParsedCSV(
+        filename="scan.pdf",
+        delimiter="vision",
+        rows=(("Finished-product formulation",),),
+        source_format="pdf",
+    )
+    mixed = ParsedCSV(
+        filename="mixed.pdf",
+        delimiter="pdf_text",
+        rows=(("Finished product formulation",), ("Ingredient", "Amount used")),
+        source_format="pdf",
+        row_pages=(1, 1),
+        row_snippets=("Finished product formulation", "Ingredient | Amount used"),
+        page_count=2,
+    )
+
+    assert _pdf_text_needs_vision(reliable) is False
+    assert _pdf_text_needs_vision(unreliable) is True
+    assert _pdf_text_needs_vision(vision) is False
+    assert _pdf_text_needs_vision(mixed) is True

@@ -18,6 +18,7 @@ from xlrd.biffh import XLRDError
 
 
 MAX_FILE_BYTES = 2 * 1024 * 1024
+MAX_PDF_FILE_BYTES = 20 * 1024 * 1024
 MAX_ROWS = 500
 MAX_COLUMNS = 50
 MAX_CELL_CHARACTERS = 8_192
@@ -39,7 +40,7 @@ class ParsedCSV:
     rows: tuple[tuple[str, ...], ...]
     source_format: str = "structured_grid"
     row_pages: tuple[int | None, ...] = ()
-    row_snippets: tuple[str, ...] = ()
+    row_snippets: tuple[str | None, ...] = ()
     page_count: int | None = None
 
     def page_for_row(self, source_row: int) -> int | None:
@@ -72,8 +73,14 @@ def parse_formulation_upload(filename: str, content: bytes) -> ParsedCSV:
         raise CSVUploadError("agent_csv_type_unsupported", "Supported formulation files: .csv, .tsv, .txt, .xlsx, .xls, .json, and .pdf")
     if not content:
         raise CSVUploadError("agent_csv_empty", "The uploaded file is empty")
-    if len(content) > MAX_FILE_BYTES:
-        raise CSVUploadError("agent_csv_too_large", "Formulation files are limited to 2 MiB", 413)
+    file_limit = MAX_PDF_FILE_BYTES if suffix == ".pdf" else MAX_FILE_BYTES
+    if len(content) > file_limit:
+        limit_mib = file_limit // (1024 * 1024)
+        raise CSVUploadError(
+            "agent_csv_too_large",
+            f"{suffix.removeprefix('.').upper()} formulation files are limited to {limit_mib} MiB",
+            413,
+        )
     if suffix == ".xlsx":
         try:
             workbook = openpyxl.load_workbook(io.BytesIO(content), read_only=True, data_only=True)

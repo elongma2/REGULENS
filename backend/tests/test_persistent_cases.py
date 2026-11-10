@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import UTC, datetime
+from io import BytesIO
 from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from pypdf import PdfWriter
 
 from backend.app.config import OpenAISettings
 from backend.app.main import create_app
@@ -34,6 +36,8 @@ from backend.app.services.supabase_gateway import (
     ResourceNotFoundError,
     RevisionConflictError,
 )
+from backend.app.services.agent_csv import ParsedCSV
+from backend.app.services.document_vision import VisionExtraction
 
 
 USER_A = UUID("aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa")
@@ -59,6 +63,7 @@ class FakePersistentGateway:
         self.clarifications: list[dict] = []
         self.notes: list[dict] = []
         self.follow_ups: list[dict] = []
+        self.storage: dict[str, bytes] = {}
         self.deleted_users: set[UUID] = set()
 
     def verify_user(self, token: str) -> AuthenticatedUser:
@@ -172,6 +177,62 @@ class FakePersistentGateway:
             raise ResourceNotFoundError("Formulation version not found")
         self._case(user_id, row["case_id"])
         return deepcopy(row)
+
+    def upload_file(self, path: str, content: bytes, _content_type: str | None) -> None:
+        self.storage[path] = bytes(content)
+
+    def remove_file(self, path: str) -> None:
+        self.storage.pop(path, None)
+
+    def create_version(
+        self,
+        user_id: UUID,
+        version_id: UUID,
+        case_id: UUID,
+        filename: str,
+        storage_path: str,
+        raw_extraction: dict,
+        agent_state: dict,
+    ) -> dict:
+        self._case(user_id, case_id)
+        timestamp = _now()
+        row = {
+            "id": str(version_id),
+            "case_id": str(case_id),
+            "version_number": len([
+                value for value in self.versions.values()
+                if value["case_id"] == str(case_id)
+            ]) + 1,
+            "original_filename": filename,
+            "source_storage_path": storage_path,
+            "status": "interpreting",
+            "revision": 0,
+            "created_at": timestamp,
+            "updated_at": timestamp,
+            "screening_count": 0,
+            "raw_extraction": deepcopy(raw_extraction),
+            "agent_session": deepcopy(agent_state),
+            "canonical_formulation": None,
+            "product_context": None,
+            "assembly_state": None,
+            "assembly_revision": 0,
+            "calculation_snapshot": None,
+        }
+        self.versions[str(version_id)] = row
+        return deepcopy(row)
+
+    def download_formulation_source(self, user_id: UUID, version_id: UUID | str) -> bytes:
+        row = self.get_version(user_id, version_id)
+        return self.storage[row["source_storage_path"]]
+
+    def replace_version_raw_extraction(
+        self,
+        user_id: UUID,
+        version_id: UUID | str,
+        raw_extraction: dict,
+    ) -> None:
+        self.get_version(user_id, version_id)
+        self.versions[str(version_id)]["raw_extraction"] = deepcopy(raw_extraction)
 
     def list_formulation_documents(self, user_id: UUID, version_id: UUID | str) -> list[dict]:
         self.get_version(user_id, version_id)
@@ -396,6 +457,75 @@ def _persistent_application(gateway: FakePersistentGateway):
 
 def _auth(token: str = "token-a") -> dict[str, str]:
     return {"Authorization": f"Bearer {token}"}
+
+
+def _blank_image_only_pdf() -> bytes:
+    output = BytesIO()
+    writer = PdfWriter()
+    writer.add_blank_page(width=612, height=792)
+    writer.write(output)
+    return output.getvalue()
+
+
+def test_scanned_formulation_is_preserved_and_retried_without_reupload(persistent_client):
+    client, gateway = persistent_client
+    case_id = client.post(
+        "/cases", headers=_auth(), json={"name": "Scanned formula"},
+    ).json()["id"]
+    source_pdf = _blank_image_only_pdf()
+
+    class FailingVision:
+        def extract_pdf(self, _filename: str, _content: bytes, **_kwargs):
+            raise RuntimeError("temporary vision failure")
+
+    client.app.state.document_vision_extractor = FailingVision()
+    uploaded = client.post(
+        f"/cases/{case_id}/formulations",
+        headers=_auth(),
+        files={"file": ("scan.pdf", source_pdf, "application/pdf")},
+    )
+
+    assert uploaded.status_code == 201
+    version = uploaded.json()
+    assert version["status"] == "failed"
+    assert version["agent_session"]["error"]["code"] == "document_vision_failed"
+    version_id = version["id"]
+    saved_path = gateway.versions[version_id]["source_storage_path"]
+    assert gateway.storage[saved_path] == source_pdf
+
+    seen: list[bytes] = []
+
+    class SuccessfulVision:
+        def extract_pdf(self, _filename: str, content: bytes, **_kwargs):
+            seen.append(content)
+            return VisionExtraction(
+                parsed=ParsedCSV(
+                    filename="scan.pdf",
+                    delimiter="vision",
+                    rows=(
+                        ("Finished-product formulation",),
+                        ("Ingredient / Trade Name", "Concentration", "Unit"),
+                        ("GLYCERIN", "5 - 10", "%"),
+                    ),
+                    source_format="pdf",
+                    row_pages=(1, None, 1),
+                    row_snippets=(
+                        "Finished-product formulation",
+                        None,
+                        "GLYCERIN | 5 - 10 | %",
+                    ),
+                    page_count=1,
+                ),
+                diagnostics={"processor": "test-vision"},
+            )
+
+    client.app.state.document_vision_extractor = SuccessfulVision()
+    retried = client.post(f"/formulations/{version_id}/interpret", headers=_auth())
+
+    assert retried.status_code == 200
+    assert seen == [source_pdf]
+    assert gateway.versions[version_id]["raw_extraction"]["delimiter"] == "vision"
+    assert gateway.storage[saved_path] == source_pdf
 
 
 def test_cases_require_authentication(persistent_client):

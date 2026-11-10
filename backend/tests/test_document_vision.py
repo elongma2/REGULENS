@@ -31,6 +31,11 @@ def test_visible_facts_preserve_page_snippet_and_quantity_text() -> None:
             ingredient_name="GLYCERIN",
             cas_number="56-81-5",
             concentration_text="C",
+            unit_text=None,
+            function_or_role=None,
+            notes=None,
+            extraction_uncertainty=None,
+            source_row_label=None,
             continues_previous_name=False,
             page=4,
             source_snippet="GLYCERIN 56-81-5 C",
@@ -59,6 +64,11 @@ def test_vision_multiple_product_signal_survives_deterministic_classification() 
             ingredient_name="GLYCERIN",
             cas_number=None,
             concentration_text="10%",
+            unit_text=None,
+            function_or_role=None,
+            notes=None,
+            extraction_uncertainty=None,
+            source_row_label=None,
             continues_previous_name=False,
             page=2,
             source_snippet="GLYCERIN 10%",
@@ -75,6 +85,64 @@ def test_vision_multiple_product_signal_survives_deterministic_classification() 
     ]
 
 
+def test_formulation_vision_preserves_layout_fields_ranges_and_uncertainty() -> None:
+    facts = VisionDocumentFacts(
+        document_role="finished_product_formulation",
+        supplier_name=None,
+        trade_name="LuminaGlow Serum",
+        product_code="LG-3",
+        document_revision_label="V3",
+        multiple_products_detected=False,
+        composition_rows=[VisionCompositionRow(
+            ingredient_name="AquaRenew C7 Complex",
+            cas_number=None,
+            concentration_text="5 - 10",
+            unit_text="%",
+            function_or_role="Humectant complex",
+            notes="Add below 40 C",
+            extraction_uncertainty="The first digit is visually faint.",
+            source_row_label="Row 17",
+            continues_previous_name=False,
+            page=2,
+            source_snippet="AquaRenew C7 Complex | 5 - 10 | % | Humectant complex",
+        )],
+        legend_lines=[],
+    )
+
+    parsed = facts_to_parsed("messy-scan.pdf", facts, page_count=3)
+
+    header = parsed.rows.index((
+        "Ingredient / Trade Name",
+        "CAS No.",
+        "Concentration",
+        "Unit",
+        "Function / Role",
+        "Notes",
+        "Extraction uncertainty",
+        "Source row",
+    ))
+    data = parsed.rows[header + 1]
+    assert data == (
+        "AquaRenew C7 Complex",
+        "",
+        "5 - 10",
+        "%",
+        "Humectant complex",
+        "Add below 40 C",
+        "The first digit is visually faint.",
+        "Row 17",
+    )
+    assert parsed.delimiter == "vision"
+    assert parsed.row_pages[header + 1] == 2
+    assert parsed.row_snippets[header + 1] == (
+        "AquaRenew C7 Complex | 5 - 10 | % | Humectant complex"
+    )
+    classification = classify_document(parsed)
+    assert "finished_product_formulation" in {
+        item.role.value for item in classification.proposed_roles
+    }
+
+
 def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() -> None:
     facts = VisionDocumentFacts(
         document_role="sds_msds",
@@ -88,6 +156,11 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
                 ingredient_name="First name fragment",
                 cas_number="9006-65-9",
                 concentration_text="1-5%",
+                unit_text=None,
+                function_or_role=None,
+                notes=None,
+                extraction_uncertainty=None,
+                source_row_label=None,
                 continues_previous_name=False,
                 page=2,
                 source_snippet="First name fragment 9006-65-9 1-5%",
@@ -96,6 +169,11 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
                 ingredient_name="second fragment",
                 cas_number=None,
                 concentration_text=None,
+                unit_text=None,
+                function_or_role=None,
+                notes=None,
+                extraction_uncertainty=None,
+                source_row_label=None,
                 continues_previous_name=False,
                 page=2,
                 source_snippet="second fragment",
@@ -126,6 +204,11 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
             ingredient_name="GLYCERIN",
             cas_number="56-81-5",
             concentration_text="20%",
+            unit_text=None,
+            function_or_role=None,
+            notes=None,
+            extraction_uncertainty=None,
+            source_row_label=None,
             continues_previous_name=False,
             page=8,
             source_snippet="GLYCERIN 56-81-5 20%",
@@ -143,6 +226,11 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
             ingredient_name="AQUA",
             cas_number="7732-18-5",
             concentration_text="80%",
+            unit_text=None,
+            function_or_role=None,
+            notes=None,
+            extraction_uncertainty=None,
+            source_row_label=None,
             continues_previous_name=False,
             # Deliberately batch-local; the adapter must rebase it to page 9.
             page=1,
@@ -176,7 +264,11 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
 
     extraction = OpenAIDocumentVisionExtractor(
         "test-key", "cheap-vision-model", page_limit=50, batch_pages=8,
-    ).extract_pdf("scan.pdf", b"pdf")
+    ).extract_pdf(
+        "scan.pdf",
+        b"pdf",
+        expected_role="finished_product_formulation",
+    )
 
     assert len(calls) == 2
     assert extraction.parsed.page_count == 9
@@ -186,3 +278,4 @@ def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeyp
     assert extraction.parsed.row_pages[aqua_index] == 9
     assert extraction.diagnostics["model_calls"] == 2
     assert extraction.diagnostics["total_tokens"] == 30
+    assert "Product Formulation section" in calls[0]["input"][0]["content"][0]["text"]

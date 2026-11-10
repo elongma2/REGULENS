@@ -27,6 +27,7 @@ _PRODUCT_INFORMATION_RE = re.compile(r"^\s*product\s+information\s*$", re.I)
 _ITEM_CODE_RE = re.compile(r"\bitem\s+code\s*:\s*([A-Za-z0-9._\-/]+)", re.I)
 _KNOWN_PRODUCT_CODE_RE = re.compile(r"\b((?:EN|SE)\d{5})\b", re.I)
 _FORMULATION_RE = re.compile(r"\b(?:finished[- ]product formulation|formulation|formula)\b", re.I)
+_FINISHED_FORMULATION_LABEL_RE = re.compile(r"^\s*finished[- ]product formulation\s*$", re.I)
 _USAGE_RE = re.compile(r"\b(?:use level|dosage|addition|finished product|amount used)\b", re.I)
 _PRODUCT_RE = re.compile(
     r"^\s*(?:product|trade)\s*(?:name|designation)?\s*[:\-]\s*(.+)$",
@@ -150,7 +151,9 @@ def classify_document(parsed: ParsedCSV) -> DocumentClassification:
             reasons=["Ingredient identity and composition columns are present."],
         ))
 
-    if formulation_match and usage_match:
+    if formulation_match and (
+        usage_match or _FINISHED_FORMULATION_LABEL_RE.search(formulation_match[1])
+    ):
         roles.append(DocumentRoleEvidence(
             role=DocumentRole.FINISHED_PRODUCT_FORMULATION,
             confidence="high",
