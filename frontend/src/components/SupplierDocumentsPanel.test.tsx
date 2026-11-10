@@ -200,6 +200,27 @@ describe("SupplierDocumentsPanel", () => {
     expect(maximumActive).toBe(2);
   });
 
+  it("automatically reprocesses an attached document with a stale extraction schema", async () => {
+    const stale = {
+      ...attachment,
+      extraction_schema_version: "trade-document-v2",
+      extraction_current: false,
+    };
+    const current = {
+      ...stale,
+      extraction_schema_version: "trade-document-v3",
+      extraction_current: true,
+      revision: 1,
+    };
+    api.listFormulationDocuments.mockResolvedValueOnce([stale]).mockResolvedValue([current]);
+    api.interpretFormulationDocument.mockResolvedValue(current);
+
+    render(<SupplierDocumentsPanel versionId="version-1" />);
+
+    await waitFor(() => expect(api.interpretFormulationDocument).toHaveBeenCalledWith("attachment-1"));
+    await waitFor(() => expect(api.interpretFormulationDocument).toHaveBeenCalledTimes(1));
+  });
+
   it("does not ask users to reconfirm a high-confidence supplier composition", async () => {
     api.listFormulationDocuments.mockResolvedValue([{ ...attachment }]);
     render(<SupplierDocumentsPanel versionId="version-1" />);

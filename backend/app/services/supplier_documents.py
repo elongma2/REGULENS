@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from pathlib import Path
@@ -24,6 +25,44 @@ from backend.app.services.supabase_gateway import SupabaseGateway
 
 DETERMINISTIC_PROCESSOR_CONFIGURATION = "deterministic-trade-document-v1"
 REUSABLE_ROLES = {DocumentRole.SDS_MSDS, DocumentRole.SUPPLIER_COMPOSITION}
+_NON_INGREDIENT_NAME_RE = re.compile(
+    r"\b(?:test fixture only|not a real supplier|regulatory reference|"
+    r"synthetic test suite|non-warranty|disclaimer)\b",
+    re.I,
+)
+
+
+def _needs_text_interpretation(extraction: DocumentExtraction) -> bool:
+    """Detect structurally plausible but unsafe deterministic extractions."""
+    rows = [
+        constituent
+        for material in extraction.supplier_materials
+        for constituent in material.constituents
+    ]
+    if not rows and not extraction.direct_ingredients:
+        return True
+    if any(_NON_INGREDIENT_NAME_RE.search(row.submitted_name) for row in rows):
+        return True
+    legend_codes = {
+        " ".join(entry.code.casefold().split())
+        for legend in extraction.legends
+        for entry in legend.entries
+    }
+    unresolved_codes = [
+        row for row in rows
+        if row.composition_quantity is not None
+        and row.composition_quantity.kind.value == "coded_range"
+        and " ".join((row.composition_quantity.reported_code or "").casefold().split())
+        not in legend_codes
+    ]
+    if unresolved_codes:
+        return True
+    # A supplier composition with rows but no usable amount is usually a
+    # flattened-table parsing failure. Partial disclosures may legitimately
+    # contain some unknown rows, so require only one supported amount.
+    if rows and all(row.composition_quantity is None for row in rows):
+        return True
+    return False
 
 
 def _automatic_supplier_role(extraction: DocumentExtraction) -> DocumentRole | None:
@@ -440,15 +479,15 @@ class SupplierDocumentService:
             )
             self._persist_retry_failure(user_id, document_id, current, failure)
             raise failure from extraction_error
-        has_rows = bool(extraction.supplier_materials or extraction.direct_ingredients)
-        if not has_rows and source_parsed is not None and text_extractor is None:
+        needs_text_interpretation = _needs_text_interpretation(extraction)
+        if needs_text_interpretation and source_parsed is not None and text_extractor is None:
             failure = SupplierDocumentProcessingError(
                 "document_text_interpretation_not_configured",
-                "The document has selectable text, but its composition layout is not supported by deterministic extraction and the bounded document-text interpreter is not configured. The private file has been preserved for retry.",
+                "The document has selectable text, but its composition could not be extracted reliably and the bounded document-text interpreter is not configured. The private file has been preserved for retry.",
             )
             self._persist_retry_failure(user_id, document_id, current, failure)
             raise failure
-        if not has_rows and source_parsed is not None and text_extractor is not None:
+        if needs_text_interpretation and source_parsed is not None and text_extractor is not None:
             try:
                 interpreted = text_extractor.extract_text(filename, source_parsed)
                 extraction = extract_document(

@@ -63,6 +63,7 @@ from backend.app.services.supplier_documents import (
     SupplierDocumentService,
 )
 from backend.app.services.document_batch import DocumentBatchError, select_primary_formulation
+from backend.app.services.document_extraction import EXTRACTION_SCHEMA_VERSION
 from backend.app.services.trade_name_assembly import (
     derive_assembly_state,
     prepare_trade_name_assembly,
@@ -235,9 +236,19 @@ def _supplier_document(
 
 
 def _formulation_document(row: dict[str, Any]) -> FormulationDocumentView:
-    return FormulationDocumentView.model_validate({
+    payload = {
         key: value for key, value in row.items() if key in FormulationDocumentView.model_fields
+    }
+    extraction = row.get("extraction_result")
+    schema_version = (
+        extraction.get("extraction_schema_version")
+        if isinstance(extraction, dict) else None
+    )
+    payload.update({
+        "extraction_schema_version": schema_version,
+        "extraction_current": schema_version == EXTRACTION_SCHEMA_VERSION,
     })
+    return FormulationDocumentView.model_validate(payload)
 
 
 def _persist(
@@ -1091,6 +1102,15 @@ def _merge_assembly_state(
         return discovered
     existing_materials = {item.material_id: item for item in existing.materials}
 
+    def same_constituent_identity(previous, discovered) -> bool:
+        previous_cas = (previous.cas_number or "").strip()
+        discovered_cas = (discovered.cas_number or "").strip()
+        if previous_cas or discovered_cas:
+            return bool(previous_cas and discovered_cas and previous_cas == discovered_cas)
+        previous_name = " ".join(previous.submitted_name.casefold().split())
+        discovered_name = " ".join(discovered.submitted_name.casefold().split())
+        return previous_name == discovered_name
+
     def merge_material(discovered_material):
         previous = existing_materials.get(discovered_material.material_id)
         if previous is None:
@@ -1104,7 +1124,11 @@ def _merge_assembly_state(
             if source_item.constituent_id in removed_constituent_ids:
                 continue
             prior_item = previous_constituents.get(source_item.constituent_id)
-            if prior_item is not None and prior_item.user_edits:
+            if (
+                prior_item is not None
+                and prior_item.user_edits
+                and same_constituent_identity(prior_item, source_item)
+            ):
                 merged_constituents.append(prior_item)
             else:
                 merged_constituents.append(source_item)
@@ -1124,8 +1148,17 @@ def _merge_assembly_state(
                 previous.finished_product_usage
                 or discovered_material.finished_product_usage
             ),
-            "disclosure_status": previous.disclosure_status,
-            "confirmation_status": previous.confirmation_status,
+            "disclosure_status": (
+                discovered_material.disclosure_status
+                if previous.disclosure_status.value == "unknown"
+                else previous.disclosure_status
+            ),
+            "confirmation_status": (
+                discovered_material.confirmation_status
+                if previous.confirmation_status.value in {"proposed", "needs_confirmation"}
+                and discovered_material.confirmation_status.value == "confirmed"
+                else previous.confirmation_status
+            ),
             "constituents": merged_constituents,
             "removed_constituent_ids": sorted(removed_constituent_ids),
         })
@@ -1184,6 +1217,63 @@ def _prepare_and_persist_assembly(
         assembly=prepared.result,
         formulation=(prepared.formulation.model_dump(mode="json") if prepared.formulation else None),
     )
+
+
+def _current_formulation_documents(
+    *,
+    request: Request,
+    gateway: SupabaseGateway,
+    user: CurrentUser,
+    version_id: UUID,
+) -> list[dict[str, Any]]:
+    """Return attached documents after refreshing stale extraction snapshots.
+
+    A supplier source is stored once, while each formulation owns an immutable
+    attachment snapshot. Schema upgrades must therefore refresh both records
+    before assembly; otherwise a valid re-extraction can remain invisible to
+    calculations for an already-created case.
+    """
+    documents = gateway.list_formulation_documents(user.id, version_id)
+    service = SupplierDocumentService(gateway)
+    vision_extractor = getattr(request.app.state, "document_vision_extractor", None)
+    text_extractor = getattr(request.app.state, "document_text_extractor", None)
+    current_documents: list[dict[str, Any]] = []
+    for attachment in documents:
+        supplier_document_id = attachment.get("supplier_document_id")
+        if not supplier_document_id:
+            current_documents.append(attachment)
+            continue
+        supplier = gateway.get_supplier_document_detail(
+            user.id,
+            UUID(str(supplier_document_id)),
+        )
+        compatible = service.extraction_is_compatible(
+            supplier,
+            vision_extractor=vision_extractor,
+            text_extractor=text_extractor,
+        )
+        if not compatible:
+            supplier = service.retry_processing(
+                user_id=user.id,
+                document_id=UUID(str(supplier_document_id)),
+                vision_extractor=vision_extractor,
+                text_extractor=text_extractor,
+            )
+        supplier_key = supplier.get("processing_key") or supplier.get("sha256")
+        attachment_current = (
+            attachment.get("attached_extraction_key") == supplier_key
+            and attachment.get("extraction_result") is not None
+            and attachment.get("processing_status") in {"ready", "needs_confirmation"}
+        )
+        if attachment_current:
+            current_documents.append(attachment)
+            continue
+        current_documents.append(gateway.refresh_formulation_document_from_supplier(
+            user.id,
+            UUID(str(attachment["id"])),
+            expected_revision=int(attachment["revision"]),
+        ))
+    return current_documents
 
 
 @router.get(
@@ -1256,11 +1346,17 @@ def refresh_formulation_assembly(
         if isinstance(agent_state, dict):
             name_field = agent_state.get("formulation_name") or {}
             session_name = name_field.get("value") if isinstance(name_field, dict) else None
+        documents = _current_formulation_documents(
+            request=request,
+            gateway=gateway,
+            user=user,
+            version_id=version_id,
+        )
         discovered = derive_assembly_state(
             version_id=str(version_id),
             formulation_name=session_name or row.get("original_filename"),
             agent_state=agent_state,
-            documents=gateway.list_formulation_documents(user.id, version_id),
+            documents=documents,
             store=store,
             catalogue=catalogue,
             linkages=linkages,
@@ -1284,6 +1380,11 @@ def refresh_formulation_assembly(
         raise HTTPException(
             status_code=409,
             detail={"code": "assembly_revision_conflict", "message": str(error)},
+        ) from error
+    except SupplierDocumentProcessingError as error:
+        raise HTTPException(
+            status_code=503 if error.recoverable else 422,
+            detail={"code": error.code, "message": str(error), "recoverable": error.recoverable},
         ) from error
     except ValueError as error:
         raise HTTPException(

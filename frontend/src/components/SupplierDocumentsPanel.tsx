@@ -173,8 +173,12 @@ export const SupplierDocumentsPanel = forwardRef<SupplierDocumentsPanelHandle, {
 
   useEffect(() => {
     const pending = documents.filter((document) => (
-      document.processing_status === "uploaded"
+      ["uploaded", "ready", "needs_confirmation"].includes(document.processing_status)
       && Boolean(document.supplier_document_id)
+      && (
+        document.processing_status === "uploaded"
+        || document.extraction_current === false
+      )
       && !autoStarted.current.has(document.id)
     ));
     if (pending.length === 0) return;

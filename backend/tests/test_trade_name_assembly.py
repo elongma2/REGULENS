@@ -471,6 +471,38 @@ def test_derive_state_resolves_document_local_legend_and_identity(monkeypatch) -
     assert material.constituents[0].verified_identity_group == "catalogue:glycerin"
 
 
+def test_derive_state_resolves_library_legend_after_formulation_attachment(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "backend.app.services.trade_name_assembly._identity_group",
+        lambda *args, **kwargs: "catalogue:glycerin",
+    )
+    extraction = _extraction()
+    state = derive_assembly_state(
+        version_id="version-1",
+        formulation_name="Pilot serum",
+        agent_state=None,
+        documents=[{
+            "id": "formulation-attachment-1",
+            "supplier_document_id": "doc-1",
+            "confirmed_roles": ["supplier_composition"],
+            "governing_for_material": True,
+            "extraction_result": extraction.model_dump(mode="json"),
+        }],
+        store=object(),  # type: ignore[arg-type]
+        catalogue=None,
+        linkages=None,
+    )
+
+    material = state.materials[0]
+    quantity = material.constituents[0].composition_quantity
+    assert material.governing_document_id == "formulation-attachment-1"
+    assert quantity is not None
+    assert quantity.kind.value == "range"
+    assert quantity.lower == 25
+    assert quantity.upper == 50
+    assert quantity.legend_entry_id == "doc-1:legend:1:C"
+
+
 def test_legacy_high_confidence_supplier_document_calculates_without_role_confirmation(monkeypatch) -> None:
     monkeypatch.setattr(
         "backend.app.services.trade_name_assembly._identity_group",

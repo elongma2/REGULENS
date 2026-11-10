@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Protocol
 
 from openai import OpenAI
@@ -10,6 +11,11 @@ from backend.app.services.document_vision import VisionDocumentFacts, facts_to_p
 
 
 MAX_TEXT_INPUT_CHARS = 60_000
+_RELEVANT_LINE_RE = re.compile(
+    r"(?:\b(?:ingredient|inci|cas|composition|concentration|supplier|product|"
+    r"trade name|disclosure|legend|code|section\s*3)\b|%|\d{2,7}-\d{2}-\d)",
+    re.I,
+)
 
 
 @dataclass(frozen=True)
@@ -38,17 +44,39 @@ multiple_products_detected=true rather than combining them.
 
 
 def _bounded_document_text(parsed: ParsedCSV) -> str:
-    chunks: list[str] = []
-    total = 0
+    rows_by_page: dict[int | None, list[str]] = {}
     for index, row in enumerate(parsed.rows, start=1):
         page = parsed.row_pages[index - 1] if parsed.row_pages else None
-        value = f"[page {page or '?'} row {index}] " + " | ".join(row)
-        remaining = MAX_TEXT_INPUT_CHARS - total
-        if remaining <= 0:
-            break
-        chunks.append(value[:remaining])
-        total += min(len(value), remaining) + 1
-    return "\n".join(chunks)
+        rows_by_page.setdefault(page, []).append(
+            f"[page {page or '?'} row {index}] " + " | ".join(row)
+        )
+    if not rows_by_page:
+        return ""
+
+    # Give every page a bounded share before spending remaining capacity. This
+    # avoids the old failure mode where long early pages excluded later
+    # composition pages entirely. Within each page, source-relevant rows are
+    # prioritised while retaining surrounding document text when space allows.
+    header_reserve = len(rows_by_page) * 32
+    page_budget = max(
+        100,
+        (MAX_TEXT_INPUT_CHARS - header_reserve) // len(rows_by_page),
+    )
+    chunks: list[str] = []
+    for page, rows in rows_by_page.items():
+        ordered = [row for row in rows if _RELEVANT_LINE_RE.search(row)]
+        ordered.extend(row for row in rows if row not in ordered)
+        page_chunks: list[str] = []
+        used = 0
+        for value in ordered:
+            remaining = page_budget - used
+            if remaining <= 0:
+                break
+            page_chunks.append(value[:remaining])
+            used += min(len(value), remaining) + 1
+        chunks.append(f"[page {page or '?'} begins]")
+        chunks.extend(page_chunks)
+    return "\n".join(chunks)[:MAX_TEXT_INPUT_CHARS]
 
 
 class OpenAITextDocumentExtractor:

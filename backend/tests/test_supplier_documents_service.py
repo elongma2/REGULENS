@@ -393,6 +393,104 @@ def test_selectable_text_falls_back_to_one_structured_low_cost_interpretation(
     assert result["extraction_result"]["supplier_materials"][0]["constituents"][0]["submitted_name"] == "GLYCERIN"
 
 
+def test_suspicious_successful_extraction_uses_low_cost_interpreter(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    gateway = _gateway()
+    document_id = uuid4()
+    source_rows = (
+        ("Ingredient / INCI CAS Supplier-material %",),
+        ("TEST FIXTURE ONLY - NOT A REAL SUPPLIER SPECIFICATION",),
+    )
+    gateway.state["source"] = ({
+        "id": str(document_id), "organisation_id": str(ORG_ID), "revision": 1,
+        "original_filename": "supplier.pdf", "sha256": "e" * 64,
+        "confirmed_roles": [], "processing_attempt": 0,
+    }, b"selectable-text-pdf")
+    monkeypatch.setattr(
+        "backend.app.services.supplier_documents.parse_formulation_upload",
+        lambda *_args: ParsedCSV(
+            filename="supplier.pdf", delimiter="pdf_text", rows=source_rows,
+            source_format="pdf", row_pages=(1, 1),
+            row_snippets=(source_rows[0][0], source_rows[1][0]), page_count=1,
+        ),
+    )
+    bad_extraction = DocumentExtraction(
+        document_id=str(document_id),
+        extraction_schema_version=EXTRACTION_SCHEMA_VERSION,
+        classification=DocumentClassification(
+            proposed_roles=[DocumentRoleEvidence(
+                role=DocumentRole.SUPPLIER_COMPOSITION,
+                confidence="high",
+            )],
+            trade_name="RangeShield P30",
+            recommended_extraction_schema="supplier_composition",
+        ),
+        supplier_materials=[SupplierMaterial(
+            material_id="bad-material",
+            trade_name="RangeShield P30",
+            constituents=[{
+                "constituent_id": "bad-row",
+                "submitted_name": "TEST FIXTURE ONLY",
+            }],
+        )],
+    )
+    monkeypatch.setattr(
+        "backend.app.services.supplier_documents.extract_document",
+        lambda parsed, document_id: bad_extraction if parsed.rows[0][0].startswith("Ingredient / INCI") else DocumentExtraction(
+            document_id=document_id,
+            extraction_schema_version=EXTRACTION_SCHEMA_VERSION,
+            classification=DocumentClassification(
+                proposed_roles=[DocumentRoleEvidence(
+                    role=DocumentRole.SUPPLIER_COMPOSITION,
+                    confidence="high",
+                )],
+                trade_name="RangeShield P30",
+                recommended_extraction_schema="supplier_composition",
+            ),
+            supplier_materials=[SupplierMaterial(
+                material_id="good-material",
+                trade_name="RangeShield P30",
+                constituents=[{
+                    "constituent_id": "good-row",
+                    "submitted_name": "PHENOXYETHANOL",
+                    "cas_number": "122-99-6",
+                    "composition_quantity": {
+                        "kind": "range", "lower": 20, "upper": 40,
+                        "unit": "percent", "quantity_scope": "supplier_material",
+                    },
+                }],
+            )],
+        ),
+    )
+    interpreted = ParsedCSV(
+        filename="supplier.pdf", delimiter=",",
+        rows=(("Ingredient", "CAS", "Concentration"), ("PHENOXYETHANOL", "122-99-6", "20-40%")),
+        source_format="pdf", row_pages=(None, 1), row_snippets=("", "PHENOXYETHANOL"), page_count=1,
+    )
+    calls: list[str] = []
+    text_extractor = SimpleNamespace(
+        model="low-cost-document-model",
+        extract_text=lambda filename, parsed: (
+            calls.append(filename) or TextDocumentExtraction(
+                parsed=interpreted,
+                diagnostics={"processor": "bounded-openai-document-text-v1", "model_calls": 1},
+            )
+        ),
+    )
+
+    result = SupplierDocumentService(gateway).retry_processing(
+        user_id=USER_ID,
+        document_id=document_id,
+        vision_extractor=None,
+        text_extractor=text_extractor,
+    )
+
+    assert calls == ["supplier.pdf"]
+    assert result["processing_diagnostics"]["model_calls"] == 1
+    assert result["extraction_result"]["supplier_materials"][0]["constituents"][0]["submitted_name"] == "PHENOXYETHANOL"
+
+
 def test_unrecognised_selectable_text_is_recoverable_when_interpreter_is_not_configured(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

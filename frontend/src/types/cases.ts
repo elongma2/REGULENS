@@ -73,6 +73,8 @@ export interface FormulationDocument {
   error: { code?: string; message?: string; recoverable?: boolean; next_action?: string } | null;
   document_revision_label: string | null;
   governing_for_material: boolean;
+  extraction_schema_version?: string | null;
+  extraction_current?: boolean;
   attached_extraction_key: string | null;
   revision: number;
   created_at: string;

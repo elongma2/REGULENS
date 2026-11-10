@@ -166,6 +166,8 @@ class FormulationDocumentView(StrictModel):
     document_revision_label: str | None = None
     governing_for_material: bool = False
     attached_extraction_key: str | None = None
+    extraction_schema_version: str | None = None
+    extraction_current: bool = False
     revision: int
     created_at: datetime
     updated_at: datetime

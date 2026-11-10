@@ -157,9 +157,18 @@ def _resolve_constituent(
     quantity = constituent.composition_quantity
     if quantity and quantity.kind == CompositionQuantityKind.CODED_RANGE:
         legend = next(
-            (item for item in extraction.legends if item.document_id == document_id),
+            (
+                item for item in extraction.legends
+                if item.document_id in {extraction.document_id, document_id}
+            ),
             None,
         )
+        # Supplier-library extraction IDs and formulation-attachment IDs are
+        # intentionally different database records. Rebase only the legend's
+        # document owner for this formulation-local calculation; the original
+        # source evidence remains unchanged on every legend entry.
+        if legend is not None and legend.document_id != document_id:
+            legend = legend.model_copy(update={"document_id": document_id})
         resolved, _ = resolve_coded_quantity(
             quantity,
             legend,

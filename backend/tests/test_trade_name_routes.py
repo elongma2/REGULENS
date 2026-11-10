@@ -20,6 +20,7 @@ from backend.app.models.document_intake import (
 from backend.app.models.formulation import FormulationIngredientRequest
 from backend.app.models.formulation import FormulationAssemblyScope, FormulationRequest
 from backend.app.routes.cases import (
+    _current_formulation_documents,
     _merge_assembly_state,
     _record_supporting_document_failures,
     delete_supplier_document,
@@ -34,6 +35,74 @@ from backend.app.services.supabase_gateway import SupplierDocumentDeletionError
 
 USER_ID = UUID("11111111-1111-1111-1111-111111111111")
 VERSION_ID = UUID("22222222-2222-2222-2222-222222222222")
+
+
+def test_assembly_refresh_reprocesses_stale_supplier_and_replaces_attachment_snapshot(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    attachment_id = UUID("33333333-3333-3333-8333-333333333333")
+    supplier_id = UUID("44444444-4444-4444-8444-444444444444")
+    attachment = {
+        "id": str(attachment_id),
+        "supplier_document_id": str(supplier_id),
+        "revision": 2,
+        "processing_status": "ready",
+        "attached_extraction_key": "old-schema-key",
+        "extraction_result": {"supplier_materials": [{"trade_name": "Old"}]},
+    }
+    supplier = {
+        "id": str(supplier_id),
+        "processing_key": "old-schema-key",
+        "sha256": "a" * 64,
+    }
+    refreshed = {
+        **attachment,
+        "revision": 3,
+        "attached_extraction_key": "current-schema-key",
+        "extraction_result": {"supplier_materials": [{"trade_name": "RangeShield P30"}]},
+    }
+    calls: list[tuple[str, object]] = []
+    gateway = SimpleNamespace(
+        list_formulation_documents=lambda *_: [attachment],
+        get_supplier_document_detail=lambda *_: supplier,
+        refresh_formulation_document_from_supplier=lambda user_id, document_id, expected_revision: (
+            calls.append(("refresh", (document_id, expected_revision))) or refreshed
+        ),
+    )
+    service = SimpleNamespace(
+        extraction_is_compatible=lambda *args, **kwargs: False,
+        retry_processing=lambda **kwargs: (
+            calls.append(("retry", kwargs["document_id"]))
+            or {**supplier, "processing_key": "current-schema-key"}
+        ),
+    )
+    monkeypatch.setattr(
+        "backend.app.routes.cases.SupplierDocumentService",
+        lambda _gateway: service,
+    )
+    request = Request({
+        "type": "http",
+        "method": "POST",
+        "path": f"/formulations/{VERSION_ID}/assembly/refresh",
+        "headers": [],
+        "app": SimpleNamespace(state=SimpleNamespace(
+            document_vision_extractor=None,
+            document_text_extractor=None,
+        )),
+    })
+
+    documents = _current_formulation_documents(
+        request=request,
+        gateway=gateway,
+        user=CurrentUser(id=USER_ID, email="reviewer@example.com"),
+        version_id=VERSION_ID,
+    )
+
+    assert documents == [refreshed]
+    assert calls == [
+        ("retry", supplier_id),
+        ("refresh", (attachment_id, 2)),
+    ]
 
 
 def test_get_assembly_restores_state_without_incrementing_revision_or_persisting() -> None:
@@ -179,6 +248,43 @@ def test_refresh_merges_new_source_snapshot_without_losing_reviewer_edits() -> N
         "GLYCERIN USP", "PANTHENOL",
     ]
     assert merged.materials[0].removed_constituent_ids == ["row-2"]
+
+
+def test_refresh_does_not_apply_stale_row_edits_to_a_different_reextracted_identity() -> None:
+    existing = FormulationAssemblyState(materials=[SupplierMaterial(
+        material_id="material-1",
+        trade_name="RangeShield P30",
+        constituents=[MaterialConstituent(
+            constituent_id="row-1",
+            submitted_name="TEST FIXTURE ONLY",
+            user_edits={"submitted_name": "Reviewed footer"},
+        )],
+    )])
+    discovered = FormulationAssemblyState(materials=[SupplierMaterial(
+        material_id="material-1",
+        trade_name="RangeShield P30",
+        disclosure_status="complete",
+        constituents=[MaterialConstituent(
+            constituent_id="row-1",
+            submitted_name="PHENOXYETHANOL",
+            cas_number="122-99-6",
+            composition_quantity=CompositionQuantity(
+                kind="range",
+                lower=20,
+                upper=40,
+                unit="percent",
+                quantity_scope="supplier_material",
+            ),
+        )],
+    )])
+
+    merged = _merge_assembly_state(existing, discovered)
+
+    constituent = merged.materials[0].constituents[0]
+    assert constituent.submitted_name == "PHENOXYETHANOL"
+    assert constituent.cas_number == "122-99-6"
+    assert constituent.user_edits == {}
+    assert merged.materials[0].disclosure_status.value == "complete"
 
 
 def test_refresh_drops_direct_rows_from_detached_documents() -> None:
