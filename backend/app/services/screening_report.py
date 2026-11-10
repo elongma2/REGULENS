@@ -278,6 +278,41 @@ def _assembly_scope_section(response: FormulationScreeningResponse, styles) -> l
                 return f"{prefix}{quantity['value']}{unit}"
             return str(quantity.get("raw_text") or "Unavailable")
 
+        def evaluated_quantity_text(aggregate: dict[str, object]) -> str:
+            contributions = aggregate.get("contributions")
+            if not isinstance(contributions, list):
+                return quantity_text(aggregate.get("aggregate_quantity"))
+            qsp = next((
+                item for item in contributions
+                if isinstance(item, dict)
+                and item.get("source_type") == "direct_ingredient"
+                and isinstance(item.get("finished_product_quantity"), dict)
+                and item["finished_product_quantity"].get("kind") == "unknown"
+                and re.fullmatch(
+                    r"\s*(?:q\.?\s*s\.?\s*p?\.?|balance)(?:\s*(?:to)?\s*100\s*%)?\s*",
+                    str(item["finished_product_quantity"].get("raw_text") or ""),
+                    re.I,
+                )
+            ), None)
+            if not isinstance(qsp, dict):
+                return quantity_text(aggregate.get("aggregate_quantity"))
+            qsp_quantity = qsp.get("finished_product_quantity")
+            if not isinstance(qsp_quantity, dict):
+                return quantity_text(aggregate.get("aggregate_quantity"))
+            qsp_text = str(qsp_quantity.get("raw_text") or "q.s. to 100%")
+            known_supplier_amounts = [
+                quantity_text(item.get("finished_product_quantity"))
+                for item in contributions
+                if isinstance(item, dict)
+                and item.get("source_type") == "material_constituent"
+                and isinstance(item.get("finished_product_quantity"), dict)
+                and item["finished_product_quantity"].get("kind") != "unknown"
+            ]
+            if not known_supplier_amounts:
+                return qsp_text
+            label = "contribution" if len(known_supplier_amounts) == 1 else "contributions"
+            return f"{qsp_text}; known supplier {label} {' + '.join(known_supplier_amounts)}"
+
         contribution_rows: list[list[object]] = [[
             Paragraph("Ingredient", styles["table_header"]),
             Paragraph("Finished product", styles["table_header"]),
@@ -319,7 +354,7 @@ def _assembly_scope_section(response: FormulationScreeningResponse, styles) -> l
                 )
             contribution_rows.append([
                 Paragraph(_safe(aggregate.get("display_name"), "Unknown ingredient"), styles["body"]),
-                Paragraph(_safe(quantity_text(aggregate.get("aggregate_quantity"))), styles["body"]),
+                Paragraph(_safe(evaluated_quantity_text(aggregate)), styles["body"]),
                 Paragraph(_safe("; ".join(source_labels) or "Source unavailable"), styles["small"]),
                 Paragraph(_safe("; ".join(formulas) or "Direct finished-product value"), styles["small"]),
             ])

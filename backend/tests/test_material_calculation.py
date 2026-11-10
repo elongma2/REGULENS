@@ -239,6 +239,84 @@ def test_qsp_in_partial_disclosure_remains_blocked():
     assert issues[0].blocking_for_calculation is True
 
 
+def test_case_c_invalid_range_is_actionable_without_suppressing_valid_rows() -> None:
+    direct_aqua = DirectIngredient(
+        ingredient_id="direct-aqua",
+        ingredient=FormulationIngredientRequest(
+            name="AQUA",
+            cas_number="7732-18-5",
+            concentration=FormulationConcentration(
+                concentration_type="unknown",
+                original_text="q.s. to 100%",
+                unit="percent",
+                basis=None,
+                preparation_stage="finished_product",
+            ),
+        ),
+        source_document_id="formula.csv",
+        verified_identity_group="catalogue:aqua",
+    )
+    boundshift = SupplierMaterial(
+        material_id="boundshift",
+        trade_name="BoundShift X",
+        supplier_name="Trial Materials",
+        product_code="BS-X-24",
+        finished_product_usage=quantity(
+            "exact", value=1.5, unit="percent", quantity_scope="finished_product",
+            preparation_stage="finished_product", raw_text="1.5%",
+        ),
+        attached_document_ids=["boundshift.pdf"],
+        governing_document_id="boundshift.pdf",
+        constituents=[
+            MaterialConstituent(
+                constituent_id="niacinamide-invalid",
+                submitted_name="NIACINAMIDE",
+                cas_number="98-92-0",
+                composition_quantity=quantity(
+                    "unknown", unit="percent", quantity_scope="supplier_material",
+                    raw_text="70-40% (INVALID)",
+                ),
+                verified_identity_group="catalogue:niacinamide",
+            ),
+            MaterialConstituent(
+                constituent_id="aqua-valid",
+                submitted_name="AQUA",
+                cas_number="7732-18-5",
+                composition_quantity=quantity(
+                    "exact", value=30, unit="percent", quantity_scope="supplier_material",
+                    raw_text="30%",
+                ),
+                verified_identity_group="catalogue:aqua",
+            ),
+        ],
+        disclosure_status=DisclosureStatus.UNKNOWN,
+        confirmation_status=ConfirmationStatus.CONFIRMED,
+    )
+
+    prepared = prepare_assembly(
+        assembly_revision=1,
+        direct_ingredients=[direct_aqua],
+        materials=[boundshift],
+    )
+
+    assert prepared.formulation is not None
+    aggregates = {
+        item.verified_identity_group: item
+        for item in prepared.result.included_ingredients
+    }
+    aqua = aggregates["catalogue:aqua"]
+    assert aqua.aggregate_quantity.kind.value == "lower_bound"
+    assert aqua.aggregate_quantity.lower == pytest.approx(0.45)
+    assert len(aqua.contributions) == 2
+    niacinamide = aggregates["catalogue:niacinamide"]
+    assert niacinamide.aggregate_quantity.kind.value == "unknown"
+    issue_codes = [issue.code for issue in prepared.result.issues]
+    assert "invalid_concentration_bound" in issue_codes
+    assert not any(
+        issue.code == "constituent_concentration_missing"
+        and issue.constituent_ids == ["niacinamide-invalid"]
+        for issue in prepared.result.issues
+    )
 def test_impossible_minimum_total_is_rejected_but_overlapping_upper_ranges_are_not():
     impossible = material(
         constituent("a", "A", quantity("range", lower=60.0, upper=70.0, unit="percent", quantity_scope="supplier_material")),

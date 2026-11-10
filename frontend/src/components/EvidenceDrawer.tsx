@@ -18,6 +18,7 @@ import {
   contributionSourceName,
   findAssemblyAggregate,
   formatAssemblyQuantity,
+  formatEvaluatedAssemblyQuantity,
 } from "../lib/assembly";
 import type { InputProvenance } from "../types/agent";
 import type { FollowUp, ReviewDataState, ReviewerNote, ReviewItem, ReviewStatus } from "../types/review";
@@ -171,7 +172,7 @@ export function EvidenceDrawer({
   const warningRequirements = result.warning_requirements ?? [];
   const assemblyAggregate = findAssemblyAggregate(assemblyCalculationSnapshot, result);
   const finalConcentration = assemblyAggregate
-    ? formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)
+    ? formatEvaluatedAssemblyQuantity(assemblyAggregate) ?? formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)
     : formatConcentration(result.submitted_ingredient.concentration);
   const singaporeLimits = uniqueText(singapore.map((evaluation) =>
     evaluation.evidence.concentration ? formatRuleConcentration(evaluation.evidence.concentration) : null));
@@ -226,7 +227,7 @@ export function EvidenceDrawer({
 
         {(assemblyAggregate || explanation?.calculation_context) && <details className="acd-details"><summary>View calculation</summary><div className="drawer-details-body">
           {assemblyAggregate && <>
-            <div className="metadata-grid"><span>Finished-product amount</span><strong>{formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)}</strong><span>Contributions</span><strong>{assemblyAggregate.contributions?.length ?? 0}</strong></div>
+            <div className="metadata-grid"><span>Finished-product amount</span><strong>{formatEvaluatedAssemblyQuantity(assemblyAggregate) ?? formatAssemblyQuantity(assemblyAggregate.aggregate_quantity)}</strong><span>Contributions</span><strong>{assemblyAggregate.contributions?.length ?? 0}</strong></div>
             {(assemblyAggregate.contributions ?? []).map((contribution, index) => {
               const documentReference = contributionDocumentReference(assemblyCalculationSnapshot, contribution);
               const isSupplierContribution = Boolean(contribution.source_material_id);

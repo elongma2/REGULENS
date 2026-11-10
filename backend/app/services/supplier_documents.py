@@ -161,10 +161,18 @@ class SupplierDocumentService:
         if int(diagnostics.get("model_calls") or 0) == 0:
             return document.get("model_configuration") == DETERMINISTIC_PROCESSOR_CONFIGURATION
         configured_model = diagnostics.get("configured_model")
-        active_model = (
-            getattr(text_extractor, "model", None)
-            or getattr(vision_extractor, "model", None)
-        )
+        processor = str(
+            diagnostics.get("processor") or document.get("model_configuration") or ""
+        ).casefold()
+        if "vision" in processor:
+            active_model = getattr(vision_extractor, "model", None)
+        elif "text" in processor:
+            active_model = getattr(text_extractor, "model", None)
+        else:
+            active_model = (
+                getattr(text_extractor, "model", None)
+                or getattr(vision_extractor, "model", None)
+            )
         return active_model is None or configured_model == active_model
 
     def upload_and_attach(

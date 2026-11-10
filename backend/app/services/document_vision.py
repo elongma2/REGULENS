@@ -13,7 +13,8 @@ from backend.app.models.screening import StrictModel
 from backend.app.services.agent_csv import ParsedCSV
 
 
-MAX_VISION_PAGES = 8
+MAX_VISION_PAGES = 50
+VISION_BATCH_PAGES = 8
 MAX_IMAGE_EDGE = 1600
 
 
@@ -186,6 +187,7 @@ Join a chemical name that wraps onto the next visual line into one ingredient_na
 returned as its own item, set continues_previous_name=true and leave its CAS and concentration null.
 Safety and hazard statements are not composition rows. If the document contains multiple products, set
 multiple_products_detected=true and keep rows separated only when the visible product association is clear.
+The page number on each row must be the supplied PDF page number, not a batch-local index.
 """.strip()
 
 
@@ -199,60 +201,122 @@ class OpenAIDocumentVisionExtractor:
         *,
         timeout_seconds: float = 180.0,
         page_limit: int = MAX_VISION_PAGES,
+        batch_pages: int = VISION_BATCH_PAGES,
     ) -> None:
         self.api_key = api_key
         self.model = model
         self.timeout_seconds = timeout_seconds
         self.page_limit = page_limit
+        self.batch_pages = max(1, min(batch_pages, page_limit))
 
     def extract_pdf(self, filename: str, content: bytes) -> VisionExtraction:
         images, page_count = _render_pdf(content, page_limit=self.page_limit)
-        input_content: list[dict[str, object]] = [{
-            "type": "input_text",
-            "text": f"Extract source-backed supplier composition facts from {filename}.",
-        }]
-        for page, encoded in enumerate(images, start=1):
-            input_content.append({
-                "type": "input_text",
-                "text": f"PDF page {page}",
-            })
-            input_content.append({
-                "type": "input_image",
-                "image_url": f"data:image/jpeg;base64,{encoded}",
-                "detail": "high",
-            })
-        response = OpenAI(
+        client = OpenAI(
             api_key=self.api_key,
             timeout=self.timeout_seconds,
             max_retries=0,
-        ).responses.create(
-            model=self.model,
-            instructions=VISION_INSTRUCTIONS,
-            input=[{"role": "user", "content": input_content}],
-            tools=[],
-            store=False,
-            text={"format": {
-                "type": "json_schema",
-                "name": "supplier_document_facts",
-                "strict": True,
-                "schema": VisionDocumentFacts.model_json_schema(),
-            }},
         )
-        facts = VisionDocumentFacts.model_validate_json(response.output_text)
-        usage = getattr(response, "usage", None)
+        batch_facts: list[VisionDocumentFacts] = []
+        response_ids: list[str] = []
+        actual_models: list[str] = []
+        input_tokens = 0
+        output_tokens = 0
+        total_tokens = 0
+        for offset in range(0, len(images), self.batch_pages):
+            batch = images[offset:offset + self.batch_pages]
+            start_page = offset + 1
+            end_page = offset + len(batch)
+            input_content: list[dict[str, object]] = [{
+                "type": "input_text",
+                "text": (
+                    f"Extract source-backed supplier composition facts from {filename}. "
+                    f"This batch contains PDF pages {start_page}-{end_page} of {page_count}."
+                ),
+            }]
+            for page, encoded in enumerate(batch, start=start_page):
+                input_content.append({"type": "input_text", "text": f"PDF page {page}"})
+                input_content.append({
+                    "type": "input_image",
+                    "image_url": f"data:image/jpeg;base64,{encoded}",
+                    "detail": "high",
+                })
+            response = client.responses.create(
+                model=self.model,
+                instructions=VISION_INSTRUCTIONS,
+                input=[{"role": "user", "content": input_content}],
+                tools=[],
+                store=False,
+                text={"format": {
+                    "type": "json_schema",
+                    "name": "supplier_document_facts",
+                    "strict": True,
+                    "schema": VisionDocumentFacts.model_json_schema(),
+                }},
+            )
+            facts = VisionDocumentFacts.model_validate_json(response.output_text)
+            # Some vision models still return 1-based batch-local pages despite
+            # the global labels. Rebase only values outside the supplied range;
+            # never alter an already valid global page number.
+            def global_page(page: int) -> int:
+                if start_page <= page <= end_page:
+                    return page
+                return start_page + page - 1 if 1 <= page <= len(batch) else page
+
+            facts = facts.model_copy(update={
+                "composition_rows": [
+                    item.model_copy(update={"page": global_page(item.page)})
+                    for item in facts.composition_rows
+                ],
+                "legend_lines": [
+                    item.model_copy(update={"page": global_page(item.page)})
+                    for item in facts.legend_lines
+                ],
+            })
+            batch_facts.append(facts)
+            if getattr(response, "id", None):
+                response_ids.append(response.id)
+            if getattr(response, "model", None):
+                actual_models.append(response.model)
+            usage = getattr(response, "usage", None)
+            input_tokens += int(getattr(usage, "input_tokens", 0) or 0)
+            output_tokens += int(getattr(usage, "output_tokens", 0) or 0)
+            total_tokens += int(getattr(usage, "total_tokens", 0) or 0)
+
+        def first_value(field: str):
+            return next((getattr(item, field) for item in batch_facts if getattr(item, field)), None)
+
+        roles = {item.document_role for item in batch_facts if item.document_role != "unknown"}
+        metadata_conflict = any(
+            len({getattr(item, field) for item in batch_facts if getattr(item, field)}) > 1
+            for field in ("supplier_name", "trade_name", "product_code", "document_revision_label")
+        )
+        merged = VisionDocumentFacts(
+            document_role=next(iter(roles)) if len(roles) == 1 else "unknown",
+            supplier_name=first_value("supplier_name"),
+            trade_name=first_value("trade_name"),
+            product_code=first_value("product_code"),
+            document_revision_label=first_value("document_revision_label"),
+            multiple_products_detected=(
+                any(item.multiple_products_detected for item in batch_facts)
+                or len(roles) > 1
+                or metadata_conflict
+            ),
+            composition_rows=[row for item in batch_facts for row in item.composition_rows],
+            legend_lines=[line for item in batch_facts for line in item.legend_lines],
+        )
         diagnostics: dict[str, object] = {
-            "processor": "bounded-openai-document-vision-v1",
+            "processor": "bounded-openai-document-vision-v2",
             "configured_model": self.model,
-            "actual_model": getattr(response, "model", None),
-            "response_id": getattr(response, "id", None),
+            "actual_model": actual_models[0] if len(set(actual_models)) == 1 else None,
+            "response_ids": response_ids,
             "page_count": page_count,
-            "input_tokens": int(getattr(usage, "input_tokens", 0) or 0),
-            "output_tokens": int(getattr(usage, "output_tokens", 0) or 0),
-            "total_tokens": int(getattr(usage, "total_tokens", 0) or 0),
-            "model_calls": 1,
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "total_tokens": total_tokens,
+            "model_calls": len(batch_facts),
         }
         return VisionExtraction(
-            parsed=facts_to_parsed(filename, facts, page_count=page_count),
+            parsed=facts_to_parsed(filename, merged, page_count=page_count),
             diagnostics=diagnostics,
         )
 

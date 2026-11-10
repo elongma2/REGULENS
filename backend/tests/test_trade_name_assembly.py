@@ -758,6 +758,56 @@ def test_finished_formulation_trade_name_usage_populates_parent_material(monkeyp
     assert state.formulation_row_ownership[0].material_id == material.material_id
 
 
+def test_direct_qs_row_remains_in_assembly_provenance(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "backend.app.services.trade_name_assembly._identity_group",
+        lambda *args, **kwargs: "catalogue:aqua",
+    )
+    agent_state = {
+        "session_id": "version-1",
+        "revision": 1,
+        "state": "interpreted",
+        "filename": "formula.csv",
+        "interpreted_rows": [{
+            "row_id": "aqua-row",
+            "source_row": 2,
+            "source_cells": ["AQUA", "7732-18-5", "q.s. to 100%"],
+            "name": {
+                "value": "AQUA", "source_value": "AQUA",
+                "source_row": 2, "interpretation_method": "exact_source",
+            },
+            "cas_number": {
+                "value": "7732-18-5", "source_value": "7732-18-5",
+                "source_row": 2, "interpretation_method": "source_value_preserved",
+            },
+            "concentration": None,
+            "identity_status": "confirmed",
+            "unresolved_fields": [{
+                "target_field": "concentration",
+                "uncertainty_code": "concentration_unavailable",
+                "source_value": "q.s. to 100%",
+            }],
+        }],
+    }
+
+    state = derive_assembly_state(
+        version_id="version-1",
+        formulation_name="Pilot",
+        agent_state=agent_state,
+        documents=[],
+        store=object(),
+        catalogue=None,
+        linkages=None,  # type: ignore[arg-type]
+    )
+
+    assert len(state.direct_ingredients) == 1
+    concentration = state.direct_ingredients[0].ingredient.concentration
+    assert concentration is not None
+    assert concentration.concentration_type.value == "unknown"
+    assert concentration.original_text == "q.s. to 100%"
+    assert concentration.unit.value == "percent"
+
+
 def test_filename_material_alias_owns_parent_row_and_legacy_direct_rows_are_ignored(
     monkeypatch,
 ) -> None:

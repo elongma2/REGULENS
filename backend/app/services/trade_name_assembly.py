@@ -46,6 +46,11 @@ _DOCUMENT_SUFFIX_RE = re.compile(
     r"(?:\s+(?:rev(?:ision)?|version)\s*[a-z0-9._-]+)?$",
     re.I,
 )
+_QSP_OR_BALANCE_RE = re.compile(
+    r"^\s*(?:q\.?\s*s\.?\s*p?\.?|balance)"
+    r"(?:\s*(?:to)?\s*100\s*%)?\s*$",
+    re.I,
+)
 
 
 def _commercial_aliases(value: str | None) -> set[str]:
@@ -300,6 +305,30 @@ def _agent_material_usage_by_row_id(
     return output
 
 
+def _preserved_non_numeric_concentration(row: Any) -> FormulationConcentration | None:
+    """Keep source-backed q.s./balance rows in aggregation provenance.
+
+    The interpretation agent correctly refuses to invent a number for q.s.,
+    but older assembly code then treated the concentration as absent and could
+    make a supplier contribution look like the complete ingredient amount.
+    """
+    for uncertainty in row.unresolved_fields:
+        raw = str(uncertainty.source_value or "").strip()
+        if (
+            uncertainty.target_field == "concentration"
+            and uncertainty.uncertainty_code == "concentration_unavailable"
+            and _QSP_OR_BALANCE_RE.fullmatch(raw)
+        ):
+            return FormulationConcentration(
+                concentration_type=ConcentrationType.UNKNOWN,
+                original_text=raw,
+                unit=ConcentrationUnit.PERCENT,
+                basis=None,
+                preparation_stage=PreparationStage.FINISHED_PRODUCT,
+            )
+    return None
+
+
 def formulation_row_ownership(
     agent_state: dict[str, Any] | AgentSessionView | None,
     materials: Iterable[SupplierMaterial],
@@ -398,12 +427,13 @@ def _direct_rows_from_agent(
         if not name or row.row_id in excluded_row_ids:
             continue
         cas_number = str(row.cas_number.value).strip() if row.cas_number and row.cas_number.value else None
+        concentration = _agent_concentration(
+            row.concentration.model_dump(mode="json") if row.concentration else None
+        ) or _preserved_non_numeric_concentration(row)
         ingredient = FormulationIngredientRequest(
             name=name,
             cas_number=cas_number,
-            concentration=_agent_concentration(
-                row.concentration.model_dump(mode="json") if row.concentration else None
-            ),
+            concentration=concentration,
             regulated_functions=row.regulated_functions,
         )
         evidence = [DocumentSourceEvidence(

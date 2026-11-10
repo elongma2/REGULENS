@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass
 from math import isclose
+import re
 from typing import Iterable
 
 from backend.app.models.document_intake import (
@@ -23,6 +24,12 @@ from backend.app.models.document_intake import (
 
 COMPOSITION_ROUNDING_TOLERANCE_PERCENT = 0.5
 _PERCENT_UNITS = {"%", "percent", "percentage", "w/w %", "% w/w"}
+_REVERSED_PERCENT_RANGE_RE = re.compile(
+    r"^\s*(?P<lower>\d+(?:\.\d+)?)\s*(?:-|–|—|to)\s*"
+    r"(?P<upper>\d+(?:\.\d+)?)\s*(?:%\s*(?:w/w)?|w/w\s*%|percent)?"
+    r"(?:\s*\([^)]*\))?\s*$",
+    re.I,
+)
 
 
 @dataclass(frozen=True)
@@ -74,6 +81,19 @@ def quantity_interval(quantity: CompositionQuantity) -> QuantityInterval:
     if quantity.kind == CompositionQuantityKind.LOWER_BOUND:
         return QuantityInterval(quantity.lower, None, quantity.lower_inclusive, None, approximate)
     return QuantityInterval(None, None, None, None, approximate)
+
+
+def _reversed_percentage_range(
+    quantity: CompositionQuantity | None,
+) -> tuple[float, float] | None:
+    if quantity is None or quantity.kind != CompositionQuantityKind.UNKNOWN or not quantity.raw_text:
+        return None
+    match = _REVERSED_PERCENT_RANGE_RE.fullmatch(quantity.raw_text)
+    if not match:
+        return None
+    lower = float(match.group("lower"))
+    upper = float(match.group("upper"))
+    return (lower, upper) if lower > upper else None
 
 
 def _quantity_from_interval(
@@ -312,6 +332,24 @@ def validate_material_composition(
         quantity = constituent.composition_quantity
         if quantity is None:
             continue
+        reversed_range = _reversed_percentage_range(quantity)
+        if reversed_range is not None:
+            lower, upper = reversed_range
+            issues.append(_issue(
+                material,
+                code="invalid_concentration_bound",
+                message=(
+                    f"The reported range for {constituent.submitted_name} is invalid: "
+                    f"the lower bound {lower:g}% exceeds the upper bound {upper:g}%."
+                ),
+                action=(
+                    "Correct the range from the governing supplier document. Regulens will not "
+                    "swap the endpoints or calculate this contribution."
+                ),
+                severity=AssemblyIssueSeverity.ERROR,
+                constituent=constituent,
+            ))
+            continue
         if not is_percent(quantity):
             continue
         interval = quantity_interval(quantity)
@@ -437,6 +475,11 @@ def calculate_material_contributions(
             CompositionQuantityKind.CODED_RANGE,
             CompositionQuantityKind.REMAINDER_TO_TOTAL,
         }:
+            if _reversed_percentage_range(quantity) is not None:
+                # validate_material_composition already emitted the precise,
+                # actionable error. Do not dilute it with a generic "could not
+                # be read" message for the same source row.
+                continue
             partial_evidence = material.disclosure_status != DisclosureStatus.COMPLETE
             issues.append(_issue(
                 material,

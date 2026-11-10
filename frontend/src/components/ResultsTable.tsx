@@ -3,7 +3,7 @@ import { FindingBadge } from "./FindingBadge";
 import { formatConcentration, ingredientScreeningDisposition } from "../lib/screening";
 import { displayIngredientName } from "../lib/presentation";
 import { reviewStatusPresentation } from "../lib/reviewPresentation";
-import { combinedSourceNote } from "../lib/assembly";
+import { combinedSourceNote, findAssemblyAggregate, formatEvaluatedAssemblyQuantity } from "../lib/assembly";
 import type { IngredientResult } from "../types/screening";
 import type { ReviewItem } from "../types/review";
 
@@ -41,6 +41,9 @@ export function ResultsTable({
               const selected = selectedRow === result.submitted_row_number;
               const reviewItem = reviewByRow.get(result.submitted_row_number);
               const sourceNote = combinedSourceNote(assemblyCalculationSnapshot, result);
+              const aggregate = findAssemblyAggregate(assemblyCalculationSnapshot, result);
+              const evaluatedConcentration = formatEvaluatedAssemblyQuantity(aggregate)
+                ?? formatConcentration(result.submitted_ingredient.concentration);
               return (
                 <tr
                   key={result.submitted_row_number}
@@ -60,7 +63,7 @@ export function ResultsTable({
                     <div className="font-medium text-slate-900">{displayIngredientName(result)}</div>
                     {sourceNote ? <div className="result-source-note">{sourceNote}</div> : <div className="mt-0.5 text-xs text-slate-400">Row {result.submitted_row_number}</div>}
                   </td>
-                  <td className="px-4 py-3.5 text-slate-700">{formatConcentration(result.submitted_ingredient.concentration)}</td>
+                  <td className="px-4 py-3.5 text-slate-700">{evaluatedConcentration}</td>
                   <td className="px-4 py-3.5"><FindingBadge finding={result.primary_finding} screeningDisposition={ingredientScreeningDisposition(result)} /></td>
                   {showReviewStatus && <td className="px-4 py-3.5">{reviewItem?.review_status ? <span className={`review-status-badge ${reviewStatusPresentation[reviewItem.review_status].className}`}>{reviewStatusPresentation[reviewItem.review_status].label}</span> : <span className="text-slate-400">—</span>}</td>}
                   <td className="px-4 py-3.5 text-slate-400"><ChevronRight size={16} /></td>

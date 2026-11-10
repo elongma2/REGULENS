@@ -64,6 +64,11 @@ Identify headers, formulation data rows, column meanings, explicit formulation m
 NUMERIC_WITH_UNIT = re.compile(r"^\s*(?P<value>(?:\d+(?:\.\d*)?|\.\d+))\s*(?P<unit>%|ppm|mg\s*/\s*kg)\s*$", re.IGNORECASE)
 NUMERIC_ONLY = re.compile(r"^\s*(?:\d+(?:\.\d*)?|\.\d+)\s*$")
 NON_NUMERIC_CONCENTRATIONS = {"q.s.", "q.s", "qs", "balance"}
+NON_NUMERIC_CONCENTRATION_RE = re.compile(
+    r"^\s*(?:q\.?\s*s\.?\s*p?\.?|balance)"
+    r"(?:\s*(?:to)?\s*100\s*%)?\s*$",
+    re.I,
+)
 SESSION_TTL_SECONDS = 60 * 60
 MAX_SESSIONS = 100
 MAX_TOOL_CALLS = 12
@@ -1171,7 +1176,10 @@ class FormulationAgentService:
                             uncertainty_code="missing_concentration_unit",
                             source_value=raw,
                         ))
-                elif raw.casefold() in NON_NUMERIC_CONCENTRATIONS:
+                elif (
+                    raw.casefold() in NON_NUMERIC_CONCENTRATIONS
+                    or NON_NUMERIC_CONCENTRATION_RE.fullmatch(raw)
+                ):
                     row_uncertainties.append(AgentRowUncertainty(
                         target_field="concentration",
                         uncertainty_code="concentration_unavailable",

@@ -30,14 +30,15 @@ from backend.app.services.concentration import parse_concentration_text
 from backend.app.services.document_classifier import classify_document
 
 
-EXTRACTION_SCHEMA_VERSION = "trade-document-v3"
+EXTRACTION_SCHEMA_VERSION = "trade-document-v4"
 _CAS_IN_TEXT_RE = re.compile(r"(?<!\d)(\d{2,7}-\d{2}-\d)(?!\d)")
 _LEGEND_RE = re.compile(
     r"\b([A-Z])\s*(?:=|:)?\s*"
     r"((?:[<>]=?|[≤≥])?\s*\d+(?:\.\d+)?\s*(?:[-–—]|to)?\s*\d*(?:\.\d+)?\s*%?)",
     re.I,
 )
-_QSP_RE = re.compile(r"\bq\.?s\.?p\.?\s*(?:to)?\s*(\d+(?:\.\d+)?)\s*%?", re.I)
+_QSP_RE = re.compile(r"\bq\.?\s*s\.?\s*p?\.?\s*(?:to)?\s*(\d+(?:\.\d+)?)\s*%?", re.I)
+_QS_ONLY_RE = re.compile(r"^\s*(?:q\.?\s*s\.?\s*p?\.?|balance)\s*$", re.I)
 _MAX_RE = re.compile(r"\bmax(?:imum)?\.?\s*(\d+(?:\.\d+)?)\s*(%|percent)?", re.I)
 _APPROX_RE = re.compile(r"(?:~|approximately|approx\.?)\s*(\d+(?:\.\d+)?)\s*(%|percent)?", re.I)
 _FOLLOWING_SDS_SECTION_RE = re.compile(r"\bsection\s*(?:4|5|6|7|8|9|1[0-6])\b", re.I)
@@ -57,6 +58,12 @@ _COMPLETE_DISCLOSURE_RE = re.compile(
     r"\b(?:complete\s+(?:supplier\s+)?disclosure|"
     r"disclosure\s*(?:status\s*)?[:\-]?\s*complete|"
     r"complete\s*[-:]?\s*totals?\s+100\s*%)\b",
+    re.I,
+)
+_PERCENT_RANGE_TEXT_RE = re.compile(
+    r"^\s*(?P<lower>\d+(?:\.\d+)?)\s*(?:-|–|—|to)\s*"
+    r"(?P<upper>\d+(?:\.\d+)?)\s*(?:%\s*(?:w/w)?|w/w\s*%|percent)?"
+    r"(?:\s*\([^)]*\))?\s*$",
     re.I,
 )
 
@@ -92,6 +99,13 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
             kind=CompositionQuantityKind.REMAINDER_TO_TOTAL,
             value=float(match.group(1)),
             unit="percent",
+            quantity_scope="supplier_material",
+            raw_text=value,
+        )
+    if _QS_ONLY_RE.fullmatch(value):
+        return CompositionQuantity(
+            kind=CompositionQuantityKind.UNKNOWN,
+            unit="percent" if default_percent else None,
             quantity_scope="supplier_material",
             raw_text=value,
         )
@@ -134,6 +148,32 @@ def _supplier_quantity(raw: str, *, default_percent: bool = False) -> Compositio
             reported_code=match.group(1).upper(),
             quantity_scope="supplier_material",
             raw_text=value,
+        )
+    return None
+
+
+def _supplier_quantity_preserving_invalid(
+    raw: str,
+    *,
+    default_percent: bool = False,
+) -> CompositionQuantity | None:
+    """Preserve a malformed numeric range without normalising its endpoints.
+
+    ``CompositionQuantity`` intentionally rejects reversed ranges, so a source
+    such as ``70-40%`` cannot be represented as a RANGE. Keeping it as UNKNOWN
+    with the exact source text lets the assembly validator raise a focused
+    invalid-bound issue while retaining the ingredient identity and evidence.
+    """
+    quantity = _supplier_quantity(raw, default_percent=default_percent)
+    if quantity is not None:
+        return quantity
+    match = _PERCENT_RANGE_TEXT_RE.fullmatch(raw.strip())
+    if match and float(match.group("lower")) > float(match.group("upper")):
+        return CompositionQuantity(
+            kind=CompositionQuantityKind.UNKNOWN,
+            unit="percent" if default_percent or "%" in raw or "percent" in raw.casefold() else None,
+            quantity_scope="supplier_material",
+            raw_text=raw.strip(),
         )
     return None
 
@@ -216,7 +256,10 @@ def _header_map(parsed: ParsedCSV) -> tuple[int | None, dict[str, int]]:
                 mapping.setdefault("unit", index)
             elif any(token in cell for token in ("code", "fda code", "range code")):
                 mapping.setdefault("code", index)
-            elif any(token in cell for token in ("concentration", "composition", "percentage", "range", "% w/w")):
+            elif any(token in cell for token in (
+                "concentration", "composition", "percentage", "range", "% w/w",
+                "usage", "amount",
+            )):
                 mapping.setdefault("quantity", index)
         # A selectable-text PDF is represented as one cell per line. A line such
         # as "INCI / CAS / concentration" is not a real multi-column header and
@@ -257,6 +300,13 @@ def _range_from_columns(
     if unit_raw:
         raw_text = f"{raw_text} {unit_raw}"
     if lower is not None and upper is not None:
+        if lower > upper:
+            return CompositionQuantity(
+                kind=CompositionQuantityKind.UNKNOWN,
+                unit=unit,
+                quantity_scope="supplier_material",
+                raw_text=raw_text,
+            )
         return CompositionQuantity(
             kind=CompositionQuantityKind.RANGE,
             lower=lower,
@@ -321,7 +371,7 @@ def _structured_rows(
             row,
             mapping,
             default_percent="%" in header_text or "percent" in header_text.casefold(),
-        ) or _supplier_quantity(
+        ) or _supplier_quantity_preserving_invalid(
             raw_quantity,
             default_percent="%" in header_text or "percent" in header_text.casefold(),
         )
@@ -365,7 +415,7 @@ def _text_rows(
         after = raw[cas_match.end():].strip(" |:-")
         if not before or re.search(r"\b(?:emergency|telephone|revision|date)\b", before, re.I):
             continue
-        quantity = _supplier_quantity(after, default_percent="%" in after)
+        quantity = _supplier_quantity_preserving_invalid(after, default_percent="%" in after)
         if quantity is None:
             code_match = re.search(r"(?:^|\s)([A-H])\s*$", after, re.I)
             if code_match:
@@ -407,7 +457,7 @@ def _vertical_supplier_rows(
         raw_quantity = by_index.get(index + 1, "").strip()
         if not name or re.search(r"\b(?:inci name|cas number|content|composition)\b", name, re.I):
             continue
-        quantity = _supplier_quantity(raw_quantity, default_percent=True)
+        quantity = _supplier_quantity_preserving_invalid(raw_quantity, default_percent=True)
         if quantity is None:
             continue
         combined = f"{name} | {cas_match.group(1)} | {raw_quantity}"
@@ -461,7 +511,7 @@ def _one_cell_supplier_rows(
             output.append((
                 match.group(1).strip(),
                 match.group(2),
-                _supplier_quantity(match.group(3), default_percent=True),
+                _supplier_quantity_preserving_invalid(match.group(3), default_percent=True),
                 _evidence(parsed, document_id, row_number, raw),
             ))
         return output
@@ -477,15 +527,9 @@ def _one_cell_supplier_rows(
                 break
             match = range_re.match(raw)
             if match:
-                quantity = CompositionQuantity(
-                    kind=CompositionQuantityKind.RANGE,
-                    lower=float(match.group(2)),
-                    upper=float(match.group(3)),
-                    lower_inclusive=None,
-                    upper_inclusive=None,
-                    unit="percent",
-                    quantity_scope="supplier_material",
-                    raw_text=f"{match.group(2)}-{match.group(3)}%",
+                quantity = _supplier_quantity_preserving_invalid(
+                    f"{match.group(2)}-{match.group(3)}%",
+                    default_percent=True,
                 )
                 output.append((
                     match.group(1).strip(), None, quantity,
@@ -539,7 +583,7 @@ def _one_cell_supplier_rows(
             if cas_match:
                 before = raw[:cas_match.start()].strip(" |:-")
                 after = raw[cas_match.end():].strip(" |:-")
-                after_quantity = _supplier_quantity(after, default_percent=True)
+                after_quantity = _supplier_quantity_preserving_invalid(after, default_percent=True)
                 if before and after_quantity is not None:
                     output.append((
                         before,
@@ -556,7 +600,7 @@ def _one_cell_supplier_rows(
                 output.append((
                     name,
                     cas_match.group(1),
-                    _supplier_quantity(quantity_raw, default_percent=True),
+                    _supplier_quantity_preserving_invalid(quantity_raw, default_percent=True),
                     _evidence(parsed, document_id, row_number, raw),
                 ))
                 continue
@@ -567,7 +611,7 @@ def _one_cell_supplier_rows(
             output.append((
                 missing_cas.group(1).strip(),
                 None,
-                _supplier_quantity(missing_cas.group(2), default_percent=True),
+                _supplier_quantity_preserving_invalid(missing_cas.group(2), default_percent=True),
                 _evidence(parsed, document_id, row_number, raw),
             ))
         return output
@@ -632,7 +676,8 @@ def extract_document(
             supplier_materials=[material],
             legends=legends,
             unresolved_source_rows=[
-                evidence for _, _, quantity, evidence in extracted_rows if quantity is None
+                evidence for _, _, quantity, evidence in extracted_rows
+                if quantity is None or quantity.kind == CompositionQuantityKind.UNKNOWN
             ],
             extraction_schema_version=EXTRACTION_SCHEMA_VERSION,
         )
@@ -652,7 +697,7 @@ def extract_document(
             source_evidence=[evidence],
             verified_identity_group=identity_resolver(name, valid_cas) if identity_resolver else None,
         ))
-        if quantity is None or (cas and not valid_cas):
+        if quantity is None or quantity.kind == CompositionQuantityKind.UNKNOWN or (cas and not valid_cas):
             unresolved.append(evidence)
     return DocumentExtraction(
         document_id=document_id,

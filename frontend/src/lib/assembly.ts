@@ -86,6 +86,28 @@ export function formatAssemblyQuantity(quantity?: AssemblyQuantity | null): stri
   return quantity.raw_text || "Unavailable";
 }
 
+const QSP_OR_BALANCE_RE = /^\s*(?:q\.?\s*s\.?\s*p?\.?|balance)(?:\s*(?:to)?\s*100\s*%)?\s*$/i;
+
+export function formatEvaluatedAssemblyQuantity(aggregate?: AssemblyAggregate | null): string | null {
+  if (!aggregate?.aggregate_quantity) return null;
+  const contributions = aggregate.contributions ?? [];
+  const qsp = contributions.find((contribution) => {
+    const quantity = contribution.finished_product_quantity;
+    return contribution.source_type === "direct_ingredient"
+      && quantity?.kind === "unknown"
+      && Boolean(quantity.raw_text && QSP_OR_BALANCE_RE.test(quantity.raw_text));
+  });
+  if (!qsp) return formatAssemblyQuantity(aggregate.aggregate_quantity);
+
+  const knownSupplierAmounts = contributions
+    .filter((contribution) => contribution.source_type === "material_constituent"
+      && contribution.finished_product_quantity?.kind !== "unknown")
+    .map((contribution) => formatAssemblyQuantity(contribution.finished_product_quantity));
+  const qspText = qsp.finished_product_quantity?.raw_text || "q.s. to 100%";
+  if (!knownSupplierAmounts.length) return qspText;
+  return `${qspText} · known supplier contribution${knownSupplierAmounts.length === 1 ? "" : "s"} ${knownSupplierAmounts.join(" + ")}`;
+}
+
 export function findAssemblyAggregate(
   snapshot: Record<string, unknown> | null | undefined,
   result: IngredientResult,

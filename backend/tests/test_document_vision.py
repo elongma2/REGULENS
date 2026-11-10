@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 from backend.app.services.document_vision import (
+    OpenAIDocumentVisionExtractor,
     VisionCompositionRow,
     VisionDocumentFacts,
     VisionLegendLine,
@@ -109,3 +112,77 @@ def test_vision_adapter_preserves_role_and_merges_conservative_wrapped_name() ->
     assert sum(row[0].casefold().endswith("fragment") for row in parsed.rows) == 1
     assert "sds_msds" in {item.role.value for item in classification.proposed_roles}
     assert classification.recommended_extraction_schema == "sds_composition"
+
+
+def test_image_only_pdf_is_processed_in_bounded_batches_across_all_pages(monkeypatch) -> None:
+    first = VisionDocumentFacts(
+        document_role="supplier_composition",
+        supplier_name="Example Supplier",
+        trade_name="Example Blend",
+        product_code="EX-1",
+        document_revision_label="Rev A",
+        multiple_products_detected=False,
+        composition_rows=[VisionCompositionRow(
+            ingredient_name="GLYCERIN",
+            cas_number="56-81-5",
+            concentration_text="20%",
+            continues_previous_name=False,
+            page=8,
+            source_snippet="GLYCERIN 56-81-5 20%",
+        )],
+        legend_lines=[],
+    )
+    second = VisionDocumentFacts(
+        document_role="unknown",
+        supplier_name=None,
+        trade_name=None,
+        product_code=None,
+        document_revision_label=None,
+        multiple_products_detected=False,
+        composition_rows=[VisionCompositionRow(
+            ingredient_name="AQUA",
+            cas_number="7732-18-5",
+            concentration_text="80%",
+            continues_previous_name=False,
+            # Deliberately batch-local; the adapter must rebase it to page 9.
+            page=1,
+            source_snippet="AQUA 7732-18-5 80%",
+        )],
+        legend_lines=[],
+    )
+    outputs = iter([first, second])
+    calls: list[dict] = []
+
+    class FakeResponses:
+        def create(self, **kwargs):
+            calls.append(kwargs)
+            facts = next(outputs)
+            return SimpleNamespace(
+                output_text=facts.model_dump_json(),
+                id=f"response-{len(calls)}",
+                model="cheap-vision-model",
+                usage=SimpleNamespace(input_tokens=10, output_tokens=5, total_tokens=15),
+            )
+
+    class FakeClient:
+        def __init__(self, **kwargs):
+            self.responses = FakeResponses()
+
+    monkeypatch.setattr("backend.app.services.document_vision.OpenAI", FakeClient)
+    monkeypatch.setattr(
+        "backend.app.services.document_vision._render_pdf",
+        lambda content, page_limit: (["encoded"] * 9, 9),
+    )
+
+    extraction = OpenAIDocumentVisionExtractor(
+        "test-key", "cheap-vision-model", page_limit=50, batch_pages=8,
+    ).extract_pdf("scan.pdf", b"pdf")
+
+    assert len(calls) == 2
+    assert extraction.parsed.page_count == 9
+    glycerin_index = extraction.parsed.rows.index(("GLYCERIN", "56-81-5", "20%"))
+    aqua_index = extraction.parsed.rows.index(("AQUA", "7732-18-5", "80%"))
+    assert extraction.parsed.row_pages[glycerin_index] == 8
+    assert extraction.parsed.row_pages[aqua_index] == 9
+    assert extraction.diagnostics["model_calls"] == 2
+    assert extraction.diagnostics["total_tokens"] == 30

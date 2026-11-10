@@ -19,7 +19,7 @@ const assemblyIssueLabels: Record<string, string> = {
   constituent_concentration_missing: "An ingredient amount could not be read from a supplier file.",
   constituent_identity_unresolved: "An ingredient name or CAS number still needs confirmation.",
   incompatible_quantity_basis: "Two amounts use units that cannot be combined safely.",
-  invalid_concentration_bound: "A supplier percentage or range falls outside 0% to 100%.",
+  invalid_concentration_bound: "A supplier percentage or range is invalid, including reversed or out-of-bounds values.",
   impossible_composition_total: "The ingredient percentages in a supplier file add up to more than 100%.",
   unverified_identity_aggregation: "Matching ingredient amounts could not be safely added together.",
 };

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { baseResult } from "../test/fixtures";
-import { combinedSourceNote, findAssemblyAggregate } from "./assembly";
+import { combinedSourceNote, findAssemblyAggregate, formatEvaluatedAssemblyQuantity } from "./assembly";
 
 describe("assembly result matching", () => {
   it("uses concentration to distinguish legacy split aggregates with the same CAS", () => {
@@ -73,5 +73,22 @@ describe("assembly result matching", () => {
     };
 
     expect(combinedSourceNote(snapshot, result)).toBe("Combined from 4 sources · Formulation + 3 suppliers");
+  });
+
+  it("keeps q.s. visible beside the known supplier contribution", () => {
+    expect(formatEvaluatedAssemblyQuantity({
+      display_name: "AQUA",
+      aggregate_quantity: { kind: "lower_bound", lower: 0.45, unit: "percent" },
+      contributions: [{
+        source_type: "direct_ingredient",
+        finished_product_quantity: {
+          kind: "unknown", unit: "percent", raw_text: "q.s. to 100%",
+        },
+      }, {
+        source_type: "material_constituent",
+        source_material_id: "boundshift",
+        finished_product_quantity: { kind: "exact", value: 0.45, unit: "percent" },
+      }],
+    })).toBe("q.s. to 100% · known supplier contribution 0.45%");
   });
 });

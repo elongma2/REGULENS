@@ -157,4 +157,70 @@ describe("ScreeningResultsPanel", () => {
     expect(screen.getAllByText("2-Phenoxyethanol")).toHaveLength(1);
     expect(screen.getByText("Combined from 2 sources · Formulation + 1 supplier")).toBeInTheDocument();
   });
+
+  it("does not present a known supplier Aqua contribution as the complete q.s. amount", () => {
+    const response = structuredClone(testResponse);
+    const aqua = baseResult(1, "AQUA");
+    aqua.submitted_ingredient.cas_number = "7732-18-5";
+    aqua.submitted_ingredient.concentration = {
+      concentration_type: "lower_bound",
+      value: null,
+      lower_bound: 0.45,
+      upper_bound: null,
+      lower_inclusive: true,
+      upper_inclusive: null,
+      unit: "percent",
+      basis: null,
+      preparation_stage: "finished_product",
+      original_text: null,
+    };
+    response.ingredient_results = [aqua];
+    response.formulation.assembly_calculation_snapshot = {
+      aggregates: [{
+        display_name: "AQUA",
+        cas_number: "7732-18-5",
+        aggregate_quantity: { kind: "lower_bound", lower: 0.45, unit: "percent" },
+        contributions: [{
+          contribution_id: "direct-aqua",
+          source_type: "direct_ingredient",
+          governing_document_id: "formula.csv",
+          finished_product_quantity: {
+            kind: "unknown", unit: "percent", raw_text: "q.s. to 100%",
+          },
+        }, {
+          contribution_id: "supplier-aqua",
+          source_type: "material_constituent",
+          source_material_id: "boundshift",
+          governing_document_id: "boundshift.pdf",
+          finished_product_quantity: { kind: "exact", value: 0.45, unit: "percent" },
+        }],
+      }],
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("q.s. to 100% · known supplier contribution 0.45%")).toBeInTheDocument();
+    expect(screen.queryByText("0.45%", { exact: true })).not.toBeInTheDocument();
+    expect(screen.getByText("Combined from 2 sources · Formulation + 1 supplier")).toBeInTheDocument();
+  });
+
+  it("explains malformed supplier ranges instead of hiding the excluded amount", () => {
+    const response = structuredClone(testResponse);
+    response.formulation.assembly_scope = {
+      completeness: "blocked",
+      issue_codes: ["invalid_concentration_bound"],
+      action_required_codes: ["invalid_concentration_bound"],
+      coverage_limitation_codes: [],
+      unresolved_material_ids: [],
+      incomplete_disclosure_material_ids: [],
+      unresolved_association_ids: [],
+      source_document_ids: ["boundshift.pdf"],
+      calculated_from_trade_materials: true,
+    };
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} />);
+
+    expect(screen.getByText("Some ingredients could not be calculated")).toBeInTheDocument();
+    expect(screen.getByText(/range is invalid, including reversed or out-of-bounds values/)).toBeInTheDocument();
+  });
 });

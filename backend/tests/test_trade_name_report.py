@@ -82,3 +82,66 @@ def test_report_discloses_partial_trade_material_coverage() -> None:
     normalized_text = " ".join(text.split())
     assert "Supplier Blend · Example Supplier · Supplier Blend SDS.pdf · page 2" in normalized_text
 
+
+def test_report_labels_qs_aqua_and_known_supplier_contribution() -> None:
+    request = FormulationRequest.model_validate({
+        "formulation_id": "FORM-QS-AQUA",
+        "formulation_name": "Q.s. Aqua pilot",
+        "assembly_scope": {
+            "completeness": "partial",
+            "issue_codes": ["constituent_concentration_missing"],
+            "coverage_limitation_codes": ["constituent_concentration_missing"],
+            "source_document_ids": ["formula.csv", "boundshift.pdf"],
+        },
+        "assembly_calculation_snapshot": {
+            "source_documents": {
+                "formula.csv": {"original_filename": "formula.csv"},
+                "boundshift.pdf": {
+                    "original_filename": "BoundShift X.pdf",
+                    "trade_name": "BoundShift X",
+                },
+            },
+            "materials": [{"material_id": "boundshift", "trade_name": "BoundShift X"}],
+            "aggregates": [{
+                "display_name": "AQUA",
+                "aggregate_quantity": {
+                    "kind": "lower_bound", "lower": 0.45, "unit": "percent",
+                },
+                "contributions": [{
+                    "source_type": "direct_ingredient",
+                    "governing_document_id": "formula.csv",
+                    "finished_product_quantity": {
+                        "kind": "unknown", "unit": "percent", "raw_text": "q.s. to 100%",
+                    },
+                    "calculation_formula": "Direct finished-product ingredient",
+                }, {
+                    "source_type": "material_constituent",
+                    "source_material_id": "boundshift",
+                    "governing_document_id": "boundshift.pdf",
+                    "finished_product_quantity": {
+                        "kind": "exact", "value": 0.45, "unit": "percent",
+                    },
+                    "calculation_formula": "1.5% × 30% ÷ 100 = 0.45%",
+                }],
+            }],
+        },
+        "ingredients": [{
+            "name": "AQUA",
+            "cas_number": "7732-18-5",
+            "concentration": {
+                "concentration_type": "lower_bound",
+                "lower_bound": 0.45,
+                "lower_inclusive": True,
+                "unit": "percent",
+                "basis": None,
+                "preparation_stage": "finished_product",
+            },
+        }],
+    })
+    response = screen_formulation(load_accepted_store(ROOT), request)
+    text = " ".join(
+        "\n".join(page.extract_text() or "" for page in PdfReader(BytesIO(build_screening_report(response))).pages).split()
+    )
+
+    assert "q.s. to 100%; known supplier contribution 0.45%" in text
+

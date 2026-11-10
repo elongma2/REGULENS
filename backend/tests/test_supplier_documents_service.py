@@ -272,6 +272,11 @@ def test_saved_extraction_compatibility_checks_schema_and_processor_configuratio
     ) is True
     assert SupplierDocumentService.extraction_is_compatible(
         vision,
+        vision_extractor=SimpleNamespace(model="low-cost-document-model"),
+        text_extractor=SimpleNamespace(model="different-text-model"),
+    ) is True
+    assert SupplierDocumentService.extraction_is_compatible(
+        vision,
         vision_extractor=SimpleNamespace(model="new-document-model"),
     ) is False
 
