@@ -29,7 +29,12 @@ from backend.app.models.formulation import (
     FormulationIngredientRequest,
     PreparationStage,
 )
-from backend.app.models.screening import ConcentrationType, IdentityOutcome, IdentityStatus
+from backend.app.models.screening import (
+    ConcentrationType,
+    IdentityOutcome,
+    IdentityStatus,
+    IdentitySuggestionStatus,
+)
 from backend.app.services.composition_legends import resolve_coded_quantity
 from backend.app.services.formulation_assembly import prepare_assembly
 from backend.app.services.ingredient_catalog import IngredientCatalog
@@ -38,7 +43,7 @@ from backend.app.services.loader import RegulatoryStore
 from backend.app.services.resolver import resolve_ingredient
 
 
-ASSEMBLY_DERIVATION_VERSION = "assembly-v6"
+ASSEMBLY_DERIVATION_VERSION = "assembly-v7"
 
 
 _DOCUMENT_SUFFIX_RE = re.compile(
@@ -150,6 +155,37 @@ def _identity_group(
     return f"singapore:{','.join(sorted(ids))}" if ids else None
 
 
+def _confirmed_identity_name(
+    submitted_name: str,
+    suggestion,
+    catalogue: IngredientCatalog | None,
+) -> str:
+    if suggestion and suggestion.status == IdentitySuggestionStatus.CONFIRMED and catalogue:
+        accepted = catalogue.find_exact_name(suggestion.canonical_name)
+        if accepted and accepted["ingredient_id"] == suggestion.catalogue_ingredient_id:
+            return accepted["canonical_name"]
+    return submitted_name
+
+
+def _identity_group_with_suggestion(
+    store: RegulatoryStore,
+    catalogue: IngredientCatalog | None,
+    linkages: IngredientLinkageStore | None,
+    name: str,
+    cas_number: str | None,
+    suggestion,
+) -> str | None:
+    if suggestion and suggestion.status != IdentitySuggestionStatus.CONFIRMED:
+        return None
+    return _identity_group(
+        store,
+        catalogue,
+        linkages,
+        _confirmed_identity_name(name, suggestion, catalogue),
+        cas_number,
+    )
+
+
 def _resolve_constituent(
     constituent: MaterialConstituent,
     *,
@@ -185,12 +221,13 @@ def _resolve_constituent(
             quantity = resolved
     return constituent.model_copy(update={
         "composition_quantity": quantity,
-        "verified_identity_group": _identity_group(
+        "verified_identity_group": _identity_group_with_suggestion(
             store,
             catalogue,
             linkages,
             constituent.submitted_name,
             constituent.cas_number,
+            constituent.identity_suggestion,
         ),
     })
 
@@ -203,12 +240,13 @@ def _resolved_direct(
     linkages: IngredientLinkageStore | None,
 ) -> DirectIngredient:
     return row.model_copy(update={
-        "verified_identity_group": _identity_group(
+        "verified_identity_group": _identity_group_with_suggestion(
             store,
             catalogue,
             linkages,
             row.ingredient.name,
             row.ingredient.cas_number,
+            row.identity_suggestion,
         ),
     })
 
@@ -695,12 +733,13 @@ def prepare_trade_name_assembly(
         material.model_copy(update={
             "constituents": [
                 constituent.model_copy(update={
-                    "verified_identity_group": _identity_group(
+                    "verified_identity_group": _identity_group_with_suggestion(
                         store,
                         catalogue,
                         linkages,
                         constituent.submitted_name,
                         constituent.cas_number,
+                        constituent.identity_suggestion,
                     ),
                 })
                 for constituent in material.constituents

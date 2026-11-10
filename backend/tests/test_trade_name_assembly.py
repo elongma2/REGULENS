@@ -39,7 +39,13 @@ from backend.app.services.trade_name_assembly import (
     matched_trade_material_row_ids,
     prepare_trade_name_assembly,
 )
-from backend.app.models.screening import IdentityOutcome, IdentityStatus, RegulatedFunction
+from backend.app.models.screening import (
+    IdentityOutcome,
+    IdentityStatus,
+    IdentitySuggestion,
+    IdentitySuggestionStatus,
+    RegulatedFunction,
+)
 from backend.app.services.formulation import screen_formulation
 from backend.app.services.formulation_assembly import prepare_assembly
 from backend.app.services.ingredient_catalog import load_accepted_ingredient_catalog
@@ -162,6 +168,107 @@ def test_name_recognised_with_unmapped_cas_can_retain_safe_name_identity(monkeyp
     )
 
     assert _identity_group(object(), None, None, "GLYCERIN", "111-11-1") == "catalogue:glycerin"
+
+
+def test_ai_name_suggestion_stays_unidentified_until_reviewer_confirms() -> None:
+    store = load_accepted_store()
+    catalogue = load_accepted_ingredient_catalog()
+    linkages = load_accepted_ingredient_linkages()
+    aqua = catalogue.find_exact_name("AQUA")
+    assert aqua is not None
+    suggestion = IdentitySuggestion(
+        target_id="supplier-water",
+        original_name="Water",
+        canonical_name=aqua["canonical_name"],
+        catalogue_ingredient_id=aqua["ingredient_id"],
+        explanation="Water is the common-language name for the INCI name AQUA.",
+        model="test-model",
+    )
+    state = FormulationAssemblyState(
+        direct_ingredients=[DirectIngredient(
+            ingredient_id="direct-aqua",
+            ingredient=FormulationIngredientRequest(
+                name="AQUA",
+                concentration=FormulationConcentration(
+                    concentration_type="exact",
+                    value=5,
+                    unit="percent",
+                    basis=None,
+                    preparation_stage="finished_product",
+                ),
+            ),
+            source_document_id="primary:formula",
+        )],
+        materials=[SupplierMaterial(
+            material_id="supplier-blend",
+            trade_name="Supplier Blend",
+            finished_product_usage=_quantity(
+                "exact", value=10, unit="percent",
+                quantity_scope="finished_product", preparation_stage="finished_product",
+            ),
+            attached_document_ids=["supplier.pdf"],
+            governing_document_id="supplier.pdf",
+            constituents=[MaterialConstituent(
+                constituent_id="supplier-water",
+                submitted_name="Water",
+                composition_quantity=_quantity(
+                    "exact", value=50, unit="percent", quantity_scope="supplier_material",
+                ),
+                identity_suggestion=suggestion,
+            )],
+            disclosure_status=DisclosureStatus.COMPLETE,
+            confirmation_status=ConfirmationStatus.CONFIRMED,
+        )],
+        source_document_ids=["primary:formula", "supplier.pdf"],
+    )
+
+    pending_state, pending = prepare_trade_name_assembly(
+        assembly_revision=1,
+        state=state,
+        formulation_id="formula",
+        source_filename="formula.xlsx",
+        store=store,
+        catalogue=catalogue,
+        linkages=linkages,
+    )
+
+    assert pending.formulation is not None
+    assert [item.name for item in pending.formulation.ingredients] == ["AQUA", "Water"]
+    screened = screen_formulation(
+        store, pending.formulation, ingredient_catalog=catalogue, linkage_store=linkages,
+    )
+    water_result = next(
+        item for item in screened.ingredient_results if item.submitted_ingredient.name == "Water"
+    )
+    assert water_result.primary_finding.value == "identity_unresolved"
+    assert water_result.submitted_ingredient.identity_suggestion is not None
+    assert water_result.submitted_ingredient.identity_suggestion.status == "pending"
+
+    confirmed = pending_state.materials[0].constituents[0].model_copy(update={
+        "identity_suggestion": suggestion.model_copy(update={
+            "status": IdentitySuggestionStatus.CONFIRMED,
+        }),
+    })
+    confirmed_state = pending_state.model_copy(update={
+        "materials": [pending_state.materials[0].model_copy(update={
+            "constituents": [confirmed],
+        })],
+    })
+    _, accepted = prepare_trade_name_assembly(
+        assembly_revision=2,
+        state=confirmed_state,
+        formulation_id="formula",
+        source_filename="formula.xlsx",
+        store=store,
+        catalogue=catalogue,
+        linkages=linkages,
+    )
+
+    assert accepted.formulation is not None
+    assert len(accepted.formulation.ingredients) == 1
+    assert accepted.formulation.ingredients[0].name == "AQUA"
+    assert accepted.formulation.ingredients[0].concentration is not None
+    assert accepted.formulation.ingredients[0].concentration.value == pytest.approx(10)
 
 
 def test_test_a_combines_verified_source_alias_and_inci_before_screening() -> None:

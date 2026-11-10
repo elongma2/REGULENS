@@ -50,7 +50,11 @@ export function FormulationWorkspacePage() {
       <div className="case-workspace-breadcrumb"><Link to={`/cases/${caseId}`}>← Case Overview</Link><button className="danger-text-button" type="button" onClick={() => { setDialogOpen(true); setDeleteError(null); }}><Trash2 size={14} /> Delete formulation</button></div>
       <SupplierDocumentsPanel ref={supplierDocuments} compact versionId={versionId} onDocumentsChanged={setSourceDocuments} onWorkflowStatusChange={setSupplierWorkflow} />
       <TradeMaterialAssemblyPanel ref={materialAssembly} compact versionId={versionId} documents={sourceDocuments} onHandledMaterialRowIdsChange={setHandledMaterialRowIds} onAssemblyRevisionChange={setAssemblyRevision} onIssueAction={openIssueTarget} />
-      <AgentPage compact caseId={caseId} versionId={versionId} handledMaterialRowIds={handledMaterialRowIds} assemblyRevision={assemblyRevision} focusRowRequest={agentFocusRequest} screeningBlockedReason={supplierWorkflow.reason} onResolveScreeningBlock={() => supplierDocuments.current?.openManager()} beforeRunScreening={() => materialAssembly.current?.savePendingChanges() ?? Promise.resolve()} />
+      <AgentPage compact caseId={caseId} versionId={versionId} handledMaterialRowIds={handledMaterialRowIds} assemblyRevision={assemblyRevision} focusRowRequest={agentFocusRequest} screeningBlockedReason={supplierWorkflow.reason} onResolveScreeningBlock={() => supplierDocuments.current?.openManager()} beforeRunScreening={() => materialAssembly.current?.savePendingChanges() ?? Promise.resolve()} onIdentitySuggestionDecision={(targetId, decision) => {
+        const handler = materialAssembly.current;
+        if (!handler) return Promise.reject(new Error("Material calculations are unavailable."));
+        return handler.decideIdentitySuggestion(targetId, decision).then(() => undefined);
+      }} />
     </div>
     <TypedDeleteDialog open={dialogOpen} title="Delete this formulation version?" description="This permanently removes its uploaded file, interpretation, clarifications, screening runs, finding reviews, formulation and finding notes, and linked follow-ups. Case-level notes remain." actionLabel="Delete formulation" busy={deleting} error={deleteError} onCancel={() => { if (!deleting) { setDialogOpen(false); setDeleteError(null); } }} onConfirm={() => void remove()} />
   </>;

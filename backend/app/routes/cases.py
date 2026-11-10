@@ -36,6 +36,7 @@ from backend.app.models.cases import (
     AttachSupplierDocumentRequest,
     AssemblyPreparationView,
     AssemblyStateUpdate,
+    IdentitySuggestionDecision,
     PermanentDeleteRequest,
     ScreeningRunView,
     SignedFileView,
@@ -49,6 +50,7 @@ from backend.app.models.formulation import (
     FormulationScreeningResponse,
     ScreeningInputRevision,
 )
+from backend.app.models.screening import IdentitySuggestionStatus
 from backend.app.models.document_intake import FormulationAssemblyState, FormulationRowOwnerType
 from backend.app.services.agent_csv import (
     CSVUploadError,
@@ -58,6 +60,7 @@ from backend.app.services.agent_csv import (
     parse_formulation_upload,
 )
 from backend.app.services.formulation import screen_formulation
+from backend.app.services.identity_suggestions import add_pending_identity_suggestions
 from backend.app.services.formulation_agent import (
     AgentConfirmationRequiredError,
     AgentRevisionConflictError,
@@ -1251,12 +1254,15 @@ def _merge_assembly_state(
             if source_item.constituent_id in removed_constituent_ids:
                 continue
             prior_item = previous_constituents.get(source_item.constituent_id)
-            if (
-                prior_item is not None
-                and prior_item.user_edits
-                and same_constituent_identity(prior_item, source_item)
-            ):
-                merged_constituents.append(prior_item)
+            if prior_item is not None and same_constituent_identity(prior_item, source_item):
+                if prior_item.user_edits:
+                    merged_constituents.append(prior_item)
+                elif prior_item.identity_suggestion is not None:
+                    merged_constituents.append(source_item.model_copy(update={
+                        "identity_suggestion": prior_item.identity_suggestion,
+                    }))
+                else:
+                    merged_constituents.append(source_item)
             else:
                 merged_constituents.append(source_item)
         discovered_ids = {
@@ -1517,6 +1523,11 @@ def refresh_formulation_assembly(
             if row.get("assembly_state") else None
         )
         state = _merge_assembly_state(existing, discovered)
+        state = add_pending_identity_suggestions(
+            state,
+            catalogue=catalogue,
+            provider=getattr(request.app.state, "identity_suggestion_provider", None),
+        )
         return _prepare_and_persist_assembly(
             request=request,
             gateway=gateway,
@@ -1579,6 +1590,75 @@ def update_formulation_assembly(
         raise HTTPException(
             status_code=422,
             detail={"code": "assembly_input_invalid", "message": str(error)},
+        ) from error
+
+
+@router.post(
+    "/formulations/{version_id}/identity-suggestions/decision",
+    response_model=AssemblyPreparationView,
+)
+def decide_identity_suggestion(
+    version_id: UUID,
+    payload: IdentitySuggestionDecision,
+    request: Request,
+    user: Annotated[CurrentUser, Depends(get_current_user)],
+    gateway: Annotated[SupabaseGateway, Depends(get_supabase_gateway)],
+) -> AssemblyPreparationView:
+    """Persist a reviewer decision without treating the AI proposal as source evidence."""
+
+    try:
+        row = gateway.get_version(user.id, version_id)
+        current_revision = int(row.get("assembly_revision") or 0)
+        if current_revision != payload.assembly_revision:
+            raise RevisionConflictError("The formulation assembly changed; reload before deciding")
+        raw_state = row.get("assembly_state")
+        if not raw_state:
+            raise HTTPException(
+                status_code=409,
+                detail={"code": "assembly_not_initialized", "message": "Prepare material assembly first."},
+            )
+        state = FormulationAssemblyState.model_validate(raw_state)
+        found = False
+        materials = []
+        for material in state.materials:
+            constituents = []
+            for item in material.constituents:
+                suggestion = item.identity_suggestion
+                if item.constituent_id == payload.target_id:
+                    if suggestion is None or suggestion.target_id != payload.target_id:
+                        raise HTTPException(
+                            status_code=409,
+                            detail={
+                                "code": "identity_suggestion_unavailable",
+                                "message": "This identity suggestion is no longer available.",
+                            },
+                        )
+                    suggestion = suggestion.model_copy(
+                        update={"status": IdentitySuggestionStatus(payload.decision)}
+                    )
+                    item = item.model_copy(update={"identity_suggestion": suggestion})
+                    found = True
+                constituents.append(item)
+            materials.append(material.model_copy(update={"constituents": constituents}))
+        if not found:
+            raise HTTPException(
+                status_code=404,
+                detail={"code": "identity_suggestion_not_found", "message": "Identity suggestion not found."},
+            )
+        return _prepare_and_persist_assembly(
+            request=request,
+            gateway=gateway,
+            user=user,
+            row=row,
+            state=state.model_copy(update={"materials": materials}),
+            expected_revision=current_revision,
+        )
+    except ResourceNotFoundError as error:
+        raise _not_found(error) from error
+    except RevisionConflictError as error:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "assembly_revision_conflict", "message": str(error)},
         ) from error
 
 

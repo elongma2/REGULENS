@@ -1,6 +1,9 @@
 # Project status
 
-Updated: 2026-11-10
+Updated: 2026-11-11
+
+- **Reviewer-confirmed identity suggestions:** Supplier constituents that do not join a direct formulation identity can receive a bounded, high-confidence AI name-equivalence proposal, validated against the accepted ingredient catalogue. Examples include `WATER` -> `AQUA` and `PARAFFINUM LIQUID` -> `PARAFFINUM LIQUIDUM`; related chemicals, salts, esters, hydrates, mixtures, botanical species, colour-index forms, trade names, abbreviations, families and derivatives are forbidden. Pending or rejected proposals remain `identity_unresolved`, do not aggregate, and withhold regulatory checks. Results expose `Confirm match` and `Keep unidentified`; either decision advances assembly revision and creates a new immutable screening run. All supported formulation and supplier upload formats converge on this same post-extraction flow. Assembly derivation `assembly-v7` refreshes saved states for this behavior.
+- **Current verification:** On 2026-11-11, the complete backend and data-pipeline suites passed with 407 tests and 2 skips, the complete frontend suite passed 168 tests, and the production frontend build passed. Focused identity-suggestion and trade-name assembly tests passed 20/20.
 
 - **Accepted regulatory baseline:** `acd-2026-1__sg-2025-12-01__parts-i-v-r1` is active in normal runtime screening. It covers Singapore Third Schedule Parts I–V, ACD Annexes II/III/IV/VI/VII, ACD Appendix I, and Singapore Regulation 6(1)–(5). Singapore legislation controls Singapore findings; ACD supplies identity and validated comparison evidence. Text, formatting and extraction metadata alone never create a material-difference review flag.
 - **Coverage:** 4,389 raw records, 4,466 normalized rules, 4,350 identities, and 2,223 Singapore–ACD cross-references. Rule statuses are 3,043 normalized, 1,384 manual review required, and 39 inactive source entries.

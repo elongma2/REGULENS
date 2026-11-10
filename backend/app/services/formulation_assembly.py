@@ -31,6 +31,7 @@ from backend.app.models.formulation import (
 from backend.app.models.screening import ConcentrationType
 from backend.app.services.material_calculation import (
     aggregate_contributions,
+    calculate_finished_product_quantity,
     calculate_material_contributions,
 )
 
@@ -337,7 +338,30 @@ def prepare_assembly(
     for direct in direct_ingredients:
         if direct.verified_identity_group:
             continue
-        canonical_ingredients.append(direct.ingredient)
+        canonical_ingredients.append(direct.ingredient.model_copy(update={
+            "identity_suggestion": direct.identity_suggestion,
+        }))
+
+    # Unresolved supplier constituents remain visible as unidentified screening
+    # rows. Their arithmetic may be calculated, but they are never aggregated
+    # with another name until a reviewer confirms the proposed identity.
+    for material in normalized_materials:
+        for constituent in material.constituents:
+            if constituent.verified_identity_group:
+                continue
+            finished = calculate_finished_product_quantity(
+                material.finished_product_usage,
+                constituent.composition_quantity,
+            )
+            if finished is None:
+                continue
+            canonical_ingredients.append(FormulationIngredientRequest(
+                name=constituent.submitted_name,
+                cas_number=constituent.cas_number,
+                concentration=_canonical_concentration(finished),
+                regulated_functions=constituent.regulated_functions,
+                identity_suggestion=constituent.identity_suggestion,
+            ))
 
     if not canonical_ingredients:
         # FormulationRequest deliberately requires at least one ingredient. A

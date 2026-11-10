@@ -1,5 +1,5 @@
 import type { AgentSession } from "./agent";
-import type { FormulationRequest, RegulatedFunction, ScreeningResponse } from "./screening";
+import type { FormulationRequest, IdentitySuggestion, RegulatedFunction, ScreeningResponse } from "./screening";
 
 export interface Organisation { id: string; name: string; role: "owner" | "member"; created_at: string; }
 export interface CurrentUser { id: string; email: string | null; display_name: string; default_organisation_id: string; organisations: Organisation[]; }
@@ -131,6 +131,7 @@ export interface MaterialConstituent {
   regulated_functions: RegulatedFunction[];
   role_label: string | null;
   user_edits: Record<string, unknown>;
+  identity_suggestion: IdentitySuggestion | null;
 }
 
 export interface SupplierMaterialState {

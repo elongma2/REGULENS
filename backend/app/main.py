@@ -24,6 +24,7 @@ from backend.app.services.ingredient_linkage import (
     IngredientLinkageStore,
     load_accepted_ingredient_linkages,
 )
+from backend.app.services.identity_suggestions import OpenAIIdentitySuggestionProvider
 from backend.app.services.source_rendering import IdentitySourceEvidenceRenderer, SourceEvidenceRenderer
 from backend.app.services.review_explanations import ReviewExplanationService
 from backend.app.services.document_vision import OpenAIDocumentVisionExtractor
@@ -121,6 +122,14 @@ def create_app(
         )
         application.state.document_text_extractor = (
             OpenAITextDocumentExtractor(
+                settings.api_key,
+                settings.document_model,
+                timeout_seconds=settings.agent_timeout_seconds,
+            )
+            if settings.api_key else None
+        )
+        application.state.identity_suggestion_provider = (
+            OpenAIIdentitySuggestionProvider(
                 settings.api_key,
                 settings.document_model,
                 timeout_seconds=settings.agent_timeout_seconds,

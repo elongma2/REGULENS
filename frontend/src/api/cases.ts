@@ -144,3 +144,17 @@ export const updateFormulationAssembly = (
   body: JSON.stringify({ assembly_revision: assemblyRevision, assembly_state: assemblyState }),
 });
 
+export const decideIdentitySuggestion = (
+  versionId: string,
+  assemblyRevision: number,
+  targetId: string,
+  decision: "confirmed" | "rejected",
+) => json<AssemblyPreparation>(`/formulations/${encodeURIComponent(versionId)}/identity-suggestions/decision`, {
+  method: "POST",
+  body: JSON.stringify({
+    assembly_revision: assemblyRevision,
+    target_id: targetId,
+    decision,
+  }),
+});
+

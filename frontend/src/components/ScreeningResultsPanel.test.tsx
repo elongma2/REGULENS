@@ -223,4 +223,33 @@ describe("ScreeningResultsPanel", () => {
     expect(screen.getByText("Some ingredients could not be calculated")).toBeInTheDocument();
     expect(screen.getByText(/range is invalid, including reversed or out-of-bounds values/)).toBeInTheDocument();
   });
+
+  it("keeps an AI identity proposal provisional until the reviewer decides", async () => {
+    const response = structuredClone(testResponse);
+    const water = baseResult(1, "Water");
+    water.primary_finding = "identity_unresolved";
+    water.identity.status = "unresolved";
+    water.identity.resolved_singapore_substance_id = null;
+    water.identity.resolved_singapore_substance_ids = [];
+    water.submitted_ingredient.identity_suggestion = {
+      target_id: "supplier-water",
+      original_name: "Water",
+      canonical_name: "AQUA",
+      catalogue_ingredient_id: "catalogue-aqua",
+      confidence: "high",
+      explanation: "Water is the common-language name for the INCI name AQUA.",
+      model: "test-model",
+      status: "pending",
+    };
+    response.ingredient_results = [water];
+    const decide = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+
+    render(<ScreeningResultsPanel response={response} selectedRow={null} onSelect={vi.fn()} onIdentitySuggestionDecision={decide} />);
+
+    expect(screen.getByText("Possible ingredient name match")).toBeInTheDocument();
+    expect(screen.getByText(/remains unidentified unless you confirm/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Confirm match" }));
+    expect(decide).toHaveBeenCalledWith("supplier-water", "confirmed");
+  });
 });

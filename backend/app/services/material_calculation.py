@@ -457,6 +457,26 @@ def _compatible_for_calculation(
     )
 
 
+def calculate_finished_product_quantity(
+    material_usage: CompositionQuantity | None,
+    constituent_quantity: CompositionQuantity | None,
+) -> CompositionQuantity | None:
+    """Calculate an amount without making or requiring a chemical identity decision."""
+
+    if (
+        material_usage is None
+        or constituent_quantity is None
+        or constituent_quantity.kind in {
+            CompositionQuantityKind.UNKNOWN,
+            CompositionQuantityKind.CODED_RANGE,
+            CompositionQuantityKind.REMAINDER_TO_TOTAL,
+        }
+        or not _compatible_for_calculation(material_usage, constituent_quantity)
+    ):
+        return None
+    return multiply_percentage_quantities(material_usage, constituent_quantity)
+
+
 def calculate_material_contributions(
     material: SupplierMaterial,
 ) -> tuple[SupplierMaterial, list[CalculatedContribution], list[AssemblyIssue]]:
@@ -567,7 +587,9 @@ def calculate_material_contributions(
                 constituent=constituent,
             ))
             continue
-        finished = multiply_percentage_quantities(usage, quantity)
+        finished = calculate_finished_product_quantity(usage, quantity)
+        if finished is None:
+            continue
         contributions.append(CalculatedContribution(
             contribution_id=(
                 f"material:{material.material_id}:constituent:{constituent.constituent_id}:"

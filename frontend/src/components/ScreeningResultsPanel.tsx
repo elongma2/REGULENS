@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { GitMerge, LoaderCircle, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { displayIngredientName } from "../lib/presentation";
 import { reviewStatusPresentation } from "../lib/reviewPresentation";
@@ -32,6 +32,8 @@ export function ScreeningResultsPanel({
   reviewDataState = "not_applicable",
   openFindingFollowUps = 0,
   onVisibleRowsChange,
+  onIdentitySuggestionDecision,
+  identityDecisionBusy = false,
 }: {
   response: ScreeningResponse;
   selectedRow: number | null;
@@ -40,11 +42,18 @@ export function ScreeningResultsPanel({
   reviewDataState?: ReviewDataState;
   openFindingFollowUps?: number;
   onVisibleRowsChange?: (rowNumbers: number[]) => void;
+  onIdentitySuggestionDecision?: (
+    targetId: string,
+    decision: "confirmed" | "rejected",
+  ) => Promise<void>;
+  identityDecisionBusy?: boolean;
 }) {
   const [preset, setPreset] = useState<FilterPreset>("all");
   const [query, setQuery] = useState("");
   const [finding, setFinding] = useState<Finding | "all">("all");
   const [reviewStatus, setReviewStatus] = useState<ReviewStatus | "all">("all");
+  const [identityDecisionTarget, setIdentityDecisionTarget] = useState<string | null>(null);
+  const [identityDecisionError, setIdentityDecisionError] = useState<string | null>(null);
   const reviewAvailable = reviewDataState === "available";
   const assemblyScope = response.formulation.assembly_scope;
   const coverageCodes = assemblyScope?.coverage_limitation_codes ?? (
@@ -57,6 +66,22 @@ export function ScreeningResultsPanel({
   const reviewByRow = useMemo(() => new Map(reviewItems.map((item) => [item.submitted_row_number, item])), [reviewItems]);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const hasFilters = preset !== "all" || normalizedQuery.length > 0 || finding !== "all" || reviewStatus !== "all";
+  const pendingIdentitySuggestions = response.ingredient_results.filter(
+    (result) => result.submitted_ingredient.identity_suggestion?.status === "pending",
+  );
+
+  const decideIdentity = async (targetId: string, decision: "confirmed" | "rejected") => {
+    if (!onIdentitySuggestionDecision || identityDecisionBusy) return;
+    setIdentityDecisionTarget(targetId);
+    setIdentityDecisionError(null);
+    try {
+      await onIdentitySuggestionDecision(targetId, decision);
+    } catch (caught) {
+      setIdentityDecisionError(caught instanceof Error ? caught.message : "The identity decision could not be saved.");
+    } finally {
+      setIdentityDecisionTarget(null);
+    }
+  };
 
   useEffect(() => {
     if (reviewDataState !== "unavailable" && reviewDataState !== "not_applicable") return;
@@ -107,6 +132,41 @@ export function ScreeningResultsPanel({
         reviewDataState={reviewDataState}
         openFindingFollowUps={openFindingFollowUps}
       />
+
+      {pendingIdentitySuggestions.length > 0 && (
+        <section className="identity-suggestion-review" aria-labelledby="identity-suggestion-title">
+          <div className="identity-suggestion-heading">
+            <GitMerge size={17} aria-hidden="true" />
+            <div>
+              <h3 id="identity-suggestion-title">Possible ingredient name match</h3>
+              <p>AI noticed a likely naming equivalent. It remains unidentified unless you confirm it.</p>
+            </div>
+          </div>
+          <div className="identity-suggestion-list">
+            {pendingIdentitySuggestions.map((result) => {
+              const suggestion = result.submitted_ingredient.identity_suggestion!;
+              const pending = identityDecisionTarget === suggestion.target_id;
+              return <article key={suggestion.target_id} className="identity-suggestion-item">
+                <div>
+                  <strong>{suggestion.original_name}</strong>
+                  <span aria-hidden="true">→</span>
+                  <strong>{suggestion.canonical_name}</strong>
+                  <p>{suggestion.explanation}</p>
+                </div>
+                <div className="identity-suggestion-actions">
+                  <button className="primary-button" type="button" disabled={!onIdentitySuggestionDecision || identityDecisionBusy} aria-busy={pending} onClick={() => void decideIdentity(suggestion.target_id, "confirmed")}>
+                    {pending ? <LoaderCircle className="button-spinner" size={15} aria-hidden="true" /> : null}
+                    Confirm match
+                  </button>
+                  <button className="secondary-button" type="button" disabled={!onIdentitySuggestionDecision || identityDecisionBusy} onClick={() => void decideIdentity(suggestion.target_id, "rejected")}>Keep unidentified</button>
+                </div>
+              </article>;
+            })}
+          </div>
+          {!onIdentitySuggestionDecision && <p className="identity-suggestion-history">This is a historical screening snapshot. Open the current screening to decide.</p>}
+          {identityDecisionError && <p className="identity-suggestion-error" role="alert">{identityDecisionError}</p>}
+        </section>
+      )}
 
       {assemblyScope && assemblyScope.completeness !== "complete" && (
         <div className="assembly-scope-warning" role="status">

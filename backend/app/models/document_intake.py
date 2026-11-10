@@ -9,7 +9,7 @@ from data_pipeline.scripts.normalize import CAS_STRUCTURE_RE, cas_is_valid
 
 from .formulation import FormulationIngredientRequest, FormulationRequest
 from .formulation import ProductApplicabilityFacts
-from .screening import RegulatedFunction, StrictModel
+from .screening import IdentitySuggestion, RegulatedFunction, StrictModel
 
 
 FiniteNonNegativeFloat = Annotated[float, Field(strict=True, ge=0, allow_inf_nan=False)]
@@ -218,6 +218,7 @@ class MaterialConstituent(StrictModel):
     regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
     role_label: str | None = None
     user_edits: dict[str, Any] = Field(default_factory=dict)
+    identity_suggestion: IdentitySuggestion | None = None
 
     @field_validator("constituent_id", "submitted_name")
     @classmethod
@@ -269,6 +270,7 @@ class DirectIngredient(StrictModel):
     source_document_id: str
     source_evidence: list[DocumentSourceEvidence] = Field(default_factory=list)
     verified_identity_group: str | None = None
+    identity_suggestion: IdentitySuggestion | None = None
 
 
 class FormulationRowOwnership(StrictModel):

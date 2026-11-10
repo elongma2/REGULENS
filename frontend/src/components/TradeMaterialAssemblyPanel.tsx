@@ -1,6 +1,6 @@
 import { AlertCircle, CheckCircle2, ChevronDown, LoaderCircle, Pencil, Plus, Trash2, X } from "lucide-react";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { getOrInitializeFormulationAssembly, refreshFormulationAssembly, updateFormulationAssembly } from "../api/cases";
+import { decideIdentitySuggestion, getOrInitializeFormulationAssembly, refreshFormulationAssembly, updateFormulationAssembly } from "../api/cases";
 import type {
   AssemblyIssue,
   AssemblyPreparation,
@@ -10,7 +10,7 @@ import type {
 } from "../types/cases";
 import type { RegulatedFunction } from "../types/screening";
 
-const ASSEMBLY_DERIVATION_VERSION = "assembly-v6";
+const ASSEMBLY_DERIVATION_VERSION = "assembly-v7";
 
 function quantityLabel(quantity: CompositionQuantity | null): string {
   if (!quantity) return "Not stated";
@@ -321,6 +321,7 @@ function MaterialCard({
           regulated_functions: [],
           role_label: null,
           user_edits: { added_by_reviewer: true },
+          identity_suggestion: null,
         }],
         confirmation_status: "confirmed",
       })}><Plus size={14} /> Add missing ingredient</button>
@@ -330,6 +331,10 @@ function MaterialCard({
 
 export interface TradeMaterialAssemblyPanelHandle {
   savePendingChanges: () => Promise<void>;
+  decideIdentitySuggestion: (
+    targetId: string,
+    decision: "confirmed" | "rejected",
+  ) => Promise<AssemblyPreparation>;
 }
 
 interface TradeMaterialAssemblyPanelProps {
@@ -451,7 +456,23 @@ export const TradeMaterialAssemblyPanel = forwardRef<TradeMaterialAssemblyPanelH
       if (dirtyRef.current) await recalculate();
       if (saveErrorRef.current) throw saveErrorRef.current;
     },
-  }), [recalculate]);
+    decideIdentitySuggestion: async (targetId, decision) => {
+      if (refreshPromiseRef.current) await refreshPromiseRef.current;
+      if (refreshErrorRef.current) throw refreshErrorRef.current;
+      if (dirtyRef.current) await recalculate();
+      if (!assembly) throw new Error("Material calculations are unavailable.");
+      const updated = await decideIdentitySuggestion(
+        versionId,
+        assembly.assembly_revision,
+        targetId,
+        decision,
+      );
+      setAssembly(updated);
+      setDirty(false);
+      dirtyRef.current = false;
+      return updated;
+    },
+  }), [assembly, recalculate, versionId]);
 
   const selectedMaterial = assembly?.state.materials.find((item) => item.material_id === selectedMaterialId) ?? null;
   const allIssues = assembly?.assembly.issues ?? [];

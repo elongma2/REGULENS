@@ -13,6 +13,17 @@ export type SourceDocumentType = "formulation" | "sds_msds" | "unknown";
 export type DocumentCompleteness = "full_formulation" | "partial_disclosure" | "unknown";
 export type ConditionStatus = "satisfied" | "not_satisfied" | "information_missing" | "professional_review" | "not_applicable";
 
+export interface IdentitySuggestion {
+  target_id: string;
+  original_name: string;
+  canonical_name: string;
+  catalogue_ingredient_id: string;
+  confidence: "high";
+  explanation: string;
+  model: string | null;
+  status: "pending" | "confirmed" | "rejected";
+}
+
 export type Finding =
   | "no_issue_identified_within_scoped_rules"
   | "restriction_within_limit"
@@ -43,6 +54,7 @@ export interface FormulationIngredient {
   cas_number: string | null;
   concentration: Concentration | null;
   regulated_functions?: RegulatedFunction[];
+  identity_suggestion?: IdentitySuggestion | null;
 }
 
 export interface ProductApplicabilityFacts {

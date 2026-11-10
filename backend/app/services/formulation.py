@@ -51,6 +51,7 @@ def _runtime_ingredient(ingredient) -> IngredientInput:
         cas_number=ingredient.cas_number,
         concentration=runtime_concentration,
         regulated_functions=ingredient.regulated_functions,
+        identity_suggestion=ingredient.identity_suggestion,
     )
 
 

@@ -206,6 +206,12 @@ class AssemblyStateUpdate(StrictModel):
     assembly_state: FormulationAssemblyState
 
 
+class IdentitySuggestionDecision(StrictModel):
+    assembly_revision: int = Field(ge=0)
+    target_id: str = Field(min_length=1)
+    decision: Literal["confirmed", "rejected"]
+
+
 class AssemblyPreparationView(StrictModel):
     assembly_revision: int = Field(ge=0)
     state: FormulationAssemblyState

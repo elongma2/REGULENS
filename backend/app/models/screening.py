@@ -71,6 +71,35 @@ class IdentityOutcome(StrEnum):
     UNRESOLVED = "identity_unresolved"
 
 
+class IdentitySuggestionStatus(StrEnum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    REJECTED = "rejected"
+
+
+class IdentitySuggestion(StrictModel):
+    """Non-authoritative AI identity proposal requiring an explicit reviewer decision."""
+
+    target_id: str
+    original_name: str
+    canonical_name: str
+    catalogue_ingredient_id: str
+    confidence: Literal["high"] = "high"
+    explanation: str
+    model: str | None = None
+    status: IdentitySuggestionStatus = IdentitySuggestionStatus.PENDING
+
+    @field_validator(
+        "target_id", "original_name", "canonical_name", "catalogue_ingredient_id", "explanation"
+    )
+    @classmethod
+    def require_nonblank_suggestion_text(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("Identity suggestion fields cannot be blank")
+        return stripped
+
+
 class ScreeningDisposition(StrEnum):
     FULLY_EVALUATED = "fully_evaluated"
     EVALUATED_WITH_IDENTITY_REVIEW = "evaluated_with_identity_review"
@@ -172,6 +201,7 @@ class IngredientInput(StrictModel):
     cas_number: str | None = None
     concentration: ConcentrationInput | None = None
     regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
+    identity_suggestion: IdentitySuggestion | None = None
 
     @model_validator(mode="after")
     def require_identity_input(self) -> "IngredientInput":

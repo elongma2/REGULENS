@@ -8,6 +8,7 @@ from backend.app.models.screening import (
     ConcentrationType,
     Finding,
     FunctionEvaluation,
+    IdentityOutcome,
     IdentityStatus,
     IdentityResolution,
     ScreeningDisposition,
@@ -466,6 +467,27 @@ def screen_ingredient(
         linkage_store=linkage_store,
         catalogue_error=catalogue_error,
     )
+    suggestion = ingredient.identity_suggestion
+    if suggestion is not None and suggestion.status != "confirmed":
+        identity = identity.model_copy(update={
+            "status": IdentityStatus.UNRESOLVED,
+            "identity_outcome": IdentityOutcome.UNRESOLVED,
+            "resolved_singapore_substance_id": None,
+            "resolved_singapore_substance_ids": [],
+            "applicable_regulatory_record_ids": [],
+            "reviewer_action": (
+                f"Confirm whether {suggestion.original_name} is the same ingredient as "
+                f"{suggestion.canonical_name}, or keep it unidentified."
+            ),
+            "reasons": [
+                *identity.reasons,
+                (
+                    "ai_identity_suggestion_rejected_by_reviewer"
+                    if suggestion.status == "rejected"
+                    else "ai_identity_suggestion_requires_reviewer_confirmation"
+                ),
+            ],
+        })
     if identity.status == IdentityStatus.UNRESOLVED:
         issues = build_review_issues(identity, [], identity.reasons)
         return ScreeningResult(

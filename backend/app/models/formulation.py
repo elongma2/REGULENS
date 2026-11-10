@@ -8,7 +8,14 @@ from pydantic import Field, field_validator, model_validator
 from data_pipeline.scripts.normalize import CAS_STRUCTURE_RE, cas_is_valid
 
 from .openai import OpenAIUsage
-from .screening import ConcentrationType, Finding, RegulatedFunction, ScreeningResult, StrictModel
+from .screening import (
+    ConcentrationType,
+    Finding,
+    IdentitySuggestion,
+    RegulatedFunction,
+    ScreeningResult,
+    StrictModel,
+)
 from .identity_catalogue import IdentityCatalogueDataset, IdentityLinkageDataset
 
 
@@ -85,6 +92,7 @@ class FormulationIngredientRequest(StrictModel):
     cas_number: str | None = None
     concentration: FormulationConcentration | None = None
     regulated_functions: list[RegulatedFunction] = Field(default_factory=list)
+    identity_suggestion: IdentitySuggestion | None = None
 
     @field_validator("name")
     @classmethod

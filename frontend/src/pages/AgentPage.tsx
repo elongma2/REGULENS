@@ -106,6 +106,7 @@ export function AgentPage({
   focusRowRequest = null,
   screeningBlockedReason = null,
   onResolveScreeningBlock,
+  onIdentitySuggestionDecision,
 }: {
   caseId?: string;
   versionId?: string;
@@ -116,6 +117,10 @@ export function AgentPage({
   focusRowRequest?: { rowId: string; requestId: number } | null;
   screeningBlockedReason?: string | null;
   onResolveScreeningBlock?: () => void;
+  onIdentitySuggestionDecision?: (
+    targetId: string,
+    decision: "confirmed" | "rejected",
+  ) => Promise<void>;
 } = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -740,6 +745,46 @@ export function AgentPage({
   const reviewDraftKey = `${findingsStateKey}:${selectedReviewItem?.id ?? selectedRow ?? "none"}`;
   const selectedReviewDraft = reviewDrafts[reviewDraftKey] ?? { note: "", followUp: "" };
 
+  const decideSuggestedIdentity = async (
+    targetId: string,
+    decision: "confirmed" | "rejected",
+  ) => {
+    if (!versionId || !session || !onIdentitySuggestionDecision || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await onIdentitySuggestionDecision(targetId, decision);
+      const metadata = {
+        formulation_id: optional(formulationId),
+        formulation_name: optional(formulationName),
+        product_context: optional(productContext),
+        product_applicability: productApplicability,
+      };
+      const nextPrepared = await prepareFormulationVersion(session, metadata);
+      setPrepared(nextPrepared);
+      setSession(nextPrepared.session);
+      const run = await screenFormulationVersion(versionId);
+      setScreeningRuns((current) => [run, ...current]);
+      setActiveScreeningRunId(run.id);
+      setResponse(run.result_snapshot);
+      void loadReviewWorkspace(run.id);
+      const first = run.result_snapshot.ingredient_results.find(requiresAttention)
+        ?? run.result_snapshot.ingredient_results[0];
+      setSelectedRow(first?.submitted_row_number ?? null);
+      updateWorkspaceParams({
+        tab: "results",
+        run: run.id,
+        row: first ? String(first.submitted_row_number) : null,
+        drawer: "evidence",
+        resume: null,
+      });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The identity decision could not be saved.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleVisibleRowsChange = useCallback((rowNumbers: number[]) => {
     setVisibleResultRows((current) => current.length === rowNumbers.length && current.every((row, index) => row === rowNumbers[index]) ? current : rowNumbers);
     setSelectedRow((current) => {
@@ -1059,7 +1104,7 @@ export function AgentPage({
               aria-labelledby="review-workspace-tab-findings"
               hidden={workspaceTab !== "findings"}
             >
-              {response && <ScreeningResultsPanel key={findingsStateKey} response={response} reviewItems={reviewWorkspace?.review_items ?? []} reviewDataState={reviewDataState} openFindingFollowUps={openFindingFollowUps} selectedRow={selectedRow} onSelect={(row) => selectResultRow(row, "evidence")} onVisibleRowsChange={handleVisibleRowsChange} />}
+              {response && <ScreeningResultsPanel key={findingsStateKey} response={response} reviewItems={reviewWorkspace?.review_items ?? []} reviewDataState={reviewDataState} openFindingFollowUps={openFindingFollowUps} selectedRow={selectedRow} onSelect={(row) => selectResultRow(row, "evidence")} onVisibleRowsChange={handleVisibleRowsChange} onIdentitySuggestionDecision={versionId && activeScreeningRunFreshness === "current" && onIdentitySuggestionDecision ? decideSuggestedIdentity : undefined} identityDecisionBusy={busy} />}
             </section>
 
             {caseId && versionId && <section
